@@ -13,7 +13,6 @@ export default function Navigation({ activeSection, setActiveSection }: Navigati
     { id: "home", icon: Home, label: "Home" },
     { id: "event", icon: Calendar, label: "Acara" },
     { id: "gallery", icon: ImageIcon, label: "Galeri" },
-    { id: "gift", icon: Gift, label: "Hadiah" },
   ]
 
   const handleNavClick = (sectionId: string) => {
