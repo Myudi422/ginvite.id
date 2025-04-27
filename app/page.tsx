@@ -43,6 +43,8 @@ const {
   closing
 } = content
 
+const { title, toLabel, to } = opening
+
 
   const eventDate = new Date(event.iso)
 
@@ -96,6 +98,14 @@ const {
                 <Image src={gallery.items[0]} alt="Profile" width={128} height={128} className="object-cover" />
               </div>
               <h1 className="text-2xl font-bold">{opening.title}</h1>
+              {/* Nickname anak dengan ukuran besar dan menonjol */}
+        <div className="mt-2 space-y-1">
+          {children.map((c, i) => (
+            <h2 key={i} className="text-2xl md:text-4xl font-extrabold text-blue-600">
+              {c.nickname}
+            </h2>
+          ))}
+        </div>
               <p className="text-sm">Tanpa Mengurangi Rasa Hormat, Kami Mengundang</p>
               <div className="my-8 py-4 border-t border-b border-white/30">
                 <h2 className="text-lg mb-2">{opening.toLabel}</h2>
@@ -217,10 +227,10 @@ const {
           </section>
 
           {/* Footer */}
-          <footer className="text-center py-8 text-sm" style={{ color: theme.textColor }}>
-            <p>Terima kasih atas doa dan kehadiran Anda</p>
-            <p className="mt-2">© 2025 Keluarga Besar {parents.father} &amp; {parents.mother}</p>
-          </footer>
+<footer className="text-center py-8 text-sm" style={{ color: theme.textColor }}>
+  <p>© ginvite.id – By PT DIGITAL INTER NUSA</p>
+</footer>
+
         </div>
       )}
 

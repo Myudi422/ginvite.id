@@ -1,0 +1,16 @@
+{
+    "default": {
+    "bgFrom": "#bfdbfe",
+    "bgTo": "#93c5fd",
+    "textColor": "#1e40af",
+    "accentColor": "#3b82f6",
+    "decorations": {
+    "topLeft": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-AKR.png",
+    "topRight": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-AKN.png",
+    "bottomLeft": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BKR.png",
+    "bottomRight": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BKN.png"
+    },
+    "defaultBgImage": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BG.jpg",
+    "defaultBgImage1": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-Atas.png"
+    }
+    }
