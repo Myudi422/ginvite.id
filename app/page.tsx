@@ -2,18 +2,17 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { MapPin, CreditCard } from "lucide-react"
+import { MapPin } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import Navigation from "@/components/navigation"
 import CountdownTimer from "@/components/countdown-timer"
+import MusicPlayer from "@/components/MusicPlayer"
 
 export default function InvitationPage() {
   const [isOpen, setIsOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("home")
-
-  // Event date - May 11, 2025 at 09:00 WIB
   const eventDate = new Date("2025-05-11T09:00:00+07:00")
 
   const handleOpenInvitation = () => {
@@ -21,20 +20,13 @@ export default function InvitationPage() {
   }
 
   useEffect(() => {
-    // Disable scrolling on body when modal is open
-    if (isOpen) {
-      document.body.style.overflow = "auto"
-    } else {
-      document.body.style.overflow = "hidden"
-    }
-
-    return () => {
-      document.body.style.overflow = "auto"
-    }
+    document.body.style.overflow = isOpen ? "auto" : "hidden"
+    return () => { document.body.style.overflow = "auto" }
   }, [isOpen])
 
   return (
     <main className="relative min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 overflow-hidden">
+      <MusicPlayer />
       {/* Cover/Opening Section */}
       <AnimatePresence>
         {!isOpen && (
