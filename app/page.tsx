@@ -1,4 +1,3 @@
-// pages/page.tsx (or app/page.tsx)
 "use client"
 
 import { useState, useEffect } from "react"
@@ -22,16 +21,12 @@ export default function InvitationPage() {
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "auto" : "hidden"
-    return () => {
-      document.body.style.overflow = "auto"
-    }
+    return () => { document.body.style.overflow = "auto" }
   }, [isOpen])
 
   return (
     <main className="relative min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 overflow-hidden">
-      {/* Music Player, only after invitation opens */}
       {isOpen && <MusicPlayer autoPlay />}
-
       {/* Cover/Opening Section */}
       <AnimatePresence>
         {!isOpen && (
@@ -47,7 +42,26 @@ export default function InvitationPage() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              {/* profile image, titles, etc. */}
+              <div className="w-32 h-32 mx-auto bg-white rounded-full flex items-center justify-center mb-6 overflow-hidden">
+                <Image
+                  src="https://ccgnimex.s3.us-east-005.backblazeb2.com/undangan/WhatsApp+Image+2025-04-27+at+10.29.35.jpeg"
+                  alt="Profile"
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <h1 className="text-2xl font-bold">Tasyakur Khitanan & Aqiqah</h1>
+              <p className="text-sm max-w-md mx-auto leading-relaxed">
+                Tanpa Mengurangi Rasa Hormat, Kami Mengundang Bapak/Ibu/Saudara/i untuk Hadir di Acara Kami.
+              </p>
+
+              <div className="my-8 py-4 border-t border-b border-white/30">
+                <h2 className="text-lg mb-2">Kepada</h2>
+                <p className="text-xl font-semibold">Bapak/Ibu/Saudara/i</p>
+              </div>
+
               <Button
                 onClick={handleOpenInvitation}
                 className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-6 rounded-full text-lg font-medium transition-all transform hover:scale-105 shadow-lg"
