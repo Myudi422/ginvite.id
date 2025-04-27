@@ -4,30 +4,38 @@
 import { useState, useEffect, useRef } from "react"
 import { Play, Pause } from "lucide-react"
 
-export default function MusicPlayer() {
+interface MusicPlayerProps {
+  autoPlay?: boolean
+}
+
+export default function MusicPlayer({ autoPlay = false }: MusicPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
 
   const togglePlay = () => {
-    if (!audioRef.current) return
+    const audio = audioRef.current
+    if (!audio) return
     if (isPlaying) {
-      audioRef.current.pause()
+      audio.pause()
       setIsPlaying(false)
     } else {
-      audioRef.current.play()
+      audio.play()
       setIsPlaying(true)
     }
   }
 
   useEffect(() => {
     const audio = audioRef.current
+    if (audio && autoPlay) {
+      audio.play()
+      setIsPlaying(true)
+    }
     return () => {
-      // cleanup: pause if unmount
       if (audio) {
         audio.pause()
       }
     }
-  }, [])
+  }, [autoPlay])
 
   return (
     <div className="fixed top-4 right-4 z-50">
@@ -37,7 +45,10 @@ export default function MusicPlayer() {
         preload="auto"
         loop
       />
-      <button onClick={togglePlay} className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 focus:outline-none">
+      <button
+        onClick={togglePlay}
+        className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 focus:outline-none"
+      >
         {isPlaying ? <Pause className="h-6 w-6 text-blue-600" /> : <Play className="h-6 w-6 text-blue-600" />}
       </button>
     </div>
