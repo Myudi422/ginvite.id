@@ -1,0 +1,68 @@
+{  
+  "theme": {
+      "bgFrom": "#bfdbfe",
+      "bgTo": "#93c5fd",
+      "textColor": "#1e40af",
+      "accentColor": "#3b82f6"
+    },
+    "opening": {
+      "title": "Tasyakur Khitanan & Aqiqah",
+      "bgImage": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BG.jpg",
+      "toLabel": "Kepada",
+      "to": "Bapak/Ibu/Saudara/i"
+    },
+    "section_opening": {
+      "bgImage": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BG.jpg",
+      "arabic": "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيْمِ",
+      "latin": "Bismillahirrahmanirrahim",
+      "importantEvent": "Peristiwa penting dalam perjalanan hidup lelaki muslim adalah menjelang akil baligh, saat manis dalam kenangan sejarah panjang seorang muslim adalah untuk pertama dan cuma sekali ketika ia dikhitan, Ya Allah perkenankan kami mengkhitankan putra kami"
+    },
+    "section_from": {
+      "intro": "Dengan memohon Rahmat dan Ridho Allah SWT",
+      "bgImage": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BG.jpg",
+      "invitationText": "Kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri Tasyakur Khitanan & Aqiqah putra kami",
+      "children": [
+        {
+          "name": "RAFA MIFTAHUL FADLI",
+          "nickname": "Rafa",
+          "order": "Putra Pertama"
+        },
+        {
+          "name": "MUHAMMAD FAIZAN ATHALLA",
+          "nickname": "Faizan",
+          "order": "Putra Kedua"
+        }
+      ],
+      "parents": {
+        "father": "Suparjo",
+        "mother": "Iis Siska"
+      }
+    },
+    "date": "Minggu, 11 Mei 2025",
+    "eventISO": "2025-05-11T09:00:00+07:00",
+  "section_date_place": {
+    "bgImage": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BG.jpg",
+
+      "eventTitle": "Acara Khitanan & Aqiqah",
+      "dateTime": {
+        "date": "Minggu, 11 Mei 2025",
+        "time": "09:00 WIB",
+        "note": "Sampai Selesai"
+      },
+      "location": "Kp Cinangka Kaum, RT 03 RW 01, Desa Cinangka, Kec. Ciampea, Kab. Bogor",
+      "mapsLink": "https://maps.app.goo.gl/jV5jSdJgCjc1r2gH7"
+    },
+    "section_gallery": {
+    "bgImage": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BG.jpg"
+  },
+    "gallery": [
+      "https://ccgnimex.s3.us-east-005.backblazeb2.com/undangan/WhatsApp+Image+2025-04-27+at+10.29.35.jpeg"
+    ],
+  "section_penutup": {
+    "bgImage": "https://indoinvite.com/nikah/template/pandora/pandora-classic/PC-BG.jpg",
+    "title": "Penutup",
+    "text": "Merupakan kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu kepada putra-putra kami.",
+    "subtext": "Atas kehadiran dan doa restunya, kami mengucapkan terima kasih yang sebesar-besarnya. Semoga Allah SWT membalas segala kebaikan Bapak/Ibu/Saudara/i sekalian dengan limpahan rahmat dan karunia-Nya."
+  }
+  }
+  
