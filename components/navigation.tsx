@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, ImageIcon, Gift, Calendar } from "lucide-react"
+import { Home, Gift, Calendar, ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
@@ -13,7 +13,7 @@ export default function Navigation({ activeSection, setActiveSection }: Navigati
     { id: "home", icon: Home, label: "Home" },
     { id: "event", icon: Calendar, label: "Acara" },
     { id: "gallery", icon: ImageIcon, label: "Galeri" },
-    { id: "gift", icon: Gift, label: "Rekening" },
+    { id: "gift", icon: Gift, label: "Hadiah" },
   ]
 
   const handleNavClick = (sectionId: string) => {

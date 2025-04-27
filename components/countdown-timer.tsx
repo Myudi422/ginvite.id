@@ -47,25 +47,25 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
         <div className="bg-white w-16 h-16 rounded-lg shadow-md flex items-center justify-center text-2xl font-bold text-blue-600">
           {timeLeft.days}
         </div>
-        <span className="text-xs mt-1">Hari</span>
+        <span className="text-xs mt-2">Hari</span>
       </div>
       <div className="flex flex-col items-center">
         <div className="bg-white w-16 h-16 rounded-lg shadow-md flex items-center justify-center text-2xl font-bold text-blue-600">
           {timeLeft.hours}
         </div>
-        <span className="text-xs mt-1">Jam</span>
+        <span className="text-xs mt-2">Jam</span>
       </div>
       <div className="flex flex-col items-center">
         <div className="bg-white w-16 h-16 rounded-lg shadow-md flex items-center justify-center text-2xl font-bold text-blue-600">
           {timeLeft.minutes}
         </div>
-        <span className="text-xs mt-1">Menit</span>
+        <span className="text-xs mt-2">Menit</span>
       </div>
       <div className="flex flex-col items-center">
         <div className="bg-white w-16 h-16 rounded-lg shadow-md flex items-center justify-center text-2xl font-bold text-blue-600">
           {timeLeft.seconds}
         </div>
-        <span className="text-xs mt-1">Detik</span>
+        <span className="text-xs mt-2">Detik</span>
       </div>
     </div>
   )
