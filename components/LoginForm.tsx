@@ -1,49 +1,43 @@
-"use client"
+// components/LoginForm.tsx
+"use client";
 
-import { useState } from "react"
-import { auth, provider, signInWithPopup } from "@/public/firebase.config"
+import { useState } from "react";
+import { auth, provider, signInWithPopup } from "@/public/firebase.config";
 
 export default function LoginForm() {
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
-    setLoading(true)
-    setError(null)
-
+    setLoading(true);
+    setError(null);
     try {
       // 1) Sign in with Google via Firebase
-      const result = await signInWithPopup(auth, provider)
-      const idToken = await result.user.getIdToken()
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
 
-      // 2) Kirim ke backend dan sertakan cookie
-      const res = await fetch(
-        "https://ccgnimex.my.id/v2/android/ginvite/google.php",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id_token: idToken })
-        }
-      )
-
-      const json = await res.json()
+      // 2) Kirim ke Next.js API route (URL lokal)
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        credentials: "include",           // pastikan cookie diteruskan
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_token: idToken }),
+      });
+      const json = await res.json();
 
       if (res.ok && json.token) {
-        // 3) (Opsional) Simpan juga di localStorage agar mudah diakses JS
-        localStorage.setItem("token", json.token)
-
-        // 4) Redirect ke dashboard admin
-        window.location.href = "/admin"
+        // 4) Redirect ke admin dashboard
+        window.location.href = "/admin";
       } else {
-        throw new Error(json.message || "Login gagal")
+        throw new Error(json.message || "Login gagal");
       }
     } catch (e: any) {
-      console.error("Google login error:", e)
-      setError(e.message || "Login Google gagal")
+      console.error("Google login error:", e);
+      setError(e.message || "Login Google gagal");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex h-screen">
@@ -61,5 +55,5 @@ export default function LoginForm() {
         </div>
       </main>
     </div>
-  )
+  );
 }

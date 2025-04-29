@@ -1,9 +1,9 @@
 // app/login/page.tsx
-import LoginForm from "@/components/LoginForm"
+import LoginForm from "@/components/LoginForm";
 
 export const metadata = {
   title: "Login – ginvite.id",
-}
+};
 
 export default function Page() {
   return (
@@ -12,5 +12,5 @@ export default function Page() {
         <LoginForm />
       </main>
     </div>
-  )
+  );
 }

@@ -1,19 +1,26 @@
 // app/admin/page.tsx
-import { Sidebar } from "@/components/sidebar"
-import InvitationDashboard from "@/components/InvitationDashboard"
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import InvitationDashboard from "@/components/InvitationDashboard";
+import jwt from "jsonwebtoken";
 
-export const metadata = {
-  title: "Dashboard Undangan",
-  description: "Sample dashboard undangan digital",
-}
+const SECRET = "very-secret-key"; // Harus sama dengan PHP
 
-export default function Page() {
-  return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <main className="flex-1 p-6 bg-gray-50 overflow-auto">
-        <InvitationDashboard />
-      </main>
-    </div>
-  )
+export default async function Page() {
+  // ✅ cookies() harus di-await
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  if (!token) {
+    redirect("/login");
+  }
+
+  let payload: any;
+  try {
+    payload = jwt.verify(token, SECRET);
+  } catch (err) {
+    redirect("/login");
+  }
+
+  return <InvitationDashboard user={payload.data} />;
 }

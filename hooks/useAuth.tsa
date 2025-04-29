@@ -1,0 +1,48 @@
+// hooks/useAuth.ts
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+interface User { userId: number; email: string }
+interface AuthState { loading: boolean; error: string | null; user: User | null }
+
+export function useAuth(): AuthState {
+  const [state, setState] = useState<AuthState>({
+    loading: true, error: null, user: null
+  });
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    fetch("/api/auth/validate", {
+      method: "GET",
+      credentials: "include",       // teruskan cookie HttpOnly
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+    })
+      .then(async res => {
+        const json = await res.json();
+        if (!res.ok || json.status !== "success") {
+          throw new Error(json.message || "Token invalid");
+        }
+        return json.data as User;
+      })
+      .then(user => setState({ loading: false, error: null, user }))
+      .catch(err => {
+        console.error("Auth validation failed:", err);
+        localStorage.removeItem("token");
+        setState({ loading: false, error: err.message, user: null });
+        router.replace("/login");
+      });
+  }, [router]);
+
+  return state;
+}

@@ -21,7 +21,7 @@ export default function InvitationPage() {
 
   useEffect(() => {
     fetch(
-      "https://ccgnimex.my.id/v2/android/admin/index.php?action=result&user=1&theme=1&category=2"
+      "https://ccgnimex.my.id/v2/android/ginvite/index.php?action=result&user=1&theme=1&content_user=1"
     )
       .then((res) => res.json())
       .then(setData)
