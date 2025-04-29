@@ -18,10 +18,9 @@ export default function LoginForm() {
 
       // 2) Kirim ke backend dan sertakan cookie
       const res = await fetch(
-        "https://ccgnimex.my.id/v2/android/admin/index.php?action=google",
+        "https://ccgnimex.my.id/v2/android/ginvite/google.php",
         {
           method: "POST",
-          credentials: "include",           // kirim + terima HttpOnly cookie
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id_token: idToken })
         }

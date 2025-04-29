@@ -370,54 +370,63 @@ export default function InvitationPage() {
   </div>
 </section>
 
-{/* Our Story Section */}
+{/* Our Story Section - Mobile First */}
 {our_story && our_story.length > 0 && (
   <section
     id="ourstory"
-    className="py-12 px-4 sm:px-6 md:px-8 text-center"
+    className="py-12 px-4 sm:px-6 lg:px-8 relative"
     style={{
-      backgroundImage: `url(${defaultBgImage})`,
+      background: `linear-gradient(rgba(255,255,255,0.97), rgba(255,255,255,0.95)), url(${defaultBgImage})`,
       backgroundSize: "cover",
       backgroundPosition: "center",
     }}
   >
-    <h2
-      className="text-2xl sm:text-3xl font-bold mb-8"
-      style={{ color: theme.accentColor }}
-    >
-      Kisah Kami
-    </h2>
+    <div className="max-w-2xl mx-auto">
+      <h2
+        className="text-3xl font-bold mb-8 text-center"
+        style={{ color: theme.accentColor }}
+      >
+        🌸 Kisah Kami 🌸
+      </h2>
 
-    <div className="space-y-12">
-      {our_story.map((item, idx) => (
-        <div
-          key={idx}
-          className="flex flex-col sm:flex-row items-center sm:items-start gap-6"
-        >
-          {/* Foto dulu */}
-          {item.pictures?.length > 0 && (
-            <div className="w-full sm:w-1/3">
-              <Image
-                src={item.pictures[0]}
-                alt={item.title}
-                width={400}
-                height={400}
-                className="w-full h-auto rounded-lg object-cover"
-              />
+      <div className="space-y-12">
+        {our_story.map((item, idx) => (
+          <div
+            key={idx}
+            className="flex flex-col"
+            data-aos="fade-up"
+          >
+            {/* Text Content - Above Image */}
+            <div className="w-full mb-6 space-y-4">
+              <div className="relative pl-5">
+                <div 
+                  className="absolute left-0 top-1 w-1 h-10 rounded-full"
+                  style={{ backgroundColor: theme.accentColor }}
+                />
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {item.title}
+                </h3>
+              </div>
+              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                {item.description}
+              </p>
             </div>
-          )}
 
-          {/* Baru kemudian teks */}
-          <div className="w-full sm:w-2/3 text-left">
-            <h3 className="text-xl sm:text-2xl font-semibold mb-2">
-              {item.title}
-            </h3>
-            <p className="text-sm sm:text-base leading-relaxed">
-              {item.description}
-            </p>
+            {/* Image Container - Below Text */}
+            {item.pictures?.length > 0 && (
+              <div className="w-full mt-4 rounded-xl overflow-hidden shadow-md">
+                <Image
+                  src={item.pictures[0]}
+                  alt={item.title}
+                  width={600}
+                  height={400}
+                  className="w-full h-48 sm:h-56 object-cover object-center"
+                />
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   </section>
 )}

@@ -1,17 +1,19 @@
 // components/InvitationDashboard.tsx
-"use client"
+"use client";
 
-import Image from "next/image"
-import { useState } from "react"
+import Image from "next/image";
+import { useState } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   EllipsisVerticalIcon,
-} from "lucide-react"
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 // gunakan satu gambar untuk semua slides dan avatars
-const imgUrl = "https://i.pinimg.com/736x/b4/5a/34/b45a34d40d047c7f2d70a5e42c494e56.jpg"
-const slides = [imgUrl, imgUrl, imgUrl]
+const imgUrl =
+  "https://i.pinimg.com/736x/b4/5a/34/b45a34d40d047c7f2d70a5e42c494e56.jpg";
+const slides = [imgUrl, imgUrl, imgUrl];
 
 const invitations = [
   {
@@ -32,24 +34,47 @@ const invitations = [
     date: "2025-07-05",
     avatar: imgUrl,
   },
-]
+];
 
 export default function InvitationDashboard() {
-  const [current, setCurrent] = useState(0)
-  const [search, setSearch] = useState("")
-  const prev = () => setCurrent((i) => (i === 0 ? slides.length - 1 : i - 1))
-  const next = () => setCurrent((i) => (i + 1) % slides.length)
+  // proteksi & ambil data user
+  const { loading, error, user } = useAuth();
 
-  // filter invitations by title
-  const filtered = invitations.filter(inv =>
+  // state slider & search
+  const [current, setCurrent] = useState(0);
+  const [search, setSearch] = useState("");
+  const prev = () =>
+    setCurrent((i) => (i === 0 ? slides.length - 1 : i - 1));
+  const next = () => setCurrent((i) => (i + 1) % slides.length);
+
+  // filter undangan
+  const filtered = invitations.filter((inv) =>
     inv.title.toLowerCase().includes(search.toLowerCase())
-  )
+  );
+
+  if (loading) {
+    return <p className="text-center py-8">Memuat data...</p>;
+  }
+  if (error) {
+    return (
+      <p className="text-center py-8 text-red-500">
+        Error autentikasi: {error}
+      </p>
+    );
+  }
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Dashboard Undangan</h1>
+        <div>
+          <h1 className="text-2xl font-semibold">Dashboard Undangan</h1>
+          {user && (
+            <p className="text-sm text-gray-500">
+              Login sebagai: {user.email}
+            </p>
+          )}
+        </div>
         <button className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
           + Bikin Undangan
         </button>
@@ -83,7 +108,7 @@ export default function InvitationDashboard() {
           type="text"
           placeholder="Cari undangan..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -155,5 +180,5 @@ export default function InvitationDashboard() {
         )}
       </div>
     </div>
-)
+  );
 }
