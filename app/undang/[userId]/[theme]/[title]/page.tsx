@@ -1,4 +1,4 @@
-// app/undangan/[userId]/[theme]/[contentId]/page.tsx
+// app/undangan/[userId]/[theme]/[title]/page.tsx
 import InvitationView from "@/components/InvitationView";
 import type { Metadata } from "next";
 
@@ -7,25 +7,23 @@ export const metadata: Metadata = {
   description: "Halaman undangan digital",
 };
 
-// Next.js App Router: dynamic route params are a Promise
 interface Props {
   params: Promise<{
     userId: string;
     theme: string;
-    contentId: string;
+    title: string;
   }>;
 }
 
 export default async function InvitationPage({ params }: Props) {
-  // Await the dynamic params before using them
-  const { userId, theme, contentId } = await params;
+  const { userId, theme, title } = await params;
 
   const apiUrl =
     `https://ccgnimex.my.id/v2/android/ginvite/index.php` +
     `?action=result` +
     `&user=${encodeURIComponent(userId)}` +
     `&theme=${encodeURIComponent(theme)}` +
-    `&content_user=${encodeURIComponent(contentId)}`;
+    `&title=${encodeURIComponent(title)}`;
 
   console.log("Fetching invitation JSON from:", apiUrl);
 
