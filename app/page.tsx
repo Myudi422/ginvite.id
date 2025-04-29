@@ -10,6 +10,7 @@ import Navigation from "@/components/navigation";
 import CountdownTimer from "@/components/countdown-timer";
 import MusicPlayer from "@/components/MusicPlayer";
 import { CalendarDays } from "lucide-react";
+import { Clock } from "lucide-react";
 
 
 
@@ -20,7 +21,7 @@ export default function InvitationPage() {
 
   useEffect(() => {
     fetch(
-      "https://ccgnimex.my.id/v2/android/admin/index.php?action=result&user=1&theme=1&category=1"
+      "https://ccgnimex.my.id/v2/android/admin/index.php?action=result&user=1&theme=1&category=2"
     )
       .then((res) => res.json())
       .then(setData)
@@ -51,6 +52,7 @@ export default function InvitationPage() {
     parents,
     event,
     gallery,
+    our_story,
     closing,
   } = content;
   const { defaultBgImage, defaultBgImage1 } = theme;
@@ -367,6 +369,60 @@ export default function InvitationPage() {
     </div>
   </div>
 </section>
+
+{/* Our Story Section */}
+{our_story && our_story.length > 0 && (
+  <section
+    id="ourstory"
+    className="py-12 px-4 sm:px-6 md:px-8 text-center"
+    style={{
+      backgroundImage: `url(${defaultBgImage})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    }}
+  >
+    <h2
+      className="text-2xl sm:text-3xl font-bold mb-8"
+      style={{ color: theme.accentColor }}
+    >
+      Kisah Kami
+    </h2>
+
+    <div className="space-y-12">
+      {our_story.map((item, idx) => (
+        <div
+          key={idx}
+          className="flex flex-col sm:flex-row items-center sm:items-start gap-6"
+        >
+          {/* Foto dulu */}
+          {item.pictures?.length > 0 && (
+            <div className="w-full sm:w-1/3">
+              <Image
+                src={item.pictures[0]}
+                alt={item.title}
+                width={400}
+                height={400}
+                className="w-full h-auto rounded-lg object-cover"
+              />
+            </div>
+          )}
+
+          {/* Baru kemudian teks */}
+          <div className="w-full sm:w-2/3 text-left">
+            <h3 className="text-xl sm:text-2xl font-semibold mb-2">
+              {item.title}
+            </h3>
+            <p className="text-sm sm:text-base leading-relaxed">
+              {item.description}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+
 
           {/* Gallery Section */}
           <section
