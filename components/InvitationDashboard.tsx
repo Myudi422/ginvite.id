@@ -1,8 +1,7 @@
-// components/InvitationDashboard.tsx
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -14,52 +13,32 @@ type User = {
   email: string;
 };
 
+interface Invitation {
+  id: number;
+  title: string;
+  status: number;        // 0 atau 1
+  event_date: string;    // YYYY-MM-DD
+  avatar_url: string;
+}
+
 interface InvitationDashboardProps {
   user: User;
 }
 
-// gunakan satu gambar untuk semua slides dan avatars
-const imgUrl =
-  "https://i.pinimg.com/736x/b4/5a/34/b45a34d40d047c7f2d70a5e42c494e56.jpg";
-const slides = [imgUrl, imgUrl, imgUrl];
-
-const invitations = [
-  {
-    title: "Khitanan RAFA & FAIZAN",
-    status: "Belum Aktif",
-    date: "2025-05-11",
-    avatar: imgUrl,
-  },
-  {
-    title: "Wedding ALI & SITI",
-    status: "Aktif",
-    date: "2025-06-20",
-    avatar: imgUrl,
-  },
-  {
-    title: "Ulang Tahun RINA",
-    status: "Belum Aktif",
-    date: "2025-07-05",
-    avatar: imgUrl,
-  },
-];
-
-export default function InvitationDashboard({ user }: InvitationDashboardProps) {
-  // state slider & search
+export default function InvitationDashboard({ slides, invitations, user }: InvitationDashboardProps & { slides: string[]; invitations: Invitation[] }) {
   const [current, setCurrent] = useState(0);
   const [search, setSearch] = useState("");
-  const prev = () =>
-    setCurrent((i) => (i === 0 ? slides.length - 1 : i - 1));
+
+  const prev = () => setCurrent((i) => (i === 0 ? slides.length - 1 : i - 1));
   const next = () => setCurrent((i) => (i + 1) % slides.length);
 
-  // filter undangan
   const filtered = invitations.filter((inv) =>
     inv.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="space-y-8">
-      {/* Header */}
+      {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Dashboard Undangan</h1>
@@ -70,29 +49,31 @@ export default function InvitationDashboard({ user }: InvitationDashboardProps) 
         </button>
       </div>
 
-      {/* Slider */}
-      <div className="relative w-full h-48 overflow-hidden rounded-2xl bg-gray-200">
-        <Image
-          src={slides[current]}
-          alt={`Slide ${current + 1}`}
-          fill
-          className="object-cover"
-        />
-        <button
-          onClick={prev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"
-        >
-          <ChevronLeftIcon className="h-6 w-6" />
-        </button>
-        <button
-          onClick={next}
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"
-        >
-          <ChevronRightIcon className="h-6 w-6" />
-        </button>
-      </div>
+      {/* SLIDER */}
+      {slides.length > 0 && (
+        <div className="relative w-full h-48 overflow-hidden rounded-2xl bg-gray-200">
+          <Image
+            src={slides[current]}
+            alt={`Slide ${current + 1}`}
+            fill
+            className="object-cover"
+          />
+          <button
+            onClick={prev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"
+          >
+            <ChevronLeftIcon className="h-6 w-6" />
+          </button>
+          <button
+            onClick={next}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"
+          >
+            <ChevronRightIcon className="h-6 w-6" />
+          </button>
+        </div>
+      )}
 
-      {/* Search Bar */}
+      {/* SEARCH */}
       <div>
         <input
           type="text"
@@ -103,50 +84,47 @@ export default function InvitationDashboard({ user }: InvitationDashboardProps) 
         />
       </div>
 
-      {/* Grid 3 kartu undangan */}
+      {/* GRID UNDANGAN */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {filtered.map((inv, idx) => (
+        {filtered.map((inv) => (
           <div
-            key={idx}
+            key={inv.id}
             className="bg-white rounded-2xl shadow p-6 relative flex flex-col"
           >
-            {/* kebab menu */}
             <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
               <EllipsisVerticalIcon className="h-6 w-6" />
             </button>
 
             <div className="flex items-center space-x-4">
               <div className="h-16 w-16 rounded-full overflow-hidden">
-                <Image
-                  src={inv.avatar}
-                  alt={inv.title}
-                  width={64}
-                  height={64}
-                  className="object-cover"
-                />
+                {inv.avatar_url && (
+                  <Image
+                    src={inv.avatar_url}
+                    alt={inv.title}
+                    width={64}
+                    height={64}
+                    className="object-cover"
+                  />
+                )}
               </div>
               <h2 className="text-lg font-semibold">{inv.title}</h2>
             </div>
 
             <div className="mt-4 space-y-1 text-sm text-gray-600 flex-1">
               <p>
-                Status:{" "}
+                Status:{' '}
                 <span
                   className={
-                    inv.status === "Aktif"
-                      ? "font-medium text-green-500"
-                      : "font-medium text-red-500"
+                    inv.status === 1
+                      ? 'font-medium text-green-500'
+                      : 'font-medium text-red-500'
                   }
                 >
-                  {inv.status}
+                  {inv.status === 1 ? 'Aktif' : 'Belum Aktif'}
                 </span>
               </p>
-              <p>Tanggal acara: {inv.date}</p>
+              <p>Tanggal acara: {inv.event_date}</p>
               <p>
-                <a href="#" className="text-blue-600 hover:underline">
-                  Pilih Tema
-                </a>{" "}
-                –{" "}
                 <a href="#" className="text-blue-600 hover:underline">
                   Preview Undangan
                 </a>
@@ -158,7 +136,7 @@ export default function InvitationDashboard({ user }: InvitationDashboardProps) 
                 Edit di Form
               </button>
               <button className="flex-1 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600">
-                {inv.status === "Aktif" ? "Nonaktifkan" : "Aktifkan"}
+                {inv.status === 1 ? 'Nonaktifkan' : 'Aktifkan'}
               </button>
             </div>
           </div>
