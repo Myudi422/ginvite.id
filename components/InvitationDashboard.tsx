@@ -7,6 +7,7 @@ import {
   ChevronRightIcon,
   EllipsisVerticalIcon,
 } from "lucide-react";
+import router from "next/router";
 
 type User = {
   userId: number;
@@ -35,6 +36,8 @@ export default function InvitationDashboard({ slides, invitations, user }: Invit
   const filtered = invitations.filter((inv) =>
     inv.title.toLowerCase().includes(search.toLowerCase())
   );
+
+
 
   return (
     <div className="space-y-8">
@@ -132,9 +135,12 @@ export default function InvitationDashboard({ slides, invitations, user }: Invit
             </div>
 
             <div className="mt-6 flex space-x-4">
-              <button className="flex-1 py-2 bg-yellow-400 text-white font-medium rounded-lg hover:bg-yellow-500">
-                Edit di Form
-              </button>
+            <button
+  className="flex-1 py-2 bg-yellow-400 text-white font-medium rounded-lg hover:bg-yellow-500"
+  onClick={() => router.push(`admin/formulir/${inv.id}`)}
+>
+  Edit di Form
+</button>
               <button className="flex-1 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600">
                 {inv.status === 1 ? 'Nonaktifkan' : 'Aktifkan'}
               </button>
