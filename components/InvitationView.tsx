@@ -10,9 +10,11 @@ import { Button } from "@/components/ui/button";
 import Navigation from "@/components/navigation";
 import CountdownTimer from "@/components/countdown-timer";
 import MusicPlayer from "@/components/MusicPlayer";
+import QRModal from "@/components/QRModal";
 
 export default function InvitationView({ data }: { data: any }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showQr, setShowQr] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
 
   // lock scroll sampai undangan dibuka
@@ -53,6 +55,8 @@ export default function InvitationView({ data }: { data: any }) {
     invitation
   )}&location=${encodeURIComponent(event.location)}`;
 
+  const sampleQrData = "SampleGuestID12345";
+
   // sebelum data, browser sudah punya data lewat SSR
   if (!data) {
     return (
@@ -68,6 +72,8 @@ export default function InvitationView({ data }: { data: any }) {
       style={{ color: theme.textColor }}
     >
       {isOpen && <MusicPlayer autoPlay />}
+      {/* MODAL QR */}
+      <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={sampleQrData} />
 
       {/* COVER OPENING */}
       <AnimatePresence>
@@ -118,7 +124,12 @@ export default function InvitationView({ data }: { data: any }) {
               </div>
               <h1 className="text-2xl font-bold">{opening.title}</h1>
               <div className="mt-2 space-y-1">
-                {children.map((c: any, i: number) => (
+              {isWedding ? (
+                <h2 className="text-2xl md:text-4xl font-extrabold" style={{ color: theme.accentColor }}>
+                  {children[0].nickname} &amp; {children[1].nickname}
+                </h2>
+              ) : (
+                children.map((c: any, i: number) => (
                   <h2
                     key={i}
                     className="text-2xl md:text-4xl font-extrabold"
@@ -126,7 +137,8 @@ export default function InvitationView({ data }: { data: any }) {
                   >
                     {c.nickname}
                   </h2>
-                ))}
+                ))
+              )}
               </div>
               <p className="text-sm">
                 Tanpa Mengurangi Rasa Hormat, Kami Mengundang
@@ -142,6 +154,15 @@ export default function InvitationView({ data }: { data: any }) {
               >
                 Buka Undangan
               </Button>
+              {isWedding && (
+                  <Button
+                    onClick={() => setShowQr(true)}
+                    className="text-white px-6 py-3 rounded-full font-medium shadow-lg"
+                    style={{ backgroundColor: theme.accentColor }}
+                  >
+                    QR CHECK-IN
+                  </Button>
+                )}
             </motion.div>
           </motion.div>
         )}

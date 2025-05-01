@@ -85,7 +85,7 @@ export default function InvitationForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-6 space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl mx-auto space-y-8">
 
         {/* Jenis Acara */}
         <FormField name="eventType" control={form.control} render={({ field }) => (
