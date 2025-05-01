@@ -1,0 +1,165 @@
+/* template.css (override Tailwind with !important) */
+
+:root {
+--accent-color: #E11D48;
+--bg-overlay: rgba(255, 255, 255, 0.5);
+--text-gray-600: #4B5563;
+--text-gray-700: #374151;
+--rose-500: #E11D48;
+--shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== Container & Layout ===== */
+.home-section {
+padding: 3rem 1.5rem !important;
+background-size: cover !important;
+background-position: center !important;
+}
+.home-inner {
+max-width: 1280px !important;
+margin: 0 auto !important;
+display: flex !important;
+flex-direction: column !important;
+gap: 2rem !important;
+}
+
+/* ===== Profile Avatar ===== */
+.home-profile {
+width: 6rem !important;
+height: 6rem !important;
+margin: 0 auto !important;
+}
+.home-profile__avatar {
+width: 100% !important;
+height: 100% !important;
+background-color: #fff !important;
+border-radius: 50% !important;
+overflow: hidden !important;
+}
+
+/* ===== Quote Section ===== */
+.home-quote {
+text-align: center !important;
+}
+.home-quote__arabic {
+font-size: 1.25rem !important;
+font-weight: 600 !important;
+margin-bottom: 0.5rem !important;
+}
+.home-quote__latin {
+font-size: 0.875rem !important;
+color: var(--text-gray-600) !important;
+}
+
+/* ===== Important Event ===== */
+.home-important-event {
+display: flex !important;
+flex-direction: column !important;
+gap: 1rem !important;
+margin-top: 2rem !important;
+}
+.home-important-event__title {
+font-size: 1.25rem !important;
+font-weight: 600 !important;
+}
+.home-important-event__description {
+font-size: 0.875rem !important;
+line-height: 1.625 !important;
+}
+
+/* ===== Divider ===== */
+.home-divider {
+width: 4rem !important;
+height: 0.25rem !important;
+margin: 1.5rem auto !important;
+background-color: var(--accent-color) !important;
+}
+
+/* ===== Invitation Text ===== */
+.home-invitation {
+display: flex !important;
+flex-direction: column !important;
+gap: 1rem !important;
+}
+.home-invitation p {
+font-size: 0.875rem !important;
+line-height: 1.625 !important;
+color: var(--text-gray-700) !important;
+}
+
+/* ===== Children & Parents Info ===== */
+.home-children-parent {
+padding: 1.5rem !important;
+border: 2px solid var(--bg-overlay) !important;
+border-radius: 0.5rem !important;
+background-color: var(--bg-overlay) !important;
+}
+.home-children-parent__item {
+margin-bottom: 1.5rem !important;
+text-align: center !important;
+}
+.home-children-parent__avatar {
+width: 6rem !important;
+height: 6rem !important;
+margin: 0 auto 1rem !important;
+background-color: #fff !important;
+border-radius: 50% !important;
+overflow: hidden !important;
+}
+.home-children-parent__name {
+font-size: 1.5rem !important;
+font-weight: 700 !important;
+margin-bottom: 0.25rem !important;
+}
+.home-children-parent__nickname,
+.home-children-parent__order,
+.home-children-parent__parents {
+font-size: 0.875rem !important;
+}
+
+/* ===== Countdown & Calendar ===== */
+.home-countdown {
+margin-top: 3rem !important;
+}
+.home-countdown__card {
+max-width: 40rem !important;
+margin: 0 auto !important;
+padding: 1.5rem !important;
+border-radius: 1rem !important;
+background-color: #fff !important;
+box-shadow: var(--shadow-soft) !important;
+backdrop-filter: blur(8px) !important;
+}
+.home-countdown__header {
+text-align: center !important;
+}
+.home-countdown__title {
+display: inline-flex !important;
+align-items: center !important;
+gap: 0.75rem !important;
+color: var(--rose-500) !important;
+margin-bottom: 1rem !important;
+font-family: serif !important;
+font-style: italic !important;
+font-size: 1.5rem !important;
+}
+.home-countdown__timer {
+margin: 1.5rem 0 !important;
+}
+.home-countdown__button {
+display: inline-flex !important;
+align-items: center !important;
+gap: 0.5rem !important;
+padding: 0.8rem 2rem !important;
+font-size: 0.875rem !important;
+font-weight: 500 !important;
+border-radius: 9999px !important;
+box-shadow: var(--shadow-soft) !important;
+transition: transform 0.2s ease !important;
+background-color: var(--accent-color) !important;
+color: #fff !important;
+text-decoration: none !important;
+}
+.home-countdown__button:hover {
+transform: scale(1.02) !important;
+}

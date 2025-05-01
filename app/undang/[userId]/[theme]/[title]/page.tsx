@@ -1,6 +1,7 @@
 // app/undangan/[userId]/[theme]/[title]/page.tsx
 import InvitationView from "@/components/InvitationView";
 import type { Metadata } from "next";
+import '@/styles/template.css';
 
 export const metadata: Metadata = {
   title: "Undangan Digital",
