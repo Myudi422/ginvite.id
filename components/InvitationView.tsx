@@ -1,7 +1,7 @@
-// components/InvitationView.tsx
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -30,12 +30,19 @@ export default function InvitationView({ data }: { data: any }) {
   const [showQr, setShowQr] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
 
+  const searchParams = useSearchParams();
+  const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
+
   useEffect(() => {
     document.body.style.overflow = isOpen ? "auto" : "hidden";
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [isOpen]);
+
+  if (!data) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
 
   const { theme, content, decorations } = data;
   const {
@@ -66,69 +73,94 @@ export default function InvitationView({ data }: { data: any }) {
 
   const sampleQrData = "SampleGuestID12345";
 
-  if (!data) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-
   return (
     <main
-      className="relative min-h-screen text-center overflow-hidden"
+      className="relative min-h-screen text-center overflow-hidden flex md:flex-row"
       style={{ color: theme.textColor }}
     >
-      {/* Music & QR Modal */}
-      {isOpen && <MusicPlayer autoPlay />}
-      <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={sampleQrData} />
+      {/* Left Section (Desktop Only) - Sticky Background */}
+      <div 
+        className="hidden md:block w-[70%] sticky top-0 h-screen relative"
+        style={{ 
+          backgroundImage: `url(${gallery?.items?.[1] || '/default-cover.jpg'})`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center'
+        }}
+      >
+        {/* Gradient Shadow */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-0" />
 
-      {/* Opening Cover */}
-      {!isOpen && (
-        <OpeningSection
-          opening={opening}
-          gallery={gallery}
-          decorations={decorations}
-          theme={theme}
-          isWedding={isWedding}
-          childrenData={children}
-          onOpen={() => setIsOpen(true)}
-          onShowQr={() => setShowQr(true)}
-        />
-      )}
-
-      {/* Main Sections Container */}
-      {isOpen && (
-        <div className="w-full max-w-md mx-auto"> {/* Mengembalikan max-w-md mx-auto */}
-          <ProfileSection
-  gallery={gallery}
-  defaultBgImage1={theme.defaultBgImage1}
-  opening={opening}
-  childrenData={children}
-  isWedding={isWedding}
-  nameFontSize={{ fontSize: '50px' }} // Mengatur ukuran font nama menjadi 32px
-  weddingTextFontSize={{ fontSize: '20px' }} // Mengatur ukuran font "The Wedding Of" menjadi 20px
-  marginBottomWeddingText="mb-3"
-  marginBottomName="mb-4"
-/>
-          <QuoteSection quotes={quotes} />
-          <ImportantEventSection quotes={quotes} />
-          <InvitationTextSection invitation={invitation} />
-          <FamilySection
-            children={children}
-            parents={parents}
-            isWedding={isWedding}
-            theme={theme}
-          />
-          <CountdownSection eventDate={eventDate} calendarUrl={calendarUrl} theme={theme} />
-          <EventSection content={content} theme={theme} />
-          {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
-          <GallerySection gallery={gallery} theme={{ defaultBgImage: theme.defaultBgImage }} />
-          <ClosingSection closing={closing} defaultBgImage={theme.defaultBgImage} />
-          <FooterSection textColor={theme.textColor} />
+        {/* Teks di kiri bawah */}
+        <div
+          className="absolute text-white font-bold z-10"
+          style={{
+            top: '500px',
+            left: '36px',
+            fontSize: '40px',
+          }}
+        >
+          Hai, {toName}
         </div>
-      )}
+      </div>
 
-      {/* Navigation */}
-      {isOpen && (
-        <Navigation activeSection={activeSection} setActiveSection={setActiveSection} />
-      )}
+      {/* Right Section (Scrollable Content) */}
+      <div className="w-full md:w-[30%] overflow-y-auto h-screen">
+        {/* Music & QR Modal */}
+        {isOpen && <MusicPlayer autoPlay />}
+        <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={sampleQrData} />
+
+        {/* Opening Cover */}
+        {!isOpen && (
+          <OpeningSection
+            opening={opening}
+            gallery={gallery}
+            decorations={decorations}
+            theme={theme}
+            isWedding={isWedding}
+            childrenData={children}
+            onOpen={() => setIsOpen(true)}
+            onShowQr={() => setShowQr(true)}
+          />
+        )}
+
+        {/* Main Sections Container */}
+        {isOpen && (
+          <div className="w-full">
+            <ProfileSection
+              gallery={gallery}
+              defaultBgImage1={theme.defaultBgImage1}
+              opening={opening}
+              childrenData={children}
+              isWedding={isWedding}
+              nameFontSize={{ fontSize: '50px' }}
+              weddingTextFontSize={{ fontSize: '20px' }}
+              marginBottomWeddingText="mb-3"
+              marginBottomName="mb-4"
+            />
+            <QuoteSection quotes={quotes} />
+            <ImportantEventSection quotes={quotes} />
+            <InvitationTextSection invitation={invitation} />
+            <FamilySection
+              children={children}
+              parents={parents}
+              isWedding={isWedding}
+              theme={theme}
+            />
+            <CountdownSection eventDate={eventDate} calendarUrl={calendarUrl} theme={theme} />
+            <EventSection content={content} theme={theme} />
+            {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
+            <GallerySection gallery={gallery} theme={{ defaultBgImage: theme.defaultBgImage }} />
+            <ClosingSection closing={closing} defaultBgImage={theme.defaultBgImage} />
+            <FooterSection textColor={theme.textColor} />
+          </div>
+        )}
+
+        {/* Navigation */}
+        {isOpen && (
+          <Navigation activeSection={activeSection} setActiveSection={setActiveSection} />
+        )}
+      </div>
     </main>
   );
 }

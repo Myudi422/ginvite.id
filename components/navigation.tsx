@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, Gift, Calendar, ImageIcon } from "lucide-react"
+import { Home, Calendar, ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
@@ -18,10 +18,14 @@ export default function Navigation({ activeSection, setActiveSection }: Navigati
   const handleNavClick = (sectionId: string) => {
     setActiveSection(sectionId)
 
-    // Scroll to the section
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
+    if (sectionId === "home") {
+      // Scroll back to the top of the page
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    } else {
+      const element = document.getElementById(sectionId)
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" })
+      }
     }
   }
 
@@ -34,7 +38,9 @@ export default function Navigation({ activeSection, setActiveSection }: Navigati
             onClick={() => handleNavClick(item.id)}
             className={cn(
               "flex flex-col items-center justify-center w-full h-full text-xs transition-colors",
-              activeSection === item.id ? "text-blue-600" : "text-gray-500 hover:text-blue-400",
+              activeSection === item.id
+                ? "text-blue-600"
+                : "text-gray-500 hover:text-blue-400",
             )}
           >
             <item.icon size={20} className="mb-1" />
