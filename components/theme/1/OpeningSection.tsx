@@ -1,12 +1,13 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import QRModal from '@/components/QRModal';
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 
 interface OpeningSectionProps {
   opening: {
     title: string;
     toLabel: string;
-    to: string;
+    // to: string; // Tidak perlu lagi karena kita akan mengambil dari query params
   };
   gallery: { items: string[] };
   decorations: {
@@ -35,6 +36,9 @@ export default function OpeningSection({
   onOpen,
   onShowQr,
 }: OpeningSectionProps) {
+  const searchParams = useSearchParams();
+  const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
+
   return (
     <div
       className="fixed inset-0 flex flex-col items-center justify-center p-6 z-40"
@@ -112,7 +116,7 @@ export default function OpeningSection({
         {/* Recipient Section */}
         <div className="my-8 py-4 border-t border-b border-white/30">
           <h2 className="text-lg mb-2">{opening.toLabel}</h2>
-          <p className="text-xl font-semibold">{opening.to}</p>
+          <p className="text-xl font-semibold">{toName}</p> {/* Menggunakan toName dari query params */}
         </div>
 
         {/* Action Buttons */}
