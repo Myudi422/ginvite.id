@@ -84,6 +84,12 @@ export default function InvitationView({ data }: { data: any }) {
 
   // Proses specialFontFamily untuk menghilangkan titik koma jika ada
   const processedSpecialFontFamily = content?.font?.special?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
+  
+  // Proses bodyFontFamily untuk menghilangkan "font-family:", spasi, dan titik koma jika ada
+  const processedBodyFontFamily = content?.font?.body?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
+
+  // Proses headingFontFamily untuk menghilangkan "font-family:", spasi, dan titik koma jika ada
+  const processedHeadingFontFamily = content?.font?.heading?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
 
   return (
     <main
@@ -168,6 +174,8 @@ export default function InvitationView({ data }: { data: any }) {
               bottomLeftDecoration={decorations?.bottomLeft}
               bottomRightDecoration={decorations?.bottomRight}
               specialFontFamily={processedSpecialFontFamily}
+              BodyFontFamily={processedBodyFontFamily}
+              HeadingFontFamily={processedHeadingFontFamily}
               event={event} // Pastikan Anda meneruskan objek event di sini
             />
             <QuoteSection quotes={quotes} />

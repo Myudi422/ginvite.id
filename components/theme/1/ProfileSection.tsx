@@ -32,6 +32,8 @@ interface ProfileSectionProps {
   bottomLeftDecoration?: string;
   bottomRightDecoration?: string;
   specialFontFamily?: string;
+  BodyFontFamily?: string;
+  HeadingFontFamily?: string;
 }
 
 export default function ProfileSection({
@@ -51,6 +53,9 @@ export default function ProfileSection({
   bottomLeftDecoration,
   bottomRightDecoration,
   specialFontFamily,
+  BodyFontFamily,
+  HeadingFontFamily
+
 }: ProfileSectionProps) {
   const nameStyle: React.CSSProperties = {
     ...nameFontSize,
@@ -137,9 +142,12 @@ export default function ProfileSection({
           className="relative z-10 pt-20 text-center"
         >
           <div
-            className={`text-white font-semibold ${marginBottomWeddingText}`}
-            style={weddingTextFontSize}
-          >
+      className={`text-white font-semibold ${marginBottomWeddingText}`}
+      style={{ 
+        ...weddingTextFontSize, // Gabungkan weddingTextFontSize menggunakan spread operator
+        fontFamily: HeadingFontFamily // Tambahkan fontFamily setelahnya (atau sebelumnya)
+      }}
+    >
             {opening.title}
           </div>
         </motion.div>
@@ -154,7 +162,7 @@ export default function ProfileSection({
         style={{
           opacity: 1,
           transform: 'none',
-          paddingBottom: '150px',
+          paddingBottom: '180px',
         }}
       >
         {/* Nama */}
@@ -168,7 +176,7 @@ export default function ProfileSection({
         </div>
         <div
           className="text-white font-medium text-xl"
-          style={{ paddingTop: '10px' }}
+          style={{ paddingTop: '10px', fontFamily: BodyFontFamily}}
         >
           {event.date}
         </div>
