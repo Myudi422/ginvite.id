@@ -162,7 +162,7 @@ export default function ProfileSection({
         style={{
           opacity: 1,
           transform: 'none',
-          paddingBottom: '180px',
+          paddingBottom: '200px',
         }}
       >
         {/* Nama */}
