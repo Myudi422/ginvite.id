@@ -1,34 +1,18 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useState, useEffect } from "react";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  EllipsisVerticalIcon,
-} from "lucide-react";
-import router from "next/router";
+import Image from 'next/image';
+import { useState } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon, EllipsisVerticalIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-type User = {
-  userId: number;
-  email: string;
-};
+type User = { userId: number; email: string };
+interface Invitation { id: number; title: string; status: number; event_date: string; avatar_url: string }
+interface Props { user: User; slides: string[]; invitations: Invitation[] }
 
-interface Invitation {
-  id: number;
-  title: string;
-  status: number;        // 0 atau 1
-  event_date: string;    // YYYY-MM-DD
-  avatar_url: string;
-}
-
-interface InvitationDashboardProps {
-  user: User;
-}
-
-export default function InvitationDashboard({ slides, invitations, user }: InvitationDashboardProps & { slides: string[]; invitations: Invitation[] }) {
+export default function InvitationDashboard({ user, slides, invitations }: Props) {
+  const router = useRouter();
   const [current, setCurrent] = useState(0);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   const prev = () => setCurrent((i) => (i === 0 ? slides.length - 1 : i - 1));
   const next = () => setCurrent((i) => (i + 1) % slides.length);
@@ -36,8 +20,6 @@ export default function InvitationDashboard({ slides, invitations, user }: Invit
   const filtered = invitations.filter((inv) =>
     inv.title.toLowerCase().includes(search.toLowerCase())
   );
-
-
 
   return (
     <div className="space-y-8">
@@ -47,7 +29,10 @@ export default function InvitationDashboard({ slides, invitations, user }: Invit
           <h1 className="text-2xl font-semibold">Dashboard Undangan</h1>
           <p className="text-sm text-gray-500">Login sebagai: {user.email}</p>
         </div>
-        <button className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <button
+          className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          onClick={() => router.push(`/admin/formulir/${user.userId}/pernikahan`)}
+        >
           + Bikin Undangan
         </button>
       </div>
@@ -55,22 +40,11 @@ export default function InvitationDashboard({ slides, invitations, user }: Invit
       {/* SLIDER */}
       {slides.length > 0 && (
         <div className="relative w-full h-48 overflow-hidden rounded-2xl bg-gray-200">
-          <Image
-            src={slides[current]}
-            alt={`Slide ${current + 1}`}
-            fill
-            className="object-cover"
-          />
-          <button
-            onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"
-          >
+          <Image src={slides[current]} alt={`Slide ${current + 1}`} fill className="object-cover" />
+          <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white">
             <ChevronLeftIcon className="h-6 w-6" />
           </button>
-          <button
-            onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"
-          >
+          <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white">
             <ChevronRightIcon className="h-6 w-6" />
           </button>
         </div>
@@ -90,10 +64,7 @@ export default function InvitationDashboard({ slides, invitations, user }: Invit
       {/* GRID UNDANGAN */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {filtered.map((inv) => (
-          <div
-            key={inv.id}
-            className="bg-white rounded-2xl shadow p-6 relative flex flex-col"
-          >
+          <div key={inv.id} className="bg-white rounded-2xl shadow p-6 relative flex flex-col">
             <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
               <EllipsisVerticalIcon className="h-6 w-6" />
             </button>
@@ -116,13 +87,7 @@ export default function InvitationDashboard({ slides, invitations, user }: Invit
             <div className="mt-4 space-y-1 text-sm text-gray-600 flex-1">
               <p>
                 Status:{' '}
-                <span
-                  className={
-                    inv.status === 1
-                      ? 'font-medium text-green-500'
-                      : 'font-medium text-red-500'
-                  }
-                >
+                <span className={inv.status === 1 ? 'font-medium text-green-500' : 'font-medium text-red-500'}>
                   {inv.status === 1 ? 'Aktif' : 'Belum Aktif'}
                 </span>
               </p>
@@ -135,22 +100,39 @@ export default function InvitationDashboard({ slides, invitations, user }: Invit
             </div>
 
             <div className="mt-6 flex space-x-4">
-            <button
-  className="flex-1 py-2 bg-yellow-400 text-white font-medium rounded-lg hover:bg-yellow-500"
-  onClick={() => router.push(`admin/formulir/${inv.id}`)}
->
-  Edit di Form
-</button>
-              <button className="flex-1 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600">
+              <button
+                className="flex-1 py-2 bg-yellow-400 text-white font-medium rounded-lg hover:bg-yellow-500"
+                onClick={() => router.push(`/admin/formulir/${user.userId}/${inv.id}/${inv.title}`)}
+              >
+                Edit di Form
+              </button>
+              <button
+                className="flex-1 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600"
+                onClick={async () => {
+                  await fetch(
+                    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_content_user`,
+                    {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        user_id: user.userId,
+                        id: inv.id,
+                        title: inv.title,
+                        status: inv.status === 1 ? 0 : 1,
+                        event_date: inv.event_date,
+                      }),
+                    }
+                  );
+                  router.refresh();
+                }}
+              >
                 {inv.status === 1 ? 'Nonaktifkan' : 'Aktifkan'}
               </button>
             </div>
           </div>
         ))}
         {filtered.length === 0 && (
-          <p className="col-span-full text-center text-gray-500">
-            Tidak ada undangan ditemukan.
-          </p>
+          <p className="col-span-full text-center text-gray-500">Tidak ada undangan ditemukan.</p>
         )}
       </div>
     </div>

@@ -9,13 +9,13 @@ const SECRET = "very-secret-key"; // Harus sama dengan PHP
 export default async function Page() {
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
-  if (!token) redirect('/login');
+  if (!token) return redirect('/login');
 
   let payload: any;
   try {
     payload = jwt.verify(token, SECRET);
   } catch {
-    redirect('/login');
+    return redirect('/login');
   }
   const user = payload.data;
 
@@ -26,7 +26,7 @@ export default async function Page() {
   ]);
 
   if (!invRes.ok || !sliderRes.ok) {
-    redirect('/error'); // atau handle error
+    return redirect('/error');
   }
 
   const invJson = await invRes.json();
@@ -35,5 +35,13 @@ export default async function Page() {
   const invitations = invJson.data;
   const slides = sliderJson.data.map((s: any) => s.image_url);
 
-  return <InvitationDashboard user={user} invitations={invitations} slides={slides} />;
+  return (
+    <>
+      <InvitationDashboard
+        user={user}
+        invitations={invitations}
+        slides={slides}
+      />
+    </>
+  );
 }
