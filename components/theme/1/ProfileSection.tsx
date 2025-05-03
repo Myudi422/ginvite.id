@@ -12,6 +12,11 @@ interface ProfileSectionProps {
     to: string;
     wedding_text?: string;
   };
+  theme: {
+    defaultBgImage: string;
+    accentColor: string;
+    textColor: string;
+  };
   event: {
     title: string;
     date: string;
@@ -54,6 +59,7 @@ export default function ProfileSection({
   bottomRightDecoration,
   specialFontFamily,
   BodyFontFamily,
+  theme,
   HeadingFontFamily
 
 }: ProfileSectionProps) {
@@ -142,10 +148,11 @@ export default function ProfileSection({
           className="relative z-10 pt-20 text-center"
         >
           <div
-      className={`text-white font-semibold ${marginBottomWeddingText}`}
+      className={`font-semibold ${marginBottomWeddingText}`}
       style={{ 
         ...weddingTextFontSize, // Gabungkan weddingTextFontSize menggunakan spread operator
-        fontFamily: HeadingFontFamily // Tambahkan fontFamily setelahnya (atau sebelumnya)
+        fontFamily: HeadingFontFamily,
+        color: theme.textColor,  // Tambahkan fontFamily setelahnya (atau sebelumnya)
       }}
     >
             {opening.title}
@@ -162,13 +169,13 @@ export default function ProfileSection({
         style={{
           opacity: 1,
           transform: 'none',
-          paddingBottom: '200px',
+          paddingBottom: '220px',
         }}
       >
         {/* Nama */}
         <div
-          className="text-white font-bold text-3xl md:text-5xl mb-4"
-          style={nameStyle}
+          className="font-bold text-3xl md:text-5xl mb-4"
+          style={{ color: theme.textColor, ...nameFontSize }}
         >
           {isWedding
             ? `${childrenData[0]?.nickname} & ${childrenData[1]?.nickname}`
@@ -176,7 +183,7 @@ export default function ProfileSection({
         </div>
         <div
           className="text-white font-medium text-xl"
-          style={{ paddingTop: '10px', fontFamily: BodyFontFamily}}
+          style={{ paddingTop: '0px', fontFamily: BodyFontFamily}}
         >
           {event.date}
         </div>

@@ -153,6 +153,9 @@ export default function InvitationView({ data }: { data: any }) {
             childrenData={children}
             onOpen={() => setIsOpen(true)}
             onShowQr={() => setShowQr(true)}
+            specialFontFamily={processedSpecialFontFamily}
+            BodyFontFamily={processedBodyFontFamily}
+            HeadingFontFamily={processedHeadingFontFamily}
           />
         )}
 
@@ -177,9 +180,10 @@ export default function InvitationView({ data }: { data: any }) {
               BodyFontFamily={processedBodyFontFamily}
               HeadingFontFamily={processedHeadingFontFamily}
               event={event} // Pastikan Anda meneruskan objek event di sini
+              theme={theme}
             />
-            <QuoteSection quotes={quotes} />
-            <ImportantEventSection quotes={quotes} />
+            
+            <ImportantEventSection theme={theme} quotes={quotes} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} />
             <InvitationTextSection invitation={invitation} />
             <FamilySection
               children={children}

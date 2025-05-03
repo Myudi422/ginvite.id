@@ -19,11 +19,15 @@ interface OpeningSectionProps {
   theme: {
     defaultBgImage: string;
     accentColor: string;
+    textColor: string;
   };
   isWedding: boolean;
   childrenData: Array<{ nickname: string }>;
   onOpen: () => void;
   onShowQr: () => void;
+  specialFontFamily?: string;
+  BodyFontFamily?: string;
+  HeadingFontFamily?: string;
 }
 
 export default function OpeningSection({
@@ -35,19 +39,22 @@ export default function OpeningSection({
   childrenData,
   onOpen,
   onShowQr,
+  specialFontFamily,
+  BodyFontFamily,
+  HeadingFontFamily
 }: OpeningSectionProps) {
   const searchParams = useSearchParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
 
   return (
     <div
-      className="fixed inset-0 flex flex-col items-center justify-center p-6 z-40"
-      style={{
-        backgroundImage: `url(${theme.defaultBgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
+  className="fixed inset-0 flex flex-col items-center justify-center p-6 z-40"
+  style={{
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${gallery.items[0]})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  }}
+>
       {/* Decoration Elements */}
       {[
         decorations.topLeft,
@@ -72,26 +79,15 @@ export default function OpeningSection({
 
       {/* Main Content */}
       <div className="text-center space-y-6 relative z-10 max-w-2xl mx-auto">
-        {/* Profile Image */}
-        <div className="w-32 h-32 mx-auto bg-white rounded-full overflow-hidden ring-4 ring-white/20">
-          <Image
-            src={gallery.items[0]}
-            alt="Profile"
-            width={128}
-            height={128}
-            className="object-cover w-full h-full"
-            priority
-          />
-        </div>
 
         {/* Titles */}
-        <h1 className="text-2xl font-bold">{opening.title}</h1>
+        <h1 className="text-2xl font-bold" style={{ color: theme.textColor,  fontFamily: HeadingFontFamily }}>{opening.title}</h1>
 
         <div className="mt-2 space-y-1">
           {isWedding ? (
             <h2
               className="text-2xl md:text-4xl font-extrabold"
-              style={{ color: theme.accentColor }}
+              style={{ color: theme.textColor, fontFamily: specialFontFamily}}
             >
               {childrenData[0].nickname} &amp; {childrenData[1].nickname}
             </h2>
@@ -100,7 +96,7 @@ export default function OpeningSection({
               <h2
                 key={i}
                 className="text-2xl md:text-4xl font-extrabold"
-                style={{ color: theme.accentColor }}
+                style={{ color: theme.textColor, fontFamily: specialFontFamily}}
               >
                 {c.nickname}
               </h2>
@@ -109,12 +105,12 @@ export default function OpeningSection({
         </div>
 
         {/* Invitation Text */}
-        <p className="text-sm">
+        <p className="text-sm"style={{ color: theme.textColor,  fontFamily: BodyFontFamily }}>
           Tanpa Mengurangi Rasa Hormat, Kami Mengundang
         </p>
 
         {/* Recipient Section */}
-        <div className="my-8 py-4 border-t border-b border-white/30">
+        <div className="my-8 py-4 border-t border-b border-white/30" style={{ color: theme.textColor,  fontFamily: BodyFontFamily }}>
           <h2 className="text-lg mb-2">{opening.toLabel}</h2>
           <p className="text-xl font-semibold">{toName}</p> {/* Menggunakan toName dari query params */}
         </div>
@@ -124,7 +120,7 @@ export default function OpeningSection({
           <Button
             onClick={onOpen}
             className="px-8 py-4 rounded-full font-medium shadow-lg transform transition-transform hover:scale-105"
-            style={{ backgroundColor: theme.accentColor, color: 'white' }}
+            style={{ backgroundColor: theme.accentColor, color: theme.textColor, }}
           >
             Buka Undangan
           </Button>
@@ -133,7 +129,7 @@ export default function OpeningSection({
             <Button
               onClick={onShowQr}
               className="px-6 py-3 rounded-full font-medium shadow-lg transform transition-transform hover:scale-105"
-              style={{ backgroundColor: theme.accentColor, color: 'white' }}
+              style={{ backgroundColor: theme.accentColor, color: theme.textColor, }}
             >
               QR CHECK-IN
             </Button>
