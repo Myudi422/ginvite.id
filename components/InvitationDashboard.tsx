@@ -102,7 +102,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
             <div className="mt-6 flex space-x-4">
               <button
                 className="flex-1 py-2 bg-yellow-400 text-white font-medium rounded-lg hover:bg-yellow-500"
-                onClick={() => router.push(`/admin/formulir/${user.userId}/${inv.id}/${inv.title}`)}
+                onClick={() => router.push(`/admin/formulir/${inv.id}/${inv.title}`)}
               >
                 Edit di Form
               </button>
@@ -110,7 +110,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
                 className="flex-1 py-2 bg-indigo-500 text-white font-medium rounded-lg hover:bg-indigo-600"
                 onClick={async () => {
                   await fetch(
-                    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_content_user`,
+                    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status`,
                     {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
