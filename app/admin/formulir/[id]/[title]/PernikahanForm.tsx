@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 
+// Schema definition
 const pernikahanSchema = z.object({
   font: z.object({
     body: z.string(),
@@ -60,13 +61,18 @@ const pernikahanSchema = z.object({
 });
 type FormValues = z.infer<typeof pernikahanSchema>;
 
-export default function PernikahanForm() {
+interface PernikahanFormProps {
+  previewUrl: string;
+  userId: number;
+  invitation: any;
+  contentData: FormValues;
+}
+
+export default function PernikahanForm({ previewUrl, userId }: PernikahanFormProps) {
   const router = useRouter();
-  const params = useParams();          // expecting [id]/[title] in route
-  const search = useSearchParams();    // fallback if needed
-  const userId = Number(params.id);
-  const invId  = Number(params.id);
-  const title  = params.title;
+  const params = useParams();
+  const invId = Number(params.id);
+  const title = params.title;
 
   const [status, setStatus] = useState<number>(0);
   const [loading, setLoading] = useState(true);
@@ -79,16 +85,16 @@ export default function PernikahanForm() {
 
   const galleryFields = useFieldArray({ control: form.control, name: 'gallery.items' });
   const childrenFields = useFieldArray({ control: form.control, name: 'children' });
-  const storyFields   = useFieldArray({ control: form.control, name: 'our_story' });
+  const storyFields = useFieldArray({ control: form.control, name: 'our_story' });
 
-  // fetch initial data
+  // Fetch initial data
   useEffect(() => {
     async function load() {
       try {
         const res = await fetch(
           `https://ccgnimex.my.id/v2/android/ginvite/index.php` +
-          `?action=get_content_user&user_id=${userId}` +
-          `&id=${invId}&title=${encodeURIComponent(title)}`,
+            `?action=get_content_user&user_id=${userId}` +
+            `&id=${invId}&title=${encodeURIComponent(title)}`,
           { cache: 'no-store' }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -110,7 +116,7 @@ export default function PernikahanForm() {
     load();
   }, [userId, invId, title, form]);
 
-  // save handler
+  // Save handler
   const onSave = form.handleSubmit(async (data) => {
     setSaving(true);
     setError(null);
@@ -132,6 +138,12 @@ export default function PernikahanForm() {
       const json = await res.json();
       if (json.status !== 'success') throw new Error(json.message);
       alert('Data berhasil disimpan');
+
+      // Reload iframe preview
+      const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
+      if (iframe) {
+        iframe.src = `${previewUrl}?cb=${Date.now()}`;
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.message);
@@ -140,15 +152,13 @@ export default function PernikahanForm() {
     }
   });
 
-
-  // toggle status handler
-  // toggle status handler
+  // Toggle status handler
   const onToggle = async () => {
     setSaving(true);
     setError(null);
     try {
       const res = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status`, // KEMBALIKAN KE SINI
+        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -173,93 +183,90 @@ export default function PernikahanForm() {
   };
 
   if (loading) return <p>Loading…</p>;
-  if (error)   return <p className="text-red-600">Error: {error}</p>;
+  if (error) return <p className="text-red-600">Error: {error}</p>;
 
   return (
     <Form {...form}>
       <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-
         {/* FONT */}
         <fieldset className="space-y-4">
           <legend className="text-lg font-semibold">Font</legend>
-          {(['body','heading','special'] as const).map((k) => (
+          {(['body', 'heading', 'special'] as const).map((k) => (
             <FormField key={k} control={form.control} name={`font.${k}`} render={({ field }) => (
               <FormItem>
                 <FormLabel>{k}</FormLabel>
                 <FormControl><Input {...field} /></FormControl>
-                <FormMessage/>
+                <FormMessage />
               </FormItem>
-            )}/>
+            )} />
           ))}
         </fieldset>
 
         {/* EVENT */}
         <fieldset className="space-y-4">
           <legend className="text-lg font-semibold">Detail Acara</legend>
-          {/* hidden */}
-          <Controller name="event.iso" control={form.control} render={({ field }) => <input type="hidden" {...field}/>}/>
-          <Controller name="event.note" control={form.control} render={({ field }) => <input type="hidden" {...field}/>}/>
+          {/* hidden fields */}
+          <Controller name="event.iso" control={form.control} render={({ field }) => <input type="hidden" {...field} />} />
+          <Controller name="event.note" control={form.control} render={({ field }) => <input type="hidden" {...field} />} />
 
           <FormField control={form.control} name="event.date" render={({ field }) => (
             <FormItem>
               <FormLabel>Tanggal</FormLabel>
-              <FormControl><Input type="date" {...field}/></FormControl>
-              <FormMessage/>
+              <FormControl><Input type="date" {...field} /></FormControl>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
           <FormField control={form.control} name="event.time" render={({ field }) => (
             <FormItem>
               <FormLabel>Waktu</FormLabel>
-              <FormControl><Input type="time" {...field}/></FormControl>
-              <FormMessage/>
+              <FormControl><Input type="time" {...field} /></FormControl>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
           <FormField control={form.control} name="event.title" render={({ field }) => (
             <FormItem>
               <FormLabel>Judul Acara</FormLabel>
-              <FormControl><Input {...field}/></FormControl>
-              <FormMessage/>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
           <FormField control={form.control} name="event.location" render={({ field }) => (
             <FormItem>
               <FormLabel>Lokasi</FormLabel>
-              <FormControl><Input {...field}/></FormControl>
-              <FormMessage/>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
           <FormField control={form.control} name="event.mapsLink" render={({ field }) => (
             <FormItem>
               <FormLabel>Link Maps</FormLabel>
-              <FormControl><Input {...field}/></FormControl>
-              <FormMessage/>
+              <FormControl><Input {...field} /></FormControl>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
         </fieldset>
 
         {/* GALLERY */}
         <fieldset className="space-y-2">
           <legend className="text-lg font-semibold">Gallery</legend>
           {galleryFields.fields.map((item, i) => (
-            <Controller key={item.id} control={form.control} name={`gallery.items.${i}`} render={({ field }) => (
-              <Input {...field}/>
-            )}/>
+            <Controller key={item.id} control={form.control} name={`gallery.items.${i}`} render={({ field }) => <Input {...field} />} />
           ))}
         </fieldset>
 
         {/* PARENTS */}
         <fieldset className="space-y-4">
           <legend className="text-lg font-semibold">Orang Tua</legend>
-          {(['bride','groom'] as const).map((who) => (
+          {(['bride', 'groom'] as const).map((who) => (
             <div key={who} className="grid grid-cols-2 gap-4">
-              {(['father','mother'] as const).map((r) => (
+              {(['father', 'mother'] as const).map((r) => (
                 <FormField key={r} control={form.control} name={`parents.${who}.${r}`} render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{who==='bride'?'Pengantin Wanita':'Pengantin Pria'} – {r}</FormLabel>
-                    <FormControl><Input {...field}/></FormControl>
-                    <FormMessage/>
+                    <FormLabel>{who === 'bride' ? 'Pengantin Wanita' : 'Pengantin Pria'} – {r}</FormLabel>
+                    <FormControl><Input {...field} /></FormControl>
+                    <FormMessage />
                   </FormItem>
-                )}/>
+                )} />
               ))}
             </div>
           ))}
@@ -270,9 +277,9 @@ export default function PernikahanForm() {
           <legend className="text-lg font-semibold">Pengantin</legend>
           {childrenFields.fields.map((item, i) => (
             <div key={item.id} className="grid grid-cols-3 gap-2">
-              <Controller name={`children.${i}.name`} control={form.control} render={({ field }) => <Input placeholder="Nama" {...field}/>}/>
-              <Controller name={`children.${i}.order`} control={form.control} render={({ field }) => <Input placeholder="Order" {...field}/>}/>
-              <Controller name={`children.${i}.profile`} control={form.control} render={({ field }) => <Input placeholder="URL Foto" {...field}/>}/>
+              <Controller name={`children.${i}.name`} control={form.control} render={({ field }) => <Input placeholder="Nama" {...field} />} />
+              <Controller name={`children.${i}.order`} control={form.control} render={({ field }) => <Input placeholder="Order" {...field} />} />
+              <Controller name={`children.${i}.profile`} control={form.control} render={({ field }) => <Input placeholder="URL Foto" {...field} />} />
             </div>
           ))}
         </fieldset>
@@ -282,9 +289,9 @@ export default function PernikahanForm() {
           <legend className="text-lg font-semibold">Our Story</legend>
           {storyFields.fields.map((item, i) => (
             <div key={item.id} className="border p-4 rounded-lg space-y-2">
-              <Controller name={`our_story.${i}.title`} control={form.control} render={({ field }) => <Input placeholder="Judul Cerita" {...field}/>}/>
-              <Controller name={`our_story.${i}.description`} control={form.control} render={({ field }) => <Textarea placeholder="Deskripsi" {...field}/>}/>
-              <Controller name={`our_story.${i}.pictures.0`} control={form.control} render={({ field }) => <Input placeholder="URL Gambar 1" {...field}/>}/>
+              <Controller name={`our_story.${i}.title`} control={form.control} render={({ field }) => <Input placeholder="Judul Cerita" {...field} />} />
+              <Controller name={`our_story.${i}.description`} control={form.control} render={({ field }) => <Textarea placeholder="Deskripsi" {...field} />} />
+              <Controller name={`our_story.${i}.pictures.0`} control={form.control} render={({ field }) => <Input placeholder="URL Gambar 1" {...field} />} />
             </div>
           ))}
         </fieldset>
@@ -293,17 +300,17 @@ export default function PernikahanForm() {
         <FormField control={form.control} name="invitationNote" render={({ field }) => (
           <FormItem>
             <FormLabel>Catatan Undangan</FormLabel>
-            <FormControl><Textarea {...field}/></FormControl>
-            <FormMessage/>
+            <FormControl><Textarea {...field} /></FormControl>
+            <FormMessage />
           </FormItem>
-        )}/>
+        )} />
 
         {/* ACTIONS */}
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onSave} disabled={saving}>
             {saving ? 'Menyimpan…' : 'Simpan'}
           </Button>
-          <Button variant="outline" onClick={() => form.handleSubmit((d)=>console.log('Preview',d))()}>
+          <Button variant="outline" onClick={() => form.handleSubmit((d) => console.log('Preview', d))()}>
             Pratinjau
           </Button>
           <Button onClick={onToggle} disabled={saving}>

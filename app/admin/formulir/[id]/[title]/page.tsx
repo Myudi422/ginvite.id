@@ -4,13 +4,13 @@ import { redirect } from 'next/navigation';
 import jwt from 'jsonwebtoken';
 
 import PernikahanForm from './PernikahanForm';
-import KhitananForm from './KhitananForm'; // nanti tambahkan jika butuh
+// import KhitananForm from './KhitananForm'; // nanti tambahkan jika butuh
 
 const SECRET = "very-secret-key";
 
 interface PageProps {
   params: {
-    id: string;       // <-- menangkap segmen URL pertama
+    id: string;     // <-- menangkap segmen URL pertama
     title: string;    // <-- segmen URL kedua
   };
 }
@@ -62,39 +62,62 @@ export default async function Page({ params }: PageProps) {
   // 3. Pilih form berdasarkan category_name
   const type = record.category_name as EventType;
   const FormComponent =
-    type === 'pernikahan' ? PernikahanForm : KhitananForm;
+    type === 'pernikahan' ? PernikahanForm : null; // KhitananForm belum ada di snippet
+
+  const previewUrl = `/undang/${id}/${title.toLowerCase().replace(/ /g, '-')}`;
 
   return (
-    <div className="max-w-4xl mx-auto py-8 space-y-6">
-      <h1 className="text-2xl font-semibold">
-        Edit Undangan: {record.title}
-      </h1>
+    <div className="min-h-screen bg-gray-100 py-6 lg:px-8">
+      <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-2 lg:gap-10">
+        {/* Bagian Form */}
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h1 className="text-xl font-semibold mb-4">
+            Edit Undangan: {record.title}
+          </h1>
 
-      {/* Dropdown kategori tapi non‑aktif jika bukan record.category_name */}
-      <div className="w-1/2">
-        <label className="block mb-2 text-sm font-medium text-gray-700">
-          Jenis Acara
-        </label>
-        <select
-          value={type}
-          disabled
-          className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
-        >
-          <option value="pernikahan" disabled={type !== 'pernikahan'}>
-            Pernikahan
-          </option>
-          <option value="khitanan" disabled={type !== 'khitanan'}>
-            Khitanan
-          </option>
-        </select>
+          {/* Dropdown kategori tapi non‑aktif jika bukan record.category_name */}
+          <div className="mb-4 w-1/2">
+            <label className="block mb-2 text-sm font-medium text-gray-700">
+              Jenis Acara
+            </label>
+            <select
+              value={type}
+              disabled
+              className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+            >
+              <option value="pernikahan" disabled={type !== 'pernikahan'}>
+                Pernikahan
+              </option>
+              {/* <option value="khitanan" disabled={type !== 'khitanan'}>
+                Khitanan
+              </option> */}
+            </select>
+          </div>
+
+          {/* Render component form */}
+          {FormComponent && (
+            <FormComponent
+              userId={userId}
+              invitation={record}
+              contentData={contentData}
+              previewUrl={previewUrl} // Kirim URL pratinjau
+            />
+          )}
+          {!FormComponent && (
+            <p className="text-yellow-500">Form untuk jenis acara ini belum tersedia.</p>
+          )}
+        </div>
+
+        {/* Bagian Preview (hanya tampil dan sticky di PC) */}
+        <div className="hidden lg:block sticky top-16 h-[calc(100vh-64px)] rounded-lg overflow-hidden shadow-md">
+          <iframe
+            id="previewFrame"
+            src={previewUrl}
+            className="w-full h-full"
+            title="Pratinjau Undangan"
+          />
+        </div>
       </div>
-
-      {/* Render component form */}
-      <FormComponent
-        userId={userId}
-        invitation={record}
-        contentData={contentData}
-      />
     </div>
   );
 }
