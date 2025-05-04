@@ -77,23 +77,10 @@ export default async function Page({ params }: PageProps) {
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6 lg:px-8">
-      <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-2 lg:gap-10">
+    <div className="min-h-screen bg-gray-100 py-4 lg:px-4">
+      <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-2 lg:gap-2">
         {/* Form */}
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h1 className="text-xl font-semibold mb-4">Edit Undangan: {record.title}</h1>
-          <div className="mb-4 w-1/2">
-            <label className="block mb-2 text-sm font-medium text-gray-700">
-              Jenis Acara
-            </label>
-            <select
-              value={record.category_name}
-              disabled
-              className="w-full px-3 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
-            >
-              <option value="pernikahan">Pernikahan</option>
-            </select>
-          </div>
 
           {FormComponent ? (
             <FormComponent

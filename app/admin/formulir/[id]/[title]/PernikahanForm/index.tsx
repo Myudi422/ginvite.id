@@ -176,19 +176,24 @@ export function PernikahanForm({
   return (
     <FormProvider {...form}>
       <form onSubmit={e => e.preventDefault()} className="space-y-6">
-        <FormField
-          name="slug"
-          control={form.control}
-          render={() => (
-            <FormItem>
-              <FormLabel>Judul URL yang ditampilkan (Slug)</FormLabel>
-              <FormControl>
-                <Input value={inputSlug} onChange={onSlugChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <FormField
+  name="slug"
+  control={form.control}
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Judul URL yang ditampilkan (Slug)</FormLabel>
+      <div className="flex items-center space-x-2">
+        <span className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-500 sm:text-sm">
+          ginvite.com/undang/{userId}/
+        </span>
+        <FormControl>
+          <Input value={inputSlug} onChange={onSlugChange} className="flex-1" />
+        </FormControl>
+      </div>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
         <FontSection />
         <EventSection />
