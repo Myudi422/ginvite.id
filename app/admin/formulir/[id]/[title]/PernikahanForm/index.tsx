@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState } from 'react'; // Hapus useEffect sementara
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { pernikahanSchema, type FormValues } from './schema';
@@ -14,13 +14,14 @@ import { InvitationNoteSection } from './InvitationNoteSection';
 import { Button } from '@/components/ui/button';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 interface Props {
-  previewUrl:    string;
-  userId:        number;
-  invitationId:  number;
-  initialSlug:   string;           // NEW: the real slug/title
-  contentData:   Partial<FormValues>;
+  previewUrl:     string;
+  userId:         number;
+  invitationId:   number;
+  initialSlug:    string;         // NEW: the real slug/title
+  contentData:    Partial<FormValues>;
   initialStatus: number;
 }
 
@@ -38,12 +39,12 @@ export function PernikahanForm({
 }: Props) {
   // defaults
   const defaultValues: FormValues = {
-    font:           { body:'',heading:'',special:'' },
-    event:          { iso:'',date:'',note:'',time:'',title:'',location:'',mapsLink:'' },
-    gallery:        { items:[] },
-    parents:        { bride:{father:'',mother:''}, groom:{father:'',mother:''} },
-    children:       [],
-    our_story:      [],
+    font:         { body:'',heading:'',special:'' },
+    event:        { iso:'',date:'',note:'',time:'',title:'',location:'',mapsLink:'' },
+    gallery:      { items:[] },
+    parents:      { bride:{father:'',mother:''}, groom:{father:'',mother:''} },
+    children:     [],
+    our_story:    [],
     invitationNote: ''
   };
 
@@ -52,22 +53,27 @@ export function PernikahanForm({
     ? defaultValues
     : { ...defaultValues, ...contentData } as FormValues;
 
-  // initialize slug from record.title
-  const [slug, setSlug]     = useState(initialSlug);
-  const [status, setStatus] = useState(initialStatus);
-  const [saving, setSaving] = useState(false);
-  const [error, setError]   = useState<string|null>(null);
+  // State untuk slug sebenarnya (untuk URL dan preview)
+  const [slug, setSlug]         = useState(initialSlug);
+  // State untuk nilai input slug (perubahan real-time)
+  const [inputSlug, setInputSlug] = useState(initialSlug);
+  const [status, setStatus]     = useState(initialStatus);
+  const [saving, setSaving]     = useState(false);
+  const [error, setError]       = useState<string|null>(null);
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: isNew ? undefined : zodResolver(pernikahanSchema),
     defaultValues: {
       ...initialValues,
-      event: { ...initialValues.event, title: initialSlug }  // sync event.title
+      event: { ...initialValues.event, title: initialSlug }   // sync event.title
     },
   });
 
   const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSlug(e.target.value);
+    // Update inputSlug secara real-time
+    const newSlug = e.target.value.toLowerCase().replace(/\s+/g, '-');
+    setInputSlug(newSlug);
   };
 
   const onSave = async () => {
@@ -75,50 +81,52 @@ export function PernikahanForm({
     setError(null);
     try {
       const data = form.getValues();
+      // Gunakan inputSlug sebagai slug yang akan disimpan
+      const slugToSave = inputSlug;
       // Make sure the event.title inside content matches the slug
       const contentPayload = {
         ...data,
-        event: { ...data.event, title: slug },
+        event: { ...data.event, title: slugToSave },
       };
-  
+
       const payload = {
         user_id: userId,
-        id:      invitationId,    // still send content_user.id to API
-        title:   slug,
+        id:      invitationId,     // still send content_user.id to API
+        title:   slugToSave,
         content: JSON.stringify(contentPayload),
       };
-  
+
       console.log('Saving payload:', payload);
-  
+
       const res = await fetch(SAVE_URL, {
-        method:  'POST',
+        method:   'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload),
+        body:     JSON.stringify(payload),
       });
       const json = await res.json();
       if (json.status !== 'success') {
         throw new Error(json.message || 'Unknown error');
       }
-  
-      // ——— Now refresh the browser URL with userId + slug ———
-      window.history.replaceState(
-        null,
-        '',
-        `/admin/formulir/${userId}/${encodeURIComponent(slug)}`
-      );
-  
-      // ——— And reload the preview iframe with the same userId + slug ———
+
+      // Update slug state setelah penyimpanan berhasil
+      setSlug(slugToSave);
+
+      // Refresh the current route to update the URL in the address bar
+      router.replace(`/admin/formulir/${userId}/${encodeURIComponent(slugToSave)}`);
+
+      // Reload the preview iframe with the new slug
       const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
       if (iframe) {
-        iframe.src = `/undang/${userId}/${encodeURIComponent(slug)}`;
+        iframe.src = `/undang/${userId}/${encodeURIComponent(slugToSave)}`;
       }
+
     } catch (err: any) {
       setError(err.message);
     } finally {
       setSaving(false);
     }
   };
-  
+
 
   const onToggle = async () => {
     setSaving(true);
@@ -127,15 +135,15 @@ export function PernikahanForm({
       const payload = {
         user_id: userId,
         id:      invitationId,
-        title:   slug,
+        title:   slug, // Gunakan slug yang terakhir disimpan
         status:  status === 1 ? 0 : 1,
       };
       console.log('Toggling payload:', payload);
 
       const res = await fetch(TOGGLE_URL, {
-        method:  'POST',
+        method:   'POST',
         headers: { 'Content-Type':'application/json' },
-        body:    JSON.stringify(payload),
+        body:     JSON.stringify(payload),
       });
       const json = await res.json();
       if (json.status !== 'success') {
@@ -159,7 +167,7 @@ export function PernikahanForm({
             <FormItem>
               <FormLabel>Title (Slug)</FormLabel>
               <FormControl>
-                <Input value={slug} onChange={onSlugChange} />
+                <Input value={inputSlug} onChange={onSlugChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -178,7 +186,14 @@ export function PernikahanForm({
           <Button variant="secondary" onClick={onSave} disabled={saving}>
             {saving ? 'Menyimpan…' : 'Simpan'}
           </Button>
-          <Button variant="outline" onClick={() => console.log('Preview', form.getValues())}>
+          <Button variant="outline" onClick={() => {
+            console.log('Pratinjau dengan slug:', slug, form.getValues());
+            // Pratinjau seharusnya menggunakan slug yang terakhir disimpan
+            const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
+            if (iframe) {
+              iframe.src = `/undang/${userId}/${encodeURIComponent(slug)}`;
+            }
+          }}>
             Pratinjau
           </Button>
           <Button onClick={onToggle} disabled={saving}>
