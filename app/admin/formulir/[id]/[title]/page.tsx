@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import jwt from 'jsonwebtoken';
 
-import PernikahanForm from './PernikahanForm';
+import { PernikahanForm } from './PernikahanForm';
 // import KhitananForm from './KhitananForm'; // nanti tambahkan jika butuh
 
 const SECRET = "very-secret-key";
@@ -39,7 +39,7 @@ export default async function Page({ params }: PageProps) {
   const res = await fetch(
     `https://ccgnimex.my.id/v2/android/ginvite/index.php` +
       `?action=get_content_user&user_id=${userId}` +
-      `&id=${id}&title=${encodeURIComponent(title)}`,
+      `&title=${encodeURIComponent(title)}`,
     { cache: 'no-store' }
   );
   if (!res.ok) {

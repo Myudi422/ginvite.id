@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, EllipsisVerticalIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import CreateInvitationPopup from '@/components/CreateInvitationPopup'; // Import komponen popup
 
 type User = { userId: number; email: string };
 interface Invitation { id: number; title: string; status: number; event_date: string; avatar_url: string }
@@ -13,6 +14,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
   const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [search, setSearch] = useState('');
+  const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
 
   const prev = () => setCurrent((i) => (i === 0 ? slides.length - 1 : i - 1));
   const next = () => setCurrent((i) => (i + 1) % slides.length);
@@ -20,6 +22,13 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
   const filtered = invitations.filter((inv) =>
     inv.title.toLowerCase().includes(search.toLowerCase())
   );
+
+  const openCreatePopup = () => setIsCreatePopupOpen(true);
+  const closeCreatePopup = () => setIsCreatePopupOpen(false);
+
+  const handleInvitationCreated = (slug: string) => {
+    router.push(`/admin/formulir/${user.userId}/${slug}`);
+  };
 
   return (
     <div className="space-y-8">
@@ -31,11 +40,20 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
         </div>
         <button
           className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          onClick={() => router.push(`/admin/formulir/${user.userId}/pernikahan`)}
+          onClick={openCreatePopup}
         >
           + Bikin Undangan
         </button>
       </div>
+
+      {/* POPUP */}
+      {isCreatePopupOpen && (
+        <CreateInvitationPopup
+          userId={user.userId}
+          onClose={closeCreatePopup}
+          onInvitationCreated={handleInvitationCreated}
+        />
+      )}
 
       {/* SLIDER */}
       {slides.length > 0 && (
@@ -102,7 +120,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
             <div className="mt-6 flex space-x-4">
               <button
                 className="flex-1 py-2 bg-yellow-400 text-white font-medium rounded-lg hover:bg-yellow-500"
-                onClick={() => router.push(`/admin/formulir/${inv.id}/${inv.title}`)}
+                onClick={() => router.push(`/admin/formulir/${user.userId}/${inv.title}`)}
               >
                 Edit di Form
               </button>

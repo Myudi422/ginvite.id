@@ -25,14 +25,27 @@ export default async function Page() {
     fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_slider`)
   ]);
 
-  if (!invRes.ok || !sliderRes.ok) {
-    return redirect('/error');
+  if (!sliderRes.ok) {
+    return redirect('/error'); // Tetap redirect error jika fetch slider gagal
   }
 
-  const invJson = await invRes.json();
-  const sliderJson = await sliderRes.json();
+  // Tangani respons dari get_invitations
+  let invitations = [];
+  if (invRes.ok) {
+    const invJson = await invRes.json();
+    if (invJson.status === 'success') {
+      invitations = invJson.data;
+    } else if (invRes.status === 404) {
+      // Ini adalah kasus user baru, tidak ada undangan. Biarkan array kosong.
+      console.log("Tidak ada undangan untuk user baru.");
+    } else {
+      return redirect('/error'); // Redirect ke error untuk status code atau status JSON yang lain
+    }
+  } else {
+    return redirect('/error'); // Redirect ke error jika fetch invitations gagal (selain 404)
+  }
 
-  const invitations = invJson.data;
+  const sliderJson = await sliderRes.json();
   const slides = sliderJson.data.map((s: any) => s.image_url);
 
   return (
