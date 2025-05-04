@@ -26,13 +26,14 @@ export function EventSection() {
           <FormMessage/>
         </FormItem>
       )}/>
-      <FormField control={control} name="event.title" render={({ field }) => (
+      {/* Hapus atau komentari bagian ini untuk menghilangkan input Judul Acara */}
+      {/* <FormField control={control} name="event.title" render={({ field }) => (
         <FormItem>
           <FormLabel>Judul Acara</FormLabel>
           <FormControl><Input {...field}/></FormControl>
           <FormMessage/>
         </FormItem>
-      )}/>
+      )}/> */}
       <FormField control={control} name="event.location" render={({ field }) => (
         <FormItem>
           <FormLabel>Lokasi</FormLabel>

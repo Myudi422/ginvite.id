@@ -17,12 +17,13 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation'; // Import useRouter
 
 interface Props {
-  previewUrl:     string;
-  userId:         number;
-  invitationId:   number;
-  initialSlug:    string;         // NEW: the real slug/title
-  contentData:    Partial<FormValues>;
-  initialStatus: number;
+  previewUrl:      string;
+  userId:          number;
+  invitationId:    number;
+  initialSlug:     string;         // NEW: the real slug/title
+  contentData:     Partial<Omit<FormValues, 'event'>>; // Content tanpa event
+  initialStatus:   number;
+  initialEventData: Partial<FormValues['event']>; // Data event dari record
 }
 
 // endpoints
@@ -35,39 +36,50 @@ export function PernikahanForm({
   invitationId,
   initialSlug,
   contentData,
-  initialStatus
+  initialStatus,
+  initialEventData,
 }: Props) {
   // defaults
-  const defaultValues: FormValues = {
-    font:         { body:'',heading:'',special:'' },
-    event:        { iso:'',date:'',note:'',time:'',title:'',location:'',mapsLink:'' },
-    gallery:      { items:[] },
-    parents:      { bride:{father:'',mother:''}, groom:{father:'',mother:''} },
-    children:     [],
-    our_story:    [],
+  const defaultValues: Omit<FormValues, 'event'> = {
+    font:           { body:'',heading:'',special:'' },
+    gallery:        { items:[] },
+    parents:        { bride:{father:'',mother:''}, groom:{father:'',mother:''} },
+    children:       [],
+    our_story:      [],
     invitationNote: ''
   };
 
   const isNew = Object.keys(contentData).length === 0;
-  const initialValues = isNew
+  const initialValuesWithoutEvent = isNew
     ? defaultValues
-    : { ...defaultValues, ...contentData } as FormValues;
+    : { ...defaultValues, ...contentData } as Omit<FormValues, 'event'>;
+
+  const initialValues: FormValues = {
+    ...initialValuesWithoutEvent,
+    event: {
+      iso: '',
+      date: '',
+      note: '',
+      time: '',
+      title: initialSlug, // Atau ambil dari initialEventData jika perlu
+      location: '',
+      mapsLink: '',
+      ...initialEventData, // Gabungkan dengan data event dari record
+    },
+  };
 
   // State untuk slug sebenarnya (untuk URL dan preview)
-  const [slug, setSlug]         = useState(initialSlug);
+  const [slug, setSlug]       = useState(initialSlug);
   // State untuk nilai input slug (perubahan real-time)
   const [inputSlug, setInputSlug] = useState(initialSlug);
-  const [status, setStatus]     = useState(initialStatus);
-  const [saving, setSaving]     = useState(false);
-  const [error, setError]       = useState<string|null>(null);
+  const [status, setStatus]   = useState(initialStatus);
+  const [saving, setSaving]   = useState(false);
+  const [error, setError]     = useState<string|null>(null);
   const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: isNew ? undefined : zodResolver(pernikahanSchema),
-    defaultValues: {
-      ...initialValues,
-      event: { ...initialValues.event, title: initialSlug }   // sync event.title
-    },
+    defaultValues: initialValues,
   });
 
   const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,9 +103,13 @@ export function PernikahanForm({
 
       const payload = {
         user_id: userId,
-        id:      invitationId,     // still send content_user.id to API
+        id:      invitationId,       // still send content_user.id to API
         title:   slugToSave,
         content: JSON.stringify(contentPayload),
+        waktu_acara: data.event.date, // Kirim juga waktu_acara
+        time: data.event.time,       // Kirim juga time
+        location: data.event.location, // Kirim juga location
+        mapsLink: data.event.mapsLink, // Kirim juga mapsLink
       };
 
       console.log('Saving payload:', payload);
@@ -165,7 +181,7 @@ export function PernikahanForm({
           control={form.control}
           render={() => (
             <FormItem>
-              <FormLabel>Title (Slug)</FormLabel>
+              <FormLabel>Judul URL yang ditampilkan (Slug)</FormLabel>
               <FormControl>
                 <Input value={inputSlug} onChange={onSlugChange} />
               </FormControl>

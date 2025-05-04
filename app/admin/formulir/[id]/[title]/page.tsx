@@ -9,8 +9,8 @@ const SECRET = 'very-secret-key';
 
 interface PageProps {
   params: {
-    invitationId: string;  // placeholder—API does not need it for GET
-    title:        string;  // the slug/title
+    invitationId: string;   // placeholder—API does not need it for GET
+    title:          string;   // the slug/title
   };
 }
 
@@ -54,6 +54,20 @@ export default async function Page({ params }: PageProps) {
     return <p className="text-red-600">Gagal mem-parsing data undangan.</p>; // Biarkan error parsing tetap ditampilkan
   }
 
+  // Ambil data event dari record langsung
+  const eventDataFromRecord = {
+    date: record.waktu_acara,
+    time: record.time,
+    location: record.location,
+    mapsLink: record.mapsLink,
+    title: record.title, // Anda bisa memutuskan apakah title tetap dari sini atau dari content
+    iso: contentData?.event?.iso || '', // Pertahankan jika ada data lain di iso atau note
+    note: contentData?.event?.note || '',
+  };
+
+  // Buat objek contentData baru tanpa bagian event
+  const { event, ...restContentData } = contentData;
+
   // 3) Choose form component (tetap sama)
   const FormComponent = record.category_name === 'pernikahan'
     ? PernikahanForm
@@ -87,8 +101,9 @@ export default async function Page({ params }: PageProps) {
               userId={record.user_id}
               invitationId={record.id}
               initialSlug={record.title}
-              contentData={contentData}
+              contentData={restContentData} // Kirim data content tanpa event
               initialStatus={record.status}
+              initialEventData={eventDataFromRecord} // Kirim data event dari record
             />
           ) : (
             <p className="text-yellow-500">
