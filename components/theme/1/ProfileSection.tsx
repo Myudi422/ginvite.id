@@ -17,14 +17,8 @@ interface ProfileSectionProps {
     accentColor: string;
     textColor: string;
   };
-  event: {
-    title: string;
-    date: string;
-    time: string;
-    note?: string;
-    location: string;
-    mapsLink: string;
-  };
+  waktu_acara: string; // Ganti event.date dengan waktu_acara
+  time: string;        // Tambahkan properti time
   childrenData: Array<{ nickname: string }>;
   isWedding: boolean;
   minHeight?: string;
@@ -45,7 +39,8 @@ export default function ProfileSection({
   gallery,
   defaultBgImage1,
   opening,
-  event,
+  waktu_acara, // Gunakan waktu_acara
+  time,        // Terima properti time
   childrenData,
   isWedding,
   minHeight = '100vh',
@@ -148,13 +143,13 @@ export default function ProfileSection({
           className="relative z-10 pt-20 text-center"
         >
           <div
-      className={`font-semibold ${marginBottomWeddingText}`}
-      style={{ 
-        ...weddingTextFontSize, // Gabungkan weddingTextFontSize menggunakan spread operator
-        fontFamily: HeadingFontFamily,
-        color: theme.textColor,  // Tambahkan fontFamily setelahnya (atau sebelumnya)
-      }}
-    >
+            className={`font-semibold ${marginBottomWeddingText}`}
+            style={{
+              ...weddingTextFontSize, // Gabungkan weddingTextFontSize menggunakan spread operator
+              fontFamily: HeadingFontFamily,
+              color: theme.textColor,  // Tambahkan fontFamily setelahnya (atau sebelumnya)
+            }}
+          >
             {opening.title}
           </div>
         </motion.div>
@@ -185,7 +180,7 @@ export default function ProfileSection({
           className="text-white font-medium text-xl"
           style={{ paddingTop: '0px', fontFamily: BodyFontFamily}}
         >
-          {event.date}
+          {waktu_acara} {/* Gunakan waktu_acara di sini */}
         </div>
       </motion.div>
 

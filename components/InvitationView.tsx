@@ -53,38 +53,58 @@ export default function InvitationView({ data }: { data: any }) {
     return <div className="flex items-center justify-center h-screen">Loading Data...</div>;
   }
 
-  const { theme, content, decorations } = data;
+  const { theme, content, decorations, waktu_acara: eventDateProp, time: eventTime, location: eventLocation, mapsLink: eventMapsLink } = data;
   const {
     opening,
     quotes,
     invitation,
     children,
     parents,
-    event,
     gallery,
     our_story,
     closing,
+    title: eventTitleInContent, // Jika title masih ada di dalam content
   } = content;
 
-  const eventDate = new Date(event.iso);
+  // Gabungkan tanggal dan waktu untuk membuat objek Date yang valid
+  let eventDate: Date | null = null;
+  if (eventDateProp && eventTime) {
+    try {
+      // Buat string tanggal dan waktu dengan format yang dipahami oleh Date
+      const dateTimeString = `${eventDateProp} ${eventTime}`;
+      // Buat objek Date dengan menganggapnya sebagai waktu lokal
+      eventDate = new Date(dateTimeString);
+
+      // Jika perlu, Anda bisa menyesuaikan zona waktu ke UTC untuk toISOString()
+      // const offset = eventDate.getTimezoneOffset();
+      // eventDate = new Date(eventDate.getTime() - (offset * 60 * 1000));
+    } catch (error) {
+      console.error("Error creating event Date:", error);
+      eventDate = null;
+    }
+  }
+
   const isWedding = !!parents.groom;
 
-  // Prepare Google Calendar URL
-  const start = eventDate.toISOString().replace(/-|:|\.\d+/g, "");
-  const end = new Date(eventDate.getTime() + 3600000)
-    .toISOString()
-    .replace(/-|:|\.\d+/g, "");
-  const calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}&text=${encodeURIComponent(
-    opening.title
-  )}&details=${encodeURIComponent(invitation)}&location=${encodeURIComponent(
-    event.location
-  )}`;
+  // Prepare Google Calendar URL (gunakan eventDate yang valid)
+  let calendarUrl = "";
+  if (eventDate) {
+    const start = eventDate.toISOString().replace(/-|:|\.\d+/g, "");
+    const end = new Date(eventDate.getTime() + 3600000)
+      .toISOString()
+      .replace(/-|:|\.\d+/g, "");
+    calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}&text=${encodeURIComponent(
+      opening.title
+    )}&details=${encodeURIComponent(invitation)}&location=${encodeURIComponent(
+      eventLocation
+    )}`;
+  }
 
   const sampleQrData = "SampleGuestID12345";
 
   // Proses specialFontFamily untuk menghilangkan titik koma jika ada
   const processedSpecialFontFamily = content?.font?.special?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
-  
+
   // Proses bodyFontFamily untuk menghilangkan "font-family:", spasi, dan titik koma jika ada
   const processedBodyFontFamily = content?.font?.body?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
 
@@ -162,27 +182,28 @@ export default function InvitationView({ data }: { data: any }) {
         {/* Main Sections Container */}
         {isOpen && !isLoading && (
           <div className="w-full">
-            <ProfileSection
-              gallery={gallery}
-              defaultBgImage1={theme.defaultBgImage1}
-              opening={opening}
-              childrenData={children}
-              isWedding={isWedding}
-              nameFontSize={{ fontSize: '50px' }}
-              weddingTextFontSize={{ fontSize: '20px' }}
-              marginBottomWeddingText="mb-3"
-              marginBottomName="mb-4"
-              topLeftDecoration={decorations?.topLeft}
-              topRightDecoration={decorations?.topRight}
-              bottomLeftDecoration={decorations?.bottomLeft}
-              bottomRightDecoration={decorations?.bottomRight}
-              specialFontFamily={processedSpecialFontFamily}
-              BodyFontFamily={processedBodyFontFamily}
-              HeadingFontFamily={processedHeadingFontFamily}
-              event={event} // Pastikan Anda meneruskan objek event di sini
-              theme={theme}
-            />
-            
+<ProfileSection
+  gallery={gallery}
+  defaultBgImage1={theme.defaultBgImage1}
+  opening={opening}
+  childrenData={children}
+  isWedding={isWedding}
+  nameFontSize={{ fontSize: '50px' }}
+  weddingTextFontSize={{ fontSize: '20px' }}
+  marginBottomWeddingText="mb-3"
+  marginBottomName="mb-4"
+  topLeftDecoration={decorations?.topLeft}
+  topRightDecoration={decorations?.topRight}
+  bottomLeftDecoration={decorations?.bottomLeft}
+  bottomRightDecoration={decorations?.bottomRight}
+  specialFontFamily={processedSpecialFontFamily}
+  BodyFontFamily={processedBodyFontFamily}
+  HeadingFontFamily={processedHeadingFontFamily}
+  theme={theme}
+  waktu_acara={eventDateProp || ''} // Kirimkan waktu_acara
+  time={eventTime || ''}            // Kirimkan time
+/>
+
             <ImportantEventSection theme={theme} quotes={quotes} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} />
             <InvitationTextSection invitation={invitation} />
             <FamilySection
@@ -191,8 +212,15 @@ export default function InvitationView({ data }: { data: any }) {
               isWedding={isWedding}
               theme={theme}
             />
-            <CountdownSection eventDate={eventDate} calendarUrl={calendarUrl} theme={theme} />
-            <EventSection content={content} theme={theme} />
+            <CountdownSection eventDate={eventDate || new Date()} calendarUrl={calendarUrl} theme={theme} />
+            <EventSection
+              date={eventDateProp || ''} // Gunakan waktu_acara langsung
+              time={eventTime || ''}
+              location={eventLocation || ''}
+              mapsLink={eventMapsLink || ''}
+              theme={theme}
+              title={eventTitleInContent} // Gunakan title dari content jika ada
+            />
             {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
             <GallerySection gallery={gallery} theme={{ defaultBgImage: theme.defaultBgImage }} />
             <ClosingSection closing={closing} defaultBgImage={theme.defaultBgImage} />

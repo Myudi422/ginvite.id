@@ -1,28 +1,29 @@
-// components/theme/1/EventSection.tsx
 import { MapPin, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 interface EventSectionProps {
-  content: {
-    event: {
-      title: string;
-      date: string;
-      time: string;
-      note?: string;
-      location: string;
-      mapsLink: string;
-    };
-  };
+  date: string;
+  time: string;
+  location: string;
+  mapsLink: string;
+  title?: string; // Tambahkan title sebagai properti opsional jika masih ingin digunakan
+  note?: string;
   theme: {
     accentColor: string;
     defaultBgImage: string;
   };
 }
 
-export default function EventSection({ content, theme }: EventSectionProps) {
-  const { title, date, time, note, location, mapsLink } = content.event;
-
+export default function EventSection({
+  date,
+  time,
+  location,
+  mapsLink,
+  theme,
+  title, // Terima title sebagai properti
+  note,
+}: EventSectionProps) {
   return (
     <section
       id="event"
@@ -35,12 +36,14 @@ export default function EventSection({ content, theme }: EventSectionProps) {
       }}
     >
       <div className="home-inner">
-        <h2
-          className="text-4xl md:text-5xl font-cursive mb-4"
-          style={{ color: theme.accentColor }}
-        >
-          {title}
-        </h2>
+        {title && (
+          <h2
+            className="text-4xl md:text-5xl font-cursive mb-4"
+            style={{ color: theme.accentColor }}
+          >
+            {title}
+          </h2>
+        )}
 
         {/* Date & Time Card */}
         <div className="relative p-6 bg-white rounded-lg shadow-soft mb-8">
@@ -77,5 +80,5 @@ export default function EventSection({ content, theme }: EventSectionProps) {
         </div>
       </div>
     </section>
-);
+  );
 }
