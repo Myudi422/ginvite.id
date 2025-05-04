@@ -17,7 +17,7 @@ interface PageProps {
 export default async function Page({ params }: PageProps) {
   const { title } = params;
 
-  // 1) Auth
+  // 1) Auth (tetap sama)
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
   if (!token) return redirect('/login');
@@ -37,24 +37,29 @@ export default async function Page({ params }: PageProps) {
     { cache: 'no-store' }
   );
   if (!res.ok) {
-    return <p className="text-red-600">Gagal mengambil data undangan.</p>;
+    console.error("Gagal mengambil data undangan:", res.status);
+    return redirect('/admin'); // Redirect ke halaman admin jika fetch gagal
   }
   const json = await res.json();
   if (json.status !== 'success' || !json.data.length) {
-    return <p className="text-red-600">Data undangan tidak ditemukan.</p>;
+    console.log(`Data undangan dengan title "${title}" untuk user ${jwtUserId} tidak ditemukan.`);
+    return redirect('/admin'); // Redirect ke halaman admin jika data tidak ditemukan
   }
 
   const record = json.data[0];
   let contentData: any;
   try { contentData = JSON.parse(record.content); }
-  catch { return <p className="text-red-600">Gagal mem-parsing data undangan.</p>; }
+  catch (error) {
+    console.error("Gagal mem-parsing data undangan:", error);
+    return <p className="text-red-600">Gagal mem-parsing data undangan.</p>; // Biarkan error parsing tetap ditampilkan
+  }
 
-  // 3) Choose form component
+  // 3) Choose form component (tetap sama)
   const FormComponent = record.category_name === 'pernikahan'
     ? PernikahanForm
     : null;
 
-  // 4) Build preview URL
+  // 4) Build preview URL (tetap sama)
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;
 
   return (
@@ -78,12 +83,12 @@ export default async function Page({ params }: PageProps) {
 
           {FormComponent ? (
             <FormComponent
-              previewUrl    ={previewUrl}
-              userId        ={record.user_id}      // payload.user_id
-              invitationId  ={record.id}           // payload.id
-              initialSlug   ={record.title}        // << pass the real title here
-              contentData   ={contentData}
-              initialStatus ={record.status}
+              previewUrl={previewUrl}
+              userId={record.user_id}
+              invitationId={record.id}
+              initialSlug={record.title}
+              contentData={contentData}
+              initialStatus={record.status}
             />
           ) : (
             <p className="text-yellow-500">
@@ -92,7 +97,7 @@ export default async function Page({ params }: PageProps) {
           )}
         </div>
 
-        {/* Preview */}
+        {/* Preview (tetap sama) */}
         <div className="hidden lg:block sticky top-16 h-[calc(100vh-64px)] rounded-lg overflow-hidden shadow-md">
           <iframe
             id="previewFrame"
