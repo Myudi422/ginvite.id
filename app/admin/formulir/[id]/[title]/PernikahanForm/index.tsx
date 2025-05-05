@@ -83,8 +83,11 @@ export function PernikahanForm({
   });
 
   const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Update inputSlug secara real-time
-    const newSlug = e.target.value.toLowerCase().replace(/\s+/g, '-');
+    const newSlug = e.target.value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Hapus semua karakter kecuali huruf, angka, spasi, dan -
+      .replace(/\s+/g, '-')       // Ganti spasi dengan -
+      .replace(/-+/g, '-');      // Hapus tanda hubung ganda
     setInputSlug(newSlug);
   };
 
@@ -197,7 +200,12 @@ export function PernikahanForm({
 
         <FontSection />
         <EventSection />
-        <GallerySection />
+        <GallerySection
+  userId={userId}
+  invitationId={invitationId}
+  slug={inputSlug}
+  onSavedSlug={slug}  // biar URL preview tetap pakai slug terakhir tersimpan
+/>
         <ParentsSection />
         <ChildrenSection />
         <StorySection />
