@@ -33,10 +33,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.back()}
+                onClick={() => router.replace('/admin')} // Menggunakan router.replace
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-1" />
-                Back
+                Kembali Ke Dashboard
               </Button>
             </div>
           )}
