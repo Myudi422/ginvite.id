@@ -63,7 +63,7 @@ function Header() {
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-3 md:py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-3 flex items-center justify-between"> {/* Padding vertikal lebih kecil di mobile */}
         {/* Logo (Sample) */}
         <Link href="#" className="font-bold text-xl text-blue-500">
           [LOGO]
@@ -77,7 +77,7 @@ function Header() {
         </div>
 
         {/* Desktop Menu */}
-        <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
+        <nav className="hidden md:flex items-center space-x-4 lg:space-x-6"> {/* Spacing antar item disesuaikan */}
           {navigation.map((item) => (
             item.children ? (
               <div key={item.name} className="relative group"> {/* Tambahkan "relative group" di sini */}
@@ -88,14 +88,20 @@ function Header() {
               <NavLink key={item.name} href={item.href}>{item.name}</NavLink>
             )
           ))}
-          <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-5 py-2 font-semibold">
+          <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap"> {/* Padding dan whitespace tombol disesuaikan */}
             COBA Gratis
           </Button>
         </nav>
 
         {/* Mobile Menu (Dropdown) */}
         {isMobileMenuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white shadow-md rounded-b-md py-2 flex flex-col items-center space-y-3">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 right-0 bg-white shadow-md rounded-b-md py-2 flex flex-col items-center space-y-3"
+          >
             {navigation.map((item) => (
               <div key={item.name} className="w-full text-center">
                 <NavLink href={item.href}>{item.name}</NavLink>
@@ -108,10 +114,10 @@ function Header() {
                 )}
               </div>
             ))}
-            <Button className="w-auto bg-green-500 hover:bg-green-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-5 py-2 font-semibold">
+            <Button className="w-auto bg-green-500 hover:bg-green-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap">
               COBA Gratis
             </Button>
-          </div>
+          </motion.div>
         )}
       </div>
     </motion.header>

@@ -29,8 +29,8 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative py-6 px-6 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-transparent opacity-40 z-0" />
+    <section className="relative py-6 px-6 overflow-hidden bg-white"> {/* Background putih */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-300 to-transparent opacity-20 z-0" /> {/* Overlay gradient */}
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-center">
@@ -41,7 +41,7 @@ export default function HeroSection() {
               transition={{ duration: 0.6 }}
               className="space-y-3 md:space-y-4 lg:space-y-5"
             >
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-slate-800 leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-pink-800 leading-tight">
                 Undangan Online <br className="hidden md:block" />
                 Untuk{" "}
                 <motion.span
@@ -49,19 +49,19 @@ export default function HeroSection() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500 inline-block"
+                  className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-rose-500 inline-block"
                 >
                   {eventTypes[currentEventType]}
                 </motion.span>
                 <br className="hidden md:block" />
-                <span className="text-green-500">GRATIS!</span>
+                <span className="text-green-600">GRATIS!</span>
               </h1>
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-slate-700">
-                <span className="text-blue-500">Gampang</span> Banget!
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-semibold text-pink-700">
+                <span className="text-rose-500">Gampang</span> Banget!
               </h2>
-              <p className="text-base md:text-lg text-slate-600 max-w-lg">
-                Coba buat undangan online <strong className="text-green-600">GRATIS</strong>, 5 menit jadi! <br className="hidden md:block" />
-                Mau dibantu admin? <span className="italic text-orange-500">Gratis Uji Coba</span>, bayar setelah oke.
+              <p className="text-base md:text-lg text-pink-600 max-w-lg">
+                Coba buat undangan online <strong className="text-green-700">GRATIS</strong>, 5 menit jadi! <br className="hidden md:block" />
+                Mau dibantu admin? <span className="italic text-orange-600">Gratis Uji Coba</span>, bayar setelah oke.
               </p>
             </motion.div>
 
@@ -73,7 +73,7 @@ export default function HeroSection() {
             >
               <Button
                 size="lg"
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md hover:shadow-lg transition-all px-6 py-3 font-semibold"
+                className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white rounded-full shadow-md hover:shadow-lg transition-all px-6 py-3 font-semibold"
               >
                 🚀 Coba Gratis Sekarang
               </Button>
