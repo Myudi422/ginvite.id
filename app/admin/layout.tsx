@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <SidebarMobile />
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:block w-64 border-r bg-background sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden md:block w-60 border-r bg-background sticky top-0 h-screen overflow-y-auto">
         <SidebarDesktop />
       </aside>
 
