@@ -9,15 +9,15 @@ const SECRET = 'very-secret-key';
 
 interface PageProps {
   params: {
-    invitationId: string;   // placeholder—API does not need it for GET
-    title:          string;   // the slug/title
+    invitationId: string;
+    title:        string;
   };
 }
 
 export default async function Page({ params }: PageProps) {
   const { title } = params;
 
-  // 1) Auth (tetap sama)
+  // 1) Auth
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
   if (!token) return redirect('/login');
@@ -38,12 +38,12 @@ export default async function Page({ params }: PageProps) {
   );
   if (!res.ok) {
     console.error("Gagal mengambil data undangan:", res.status);
-    return redirect('/admin'); // Redirect ke halaman admin jika fetch gagal
+    return redirect('/admin');
   }
   const json = await res.json();
   if (json.status !== 'success' || !json.data.length) {
-    console.log(`Data undangan dengan title "${title}" untuk user ${jwtUserId} tidak ditemukan.`);
-    return redirect('/admin'); // Redirect ke halaman admin jika data tidak ditemukan
+    console.log(`Data undangan "${title}" untuk user ${jwtUserId} tidak ditemukan.`);
+    return redirect('/admin');
   }
 
   const record = json.data[0];
@@ -51,46 +51,62 @@ export default async function Page({ params }: PageProps) {
   try { contentData = JSON.parse(record.content); }
   catch (error) {
     console.error("Gagal mem-parsing data undangan:", error);
-    return <p className="text-red-600">Gagal mem-parsing data undangan.</p>; // Biarkan error parsing tetap ditampilkan
+    return <p className="text-red-600">Gagal mem-parsing data undangan.</p>;
   }
 
-  // Ambil data event dari record langsung
+  // Ambil data event
   const eventDataFromRecord = {
-    date: record.waktu_acara,
-    time: record.time,
+    date:     record.waktu_acara,
+    time:     record.time,
     location: record.location,
     mapsLink: record.mapsLink,
-    title: record.title, // Anda bisa memutuskan apakah title tetap dari sini atau dari content
-    iso: contentData?.event?.iso || '', // Pertahankan jika ada data lain di iso atau note
-    note: contentData?.event?.note || '',
+    title:    record.title,
+    iso:      contentData?.event?.iso || '',
+    note:     contentData?.event?.note || '',
   };
-
-  // Buat objek contentData baru tanpa bagian event
   const { event, ...restContentData } = contentData;
 
-  // 3) Choose form component (tetap sama)
+  // 3) Pilih form component
   const FormComponent = record.category_name === 'pernikahan'
     ? PernikahanForm
     : null;
 
-  // 4) Build preview URL (tetap sama)
+  // 4) Preview URL
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-4 lg:px-4">
-      <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-2 lg:gap-2">
-        {/* Form */}
-        <div className="bg-white shadow-md rounded-lg p-6">
+    <div className="min-h-screen bg-gray-100 py-4 px-4">
+      <div className="flex flex-col lg:flex-row items-stretch h-full max-w-7xl mx-auto gap-4">
+        
+        {/* Preview */}
+        <div className="
+          order-first lg:order-last
+          w-full lg:w-1/2
+          bg-white shadow-md rounded-lg overflow-hidden
+          flex flex-col
+          lg:sticky lg:top-16 lg:flex-1 lg:h-[calc(100vh-64px)]
+        ">
+          <div className="w-full aspect-[9/16] lg:aspect-auto flex-1">
+            <iframe
+              id="previewFrame"
+              src={previewUrl}
+              className="w-full h-full"
+              title="Pratinjau Undangan"
+            />
+          </div>
+        </div>
 
+        {/* Form */}
+        <div className="order-last lg:order-first w-full lg:w-1/2 bg-white shadow-md rounded-lg p-6 flex flex-col">
           {FormComponent ? (
             <FormComponent
               previewUrl={previewUrl}
               userId={record.user_id}
               invitationId={record.id}
               initialSlug={record.title}
-              contentData={restContentData} // Kirim data content tanpa event
+              contentData={restContentData}
               initialStatus={record.status}
-              initialEventData={eventDataFromRecord} // Kirim data event dari record
+              initialEventData={eventDataFromRecord}
             />
           ) : (
             <p className="text-yellow-500">
@@ -99,15 +115,6 @@ export default async function Page({ params }: PageProps) {
           )}
         </div>
 
-        {/* Preview (tetap sama) */}
-        <div className="hidden lg:block sticky top-16 h-[calc(100vh-64px)] rounded-lg overflow-hidden shadow-md">
-          <iframe
-            id="previewFrame"
-            src={previewUrl}
-            className="w-full h-full"
-            title="Pratinjau Undangan"
-          />
-        </div>
       </div>
     </div>
   );

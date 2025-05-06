@@ -5,7 +5,7 @@ import { Heart, BookUser, Users, Sparkles } from "lucide-react";
 
 export default function FeaturesSection() {
   return (
-    <section className="px-6 py-6 bg-slate-50">
+    <section className="px-6 py-6 bg-pink-10">
       <div className="container mx-auto px-4 md:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -59,7 +59,7 @@ export default function FeaturesSection() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow"
             >
-              <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto">
+              <div className="bg-pink-50 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto">
                 {feature.icon}
               </div>
               <h3 className="font-semibold text-xl text-slate-800 mb-2 text-center">
