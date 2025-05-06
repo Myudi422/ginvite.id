@@ -83,7 +83,7 @@ export default function HeroSection() {
                 className="w-full sm:w-auto border-2 border-green-600 text-green-700 hover:bg-green-50 rounded-full flex items-center gap-2 px-6 py-3 font-semibold"
               >
                 <MessageSquare size={18} />
-                <span>💬 Minta Dibuatkan</span>
+                <span>Minta Dibuatkan</span>
               </Button>
             </motion.div>
           </div>

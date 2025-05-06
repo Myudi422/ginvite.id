@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Eye, Download } from "lucide-react";
+import { Eye } from "lucide-react";
 
 // Category data
 const categories = [
@@ -20,62 +20,14 @@ const categories = [
 
 // Theme data
 const themes = [
-  {
-    id: 1,
-    name: "Bee-Classic",
-    price: "Rp.39.000",
-    image: "https://images.pexels.com/photos/7180617/pexels-photo-7180617.jpeg",
-    category: "wedding",
-  },
-  {
-    id: 2,
-    name: "Baby-Sweet",
-    price: "Rp.39.000",
-    image: "https://images.pexels.com/photos/6341529/pexels-photo-6341529.jpeg",
-    category: "aqiqah",
-  },
-  {
-    id: 3,
-    name: "Honey-Night",
-    price: "Rp.39.000",
-    image: "https://images.pexels.com/photos/3014856/pexels-photo-3014856.jpeg",
-    category: "wedding",
-  },
-  {
-    id: 4,
-    name: "Elegan-Black",
-    price: "Rp.39.000",
-    image: "https://images.pexels.com/photos/3469402/pexels-photo-3469402.jpeg",
-    category: "seminar",
-  },
-  {
-    id: 5,
-    name: "Blissful-Day",
-    price: "Rp.39.000",
-    image: "https://images.pexels.com/photos/931796/pexels-photo-931796.jpeg",
-    category: "wedding",
-  },
-  {
-    id: 6,
-    name: "Celebration",
-    price: "Rp.39.000",
-    image: "https://images.pexels.com/photos/6341528/pexels-photo-6341528.jpeg",
-    category: "birthday",
-  },
-  {
-    id: 7,
-    name: "Academy",
-    price: "Rp.39.000",
-    image: "https://images.pexels.com/photos/6177640/pexels-photo-6177640.jpeg",
-    category: "graduation",
-  },
-  {
-    id: 8,
-    name: "Little-Prince",
-    price: "Rp.39.000",
-    image: "https://images.pexels.com/photos/7180752/pexels-photo-7180752.jpeg",
-    category: "khitan",
-  },
+  { id: 1, name: "Bee-Classic", price: "Rp.39.000", image: "https://images.pexels.com/photos/7180617/pexels-photo-7180617.jpeg", category: "wedding" },
+  { id: 2, name: "Baby-Sweet", price: "Rp.39.000", image: "https://images.pexels.com/photos/6341529/pexels-photo-6341529.jpeg", category: "aqiqah" },
+  { id: 3, name: "Honey-Night", price: "Rp.39.000", image: "https://images.pexels.com/photos/3014856/pexels-photo-3014856.jpeg", category: "wedding" },
+  { id: 4, name: "Elegan-Black", price: "Rp.39.000", image: "https://images.pexels.com/photos/3469402/pexels-photo-3469402.jpeg", category: "seminar" },
+  { id: 5, name: "Blissful-Day", price: "Rp.39.000", image: "https://images.pexels.com/photos/931796/pexels-photo-931796.jpeg", category: "wedding" },
+  { id: 6, name: "Celebration", price: "Rp.39.000", image: "https://images.pexels.com/photos/6341528/pexels-photo-6341528.jpeg", category: "birthday" },
+  { id: 7, name: "Academy", price: "Rp.39.000", image: "https://images.pexels.com/photos/6177640/pexels-photo-6177640.jpeg", category: "graduation" },
+  { id: 8, name: "Little-Prince", price: "Rp.39.000", image: "https://images.pexels.com/photos/7180752/pexels-photo-7180752.jpeg", category: "khitan" },
 ];
 
 interface ThemesSectionProps {
@@ -136,7 +88,8 @@ export default function ThemesSection({
           </Tabs>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+        {/* Grid updated: smaller gap and responsive image height */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
           {filteredThemes.map((theme, index) => (
             <motion.div
               key={theme.id}
@@ -146,26 +99,22 @@ export default function ThemesSection({
               transition={{ duration: 0.5, delay: index * 0.05 }}
             >
               <Card className="overflow-hidden group">
-                <div className="relative overflow-hidden h-80">
+                <div className="relative overflow-hidden h-60 md:h-80">
                   <img 
                     src={theme.image} 
                     alt={theme.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <Button variant="secondary" size="sm" className="mr-2">
+                    <Button variant="secondary" size="sm">
                       <Eye size={16} className="mr-1" />
                       Preview
-                    </Button>
-                    <Button size="sm" className="bg-pink-500 hover:bg-pink-600">
-                      <Download size={16} className="mr-1" />
-                      Gunakan
                     </Button>
                   </div>
                 </div>
                 <CardContent className="p-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium text-lg text-slate-800">{theme.name}</h3>
+                  <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center">
+                    <h3 className="font-medium text-lg text-slate-800 mb-2 sm:mb-0">{theme.name}</h3>
                     <p className="text-pink-600 font-semibold">{theme.price}</p>
                   </div>
                 </CardContent>
