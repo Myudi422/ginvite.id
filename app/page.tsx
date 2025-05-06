@@ -35,7 +35,7 @@ const navigation: NavItem[] = [
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="text-sm md:text-base text-slate-700 hover:text-blue-500 transition-colors duration-300">
+    <Link href={href} className="text-sm md:text-base text-pink-700 hover:text-blue-500 transition-colors duration-300">
       {children}
     </Link>
   );
@@ -58,15 +58,19 @@ function Header() {
 
   return (
     <motion.header
-      className="sticky top-0 bg-white z-20 shadow-sm"
+      className="sticky top-0 z-20 shadow-sm"
+      style={{
+        background: 'rgba(255, 246, 247, 0.8)', // Warna pink dengan sedikit transparansi
+        backdropFilter: 'blur(10px)', // Efek blur
+      }}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-3 flex items-center justify-between"> {/* Padding vertikal lebih kecil di mobile */}
         {/* Logo (Sample) */}
-        <Link href="#" className="font-bold text-xl text-blue-500">
-          [LOGO]
+        <Link href="#" className="font-bold text-xl text-pink-500">
+          [Papunda]
         </Link>
 
         {/* Mobile Menu Button */}
@@ -88,7 +92,7 @@ function Header() {
               <NavLink key={item.name} href={item.href}>{item.name}</NavLink>
             )
           ))}
-          <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap"> {/* Padding dan whitespace tombol disesuaikan */}
+          <Button size="sm" className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap"> {/* Padding dan whitespace tombol disesuaikan */}
             COBA Gratis
           </Button>
         </nav>

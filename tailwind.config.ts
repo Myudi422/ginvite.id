@@ -91,6 +91,6 @@ const config: Config = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate"), ("@tailwindcss/typography")],
+  plugins: [require("tailwindcss-animate"), ("@tailwindcss/typography"), ('@tailwindcss/aspect-ratio')],
 };
 export default config;

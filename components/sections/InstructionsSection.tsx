@@ -1,11 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PlayCircle } from "lucide-react";
+import Image from "next/image";
 
 // Sample image for each step
 const sampleImage = "https://i.pinimg.com/736x/86/3c/e4/863ce476748066d7923815576c6fb4fd.jpg";
+const tutorialImage = "https://images.pexels.com/photos/265756/pexels-photo-265756.jpeg";
 
 const steps = [
   { step: 1, title: "Buat Akun", linkText: "Daftar Sekarang", linkUrl: "/register", image: sampleImage },
@@ -16,41 +17,25 @@ const steps = [
 
 export default function InstructionsSection() {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-6 px-6 bg-white">
       <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
-        >
+        <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
             Cara Menggunakan Platform
           </h2>
           <p className="text-lg text-slate-700 max-w-2xl mx-auto">
             Buat undangan profesional hanya dalam <span className="font-semibold text-pink-500">5 menit</span>.
           </p>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {steps.map((item, idx) => (
-              <motion.div
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+          {/* Steps */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 order-1">
+            {steps.map((item) => (
+              <div
                 key={item.step}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1, type: 'tween' }}
                 className="bg-white border border-gray-200 rounded-lg p-0 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="w-full h-32">
-                  <img
-                    src={item.image}
-                    alt={`Step ${item.step}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
                 <div className="p-6">
                   <div className="text-2xl font-bold text-pink-500 mb-2">
                     Step {item.step}
@@ -69,21 +54,27 @@ export default function InstructionsSection() {
                     </p>
                   )}
                 </div>
-              </motion.div>
+                <div className="aspect-w-16 aspect-h-9 relative">
+                  <Image
+                    src={item.image}
+                    alt={`Step ${item.step}`}
+                    className="object-cover"
+                    fill
+                    sizes="(max-width: 767px) 100vw, (min-width: 768px) 50vw"
+                  />
+                </div>
+              </div>
             ))}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative rounded-lg overflow-hidden shadow-lg"
-          >
-            <img
-              src="https://images.pexels.com/photos/265756/pexels-photo-265756.jpeg"
+          {/* Video */}
+          <div className="relative rounded-lg overflow-hidden shadow-lg aspect-w-16 aspect-h-9 order-2">
+            <Image
+              src={tutorialImage}
               alt="Tutorial Video"
-              className="w-full h-auto"
+              className="object-cover"
+              fill
+              sizes="(max-width: 767px) 100vw, (min-width: 768px) 50vw"
             />
             <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
               <Button
@@ -100,7 +91,7 @@ export default function InstructionsSection() {
               </h3>
               <p className="text-slate-700">Buat undangan online dengan cepat dan mudah.</p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
