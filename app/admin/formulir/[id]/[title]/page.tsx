@@ -75,7 +75,7 @@ export default async function Page({ params }: PageProps) {
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-4 px-4">
+    <div className="min-h-screen bg-gray-50 py-2 px-2">
       <div className="flex flex-col lg:flex-row items-stretch h-full max-w-7xl mx-auto gap-4">
         
         {/* Preview */}
