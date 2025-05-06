@@ -10,7 +10,9 @@ import { GallerySection } from './GallerySection';
 import { ParentsSection } from './ParentsSection';
 import { ChildrenSection } from './ChildrenSection';
 import { StorySection } from './StorySection';
-import { InvitationNoteSection } from './InvitationNoteSection';
+import { PluginSection } from './PluginSection';
+import { BankTransferSection } from './BankTransferSection'; // Import komponen baru
+import { MusicSection } from './MusicSection'; // Import komponen baru
 import { Button } from '@/components/ui/button';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -46,7 +48,9 @@ export function PernikahanForm({
     parents: { bride: { father: '', mother: '' }, groom: { father: '', mother: '' } },
     children: [],
     our_story: [],
-    invitationNote: ''
+    plugin: { rsvp: false, gift: false, whatsapp_notif: false },
+    bank_transfer: { enabled: false, account_name: '', account_number: '', bank_name: '' },
+    music: { enabled: false, url: '' },
   };
 
   const isNew = Object.keys(contentData).length === 0;
@@ -183,7 +187,7 @@ export function PernikahanForm({
 
         {/* Parameter "to" Input */}
         <FormItem>
-          <FormLabel>Parameter Preview "to" (opsional)</FormLabel>
+          <FormLabel>Mengundang Preview "to" (sample)</FormLabel>
           <Input
             placeholder="Contoh: Rizki Wahyudi"
             value={toParam}
@@ -198,7 +202,9 @@ export function PernikahanForm({
         <ParentsSection />
         <ChildrenSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <StorySection />
-        <InvitationNoteSection />
+        <BankTransferSection /> {/* Tambahkan komponen BankTransferSection */}
+        <MusicSection /> {/* Tambahkan komponen MusicSection */}
+        <PluginSection />
 
         {/* Actions */}
         <div className="flex gap-2">

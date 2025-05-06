@@ -6,6 +6,10 @@ export const pernikahanSchema = z.object({
     body: z.string(),
     heading: z.string(),
     special: z.string(),
+    color: z.object({
+      text_color: z.string().startsWith('#'), // Validasi format hex color
+      accent_color: z.string().startsWith('#'), // Validasi format hex color
+    }),
   }),
   event: z.object({
     iso: z.string(),
@@ -40,7 +44,21 @@ export const pernikahanSchema = z.object({
       })
     )
     .min(1),
-  invitationNote: z.string().optional(),
+  bank_transfer: z.object({
+    enabled: z.boolean().default(false),
+    account_name: z.string().optional(),
+    account_number: z.string().optional(),
+    bank_name: z.string().optional(),
+  }).optional(),
+  music: z.object({
+    enabled: z.boolean().default(false),
+    url: z.string().url().optional(),
+  }).optional(),
+  plugin: z.object({
+    rsvp: z.boolean().default(false),
+    gift: z.boolean().default(false),
+    whatsapp_notif: z.boolean().default(false),
+  }).optional(),
 });
 
 export type FormValues = z.infer<typeof pernikahanSchema>;
