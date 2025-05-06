@@ -207,7 +207,12 @@ export function PernikahanForm({
   onSavedSlug={slug}  // biar URL preview tetap pakai slug terakhir tersimpan
 />
         <ParentsSection />
-        <ChildrenSection />
+        <ChildrenSection
+  userId={userId}
+  invitationId={invitationId}
+  slug={inputSlug}
+  onSavedSlug={slug}
+/>
         <StorySection />
         <InvitationNoteSection />
 
