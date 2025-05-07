@@ -19,8 +19,10 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 
+// URL endpoints
 const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
 const TOGGLE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status';
+const MIDTRANS_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=midtrans'; // path ke midtrans.php
 
 interface Props {
   previewUrl: string;
@@ -29,7 +31,7 @@ interface Props {
   initialSlug: string;
   contentData: Partial<Omit<FormValues, 'event'>>;
   initialStatus: number;
-  initialEventData?: FormValues['event'];  // sekarang optional
+  initialEventData?: FormValues['event'];
 }
 
 export function PernikahanForm({
@@ -41,19 +43,11 @@ export function PernikahanForm({
   initialStatus,
   initialEventData,
 }: Props) {
-  // defaults untuk semua field kecuali event
+  // default form values
   const defaultValues: Omit<FormValues, 'event'> = {
-    font: {
-      body: '',
-      heading: '',
-      special: '',
-      color: { text_color: '#000000', accent_color: '#FFFFFF' },
-    },
+    font: { body: '', heading: '', special: '', color: { text_color: '#000000', accent_color: '#FFFFFF' } },
     gallery: { items: [] },
-    parents: {
-      bride: { father: '', mother: '' },
-      groom: { father: '', mother: '' },
-    },
+    parents: { bride: { father: '', mother: '' }, groom: { father: '', mother: '' } },
     children: [],
     our_story: [],
     plugin: { rsvp: false, gift: false, whatsapp_notif: false },
@@ -61,26 +55,24 @@ export function PernikahanForm({
     music: { enabled: false, url: '' },
   };
 
-  // destructuring dengan fallback objek kosong supaya .resepsi tidak error
+  // initial event data
   const { resepsi: initResepsi, akad: initAkad } = initialEventData || {};
-
-  // bangun initialValues sesuai schema, tanpa mengubah tampilan form
   const initialValues: FormValues = {
     ...defaultValues,
     ...contentData,
     event: {
       resepsi: {
-        date:     initResepsi?.date     ?? '',
-        note:     initResepsi?.note     ?? '',
-        time:     initResepsi?.time     ?? '',
+        date: initResepsi?.date ?? '',
+        note: initResepsi?.note ?? '',
+        time: initResepsi?.time ?? '',
         location: initResepsi?.location ?? '',
         mapsLink: initResepsi?.mapsLink ?? '',
       },
       akad: initAkad
         ? {
-            date:     initAkad.date,
-            note:     initAkad.note,
-            time:     initAkad.time,
+            date: initAkad.date,
+            note: initAkad.note,
+            time: initAkad.time,
             location: initAkad.location,
             mapsLink: initAkad.mapsLink,
           }
@@ -88,6 +80,7 @@ export function PernikahanForm({
     },
   };
 
+  // component state
   const [slug, setSlug] = useState(initialSlug);
   const [inputSlug, setInputSlug] = useState(initialSlug);
   const [toParam, setToParam] = useState('');
@@ -114,6 +107,7 @@ export function PernikahanForm({
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
   }, [slug, toParam]);
 
+  // slug sanitization
   const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
     const newSlug = raw
@@ -124,29 +118,25 @@ export function PernikahanForm({
     setInputSlug(newSlug);
   };
 
+  // save content
   const onSave = async () => {
     setSaving(true);
     setError(null);
     try {
       const data = form.getValues();
       const slugToSave = inputSlug;
-      const contentPayload = { ...data, event: data.event };
-
+      const { gift, whatsapp_notif } = data.plugin;
+      const jumlah = gift || whatsapp_notif ? 100000 : 40000;
       const payload = {
         user_id: userId,
         id: invitationId,
         title: slugToSave,
-        content: JSON.stringify(contentPayload),
+        content: JSON.stringify({ ...data, event: data.event, jumlah }),
       };
 
-      const res = await fetch(SAVE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(SAVE_URL, { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
       const json = await res.json();
-      if (json.status !== 'success') throw new Error(json.message || 'Unknown error');
-
+      if (json.status !== 'success') throw new Error(json.message);
       setSlug(slugToSave);
       router.replace(`/admin/formulir/${userId}/${encodeURIComponent(slugToSave)}`);
     } catch (err: any) {
@@ -156,31 +146,72 @@ export function PernikahanForm({
     }
   };
 
+  // finalize toggle: toggle_status API
+  const finalizeToggle = async (newStatus: 0 | 1) => {
+    const res = await fetch(TOGGLE_URL, {
+      method: 'POST', headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ user_id: userId, id: invitationId, title: slug, status: newStatus }),
+    });
+    const j = await res.json();
+    if (j.status !== 'success') throw new Error(j.message);
+    setStatus(j.data.status);
+  };
+
   const onToggle = async () => {
     setSaving(true);
     setError(null);
     try {
-      const payload = { user_id: userId, id: invitationId, title: slug, status: status === 1 ? 0 : 1 };
-      const res = await fetch(TOGGLE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (json.status !== 'success') throw new Error(json.message || 'Unknown error');
-      setStatus(json.data.status);
+      if (status === 0) {
+        // 1) Panggil Midtrans
+        const mid = await fetch(MIDTRANS_URL, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            user_id: userId,
+            id_content: invitationId,
+            title: slug,
+          }),
+        });
+        const mjson = await mid.json();
+  
+        // 2) Sudah bayar sebelumnya?
+        if (mjson.status === 'paid') {
+          // langsung nonaktifkan toggle tanpa bayar lagi
+          await finalizeToggle(1);
+          return;
+        }
+  
+        // 3) Belum bayar → pending: munculkan Snap popup
+        if (mjson.status === 'pending') {
+          // @ts-ignore
+          window.snap.pay(mjson.snap_token, {
+            onSuccess: async () => {
+              await finalizeToggle(1);
+            },
+            onError: (e: any) => {
+              setError('Pembayaran gagal: ' + e);
+            },
+          });
+          return;
+        }
+  
+        // 4) Kalau ada error dari midtrans.php
+        throw new Error(mjson.message || 'Midtrans error');
+      } else {
+        // non-aktifkan langsung
+        await finalizeToggle(0);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
       setSaving(false);
     }
   };
-
+  
   return (
     <FormProvider {...form}>
-      <form onSubmit={e => e.preventDefault()} className="space-y-6">
-        {/* Slug */}
-        <FormField name="slug" control={form.control} render={({ field }) => (
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+        <FormField name="slug" control={form.control} render={() => (
           <FormItem>
             <FormLabel>Judul URL (Slug)</FormLabel>
             <div className="flex items-center space-x-2">
@@ -193,11 +224,11 @@ export function PernikahanForm({
             </div>
             <FormMessage />
           </FormItem>
-        )}/>
-        {/* To */}
+        )} />
+
         <FormItem>
           <FormLabel>Mengundang Preview “to”</FormLabel>
-          <Input placeholder="Contoh: Nama Tamu" value={toParam} onChange={e => setToParam(e.target.value)} />
+          <Input placeholder="Contoh: Nama Tamu" value={toParam} onChange={(e) => setToParam(e.target.value)} />
         </FormItem>
 
         <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
@@ -218,6 +249,7 @@ export function PernikahanForm({
             {status === 1 ? 'Non-aktifkan' : 'Aktifkan'}
           </Button>
         </div>
+
         {error && <p className="text-red-600">Error: {error}</p>}
       </form>
     </FormProvider>

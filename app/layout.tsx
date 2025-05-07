@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Script from 'next/script';
 import { GoogleOAuthProvider } from "@react-oauth/google"
 
 export const metadata: Metadata = {
@@ -15,6 +16,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Snap JS */}
+        <Script
+          src="https://app.sandbox.midtrans.com/snap/snap.js"
+          data-client-key="SB-Mid-client-Hq-oZXhBhWzOSZzD"
+          strategy="beforeInteractive"
+        />
+      </head>
       <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
       <body>{children}</body>
       </GoogleOAuthProvider>
