@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { PlayCircle } from "lucide-react";
 import Image from "next/image";
 
-// Sample image for each step and video placeholder
 const sampleImage = "https://i.pinimg.com/736x/86/3c/e4/863ce476748066d7923815576c6fb4fd.jpg";
 const tutorialImage = "https://images.pexels.com/photos/265756/pexels-photo-265756.jpeg";
 
@@ -17,53 +16,92 @@ const steps = [
 
 export default function InstructionsSection() {
   return (
-    <section className="py-6 px-6 bg-white">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+    <section className="py-6 md:py-6 bg-white px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-14 md:mb-20">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
             Cara Menggunakan Platform
           </h2>
-          <p className="text-lg text-slate-700 max-w-2xl mx-auto">
-            Buat undangan profesional hanya dalam <span className="font-semibold text-pink-500">5 menit</span>.
+          <p className="text-gray-600 md:text-lg max-w-xl mx-auto leading-relaxed">
+            Buat undangan profesional hanya dalam{' '}
+            <span className="font-semibold text-pink-500">5 menit</span>
           </p>
         </div>
 
-        {/* Parent grid: 1 column mobile, 2 columns desktop, align items to start */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        {/* Main Content Grid */}
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_0.9fr] gap-8 lg:gap-12">
+          {/* Steps Grid */}
+          <div className="lg:contents">
+            {/* Mobile Carousel */}
+            <div className="lg:hidden pb-4 -mx-4 px-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+              <div className="flex gap-4 w-max">
+                {steps.map((item) => (
+                  <div key={item.step} className="w-[calc(100vw-2rem)] snap-center flex-shrink-0">
+                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all h-full overflow-hidden">
+                      <div className="p-5">
+                        <div className="text-pink-500 font-bold text-lg mb-2">Step {item.step}</div>
+                        <h3 className="text-gray-900 font-semibold text-lg mb-1.5">
+                          {item.title}
+                          {item.linkText && (
+                            <a
+                              href={item.linkUrl}
+                              className="block text-pink-500 hover:text-pink-600 text-sm mt-1"
+                            >
+                              {item.linkText} →
+                            </a>
+                          )}
+                        </h3>
+                        {item.subtitle && (
+                          <p className="text-gray-600 text-sm leading-relaxed">{item.subtitle}</p>
+                        )}
+                      </div>
+                      <div className="relative aspect-video bg-gray-50">
+                        <Image
+                          src={item.image}
+                          alt={`Step ${item.step}`}
+                          fill
+                          className="object-cover"
+                          quality={85}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          {/* Steps Section */}
-          <div className="mb-8">
-            <div className="flex space-x-4 overflow-x-auto lg:overflow-visible lg:grid lg:grid-cols-2 lg:gap-8 scrollbar-hide">
+            {/* Desktop Grid */}
+            <div className="hidden lg:grid grid-cols-2 gap-6">
               {steps.map((item) => (
                 <div
                   key={item.step}
-                  className="flex-shrink-0 w-3/4 lg:w-auto bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden"
                 >
                   <div className="p-6">
-                    <div className="text-2xl font-bold text-pink-500 mb-2">
-                      Step {item.step}
-                    </div>
-                    <h3 className="text-lg font-semibold text-slate-900 mb-1">
-                      {item.title}{' '}
+                    <div className="text-pink-500 font-bold text-lg mb-3">Step {item.step}</div>
+                    <h3 className="text-gray-900 font-semibold text-lg mb-2">
+                      {item.title}
                       {item.linkText && (
-                        <a href={item.linkUrl} className="text-pink-500 hover:underline">
-                          {item.linkText}
+                        <a
+                          href={item.linkUrl}
+                          className="block text-pink-500 hover:text-pink-600 text-sm mt-2"
+                        >
+                          {item.linkText} →
                         </a>
                       )}
                     </h3>
                     {item.subtitle && (
-                      <p className="text-slate-700 text-sm">
-                        {item.subtitle}
-                      </p>
+                      <p className="text-gray-600 text-sm leading-relaxed">{item.subtitle}</p>
                     )}
                   </div>
-                  <div className="aspect-w-16 aspect-h-9 relative">
+                  <div className="relative aspect-video bg-gray-50">
                     <Image
                       src={item.image}
                       alt={`Step ${item.step}`}
-                      className="object-cover"
                       fill
-                      sizes="(max-width: 767px) 100vw, (min-width: 768px) 50vw"
+                      className="object-cover"
+                      quality={85}
                     />
                   </div>
                 </div>
@@ -71,35 +109,33 @@ export default function InstructionsSection() {
             </div>
           </div>
 
-          {/* Video Section: stretch to match steps height */}
-          <div className="w-full rounded-lg overflow-hidden shadow-lg h-full flex flex-col">
-            {/* Video Placeholder: flex-grow for equal height */}
-            <div className="relative w-full flex-grow" style={{ paddingBottom: '56.25%' }}>
+          {/* Video Section */}
+          <div className="group relative h-full rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all">
+            <div className="relative aspect-video bg-gray-900">
               <Image
                 src={tutorialImage}
                 alt="Tutorial Video"
                 fill
-                className="object-cover absolute top-0 left-0"
+                className="object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                quality={90}
               />
-              <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="rounded-full p-4 bg-pink-500 hover:bg-pink-600 transition-colors"
-                >
-                  <PlayCircle size={48} className="text-white" />
-                </Button>
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/40 via-gray-900/20 to-transparent" />
+              
+              <Button
+                variant="ghost"
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full p-0 w-20 h-20 bg-pink-500/90 hover:bg-pink-600 backdrop-blur-sm"
+              >
+                <PlayCircle className="text-white w-14 h-14" strokeWidth={1.5} />
+              </Button>
             </div>
-            {/* Caption stays at bottom */}
-            <div className="p-6 bg-white">
-              <h3 className="text-2xl font-bold text-slate-900 mb-1">
-                Tutorial <span className="text-pink-500">Video</span>
+            
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white bg-gradient-to-t from-gray-900/80">
+              <h3 className="text-2xl font-bold mb-2">
+                Tutorial <span className="text-pink-300">Video</span>
               </h3>
-              <p className="text-slate-700">Buat undangan online dengan cepat dan mudah.</p>
+              <p className="text-gray-200 text-sm">Buat undangan online dengan cepat dan mudah.</p>
             </div>
           </div>
-
         </div>
       </div>
     </section>
