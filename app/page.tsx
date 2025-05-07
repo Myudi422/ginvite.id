@@ -6,6 +6,8 @@ import FeaturesSection from "@/components/sections/FeaturesSection";
 import ThemesSection from "@/components/sections/ThemesSection";
 import InstructionsSection from "@/components/sections/InstructionsSection";
 import PricingSection from "@/components/sections/PricingSection";
+import FooterSection from "@/components/sections/FooterSection";
+import SectionCTA from "@/components/sections/SectionCTA";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -143,6 +145,8 @@ export default function Home() {
       />
       <InstructionsSection />
       <PricingSection />
+      <SectionCTA />
+      <FooterSection />
       <Toaster />
     </main>
   );

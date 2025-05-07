@@ -45,7 +45,7 @@ const pricingPlans = {
         "RSVP (Konfirmasi kehadiran)",
         "Share Eksklusif - Nama Tamu",
       ],
-      cta: "Pilih Paket Ini",
+      cta: "Coba Gratis!",
     },
     {
       title: "Premium",
@@ -59,7 +59,7 @@ const pricingPlans = {
         "Masa Aktif Selamanya",
         "Buku Hadir QR",
       ],
-      cta: "Pilih Paket Populer",
+      cta: "Coba Gratis!",
       popular: true,
     },
   ],
