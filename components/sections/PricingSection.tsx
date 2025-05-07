@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Info } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 const pricingPlans = {
   perUndangan: [
@@ -78,6 +85,7 @@ export default function PricingSection() {
     "perUndangan"
   );
   const [showUjiCobaModal, setShowUjiCobaModal] = useState(false);
+
   const ujiCobaPlan = pricingPlans.perUndangan.find(
     (plan) => plan.title === "Uji Coba"
   );
@@ -88,6 +96,7 @@ export default function PricingSection() {
   return (
     <section className="py-16 px-4 md:px-8 lg:px-16 bg-white">
       <div className="max-w-6xl mx-auto">
+        {/* Judul dan Toggle */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -97,8 +106,6 @@ export default function PricingSection() {
           <h2 className="text-4xl md:text-5xl font-bold text-pink-600 mb-4">
             Pilihan Paket Undangan
           </h2>
-
-          {/* Toggle Switch */}
           <div className="flex justify-center mb-8">
             <div className="bg-pink-50 p-1 rounded-full">
               <button
@@ -125,6 +132,7 @@ export default function PricingSection() {
           </div>
         </motion.div>
 
+        {/* Kartu Paket */}
         <AnimatePresence mode="wait">
           <motion.div
             key={selectedType}
@@ -137,19 +145,19 @@ export default function PricingSection() {
             {(selectedType === "perUndangan"
               ? pricingPlans.perUndangan
               : pricingPlans.langganan
-            ).map((plan, index) => (
+            ).map((plan, idx) => (
               <motion.div
-                key={index}
+                key={idx}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
                 className={`relative p-8 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl ${
                   plan.popular
                     ? "border-2 border-pink-300 bg-gradient-to-b from-pink-50 to-white"
                     : "border border-pink-100 bg-white"
                 } ${
                   selectedType === "langganan"
-                    ? "lg:col-span-3 bg-gradient-to-b from-pink-500 to-purple-500 text-white"
+                    ? "md:col-span-3 bg-gradient-to-b from-pink-500 to-pink-300 text-white"
                     : ""
                 }`}
               >
@@ -159,97 +167,104 @@ export default function PricingSection() {
                   </div>
                 )}
 
-                <div
-                  className={`${
-                    selectedType === "langganan" ? "text-white" : "text-pink-600"
-                  } mb-6`}
-                >
-                  <h3 className="text-2xl font-bold mb-2">{plan.title}</h3>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-extrabold">
-                      {plan.price === "0" ? "GRATIS" : plan.price}
-                    </span>
-                    {selectedType === "perUndangan" && plan.price !== "0" && (
-                      <span className="text-gray-500">/undangan</span>
-                    )}
-                  </div>
-                </div>
-
-                <ul className="space-y-4 mb-4">
-                  {plan.title === "Uji Coba"
-                    ? displayedUjiCobaFeatures.map((feature, i) => (
+                {selectedType === "langganan" ? (
+                  // Layout dua kolom untuk Langganan
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Kiri: Judul, Harga, Deskripsi */}
+                    <div className="space-y-4">
+                      <h3 className="text-2xl font-bold">Langganan</h3>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-extrabold">
+                          120RB/bulan
+                        </span>
+                      </div>
+                      <p className="text-base">
+                        Langganan ini cocok untuk kalian yang reseller/vendor
+                        karena bisa bikin unlimited undangan
+                      </p>
+                    </div>
+                    {/* Kanan: Daftar Fitur */}
+                    <ul className="space-y-4">
+                      {plan.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <CheckCircle2
-                            className={`flex-shrink-0 ${
-                              selectedType === "langganan"
-                                ? "text-white"
-                                : "text-pink-500"
-                            }`}
+                            className="flex-shrink-0 text-white"
                             size={20}
                           />
-                          <span
-                            className={
-                              selectedType === "langganan"
-                                ? "text-white"
-                                : "text-gray-600"
-                            }
-                          >
-                            {feature}
-                          </span>
-                        </li>
-                      ))
-                    : plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-3">
-                          <CheckCircle2
-                            className={`flex-shrink-0 ${
-                              selectedType === "langganan"
-                                ? "text-white"
-                                : "text-pink-500"
-                            }`}
-                            size={20}
-                          />
-                          <span
-                            className={
-                              selectedType === "langganan"
-                                ? "text-white"
-                                : "text-gray-600"
-                            }
-                          >
-                            {feature}
-                          </span>
+                          <span className="text-white">{feature}</span>
                         </li>
                       ))}
-                  {plan.title === "Uji Coba" &&
-                    ujiCobaPlan?.features.length > 5 && (
-                      <li className="flex items-center gap-3">
-                        <Info
-                          className="flex-shrink-0 text-gray-500 cursor-pointer"
-                          size={20}
-                          onClick={() => setShowUjiCobaModal(true)}
-                        />
-                        <button
-                          onClick={() => setShowUjiCobaModal(true)}
-                          className="text-sm text-pink-500 hover:underline focus:outline-none cursor-pointer"
-                        >
-                          Lainnya ({remainingUjiCobaFeaturesCount})
-                        </button>
-                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  // Layout default untuk perUndangan
+                  <>
+                    <div className="text-pink-600 mb-6">
+                      <h3 className="text-2xl font-bold mb-2">
+                        {plan.title}
+                      </h3>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-extrabold">
+                          {plan.price === "0" ? "GRATIS" : plan.price}
+                        </span>
+                        {plan.price !== "0" && (
+                          <span className="text-gray-500">
+                            /undangan
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ul className="space-y-4 mb-4">
+                      {plan.title === "Uji Coba"
+                        ? displayedUjiCobaFeatures.map((f, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <CheckCircle2
+                                className="flex-shrink-0 text-pink-500"
+                                size={20}
+                              />
+                              <span className="text-gray-600">{f}</span>
+                            </li>
+                          ))
+                        : plan.features.map((f, i) => (
+                            <li key={i} className="flex items-start gap-3">
+                              <CheckCircle2
+                                className="flex-shrink-0 text-pink-500"
+                                size={20}
+                              />
+                              <span className="text-gray-600">{f}</span>
+                            </li>
+                          ))}
+                      {plan.title === "Uji Coba" &&
+                        ujiCobaPlan?.features.length! > 5 && (
+                          <li className="flex items-center gap-3">
+                            <Info
+                              className="flex-shrink-0 text-gray-500 cursor-pointer"
+                              size={20}
+                              onClick={() => setShowUjiCobaModal(true)}
+                            />
+                            <button
+                              onClick={() => setShowUjiCobaModal(true)}
+                              className="text-sm text-pink-500 hover:underline focus:outline-none"
+                            >
+                              Lainnya ({remainingUjiCobaFeaturesCount})
+                            </button>
+                          </li>
+                        )}
+                    </ul>
+                    {plan.note && (
+                      <p className="text-sm text-gray-500 mb-4 italic">
+                        {plan.note}
+                      </p>
                     )}
-                </ul>
-
-                {plan.note && (
-                  <p className="text-sm text-gray-500 mb-4 italic">
-                    {plan.note}
-                  </p>
+                  </>
                 )}
 
-                <Link href="/admin" className="block">
+                {/* Tombol CTA */}
+                <Link href="/admin" className="block mt-6">
                   <Button
                     className={`w-full rounded-full text-lg font-semibold py-3 ${
                       selectedType === "langganan"
                         ? "bg-white text-pink-600 hover:bg-gray-100"
-                        : plan.price === "0"
-                        ? "bg-pink-600 hover:bg-pink-700 text-white"
                         : "bg-pink-600 hover:bg-pink-700 text-white"
                     }`}
                   >
@@ -262,17 +277,22 @@ export default function PricingSection() {
         </AnimatePresence>
       </div>
 
-      {/* Modal untuk menampilkan semua fitur Uji Coba */}
+      {/* Modal Semua Fitur Uji Coba */}
       <Dialog open={showUjiCobaModal} onOpenChange={setShowUjiCobaModal}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Semua Fitur Paket Uji Coba</DialogTitle>
-            <DialogDescription>Berikut adalah semua fitur yang tersedia pada paket Uji Coba:</DialogDescription>
+            <DialogDescription>
+              Berikut adalah semua fitur yang tersedia pada paket Uji Coba:
+            </DialogDescription>
           </DialogHeader>
           <ul className="space-y-4">
-            {ujiCobaPlan?.features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <CheckCircle2 className="flex-shrink-0 text-pink-500" size={20} />
+            {ujiCobaPlan?.features.map((feature, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <CheckCircle2
+                  className="flex-shrink-0 text-pink-500"
+                  size={20}
+                />
                 <span className="text-gray-600">{feature}</span>
               </li>
             ))}
