@@ -96,7 +96,7 @@ function Header() {
             )
           ))}
           <Button size="sm" className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap"> {/* Padding dan whitespace tombol disesuaikan */}
-            COBA Gratis
+            Coba Gratis Sekarang!
           </Button>
         </nav>
 

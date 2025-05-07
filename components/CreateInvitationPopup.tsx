@@ -59,66 +59,86 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-xl font-semibold mb-4">Buat Undangan Baru</h2>
-        {error && <p className="text-red-500 mb-2">{error}</p>}
-        <div className="mb-4">
-          <label htmlFor="category" className="block text-gray-700 text-sm font-bold mb-2">
-            Kategori Undangan
-          </label>
-          <select
-            id="category"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="">Pilih Kategori</option>
-            <option value="2">Pernikahan</option> {/* Asumsi ID untuk pernikahan */}
-            <option value="3">Khitanan</option> {/* Asumsi ID untuk khitanan */}
-            {/* Tambahkan opsi kategori lain sesuai kebutuhan */}
-          </select>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="slug" className="block text-gray-700 text-sm font-bold mb-2">
-            Slug (Judul URL)
-          </label>
-          <input
-            type="text"
-            id="slug"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="contoh: pernikahan-andi-siti"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="waktu_acara" className="block text-gray-700 text-sm font-bold mb-2">
-            Waktu Acara
-          </label>
-          <input
-            type="date"
-            id="waktu_acara"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={waktuAcara}
-            onChange={(e) => setWaktuAcara(e.target.value)}
-          />
-        </div>
-        <div className="flex justify-end">
-          <button
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2"
-            onClick={onClose}
-            disabled={loading}
-          >
-            Batal
-          </button>
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            onClick={handleCreateInvitation}
-            disabled={loading}
-          >
-            {loading ? 'Membuat...' : 'Buat'}
-          </button>
+    <div className="fixed inset-0 z-50 bg-pink-100/30 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="bg-gradient-to-br from-pink-50 to-pink-100/50 backdrop-blur-lg rounded-2xl p-8 
+        shadow-2xl border border-pink-200/30 w-full max-w-md">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-pink-400 bg-clip-text 
+          text-transparent mb-6">
+          Buat Undangan Baru
+        </h2>
+        
+        {error && (
+          <div className="mb-4 p-3 bg-red-100/50 rounded-lg border border-red-200/50">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
+
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-pink-700 mb-2">
+              Kategori Undangan
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50 
+                focus:ring-2 focus:ring-pink-300 focus:border-transparent text-pink-700 placeholder-pink-400
+                transition-all shadow-sm"
+            >
+              <option value="">Pilih Kategori</option>
+              <option value="2">Pernikahan</option>
+              <option value="3">Khitanan</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-pink-700 mb-2">
+              Slug (Judul URL)
+            </label>
+            <input
+              type="text"
+              placeholder="contoh: pernikahan-andi-siti"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50 
+                focus:ring-2 focus:ring-pink-300 focus:border-transparent text-pink-700 placeholder-pink-400
+                transition-all shadow-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-pink-700 mb-2">
+              Waktu Acara
+            </label>
+            <input
+              type="date"
+              value={waktuAcara}
+              onChange={(e) => setWaktuAcara(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50 
+                focus:ring-2 focus:ring-pink-300 focus:border-transparent text-pink-700 placeholder-pink-400
+                transition-all shadow-sm"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 mt-8">
+            <button
+              onClick={onClose}
+              disabled={loading}
+              className="px-6 py-2.5 rounded-xl border border-pink-200/50 bg-white/50 hover:bg-white/70 
+                text-pink-600 font-medium transition-all shadow-sm hover:shadow-md disabled:opacity-50"
+            >
+              Batal
+            </button>
+            <button
+              onClick={handleCreateInvitation}
+              disabled={loading}
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500 
+                hover:to-pink-600 text-white font-medium transition-all shadow-sm hover:shadow-md 
+                disabled:opacity-50 disabled:pointer-events-none"
+            >
+              {loading ? 'Membuat...' : 'Buat Undangan'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

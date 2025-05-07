@@ -12,17 +12,15 @@ export default function FooterSection() {
           {/* Logo */}
           <div className="flex flex-col items-center sm:items-start">
             <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
+            <p className="text-sm text-slate-600 mt-4 text-center sm:text-left max-w-xs">
+              Papunda hadir sebagai solusi cerdas dan praktis untuk membuat undangan online. Dengan antarmuka yang mudah digunakan, Anda dapat merancang undangan yang cantik dan profesional untuk berbagai acara spesial Anda dalam hitungan menit. Lupakan kerumitan, sambut kemudahan bersama Papunda!
+            </p>
           </div>
 
           {/* Metode Pembayaran */}
           <div className="flex flex-col items-center sm:items-start">
             <h3 className="text-lg font-semibold text-slate-900 mb-2">Metode Pembayaran</h3>
-            <div className="flex items-center space-x-4">
-              <Image src="/icons/visa.png" alt="Visa" width={40} height={24} />
-              <Image src="/icons/mastercard.png" alt="Mastercard" width={40} height={24} />
-              <Image src="/icons/amex.png" alt="American Express" width={40} height={24} />
-              <Image src="/icons/paypal.png" alt="PayPal" width={40} height={24} />
-            </div>
+            <Image src="/payment.svg" alt="Metode Pembayaran" width={240} height={60} className="object-contain" />
           </div>
 
           {/* Kontak Admin */}
