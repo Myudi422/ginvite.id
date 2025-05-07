@@ -7,18 +7,27 @@ export const pernikahanSchema = z.object({
     heading: z.string(),
     special: z.string(),
     color: z.object({
-      text_color: z.string().startsWith('#'), // Validasi format hex color
-      accent_color: z.string().startsWith('#'), // Validasi format hex color
+      text_color: z.string().startsWith('#'),
+      accent_color: z.string().startsWith('#'),
     }),
   }),
   event: z.object({
-    iso: z.string(),
-    date: z.string(),
-    note: z.string(),
-    time: z.string(),
-    title: z.string(),
-    location: z.string(),
-    mapsLink: z.string().url(),
+    resepsi: z.object({
+      date: z.string(),
+      note: z.string(),
+      time: z.string(),
+      location: z.string(),
+      mapsLink: z.string().url(),
+    }),
+    akad: z
+      .object({
+        date: z.string(),
+        note: z.string(),
+        time: z.string(),
+        location: z.string(),
+        mapsLink: z.string().url(),
+      })
+      .optional(),
   }),
   gallery: z.object({ items: z.array(z.string().url()).min(1) }),
   parents: z.object({
@@ -44,21 +53,27 @@ export const pernikahanSchema = z.object({
       })
     )
     .min(1),
-  bank_transfer: z.object({
-    enabled: z.boolean().default(false),
-    account_name: z.string().optional(),
-    account_number: z.string().optional(),
-    bank_name: z.string().optional(),
-  }).optional(),
-  music: z.object({
-    enabled: z.boolean().default(false),
-    url: z.string().url().optional(),
-  }).optional(),
-  plugin: z.object({
-    rsvp: z.boolean().default(false),
-    gift: z.boolean().default(false),
-    whatsapp_notif: z.boolean().default(false),
-  }).optional(),
+  bank_transfer: z
+    .object({
+      enabled: z.boolean().default(false),
+      account_name: z.string().optional(),
+      account_number: z.string().optional(),
+      bank_name: z.string().optional(),
+    })
+    .optional(),
+  music: z
+    .object({
+      enabled: z.boolean().default(false),
+      url: z.string().url().optional(),
+    })
+    .optional(),
+  plugin: z
+    .object({
+      rsvp: z.boolean().default(false),
+      gift: z.boolean().default(false),
+      whatsapp_notif: z.boolean().default(false),
+    })
+    .optional(),
 });
 
 export type FormValues = z.infer<typeof pernikahanSchema>;

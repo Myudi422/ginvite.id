@@ -15,7 +15,7 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
-  const { title } = params;
+  const { invitationId, title } = params;
 
   // 1) Auth
   const cookieStore = await cookies();
@@ -23,12 +23,14 @@ export default async function Page({ params }: PageProps) {
   if (!token) return redirect('/login');
 
   let payload: any;
-  try { payload = jwt.verify(token, SECRET); }
-  catch { return redirect('/login'); }
-
+  try {
+    payload = jwt.verify(token, SECRET);
+  } catch {
+    return redirect('/login');
+  }
   const jwtUserId = payload.data.userId as number;
 
-  // 2) Fetch record by user_id + title
+  // 2) Fetch record
   const res = await fetch(
     `https://ccgnimex.my.id/v2/android/ginvite/index.php` +
       `?action=get_content_user` +
@@ -37,7 +39,7 @@ export default async function Page({ params }: PageProps) {
     { cache: 'no-store' }
   );
   if (!res.ok) {
-    console.error("Gagal mengambil data undangan:", res.status);
+    console.error('Gagal mengambil data undangan:', res.status);
     return redirect('/admin');
   }
   const json = await res.json();
@@ -47,31 +49,48 @@ export default async function Page({ params }: PageProps) {
   }
 
   const record = json.data[0];
+
+  // 3) Parse JSON content
   let contentData: any;
-  try { contentData = JSON.parse(record.content); }
-  catch (error) {
-    console.error("Gagal mem-parsing data undangan:", error);
+  try {
+    contentData = JSON.parse(record.content);
+  } catch (error) {
+    console.error('Gagal mem-parsing data undangan:', error);
     return <p className="text-red-600">Gagal mem-parsing data undangan.</p>;
   }
 
-  // Ambil data event
-  const eventDataFromRecord = {
-    date:     record.waktu_acara,
-    time:     record.time,
-    location: record.location,
-    mapsLink: record.mapsLink,
-    title:    record.title,
-    iso:      contentData?.event?.iso || '',
-    note:     contentData?.event?.note || '',
+  // 4) Siapkan eventData sesuai schema baru
+  //    — resepsi wajib, ambil dari contentData.event.resepsi
+  //    — akad optional, ambil dari contentData.event.akad kalau ada
+  const eventRaw = contentData.event || {};
+  const initialEventData = {
+    resepsi: {
+      date:     eventRaw.resepsi?.date     ?? '',
+      note:     eventRaw.resepsi?.note     ?? '',
+      time:     eventRaw.resepsi?.time     ?? '',
+      location: eventRaw.resepsi?.location ?? '',
+      mapsLink: eventRaw.resepsi?.mapsLink ?? '',
+    },
+    akad: eventRaw.akad
+      ? {
+          date:     eventRaw.akad.date,
+          note:     eventRaw.akad.note,
+          time:     eventRaw.akad.time,
+          location: eventRaw.akad.location,
+          mapsLink: eventRaw.akad.mapsLink,
+        }
+      : undefined,
   };
+
+  // 5) Sisanya contentData tanpa event
   const { event, ...restContentData } = contentData;
 
-  // 3) Pilih form component
+  // 6) Pilih FormComponent
   const FormComponent = record.category_name === 'pernikahan'
     ? PernikahanForm
     : null;
 
-  // 4) Preview URL
+  // 7) Preview URL
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;
 
   return (
@@ -106,7 +125,7 @@ export default async function Page({ params }: PageProps) {
               initialSlug={record.title}
               contentData={restContentData}
               initialStatus={record.status}
-              initialEventData={eventDataFromRecord}
+              initialEventData={initialEventData}
             />
           ) : (
             <p className="text-yellow-500">
