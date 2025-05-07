@@ -42,7 +42,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
         </div>
         <button
           className="py-3 px-6 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-xl 
-          shadow-lg hover:from-pink-500 hover:to-pink-600 transition-all transform hover:scale-105
+          shadow-sm hover:from-pink-500 hover:to-pink-600 transition-all transform hover:scale-105
           backdrop-blur-lg bg-white/30 border border-white/20"
           onClick={openCreatePopup}
         >
@@ -62,7 +62,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
       {/* SLIDER */}
       {slides.length > 0 && (
         <div className="relative w-full h-56 md:h-64 overflow-hidden rounded-3xl mb-8 
-          backdrop-blur-md bg-white/30 border border-white/20 shadow-xl">
+          backdrop-blur-md bg-white/30 border border-white/20 shadow-md">
           <Image 
             src={slides[current]} 
             alt={`Slide ${current + 1}`} 
@@ -106,7 +106,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
           <div 
             key={inv.id} 
             className="bg-white/30 backdrop-blur-md rounded-2xl p-6 relative 
-            border border-white/20 shadow-xl hover:shadow-2xl transition-all
+            border border-white/20 shadow-md hover:shadow-1xl transition-all
             hover:border-pink-200 group"
           >
             <button className="absolute top-4 right-4 text-pink-500 hover:text-pink-600">
@@ -156,7 +156,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
               </button>
               <button
                 className="w-full py-2 px-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white 
-                rounded-lg hover:from-pink-500 hover:to-pink-600 transition-all shadow-md"
+                rounded-lg hover:from-pink-500 hover:to-pink-600 transition-all shadow-sm"
                 onClick={async () => {
                   await fetch(
                     `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status`,

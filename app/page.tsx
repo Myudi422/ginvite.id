@@ -95,9 +95,9 @@ function Header() {
               <NavLink key={item.name} href={item.href}>{item.name}</NavLink>
             )
           ))}
-          <Button size="sm" className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap"> {/* Padding dan whitespace tombol disesuaikan */}
+          <Link href="/admin" className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap"> {/* Link ke /admin */}
             Coba Gratis Sekarang!
-          </Button>
+          </Link>
         </nav>
 
         {/* Mobile Menu (Dropdown) */}
@@ -121,9 +121,9 @@ function Header() {
                 )}
               </div>
             ))}
-            <Button className="w-auto bg-green-500 hover:bg-green-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap">
+            <Link href="/admin" className="w-auto bg-green-500 hover:bg-green-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap"> {/* Link ke /admin */}
               COBA Gratis
-            </Button>
+            </Link>
           </motion.div>
         )}
       </div>
