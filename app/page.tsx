@@ -5,6 +5,7 @@ import HeroSection from "@/components/sections/HeroSection";
 import FeaturesSection from "@/components/sections/FeaturesSection";
 import ThemesSection from "@/components/sections/ThemesSection";
 import InstructionsSection from "@/components/sections/InstructionsSection";
+import PricingSection from "@/components/sections/PricingSection";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -141,6 +142,7 @@ export default function Home() {
         setSelectedCategory={setSelectedCategory}
       />
       <InstructionsSection />
+      <PricingSection />
       <Toaster />
     </main>
   );
