@@ -76,13 +76,13 @@ export default function ThemesSection({
           {filteredThemes.map((theme) => (
             <div key={theme.id} className="group">
               <Card className="overflow-hidden">
-                <div className="relative overflow-hidden h-60 md:h-80">
+                <div className="relative overflow-hidden" style={{ paddingBottom: 'calc(100% * 16 / 9)' }}>
                   <Image
                     src={theme.image}
                     alt={theme.name}
                     fill
-                    style={{ objectFit: 'cover' }}
-                    className="transition-transform duration-500 group-hover:scale-105"
+                    style={{ objectFit: 'cover', objectPosition: 'center' }}
+                    className="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <Button variant="secondary" size="sm">
@@ -92,10 +92,8 @@ export default function ThemesSection({
                   </div>
                 </div>
                 <CardContent className="p-4">
-                  <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center">
-                    <h3 className="font-medium text-lg text-slate-800 mb-2 sm:mb-0">{theme.name}</h3>
-                    <p className="text-pink-600 font-semibold">{theme.price}</p>
-                  </div>
+                  <h3 className="font-medium text-lg text-slate-800 mb-0">{theme.name}</h3>
+                  {/* Harga dihilangkan */}
                 </CardContent>
               </Card>
             </div>
