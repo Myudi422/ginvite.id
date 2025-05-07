@@ -2,11 +2,30 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Info } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 
 const pricingPlans = {
   perUndangan: [
+    {
+      title: "Uji Coba",
+      price: "0",
+      features: [
+        "Semua Preset/Design Tema",
+        "Edit warna & Font",
+        "Gallery",
+        "Background Music",
+        "Maps",
+        "RSVP (Konfirmasi kehadiran)",
+        "Share Eksklusif - Nama Tamu",
+        "Masa Aktif 1 Tahun",
+        "Edit Tanpa Batas",
+      ],
+      cta: "Coba Gratis!",
+      note: "Semua fitur jika diaktifkan akan disesuaikan harganya jika sudah selesai.",
+    },
     {
       title: "Basic",
       price: "40RB",
@@ -18,10 +37,8 @@ const pricingPlans = {
         "Maps",
         "RSVP (Konfirmasi kehadiran)",
         "Share Eksklusif - Nama Tamu",
-        "Masa Aktif 1 Tahun",
-        "Edit Tanpa Batas"
       ],
-      cta: "Pilih Paket Ini"
+      cta: "Pilih Paket Ini",
     },
     {
       title: "Premium",
@@ -31,12 +48,13 @@ const pricingPlans = {
         "BANK TRANSFER",
         "Gift",
         "Wa Blast & Notif Hadir",
+        "RSVP (Konfirmasi kehadiran)",
         "Masa Aktif Selamanya",
-        "Buku Hadir QR"
+        "Buku Hadir QR",
       ],
       cta: "Pilih Paket Populer",
-      popular: true
-    }
+      popular: true,
+    },
   ],
   langganan: [
     {
@@ -45,18 +63,27 @@ const pricingPlans = {
       features: [
         "Bikin Unlimited Undangan",
         "Footer Brand Kamu",
-        "Custom Domain Kamu",
+        "Custom Domain Premium",
         "Semua Fitur Paket Premium",
-        "Prioritas Support",
-        "Update Fitur Eksklusif"
+        "Prioritas Support 24/7",
+        "Update Fitur Eksklusif",
       ],
-      cta: "Mulai Langganan"
-    }
-  ]
+      cta: "Mulai Langganan",
+    },
+  ],
 };
 
 export default function PricingSection() {
-  const [selectedType, setSelectedType] = useState<"perUndangan" | "langganan">("perUndangan");
+  const [selectedType, setSelectedType] = useState<"perUndangan" | "langganan">(
+    "perUndangan"
+  );
+  const [showUjiCobaModal, setShowUjiCobaModal] = useState(false);
+  const ujiCobaPlan = pricingPlans.perUndangan.find(
+    (plan) => plan.title === "Uji Coba"
+  );
+  const displayedUjiCobaFeatures = ujiCobaPlan?.features.slice(0, 5) || [];
+  const remainingUjiCobaFeaturesCount =
+    (ujiCobaPlan?.features.length || 0) - displayedUjiCobaFeatures.length;
 
   return (
     <section className="py-16 px-4 md:px-8 lg:px-16 bg-white">
@@ -70,7 +97,7 @@ export default function PricingSection() {
           <h2 className="text-4xl md:text-5xl font-bold text-pink-600 mb-4">
             Pilihan Paket Undangan
           </h2>
-          
+
           {/* Toggle Switch */}
           <div className="flex justify-center mb-8">
             <div className="bg-pink-50 p-1 rounded-full">
@@ -96,12 +123,6 @@ export default function PricingSection() {
               </button>
             </div>
           </div>
-
-          <p className="text-gray-600 md:text-lg">
-            {selectedType === "perUndangan"
-              ? "Bayar sekali untuk undangan spesialmu"
-              : "Paket langganan untuk kebutuhan profesional"}
-          </p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -111,7 +132,7 @@ export default function PricingSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
             {(selectedType === "perUndangan"
               ? pricingPlans.perUndangan
@@ -145,45 +166,124 @@ export default function PricingSection() {
                 >
                   <h3 className="text-2xl font-bold mb-2">{plan.title}</h3>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-extrabold">{plan.price}</span>
-                    {selectedType === "perUndangan" && (
+                    <span className="text-4xl font-extrabold">
+                      {plan.price === "0" ? "GRATIS" : plan.price}
+                    </span>
+                    {selectedType === "perUndangan" && plan.price !== "0" && (
                       <span className="text-gray-500">/undangan</span>
                     )}
                   </div>
                 </div>
 
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <CheckCircle2
-                        className={`flex-shrink-0 ${
-                          selectedType === "langganan" ? "text-white" : "text-pink-500"
-                        }`}
-                        size={20}
-                      />
-                      <span
-                        className={selectedType === "langganan" ? "text-white" : "text-gray-600"}
-                      >
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
+                <ul className="space-y-4 mb-4">
+                  {plan.title === "Uji Coba"
+                    ? displayedUjiCobaFeatures.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <CheckCircle2
+                            className={`flex-shrink-0 ${
+                              selectedType === "langganan"
+                                ? "text-white"
+                                : "text-pink-500"
+                            }`}
+                            size={20}
+                          />
+                          <span
+                            className={
+                              selectedType === "langganan"
+                                ? "text-white"
+                                : "text-gray-600"
+                            }
+                          >
+                            {feature}
+                          </span>
+                        </li>
+                      ))
+                    : plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <CheckCircle2
+                            className={`flex-shrink-0 ${
+                              selectedType === "langganan"
+                                ? "text-white"
+                                : "text-pink-500"
+                            }`}
+                            size={20}
+                          />
+                          <span
+                            className={
+                              selectedType === "langganan"
+                                ? "text-white"
+                                : "text-gray-600"
+                            }
+                          >
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                  {plan.title === "Uji Coba" &&
+                    ujiCobaPlan?.features.length > 5 && (
+                      <li className="flex items-center gap-3">
+                        <Info
+                          className="flex-shrink-0 text-gray-500 cursor-pointer"
+                          size={20}
+                          onClick={() => setShowUjiCobaModal(true)}
+                        />
+                        <button
+                          onClick={() => setShowUjiCobaModal(true)}
+                          className="text-sm text-pink-500 hover:underline focus:outline-none cursor-pointer"
+                        >
+                          Lainnya ({remainingUjiCobaFeaturesCount})
+                        </button>
+                      </li>
+                    )}
                 </ul>
 
-                <Button
-                  className={`w-full rounded-full text-lg font-semibold py-6 ${
-                    selectedType === "langganan"
-                      ? "bg-white text-pink-600 hover:bg-gray-100"
-                      : "bg-pink-600 hover:bg-pink-700 text-white"
-                  }`}
-                >
-                  {plan.cta}
-                </Button>
+                {plan.note && (
+                  <p className="text-sm text-gray-500 mb-4 italic">
+                    {plan.note}
+                  </p>
+                )}
+
+                <Link href="/admin" className="block">
+                  <Button
+                    className={`w-full rounded-full text-lg font-semibold py-3 ${
+                      selectedType === "langganan"
+                        ? "bg-white text-pink-600 hover:bg-gray-100"
+                        : plan.price === "0"
+                        ? "bg-pink-600 hover:bg-pink-700 text-white"
+                        : "bg-pink-600 hover:bg-pink-700 text-white"
+                    }`}
+                  >
+                    {plan.cta}
+                  </Button>
+                </Link>
               </motion.div>
             ))}
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Modal untuk menampilkan semua fitur Uji Coba */}
+      <Dialog open={showUjiCobaModal} onOpenChange={setShowUjiCobaModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Semua Fitur Paket Uji Coba</DialogTitle>
+            <DialogDescription>Berikut adalah semua fitur yang tersedia pada paket Uji Coba:</DialogDescription>
+          </DialogHeader>
+          <ul className="space-y-4">
+            {ujiCobaPlan?.features.map((feature, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <CheckCircle2 className="flex-shrink-0 text-pink-500" size={20} />
+                <span className="text-gray-600">{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Tutup
+            </Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
