@@ -2,6 +2,7 @@
 import { z } from 'zod';
 
 export const pernikahanSchema = z.object({
+  theme: z.number().min(1, 'Pilih theme').optional(),   // <<< tambahan di sini
   font: z.object({
     body: z.string(),
     heading: z.string(),

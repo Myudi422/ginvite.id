@@ -13,6 +13,7 @@ import { ChildrenSection } from './ChildrenSection';
 import { StorySection } from './StorySection';
 import { PluginSection } from './PluginSection';
 import { BankTransferSection } from './BankTransferSection';
+import { ThemeSection } from './ThemeSection';
 import { MusicSection } from './MusicSection';
 import { Button } from '@/components/ui/button';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
@@ -131,6 +132,7 @@ export function PernikahanForm({
         user_id: userId,
         id: invitationId,
         title: slugToSave,
+        theme_id: data.theme, 
         content: JSON.stringify({ ...data, event: data.event, jumlah }),
       };
 
@@ -216,7 +218,7 @@ export function PernikahanForm({
             <FormLabel>Judul URL (Slug)</FormLabel>
             <div className="flex items-center space-x-2">
               <span className="inline-flex items-center rounded-md border bg-gray-50 px-3 text-gray-500">
-                ginvite.com/undang/{userId}/
+                papunda.com/undang/{userId}/
               </span>
               <FormControl>
                 <Input value={inputSlug} onChange={onSlugChange} className="flex-1" />
@@ -231,6 +233,7 @@ export function PernikahanForm({
           <Input placeholder="Contoh: Nama Tamu" value={toParam} onChange={(e) => setToParam(e.target.value)} />
         </FormItem>
 
+        <ThemeSection />
         <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <EventSection />
         <GallerySection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
