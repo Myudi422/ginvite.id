@@ -101,7 +101,7 @@ export function PernikahanForm({
     timeoutRef.current = setTimeout(() => {
       const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
       if (iframe) {
-        const param = toParam ? `?to=${encodeURIComponent(toParam)}` : '';
+        const param = toParam ? `?to=${encodeURIComponent(toParam)}&time=${Date.now()}` : `?time=${Date.now()}`;
         iframe.src = `/undang/${userId}/${encodeURIComponent(slug)}${param}`;
       }
     }, 500);
@@ -233,7 +233,13 @@ export function PernikahanForm({
           <Input placeholder="Contoh: Nama Tamu" value={toParam} onChange={(e) => setToParam(e.target.value)} />
         </FormItem>
 
-        <ThemeSection />
+        <ThemeSection
+  userId={userId}
+  invitationId={invitationId}
+  slug={inputSlug}
+  onSavedSlug={slug}
+/>
+
         <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <EventSection />
         <GallerySection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />

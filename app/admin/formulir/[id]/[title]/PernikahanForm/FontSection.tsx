@@ -12,10 +12,10 @@ import {
 } from '@/components/ui/select';
 import { Collapsible } from './Collapsible';
 import type { FormValues } from './schema';
-import { SketchPicker } from 'react-color'; // Import SketchPicker
+import { SketchPicker } from 'react-color';
 
-// Endpoint untuk auto-save konten
-const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
+// Import Server Action
+import { saveContentAction } from '@/app/actions/saveContent';
 
 interface FontSectionProps {
   userId: number;
@@ -24,8 +24,7 @@ interface FontSectionProps {
   onSavedSlug: string;
 }
 
-// Daftar font yang sudah di-import di styles/font.css
-const FONT_OPTIONS: { label: string; css: string; family: string }[] = [
+const FONT_OPTIONS = [
   { label: 'Montserrat', css: "font-family: 'Montserrat', sans-serif;", family: "'Montserrat', sans-serif" },
   { label: 'Great Vibes', css: "font-family: 'Great Vibes', cursive;", family: "'Great Vibes', cursive" },
   { label: 'Handyrush', css: "font-family: 'Handyrush', cursive;", family: "'Handyrush', cursive" },
@@ -36,21 +35,16 @@ const FONT_OPTIONS: { label: string; css: string; family: string }[] = [
 
 export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSectionProps) {
   const { control, getValues, setValue } = useFormContext<FormValues>();
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [displayTextColorPicker, setDisplayTextColorPicker] = useState(false);
   const [displayAccentColorPicker, setDisplayAccentColorPicker] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fungsi auto-save yang mengirim seluruh konten form ke server
-  const autoSave = useCallback(async () => { // Tambahkan useCallback di sini juga untuk dependensi yang benar
-    setSaving(true);
+  // Server Action wrapper
+  const autoSave = useCallback(async () => {
     setError(null);
     try {
       const data = getValues();
-      const contentPayload = {
-        ...data,
-        event: { ...data.event, title: slug },
-      };
+      const contentPayload = { ...data, event: { ...data.event, title: slug } };
       const payload = {
         user_id: userId,
         id: invitationId,
@@ -61,74 +55,32 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
         location: data.event.location,
         mapsLink: data.event.mapsLink,
       };
-
-      const res = await fetch(SAVE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (json.status !== 'success') {
-        throw new Error(json.message || 'Auto-save gagal');
-      }
-      // Refresh preview iframe
+      // Panggil server action
+      await saveContentAction(payload);
+      // Refresh preview
       const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
-      if (iframe) {
-        iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
-      }
+      if (iframe) iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
     } catch (err: any) {
       setError(err.message);
-      console.error('Error auto-save FontSection:', err);
-    } finally {
-      setSaving(false);
+      console.error('Server action saveContent gagal:', err);
     }
-  }, [getValues, userId, invitationId, slug, onSavedSlug, setValue]); // Tambahkan dependensi yang digunakan di dalam autoSave
+  }, [getValues, userId, invitationId, slug, onSavedSlug]);
 
-  const handleTextColorChange = useCallback((color: { hex: string }) => {
-    setValue('font.color.text_color', color.hex);
-    autoSave();
-  }, [setValue, autoSave]);
+  const handleTextColorChange = useCallback(
+    (color: { hex: string }) => {
+      setValue('font.color.text_color', color.hex);
+      autoSave();
+    },
+    [setValue, autoSave]
+  );
 
-  const handleAccentColorChange = useCallback((color: { hex: string }) => {
-    setValue('font.color.accent_color', color.hex);
-    autoSave();
-  }, [setValue, autoSave]);
-
-  const handleClickTextColorPicker = useCallback(() => {
-    setDisplayTextColorPicker(prev => !prev);
-  }, []);
-
-  const handleCloseTextColorPicker = useCallback(() => {
-    setDisplayTextColorPicker(false);
-  }, []);
-
-  const handleClickAccentColorPicker = useCallback(() => {
-    setDisplayAccentColorPicker(prev => !prev);
-  }, []);
-
-  const handleCloseAccentColorPicker = useCallback(() => {
-    setDisplayAccentColorPicker(false);
-  }, []);
-
-  const textColorPopover = {
-    position: 'absolute' as 'absolute',
-    zIndex: 2,
-    marginTop: '8px',
-  };
-
-  const accentColorPopover = {
-    position: 'absolute' as 'absolute',
-    zIndex: 2,
-    marginTop: '8px',
-  };
-
-  const cover = {
-    position: 'fixed' as 'fixed',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  };
+  const handleAccentColorChange = useCallback(
+    (color: { hex: string }) => {
+      setValue('font.color.accent_color', color.hex);
+      autoSave();
+    },
+    [setValue, autoSave]
+  );
 
   return (
     <Collapsible title="Tampilan (Font & Warna)">
@@ -147,18 +99,13 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
                     field.onChange(val);
                     autoSave();
                   }}
-                  disabled={saving}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih font..." />
                   </SelectTrigger>
                   <SelectContent>
                     {FONT_OPTIONS.map((opt) => (
-                      <SelectItem
-                        key={opt.label}
-                        value={opt.css}
-                        style={{ fontFamily: opt.family }}
-                      >
+                      <SelectItem key={opt.label} value={opt.css} style={{ fontFamily: opt.family }}>
                         {opt.label}
                       </SelectItem>
                     ))}
@@ -171,50 +118,46 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
         />
       ))}
 
-      {/* Color Pickers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div>
-          <FormItem>
-            <FormLabel>Warna Teks</FormLabel>
-            <FormControl>
-              <div className="relative">
-                <div
-                  className="w-8 h-8 rounded-md shadow-md cursor-pointer"
-                  style={{ backgroundColor: getValues('font.color.text_color') }}
-                  onClick={handleClickTextColorPicker}
-                />
-                {displayTextColorPicker ? (
-                  <div style={textColorPopover}>
-                    <div style={cover} onClick={handleCloseTextColorPicker} />
-                    <SketchPicker color={getValues('font.color.text_color')} onChange={handleTextColorChange} />
-                  </div>
-                ) : null}
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        </div>
-        <div>
-          <FormItem>
-            <FormLabel>Warna Aksen</FormLabel>
-            <FormControl>
-              <div className="relative">
-                <div
-                  className="w-8 h-8 rounded-md shadow-md cursor-pointer"
-                  style={{ backgroundColor: getValues('font.color.accent_color') }}
-                  onClick={handleClickAccentColorPicker}
-                />
-                {displayAccentColorPicker ? (
-                  <div style={accentColorPopover}>
-                    <div style={cover} onClick={handleCloseAccentColorPicker} />
-                    <SketchPicker color={getValues('font.color.accent_color')} onChange={handleAccentColorChange} />
-                  </div>
-                ) : null}
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        </div>
+        <FormItem>
+          <FormLabel>Warna Teks</FormLabel>
+          <FormControl>
+            <div className="relative">
+              <div
+                className="w-8 h-8 rounded-md shadow-md cursor-pointer"
+                style={{ backgroundColor: getValues('font.color.text_color') }}
+                onClick={() => setDisplayTextColorPicker((v) => !v)}
+              />
+              {displayTextColorPicker && (
+                <div className="absolute z-20 mt-2">
+                  <div className="fixed inset-0" onClick={() => setDisplayTextColorPicker(false)} />
+                  <SketchPicker color={getValues('font.color.text_color')} onChange={handleTextColorChange} />
+                </div>
+              )}
+            </div>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+
+        <FormItem>
+          <FormLabel>Warna Aksen</FormLabel>
+          <FormControl>
+            <div className="relative">
+              <div
+                className="w-8 h-8 rounded-md shadow-md cursor-pointer"
+                style={{ backgroundColor: getValues('font.color.accent_color') }}
+                onClick={() => setDisplayAccentColorPicker((v) => !v)}
+              />
+              {displayAccentColorPicker && (
+                <div className="absolute z-20 mt-2">
+                  <div className="fixed inset-0" onClick={() => setDisplayAccentColorPicker(false)} />
+                  <SketchPicker color={getValues('font.color.accent_color')} onChange={handleAccentColorChange} />
+                </div>
+              )}
+            </div>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
       </div>
 
       {error && <p className="text-red-600 mt-2">Error: {error}</p>}
