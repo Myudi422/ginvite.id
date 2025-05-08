@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible } from './Collapsible';
+import { Crown } from 'lucide-react'; // Import icon mahkota
 
 // Endpoint untuk auto-save konten
 const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
@@ -70,15 +71,18 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug }) {
       <div className="grid gap-4 py-4">
         {[
           { name: 'plugin.rsvp', label: 'RSVP (Hadir/Tidak)' },
-          { name: 'plugin.gift', label: 'Gift' },
-          { name: 'plugin.whatsapp_notif', label: 'Whatsapp Notif' },
+          { name: 'plugin.gift', label: <>Gift <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
+          { name: 'plugin.whatsapp_notif', label: <>Whatsapp Notif <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
         ].map(({ name, label }) => (
           <FormField
             key={name}
             control={control}
             name={name}
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-md border p-4">
+              <FormItem
+                className="flex flex-row items-center justify-between rounded-md border p-4"
+                onClick={(e) => e.stopPropagation()} // Mencegah propagasi klik dari FormItem
+              >
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">{label}</FormLabel>
                   <FormMessage />
