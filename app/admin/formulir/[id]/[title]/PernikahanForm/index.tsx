@@ -85,7 +85,7 @@ export function PernikahanForm({
   const [slug, setSlug] = useState(initialSlug);
   const [inputSlug, setInputSlug] = useState(initialSlug);
   const [toParam, setToParam] = useState('');
-  const [status, setStatus] = useState(initialStatus);
+  const [status, setStatus] = useState<0 | 1>(initialStatus);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -167,7 +167,7 @@ export function PernikahanForm({
         // 1) Panggil Midtrans
         const mid = await fetch(MIDTRANS_URL, {
           method: 'POST',
-          headers: {'Content-Type':'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             user_id: userId,
             id_content: invitationId,
@@ -178,8 +178,9 @@ export function PernikahanForm({
   
         // 2) Sudah bayar sebelumnya?
         if (mjson.status === 'paid') {
-          // langsung nonaktifkan toggle tanpa bayar lagi
+          // langsung aktifkan tanpa bayar lagi
           await finalizeToggle(1);
+          setStatus(1);              // <–– update state di sini
           return;
         }
   
@@ -189,6 +190,7 @@ export function PernikahanForm({
           window.snap.pay(mjson.snap_token, {
             onSuccess: async () => {
               await finalizeToggle(1);
+              setStatus(1);          // <–– dan di sini
             },
             onError: (e: any) => {
               setError('Pembayaran gagal: ' + e);
@@ -202,6 +204,7 @@ export function PernikahanForm({
       } else {
         // non-aktifkan langsung
         await finalizeToggle(0);
+        setStatus(0);                // <–– dan di sini
       }
     } catch (err: any) {
       setError(err.message);
