@@ -239,7 +239,7 @@ export function PernikahanForm({
         <StorySection />
         <BankTransferSection />
         <MusicSection />
-        <PluginSection />
+        <PluginSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
 
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onSave} disabled={saving}>
