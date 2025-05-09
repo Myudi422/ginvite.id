@@ -5,13 +5,25 @@ import { Switch } from '@/components/ui/switch';
 import { Collapsible } from './Collapsible';
 import { Crown } from 'lucide-react'; // Import icon mahkota
 
+
+interface PluginSectionProps {
+  userId: number;
+  invitationId: number;
+  slug: string;
+  onSavedSlug: string;
+  onPluginChange?: (needsDonation: boolean) => void; // updated prop
+  
+}
+
 // Endpoint untuk auto-save konten
 const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
 
-export function PluginSection({ userId, invitationId, slug, onSavedSlug }) {
+export function PluginSection({ userId, invitationId, slug, onSavedSlug, onPluginChange }: PluginSectionProps) {
   const { control, getValues, setValue } = useFormContext();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+
+  
 
   const autoSave = useCallback(async () => {
     setSaving(true);
@@ -47,6 +59,10 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug }) {
       if (json.status !== 'success') {
         throw new Error(json.message || 'Auto-save gagal');
       }
+      if (onPluginChange) {
+        const needsDonation = gift || whatsapp_notif;
+        onPluginChange(needsDonation);
+      }
       // Refresh preview iframe
       const iframe = document.getElementById('previewFrame');
       if (iframe) {
@@ -58,13 +74,14 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug }) {
     } finally {
       setSaving(false);
     }
-  }, [getValues, userId, invitationId, slug, onSavedSlug]);
+  }, [getValues, userId, invitationId, slug, onSavedSlug, onPluginChange]);
 
   // handler to update field and auto-save
-  const handleToggle = useCallback((name, value) => {
-    setValue(name, value);
+  const handleToggle = useCallback((name: string, value: boolean) => {
+    setValue(name as any, value);
     autoSave();
   }, [setValue, autoSave]);
+
 
   return (
     <Collapsible title="Plugin Undangan">
@@ -81,7 +98,7 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug }) {
             render={({ field }) => (
               <FormItem
                 className="flex flex-row items-center justify-between rounded-md border p-4"
-                onClick={(e) => e.stopPropagation()} // Mencegah propagasi klik dari FormItem
+                onClick={(e) => e.stopPropagation()}
               >
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">{label}</FormLabel>

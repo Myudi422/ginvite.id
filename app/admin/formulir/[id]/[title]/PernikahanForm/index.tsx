@@ -147,6 +147,23 @@ export function PernikahanForm({
       setSaving(false);
     }
   };
+  
+
+    // handler when plugin content changes
+    const handlePluginChange = (needsDonation: boolean) => {
+      setStatus(needsDonation ? 0 : 1);
+      refreshPreview();
+    };
+
+      // refresh preview iframe
+  const refreshPreview = () => {
+    const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
+    if (iframe) {
+      const param = toParam ? `?to=${encodeURIComponent(toParam)}&time=${Date.now()}` : `?time=${Date.now()}`;
+      iframe.src = `/undang/${userId}/${encodeURIComponent(slug)}${param}`;
+    }
+  };
+
 
   // finalize toggle: toggle_status API
   const finalizeToggle = async (newStatus: 0 | 1) => {
@@ -181,6 +198,7 @@ export function PernikahanForm({
           // langsung aktifkan tanpa bayar lagi
           await finalizeToggle(1);
           setStatus(1);              // <–– update state di sini
+          refreshPreview();
           return;
         }
   
@@ -191,6 +209,7 @@ export function PernikahanForm({
             onSuccess: async () => {
               await finalizeToggle(1);
               setStatus(1);          // <–– dan di sini
+              refreshPreview();
             },
             onError: (e: any) => {
               setError('Pembayaran gagal: ' + e);
@@ -205,6 +224,7 @@ export function PernikahanForm({
         // non-aktifkan langsung
         await finalizeToggle(0);
         setStatus(0);                // <–– dan di sini
+        refreshPreview();
       }
     } catch (err: any) {
       setError(err.message);
@@ -251,7 +271,7 @@ export function PernikahanForm({
         <StorySection />
         <BankTransferSection />
         <MusicSection />
-        <PluginSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        <PluginSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} onPluginChange={handlePluginChange}/>
 
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onSave} disabled={saving}>
