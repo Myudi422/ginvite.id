@@ -1,4 +1,3 @@
-// components/PernikahanForm/index.tsx
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -23,7 +22,7 @@ import { useRouter } from 'next/navigation';
 // URL endpoints
 const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
 const TOGGLE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status';
-const MIDTRANS_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=midtrans'; // path ke midtrans.php
+const MIDTRANS_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=midtrans';
 
 interface Props {
   previewUrl: string;
@@ -31,7 +30,7 @@ interface Props {
   invitationId: number;
   initialSlug: string;
   contentData: Partial<Omit<FormValues, 'event'>>;
-  initialStatus: number;
+  initialStatus: 0 | 1;
   initialEventData?: FormValues['event'];
 }
 
@@ -132,18 +131,19 @@ export function PernikahanForm({
         user_id: userId,
         id: invitationId,
         title: slugToSave,
-        theme_id: data.theme, 
+        theme_id: data.theme,
         content: JSON.stringify({ ...data, event: data.event, jumlah }),
       };
 
       const res = await fetch(SAVE_URL, { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
       const json = await res.json();
       if (json.status !== 'success') throw new Error(json.message);
+
+      // langsung gunakan status server
       const serverStatus = json.data.status as 0 | 1;
-      if (onStatusChange) onStatusChange(serverStatus);
-      setSlug(slugToSave);
       setStatus(serverStatus);
       refreshPreview();
+      setSlug(slugToSave);
       router.replace(`/admin/formulir/${userId}/${encodeURIComponent(slugToSave)}`);
     } catch (err: any) {
       setError(err.message);
@@ -151,15 +151,8 @@ export function PernikahanForm({
       setSaving(false);
     }
   };
-  
 
-    // handler when plugin content changes
-    const handlePluginChange = (needsDonation: boolean) => {
-      setStatus(needsDonation ? 0 : 1);
-      refreshPreview();
-    };
-
-      // refresh preview iframe
+  // refresh preview iframe
   const refreshPreview = () => {
     const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
     if (iframe) {
@@ -167,7 +160,6 @@ export function PernikahanForm({
       iframe.src = `/undang/${userId}/${encodeURIComponent(slug)}${param}`;
     }
   };
-
 
   // finalize toggle: toggle_status API
   const finalizeToggle = async (newStatus: 0 | 1) => {
@@ -180,55 +172,31 @@ export function PernikahanForm({
     setStatus(j.data.status);
   };
 
+  // handler toggle aktif/non-aktif
   const onToggle = async () => {
     setSaving(true);
     setError(null);
     try {
       if (status === 0) {
-        // 1) Panggil Midtrans
-        const mid = await fetch(MIDTRANS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: userId,
-            id_content: invitationId,
-            title: slug,
-          }),
-        });
+        const mid = await fetch(MIDTRANS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId, id_content: invitationId, title: slug }) });
         const mjson = await mid.json();
-  
-        // 2) Sudah bayar sebelumnya?
         if (mjson.status === 'paid') {
-          // langsung aktifkan tanpa bayar lagi
           await finalizeToggle(1);
-          setStatus(1);              // <–– update state di sini
           refreshPreview();
-          return;
-        }
-  
-        // 3) Belum bayar → pending: munculkan Snap popup
-        if (mjson.status === 'pending') {
+        } else if (mjson.status === 'pending') {
           // @ts-ignore
           window.snap.pay(mjson.snap_token, {
             onSuccess: async () => {
               await finalizeToggle(1);
-              setStatus(1);          // <–– dan di sini
               refreshPreview();
-              router.refresh();
             },
-            onError: (e: any) => {
-              setError('Pembayaran gagal: ' + e);
-            },
+            onError: (e: any) => setError('Pembayaran gagal: ' + e),
           });
-          return;
+        } else {
+          throw new Error(mjson.message || 'Midtrans error');
         }
-  
-        // 4) Kalau ada error dari midtrans.php
-        throw new Error(mjson.message || 'Midtrans error');
       } else {
-        // non-aktifkan langsung
         await finalizeToggle(0);
-        setStatus(0);                // <–– dan di sini
         refreshPreview();
       }
     } catch (err: any) {
@@ -237,20 +205,16 @@ export function PernikahanForm({
       setSaving(false);
     }
   };
-  
+
   return (
     <FormProvider {...form}>
-      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+      <form onSubmit={e => e.preventDefault()} className="space-y-6">
         <FormField name="slug" control={form.control} render={() => (
           <FormItem>
             <FormLabel>Judul URL (Slug)</FormLabel>
             <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center rounded-md border bg-gray-50 px-3 text-gray-500">
-                papunda.com/undang/{userId}/
-              </span>
-              <FormControl>
-                <Input value={inputSlug} onChange={onSlugChange} className="flex-1" />
-              </FormControl>
+              <span className="inline-flex items-center rounded-md border bg-gray-50 px-3 text-gray-500">papunda.com/undang/{userId}/</span>
+              <FormControl><Input value={inputSlug} onChange={onSlugChange} className="flex-1" /></FormControl>
             </div>
             <FormMessage />
           </FormItem>
@@ -258,16 +222,10 @@ export function PernikahanForm({
 
         <FormItem>
           <FormLabel>Mengundang Preview “to”</FormLabel>
-          <Input placeholder="Contoh: Nama Tamu" value={toParam} onChange={(e) => setToParam(e.target.value)} />
+          <Input placeholder="Contoh: Nama Tamu" value={toParam} onChange={e => setToParam(e.target.value)} />
         </FormItem>
 
-        <ThemeSection
-  userId={userId}
-  invitationId={invitationId}
-  slug={inputSlug}
-  onSavedSlug={slug}
-/>
-
+        <ThemeSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <EventSection />
         <GallerySection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
@@ -277,23 +235,19 @@ export function PernikahanForm({
         <BankTransferSection />
         <MusicSection />
         <PluginSection
-  userId={userId}
-  invitationId={invitationId}
-  slug={inputSlug}
-  onSavedSlug={slug}
-  onStatusChange={(newStatus) => {
-    setStatus(newStatus);
-    refreshPreview();
-  }}
-/>
+          userId={userId}
+          invitationId={invitationId}
+          slug={inputSlug}
+          onSavedSlug={slug}
+          onStatusChange={newStatus => {
+            setStatus(newStatus);
+            refreshPreview();
+          }}
+        />
 
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={onSave} disabled={saving}>
-            {saving ? 'Menyimpan…' : 'Simpan'}
-          </Button>
-          <Button onClick={onToggle} disabled={saving}>
-            {status === 1 ? 'Non-aktifkan' : 'Aktifkan'}
-          </Button>
+          <Button variant="secondary" onClick={onSave} disabled={saving}>{saving ? 'Menyimpan…' : 'Simpan'}</Button>
+          <Button onClick={onToggle} disabled={saving}>{status === 1 ? 'Non-aktifkan' : 'Aktifkan'}</Button>
         </div>
 
         {error && <p className="text-red-600">Error: {error}</p>}
