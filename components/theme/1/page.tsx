@@ -39,6 +39,9 @@ export default function Theme1({ data }: Theme1Props) {
 
   const searchParams = useSearchParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
+  const [showWatermark, setShowWatermark] = useState(false);
+  const [watermarkText, setWatermarkText] = useState("UNDANGAN BELUM AKTIF"); // Teks watermark yang lebih singkat
+
 
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {
@@ -51,6 +54,18 @@ export default function Theme1({ data }: Theme1Props) {
       clearTimeout(loadingTimeout);
     };
   }, [isOpen]);
+
+  if (!data) {
+    return <div className="flex items-center justify-center h-screen">Loading Data...</div>;
+  }
+
+  useEffect(() => {
+    if (data?.status === "tidak") {
+      setShowWatermark(true);
+    } else {
+      setShowWatermark(false);
+    }
+  }, [data?.status]);
 
   if (!data) {
     return <div className="flex items-center justify-center h-screen">Loading Data...</div>;
@@ -137,6 +152,18 @@ export default function Theme1({ data }: Theme1Props) {
           <WeddingLoading />
         </motion.div>
       )}
+
+      {showWatermark && (
+  <div className="fixed top-0 left-0 w-full h-full z-40 pointer-events-none flex items-center justify-center" style={{ backgroundColor: 'transparent' }}>
+    <div className="relative text-white text-center text-xl font-bold opacity-50">
+      {watermarkText}
+      <div
+        className="absolute bottom-[-5px] left-0 w-full h-[3px]"
+        style={{ backgroundColor: 'rgba(255, 192, 203, 0.5)' }} // Pink dengan opasitas 50%
+      />
+    </div>
+  </div>
+)}
 
       <div
         className="hidden md:block w-[70%] sticky top-0 h-screen relative"

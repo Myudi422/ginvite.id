@@ -139,7 +139,11 @@ export function PernikahanForm({
       const res = await fetch(SAVE_URL, { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
       const json = await res.json();
       if (json.status !== 'success') throw new Error(json.message);
+      const serverStatus = json.data.status as 0 | 1;
+      if (onStatusChange) onStatusChange(serverStatus);
       setSlug(slugToSave);
+      setStatus(serverStatus);
+      refreshPreview();
       router.replace(`/admin/formulir/${userId}/${encodeURIComponent(slugToSave)}`);
     } catch (err: any) {
       setError(err.message);
@@ -210,6 +214,7 @@ export function PernikahanForm({
               await finalizeToggle(1);
               setStatus(1);          // <–– dan di sini
               refreshPreview();
+              router.refresh();
             },
             onError: (e: any) => {
               setError('Pembayaran gagal: ' + e);
@@ -271,7 +276,16 @@ export function PernikahanForm({
         <StorySection />
         <BankTransferSection />
         <MusicSection />
-        <PluginSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} onPluginChange={handlePluginChange}/>
+        <PluginSection
+  userId={userId}
+  invitationId={invitationId}
+  slug={inputSlug}
+  onSavedSlug={slug}
+  onStatusChange={(newStatus) => {
+    setStatus(newStatus);
+    refreshPreview();
+  }}
+/>
 
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onSave} disabled={saving}>

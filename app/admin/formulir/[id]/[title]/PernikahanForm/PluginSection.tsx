@@ -3,40 +3,35 @@ import { useFormContext } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible } from './Collapsible';
-import { Crown } from 'lucide-react'; // Import icon mahkota
-
+import { Crown } from 'lucide-react';
 
 interface PluginSectionProps {
   userId: number;
   invitationId: number;
   slug: string;
   onSavedSlug: string;
-  onPluginChange?: (needsDonation: boolean) => void; // updated prop
-  
+  onStatusChange?: (newStatus: 0 | 1) => void;
 }
 
 // Endpoint untuk auto-save konten
 const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
 
-export function PluginSection({ userId, invitationId, slug, onSavedSlug, onPluginChange }: PluginSectionProps) {
+export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatusChange }: PluginSectionProps) {
   const { control, getValues, setValue } = useFormContext();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  
 
   const autoSave = useCallback(async () => {
     setSaving(true);
     setError(null);
     try {
       const data = getValues();
-      // Hitung jumlah berdasarkan plugin
       const { gift, whatsapp_notif } = data.plugin;
       const jumlah = gift || whatsapp_notif ? 100000 : 40000;
 
       const contentPayload = {
         ...data,
-        event: { ...data.event, title: slug },
+        event: { ...data.event },
         jumlah,
       };
       const payload = {
@@ -44,10 +39,10 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onPlugi
         id: invitationId,
         title: slug,
         content: JSON.stringify(contentPayload),
-        waktu_acara: data.event.date,
-        time: data.event.time,
-        location: data.event.location,
-        mapsLink: data.event.mapsLink,
+        waktu_acara: data.event.resepsi?.date,
+        time: data.event.resepsi?.time,
+        location: data.event.resepsi?.location,
+        mapsLink: data.event.resepsi?.mapsLink,
       };
 
       const res = await fetch(SAVE_URL, {
@@ -56,32 +51,30 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onPlugi
         body: JSON.stringify(payload),
       });
       const json = await res.json();
-      if (json.status !== 'success') {
-        throw new Error(json.message || 'Auto-save gagal');
-      }
-      if (onPluginChange) {
-        const needsDonation = gift || whatsapp_notif;
-        onPluginChange(needsDonation);
-      }
+      if (json.status !== 'success') throw new Error(json.message || 'Auto-save gagal');
+
+      // Gunakan status yang dikembalikan server
+      const serverStatus = json.data.status as 0 | 1;
+      if (onStatusChange) onStatusChange(serverStatus);
+
       // Refresh preview iframe
       const iframe = document.getElementById('previewFrame');
       if (iframe) {
-        iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
+        const param = `?time=${Date.now()}`;
+        iframe.setAttribute('src', `/undang/${userId}/${encodeURIComponent(onSavedSlug)}${param}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message);
       console.error('Error auto-save PluginSection:', err);
     } finally {
       setSaving(false);
     }
-  }, [getValues, userId, invitationId, slug, onSavedSlug, onPluginChange]);
+  }, [getValues, userId, invitationId, slug, onSavedSlug, onStatusChange]);
 
-  // handler to update field and auto-save
   const handleToggle = useCallback((name: string, value: boolean) => {
     setValue(name as any, value);
     autoSave();
   }, [setValue, autoSave]);
-
 
   return (
     <Collapsible title="Plugin Undangan">
@@ -96,20 +89,13 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onPlugi
             control={control}
             name={name}
             render={({ field }) => (
-              <FormItem
-                className="flex flex-row items-center justify-between rounded-md border p-4"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <FormItem className="flex flex-row items-center justify-between rounded-md border p-4" onClick={e => e.stopPropagation()}>
                 <div className="space-y-0.5">
                   <FormLabel className="text-base">{label}</FormLabel>
                   <FormMessage />
                 </div>
                 <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={(val) => handleToggle(name, val)}
-                    disabled={saving}
-                  />
+                  <Switch checked={field.value} onCheckedChange={val => handleToggle(name, val)} disabled={saving} />
                 </FormControl>
               </FormItem>
             )}
