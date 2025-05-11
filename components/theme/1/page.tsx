@@ -13,6 +13,8 @@ import '@/styles/font.css';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // Section components
+import RsmpSection from "@/components/theme/1/rsmpsection";
+import BankSection from "./BankSection";
 import OpeningSection from "@/components/theme/1/OpeningSection";
 import ProfileSection from "@/components/theme/1/ProfileSection";
 import QuoteSection from "@/components/theme/1/QuoteSection";
@@ -251,6 +253,17 @@ export default function Theme1({ data }: Theme1Props) {
             />
             {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
             <GallerySection gallery={gallery} theme={{ defaultBgImage: theme.defaultBgImage }} />
+            <BankSection
+  theme={theme}
+  specialFontFamily={processedSpecialFontFamily}
+  bodyFontFamily={processedBodyFontFamily}
+/>
+            <RsmpSection
+  contentId={3}
+  theme={theme}
+  specialFontFamily={processedSpecialFontFamily}
+  bodyFontFamily={processedBodyFontFamily}
+/>
             <ClosingSection closing={closing} defaultBgImage={theme.defaultBgImage} />
             <FooterSection textColor={theme.textColor} />
           </div>
