@@ -9,6 +9,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10MB', // Example: Setting the limit to 2MB
+    },
+  },
 }
 
 export default nextConfig
