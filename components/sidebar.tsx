@@ -2,9 +2,9 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { HomeIcon, LayoutTemplateIcon, MessageCircleIcon, MailIcon, BookOpenIcon, MenuIcon } from "lucide-react"
-import { useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut } from "lucide-react"
+import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
@@ -12,64 +12,75 @@ const routes = [
   { href: "/admin", label: "Dashboard", icon: HomeIcon },
   { href: "/themes", label: "List Theme", icon: LayoutTemplateIcon },
 ]
-const tools = [
-  { href: "/tools/blast-wa", label: "Blast WA", icon: MessageCircleIcon },
-  { href: "/tools/blast-email", label: "Blast Email", icon: MailIcon },
-  { href: "/tools/buku-hadir", label: "Buku Hadir", icon: BookOpenIcon },
-]
 
 function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname()
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        router.push("/");
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
   return (
-    <div className="space-y-4 py-4 px-3 h-full bg-gradient-to-b from-pink-50/30 to-white/20 backdrop-blur-md border-r border-pink-100/30">
-      <Link 
-        href="/admin" 
-        onClick={onLinkClick} 
-        className="flex items-center gap-2 px-2 mb-4 group"
-      >
-        <div className="h-6 w-6 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 shadow-md"></div>
-        <h1 className="text-xl font-bold bg-gradient-to-r from-pink-600 to-pink-400 bg-clip-text text-transparent">
-          ginvite.id
-        </h1>
-      </Link>
+    <div className="h-full py-6 px-4 bg-gradient-to-b from-pink-50/30 to-white/20 backdrop-blur-md border-r border-pink-100/30 flex flex-col justify-between">
+      <div>
+        <Link
+          href="/admin"
+          onClick={onLinkClick}
+          className="flex items-center gap-3 px-3 mb-8 group"
+        >
+          <div className="h-8 w-8 rounded-md bg-gradient-to-br from-pink-400 to-pink-600 shadow-md flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-white">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          <h1 className="text-xl font-semibold bg-gradient-to-r from-pink-600 to-pink-400 bg-clip-text text-transparent">
+            Papunda.com
+          </h1>
+        </Link>
 
-      <div className="space-y-1">
-        {routes.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            onClick={onLinkClick}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all
-              ${pathname === href 
-                ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm' 
-                : 'text-pink-500 hover:bg-pink-100/30 hover:text-pink-600'}`
-            }
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </Link>
-        ))}
-      </div>
-
-      <div className="mt-6">
-        <p className="px-4 text-xs font-semibold text-pink-500/80 mb-2">Tools</p>
-        <div className="space-y-1">
-          {tools.map(({ href, label, icon: Icon }) => (
+        <div className="space-y-2">
+          {routes.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
               onClick={onLinkClick}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all
-                ${pathname === href 
-                  ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm' 
+              className={`flex items-center gap-3 rounded-md px-3 py-3 text-base font-medium transition-all
+                ${pathname === href
+                  ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm'
                   : 'text-pink-500 hover:bg-pink-100/30 hover:text-pink-600'}`
               }
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              <div className="p-1.5 rounded-sm bg-pink-50/80">
+                <Icon className="h-5 w-5" />
+              </div>
+              <span>{label}</span>
             </Link>
           ))}
         </div>
+      </div>
+
+      <div className="px-3 py-2 mt-6 border-t border-pink-100/30">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 text-sm font-medium text-pink-500 hover:text-pink-600 hover:bg-pink-100/30 rounded-md py-2.5 px-3 w-full"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Logout</span>
+        </button>
       </div>
     </div>
   )
@@ -80,17 +91,17 @@ export function SidebarMobile() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="md:hidden fixed left-4 top-4 z-40 bg-white/50 backdrop-blur-md 
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden fixed left-4 top-4 z-40 bg-white/50 backdrop-blur-md
           border border-pink-200/50 shadow-sm hover:bg-pink-100/30 text-pink-600"
         >
           <MenuIcon className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent 
-        side="left" 
+      <SheetContent
+        side="left"
         className="p-0 w-64 overflow-y-auto bg-gradient-to-b from-pink-50/30 to-white/20 backdrop-blur-lg"
       >
         <SidebarContent onLinkClick={() => setOpen(false)} />
