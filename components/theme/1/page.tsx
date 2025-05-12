@@ -218,7 +218,7 @@ export default function Theme1({ data }: Theme1Props) {
               opening={opening}
               childrenData={children}
               isWedding={isWedding}
-              nameFontSize={{ fontSize: '50px' }}
+              //nameFontSize={{ fontSize: '50px' }}
               weddingTextFontSize={{ fontSize: '20px' }}
               marginBottomWeddingText="mb-3"
               marginBottomName="mb-4"
@@ -252,7 +252,7 @@ export default function Theme1({ data }: Theme1Props) {
               title={eventTitleInContent}
             />
             {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
-            <GallerySection gallery={gallery} theme={{ defaultBgImage: theme.defaultBgImage }} />
+            <GallerySection gallery={gallery} theme={theme} />
             <BankSection
   theme={theme}
   specialFontFamily={processedSpecialFontFamily}

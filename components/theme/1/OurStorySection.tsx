@@ -1,61 +1,103 @@
 // components/our-story/OurStorySection.tsx
-import Image from 'next/image';
+import Image from 'next/image'
 
 interface StoryItem {
-  title: string;
-  description: string;
-  pictures?: string[];
+  title: string
+  date?: string
+  description: string
+  pictures?: string[]
 }
 
 interface OurStorySectionProps {
-  ourStory: StoryItem[];
+  ourStory: StoryItem[]
   theme: {
-    accentColor: string;
-    defaultBgImage: string;
-  };
+    textColor: string
+    bgColor: string
+    accentColor: string
+    defaultBgImage: string
+  }
 }
 
 export default function OurStorySection({ ourStory, theme }: OurStorySectionProps) {
   return (
     <section
       id="ourstory"
-      className="home-section"
-      style={{
-        background: `linear-gradient(rgba(255,255,255,0.97), rgba(255,255,255,0.95)), url(${theme.defaultBgImage})`,
-      }}
+      className="home-section py-16"
+      style={{ backgroundColor: theme.bgColor }}
     >
-      <div className="home-inner">
-        <h2 className="text-3xl font-bold mb-8 text-center" style={{ color: theme.accentColor }}>
-          🌸 Kisah Kami 🌸
-        </h2>
-        <div className="space-y-12">
+      {/* Background overlay */}
+      <div
+        className="absolute inset-0 bg-center bg-cover opacity-10 pointer-events-none z-0"
+        style={{ backgroundImage: `url(${theme.defaultBgImage})` }}
+      />
+
+      <div className="home-inner max-w-4xl mx-auto px-4 relative z-10 space-y-8 sm:space-y-12">
+        {/* Enhanced Section Title with decorative lines */}
+        <div className="flex items-center justify-center mb-12">
+          <span
+            className="h-px flex-grow"
+            style={{ backgroundColor: theme.accentColor, opacity: 0.5 }}
+          />
+          <h2
+            className="mx-4 text-2xl sm:text-2xl font-bold whitespace-nowrap"
+            style={{ color: theme.accentColor }}
+          >
+            ✨ Our Journey ✨
+          </h2>
+          <span
+            className="h-px flex-grow"
+            style={{ backgroundColor: theme.accentColor, opacity: 0.5 }}
+          />
+        </div>
+
+        {/* Single-column story items */}
+        <div className="grid grid-cols-1 gap-12">
           {ourStory.map((item, idx) => (
-            <div key={idx} className="flex flex-col">
-              <div className="relative pl-5 mb-4">
-                <span
-                  className="absolute left-0 top-1 w-1 h-10 rounded-full"
-                  style={{ backgroundColor: theme.accentColor }}
-                />
-                <h3 className="text-xl font-semibold text-gray-800">{item.title}</h3>
-              </div>
-              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                {item.description}
-              </p>
-              {item.pictures?.[0] && (
-                <div className="w-full mt-4 rounded-xl overflow-hidden shadow-md">
-                  <Image
-                    src={item.pictures[0]}
-                    alt={item.title}
-                    width={600}
-                    height={400}
-                    className="w-full h-48 sm:h-56 object-cover object-center"
+            <div key={idx}>
+              {/* Card Title with underline accent */}
+              <div className="mb-4">
+                <h3
+                  className="text-1xl sm:text-1xl font-semibold inline-block relative pb-2"
+                  style={{ color: theme.accentColor }}
+                >
+                  {item.title}
+                  <span
+                    className="absolute left-0 bottom-0 h-1 w-10"
+                    style={{ backgroundColor: theme.accentColor }}
                   />
+                </h3>
+              </div>
+
+              {/* Image with gradient overlay description */}
+              <div className="relative rounded-lg overflow-hidden shadow-lg">
+                <Image
+                  src={item.pictures?.[0] || theme.defaultBgImage}
+                  alt={item.title}
+                  width={800}
+                  height={500}
+                  className="w-full h-auto object-cover"
+                />
+                <div className="absolute bottom-2 left-2 right-2 p-4 sm:bottom-4 sm:left-4 sm:right-4 sm:p-6 rounded-b-lg bg-gradient-to-t from-black/70 to-transparent">
+                  {item.date && (
+                    <span
+                      className="block text-sm font-medium mb-1"
+                      style={{ color: theme.textColor }}
+                    >
+                      {item.date}
+                    </span>
+                  )}
+                  <p
+                    className="text-sm sm:text-base leading-relaxed"
+                    style={{ color: theme.textColor }}
+                  >
+                    {item.description}
+                  </p>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
       </div>
     </section>
-  );
+  )
 }
