@@ -17,7 +17,7 @@ interface BankSectionProps {
     textColor: string;
     bgColor: string;
     accentColor: string;
-    defaultBgImage1: string;
+    defaultBgImage: string;
   };
   specialFontFamily?: string;
   bodyFontFamily?: string;
@@ -76,19 +76,23 @@ export default function BankSection({ theme, specialFontFamily, bodyFontFamily }
 
   return (
     <section
-      className="max-w-md mx-auto p-8 rounded-t-2xl shadow-lg backdrop-blur-sm"
+      className="mx-auto p-8 rounded-t-2xl shadow-lg backdrop-blur-sm"
       style={{
-        backgroundImage: `url(${theme.defaultBgImage1})`,
+        backgroundImage: `url(${theme.defaultBgImage})`,
         color: theme.accentColor,
         fontFamily: bodyFontFamily,
+        backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          padding: '3rem 1.5rem',
       }}
     >
       <h2
         className="text-2xl font-semibold mb-6 text-center flex items-center justify-center gap-2"
         style={{ fontFamily: specialFontFamily }}
       >
-        Rekening & Transfer
+        Love Gift
       </h2>
+      <p className="text-1xl mb-6 text-center flex items-center justify-center gap-2">Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih untuk kami, dapat melalui:</p>
 
       <Button
         onClick={toggleVisible}

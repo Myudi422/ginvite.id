@@ -264,8 +264,7 @@ export default function Theme1({ data }: Theme1Props) {
   specialFontFamily={processedSpecialFontFamily}
   bodyFontFamily={processedBodyFontFamily}
 />
-            <ClosingSection closing={closing} defaultBgImage={theme.defaultBgImage} />
-            <FooterSection textColor={theme.textColor} />
+            <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
           </div>
         )}
 
