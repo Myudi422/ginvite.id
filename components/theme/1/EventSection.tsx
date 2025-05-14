@@ -1,3 +1,4 @@
+// EventSection.tsx
 import { MapPin, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -77,6 +78,17 @@ export default function EventSection(props: EventSectionProps) {
 
   if (!list.length) return null;
 
+  const sortedList = [...list].sort((a, b) => {
+    try {
+      const dateA = new Date(`${a.date}T${a.time}`);
+      const dateB = new Date(`${b.date}T${b.time}`);
+      return dateA.getTime() - dateB.getTime();
+    } catch (error) {
+      console.error("Error parsing date:", error, a, b);
+      return 0;
+    }
+  });
+
   return (
     <section
       id="event"
@@ -97,9 +109,9 @@ export default function EventSection(props: EventSectionProps) {
           </h2>
         )}
 
-        {list.map((ev, idx) => (
+        {sortedList.map((ev) => (
           <EventCard
-            key={ev.key || idx}
+            key={ev.key}
             event={ev}
             accentColor={theme.accentColor}
           />

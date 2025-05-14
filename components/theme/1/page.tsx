@@ -1,3 +1,4 @@
+// Theme1.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -31,6 +32,24 @@ import WeddingLoading from "@/components/WeddingLoading";
 
 interface Theme1Props {
   data: any;
+}
+
+interface EventData {
+  date: string;
+  time: string;
+  location: string;
+  mapsLink: string;
+  note?: string;
+  title?: string;
+}
+
+interface Event {
+  key: string;
+  title?: string;
+  date: string;
+  time: string;
+  location: string;
+  mapsLink: string;
 }
 
 export default function Theme1({ data }: Theme1Props) {
@@ -67,40 +86,55 @@ export default function Theme1({ data }: Theme1Props) {
   const { opening, quotes, invitation, children, parents, gallery, our_story, closing, title: eventTitle } = content;
 
   // Dynamic events list from API
-  const eventsList = Object.entries(apiEvents ?? {})
-    .map(([key, ev]) => ev && ({
-      key,
-      title: (ev as any).title || key,
-      date: (ev as any).date || '',
-      time: (ev as any).time || '',
-      location: (ev as any).location || '',
-      mapsLink: (ev as any).mapsLink || '',
-      note: (ev as any).note || '',
-    }))
-    .filter(Boolean);
+  const eventsList: Event[] = Object.entries(apiEvents ?? {})
+    .map(([key, ev]) => {
+      const eventData = ev as EventData;
+      return eventData ? {
+        key: key,
+        title: eventData.title || key.charAt(0).toUpperCase() + key.slice(1),
+        date: eventData.date || '',
+        time: eventData.time || '',
+        location: eventData.location || '',
+        mapsLink: eventData.mapsLink || '',
+      } : null;
+    })
+    .filter(Boolean) as Event[];
 
-  // Calculate event date for countdown/calendar
+  // Urutkan events berdasarkan tanggal dan waktu
+  const sortedEvents = [...eventsList].sort((a, b) => {
+    try {
+      const dateA = new Date(`${a.date}T${a.time}`);
+      const dateB = new Date(`${b.date}T${b.time}`);
+      return dateA.getTime() - dateB.getTime();
+    } catch (error) {
+      console.error("Error parsing date for countdown:", error, a, b);
+      return 0;
+    }
+  });
+
+  // Ambil event pertama untuk countdown
+  const firstEvent = sortedEvents[0];
   let eventDate: Date | null = null;
-  const firstEvent = eventsList[0];
   if (firstEvent?.date && firstEvent?.time) {
     try {
-      eventDate = new Date(`${firstEvent.date} ${firstEvent.time}`);
-    } catch {
+      eventDate = new Date(`${firstEvent.date}T${firstEvent.time}`);
+    } catch (error) {
+      console.error("Error creating Date object for countdown:", error, firstEvent);
       eventDate = null;
     }
   }
 
   const isWedding = !!parents?.groom;
 
-  // Google Calendar URL
+  // Google Calendar URL (menggunakan data dari event pertama)
   let calendarUrl = '';
-  if (eventDate) {
+  if (firstEvent && eventDate) {
     const start = eventDate.toISOString().replace(/-|:|\.\d+/g, '');
     const end = new Date(eventDate.getTime() + 3600000).toISOString().replace(/-|:|\.\d+/g, '');
     calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}&text=${encodeURIComponent(
       opening.title
     )}&details=${encodeURIComponent(invitation)}&location=${encodeURIComponent(
-      (firstEvent as any).location
+      firstEvent.location
     )}`;
   }
 
@@ -184,7 +218,7 @@ export default function Theme1({ data }: Theme1Props) {
 
             <CountdownSection eventDate={eventDate || new Date()} calendarUrl={calendarUrl} theme={theme} />
 
-            <EventSection events={eventsList} theme={theme} sectionTitle={eventTitle} />
+            <EventSection events={sortedEvents} theme={theme} sectionTitle={eventTitle} />
 
             {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
             <GallerySection gallery={gallery} theme={theme} />
