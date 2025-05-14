@@ -18,7 +18,7 @@ interface ProfileSectionProps {
     textColor: string;
   };
   waktu_acara: string; // Ganti event.date dengan waktu_acara
-  time: string;        // Tambahkan properti time
+  event?: Event; // Tambahkan properti event (opsional)
   childrenData: Array<{ nickname: string }>;
   isWedding: boolean;
   minHeight?: string;
@@ -40,7 +40,6 @@ export default function ProfileSection({
   defaultBgImage1,
   opening,
   waktu_acara, // Gunakan waktu_acara
-  time,        // Terima properti time
   childrenData,
   isWedding,
   minHeight = '100vh',
@@ -55,6 +54,7 @@ export default function ProfileSection({
   specialFontFamily,
   BodyFontFamily,
   theme,
+  event, // Gunakan properti event
   HeadingFontFamily
 
 }: ProfileSectionProps) {
@@ -180,7 +180,7 @@ export default function ProfileSection({
           className="text-white font-medium text-xl"
           style={{ paddingTop: '0px', fontFamily: BodyFontFamily}}
         >
-          {waktu_acara} {/* Gunakan waktu_acara di sini */}
+         {event?.date ? new Date(event.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Segera Dilaksanakan'}
         </div>
       </motion.div>
 

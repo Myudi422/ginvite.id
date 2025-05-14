@@ -9,20 +9,24 @@ interface CountdownSectionProps {
   calendarUrl: string;
   theme: {
     accentColor: string;
+    defaultBgImage: string;
   };
 }
 
 export default function CountdownSection({
   eventDate,
   calendarUrl,
-  theme: { accentColor },
+  theme: { accentColor, defaultBgImage },
 }: CountdownSectionProps) {
   return (
     <section
       id="countdown"
-      className="py-12 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 bg-gradient-to-b from-white/80 to-white/90"
+      className="py-16 px-4 md:px-8" // Sama dengan padding EventSection
+      style={{
+        backgroundImage: `url(${defaultBgImage})`,
+      }}
     >
-      <div className="max-w-sm mx-auto bg-white rounded-2xl shadow p-8 text-center">
+      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-soft p-8 text-center"> {/* Gaya kotak mirip EventSection */}
         <div className="flex items-center justify-center gap-2 mb-4 text-lg font-medium text-gray-700">
           <span>🌸</span>
           <span>Menuju Hari Bahagia</span>

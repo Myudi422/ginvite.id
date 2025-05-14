@@ -23,7 +23,7 @@ interface EventSectionProps {
 
   theme: {
     accentColor: string;
-    defaultBgImage: string;
+    background: string;
   };
 }
 
@@ -33,6 +33,18 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string }
       {children}
     </div>
   );
+
+  const formatDateWithTime = (dateString: string, timeString: string): string => {
+    try {
+      const date = new Date(dateString);
+      const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+      const formattedDate = date.toLocaleDateString('id-ID', options);
+      return `${formattedDate} ${timeString}`;
+    } catch (error) {
+      console.error("Error formatting date and time:", error, dateString, timeString);
+      return `${dateString} ${timeString}`; // Kembalikan format asli jika gagal
+    }
+  };
 
   return (
     <div className="relative bg-white rounded-2xl shadow-soft p-6 mb-8 last:mb-0">
@@ -46,11 +58,12 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string }
         </h3>
       )}
       <p className="text-center text-2xl font-bold" style={{ color: accentColor }}>
-        {event.date}
+        {formatDateWithTime(event.date, event.time)} {/* Gunakan fungsi formatDateWithTime */}
       </p>
-      <p className="text-center text-gray-600">
+      {/* Anda tidak perlu menampilkan waktu lagi di sini karena sudah termasuk di atas */}
+      {/* <p className="text-center text-gray-600">
         {event.time}{' '}
-      </p>
+      </p> */}
 
       <div className="mt-4 text-center">
         <IconWrapper>
@@ -94,7 +107,7 @@ export default function EventSection(props: EventSectionProps) {
       id="event"
       className="py-16 px-4 md:px-8"
       style={{
-        backgroundImage: `url(${theme.defaultBgImage})`,
+        backgroundImage: `url(${theme.background})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

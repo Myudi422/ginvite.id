@@ -192,25 +192,26 @@ export default function Theme1({ data }: Theme1Props) {
         )}
 
         {isOpen && !isLoading && (
-          <div className="w-full">
-            <ProfileSection
-              gallery={gallery}
-              defaultBgImage1={theme.defaultBgImage1}
-              opening={opening}
-              childrenData={children}
-              isWedding={isWedding}
-              weddingTextFontSize={{ fontSize: '20px' }}
-              marginBottomWeddingText="mb-3"
-              marginBottomName="mb-4"
-              topLeftDecoration={decorations?.topLeft}
-              topRightDecoration={decorations?.topRight}
-              bottomLeftDecoration={decorations?.bottomLeft}
-              bottomRightDecoration={decorations?.bottomRight}
-              specialFontFamily={processedSpecialFontFamily}
-              BodyFontFamily={processedBodyFontFamily}
-              HeadingFontFamily={processedHeadingFontFamily}
-              theme={theme}
-            />
+  <div className="w-full">
+    <ProfileSection
+      gallery={gallery}
+      defaultBgImage1={theme.defaultBgImage1}
+      opening={opening}
+      childrenData={children}
+      isWedding={isWedding}
+      weddingTextFontSize={{ fontSize: '20px' }}
+      marginBottomWeddingText="mb-3"
+      marginBottomName="mb-4"
+      topLeftDecoration={decorations?.topLeft}
+      topRightDecoration={decorations?.topRight}
+      bottomLeftDecoration={decorations?.bottomLeft}
+      bottomRightDecoration={decorations?.bottomRight}
+      specialFontFamily={processedSpecialFontFamily}
+      BodyFontFamily={processedBodyFontFamily}
+      HeadingFontFamily={processedHeadingFontFamily}
+      theme={theme}
+      event={firstEvent} // Kirimkan firstEvent ke ProfileSection
+    />
 
             <ImportantEventSection theme={theme} quotes={quotes} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} />
             <InvitationTextSection invitation={invitation} theme={theme} />
