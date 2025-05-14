@@ -45,7 +45,7 @@ export default function LoginForm() {
         className="w-full flex items-center justify-center gap-2 py-2 bg-white hover:bg-gray-100 rounded-lg disabled:opacity-50 transition"
       >
         <img
-          src="/icons/google.svg"       // ganti dengan ikon Google milikmu
+          src="google.svg"       // ganti dengan ikon Google milikmu
           alt="Google logo"
           className="w-5 h-5 md:w-6 md:h-6"
         />
