@@ -42,8 +42,7 @@ export default function Theme1({ data }: Theme1Props) {
   const searchParams = useSearchParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
   const [showWatermark, setShowWatermark] = useState(false);
-  const [watermarkText, setWatermarkText] = useState("UNDANGAN BELUM AKTIF"); // Teks watermark yang lebih singkat
-
+  const [watermarkText, setWatermarkText] = useState("UNDANGAN BELUM AKTIF");
 
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {
@@ -57,139 +56,87 @@ export default function Theme1({ data }: Theme1Props) {
     };
   }, [isOpen]);
 
-  if (!data) {
-    return <div className="flex items-center justify-center h-screen">Loading Data...</div>;
-  }
+  if (!data) return <div className="flex items-center justify-center h-screen">Loading Data...</div>;
 
   useEffect(() => {
-    if (data?.status === "tidak") {
-      setShowWatermark(true);
-    } else {
-      setShowWatermark(false);
-    }
+    setShowWatermark(data?.status === "tidak");
   }, [data?.status]);
 
-  if (!data) {
-    return <div className="flex items-center justify-center h-screen">Loading Data...</div>;
-  }
+  // Destructure API data
+  const { theme, content, decorations, event: apiEvents } = data;
+  const { opening, quotes, invitation, children, parents, gallery, our_story, closing, title: eventTitle } = content;
 
-  const {
-    theme,
-    content,
-    decorations,
-    waktu_acara: eventDateProp,
-    time: eventTime,
-    location: eventLocation,
-    mapsLink: eventMapsLink,
-  } = data;
+  // Dynamic events list from API
+  const eventsList = Object.entries(apiEvents ?? {})
+    .map(([key, ev]) => ev && ({
+      key,
+      title: (ev as any).title || key,
+      date: (ev as any).date || '',
+      time: (ev as any).time || '',
+      location: (ev as any).location || '',
+      mapsLink: (ev as any).mapsLink || '',
+      note: (ev as any).note || '',
+    }))
+    .filter(Boolean);
 
-  const {
-    opening,
-    quotes,
-    invitation,
-    children,
-    parents,
-    gallery,
-    our_story,
-    closing,
-    title: eventTitleInContent,
-  } = content;
-
+  // Calculate event date for countdown/calendar
   let eventDate: Date | null = null;
-  if (eventDateProp && eventTime) {
+  const firstEvent = eventsList[0];
+  if (firstEvent?.date && firstEvent?.time) {
     try {
-      const dateTimeString = `${eventDateProp} ${eventTime}`;
-      eventDate = new Date(dateTimeString);
-    } catch (error) {
-      console.error("Error creating event Date:", error);
+      eventDate = new Date(`${firstEvent.date} ${firstEvent.time}`);
+    } catch {
       eventDate = null;
     }
   }
 
-  const isWedding = !!parents.groom;
+  const isWedding = !!parents?.groom;
 
-  let calendarUrl = "";
+  // Google Calendar URL
+  let calendarUrl = '';
   if (eventDate) {
-    const start = eventDate.toISOString().replace(/-|:|\.\d+/g, "");
-    const end = new Date(eventDate.getTime() + 3600000)
-      .toISOString()
-      .replace(/-|:|\.\d+/g, "");
+    const start = eventDate.toISOString().replace(/-|:|\.\d+/g, '');
+    const end = new Date(eventDate.getTime() + 3600000).toISOString().replace(/-|:|\.\d+/g, '');
     calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}&text=${encodeURIComponent(
       opening.title
     )}&details=${encodeURIComponent(invitation)}&location=${encodeURIComponent(
-      eventLocation
+      (firstEvent as any).location
     )}`;
   }
 
   const sampleQrData = "SampleGuestID12345";
 
-  const processedSpecialFontFamily = content?.font?.special
-    ?.replace('font-family:', '')
-    .trim()
-    .replace(';', '') || 'sans-serif';
-
-  const processedBodyFontFamily = content?.font?.body
-    ?.replace('font-family:', '')
-    .trim()
-    .replace(';', '') || 'sans-serif';
-
-  const processedHeadingFontFamily = content?.font?.heading
-    ?.replace('font-family:', '')
-    .trim()
-    .replace(';', '') || 'sans-serif';
+  // Process font families
+  const processedSpecialFontFamily = content?.font?.special?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
+  const processedBodyFontFamily = content?.font?.body?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
+  const processedHeadingFontFamily = content?.font?.heading?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
 
   return (
-    <main
-      className="relative min-h-screen text-center overflow-hidden flex md:flex-row"
-      style={{ color: theme.textColor }}
-    >
+    <main className="relative min-h-screen text-center overflow-hidden flex md:flex-row" style={{ color: theme.textColor }}>
       {isLoading && (
-        <motion.div
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed top-0 left-0 w-full h-full bg-white z-50 flex items-center justify-center"
-        >
+        <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed top-0 left-0 w-full h-full bg-white z-50 flex items-center justify-center">
           <WeddingLoading />
         </motion.div>
       )}
 
       {showWatermark && (
-  <div className="fixed top-0 left-0 w-full h-full z-40 pointer-events-none flex items-center justify-center" style={{ backgroundColor: 'transparent' }}>
-    <div className="relative text-white text-center text-xl font-bold opacity-50">
-      {watermarkText}
-      <div
-        className="absolute bottom-[-5px] left-0 w-full h-[3px]"
-        style={{ backgroundColor: 'rgba(255, 192, 203, 0.5)' }} // Pink dengan opasitas 50%
-      />
-    </div>
-  </div>
-)}
+        <div className="fixed top-0 left-0 w-full h-full z-40 pointer-events-none flex items-center justify-center" style={{ backgroundColor: 'transparent' }}>
+          <div className="relative text-white text-center text-xl font-bold opacity-50">
+            {watermarkText}
+            <div className="absolute bottom-[-5px] left-0 w-full h-[3px]" style={{ backgroundColor: 'rgba(255, 192, 203, 0.5)' }} />
+          </div>
+        </div>
+      )}
 
-      <div
-        className="hidden md:block w-[70%] sticky top-0 h-screen relative"
-        style={{
-          backgroundImage: `url(${gallery?.items?.[1] || '/default-cover.jpg'})`,
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-        }}
-      >
+      {/* Left Cover */}
+      <div className="hidden md:block w-[70%] sticky top-0 h-screen relative" style={{ backgroundImage: `url(${gallery?.items?.[1] || '/default-cover.jpg'})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-0" />
-        <div
-          className="absolute text-white z-10"
-          style={{
-            top: '500px',
-            left: '36px',
-            fontSize: '40px',
-            fontFamily: processedSpecialFontFamily,
-          }}
-        >
+        <div className="absolute text-white z-10" style={{ top: '500px', left: '36px', fontSize: '40px', fontFamily: processedSpecialFontFamily }}>
           Hai, {toName}
         </div>
       </div>
 
+      {/* Right Content */}
       <div className="w-full md:w-[30%] overflow-y-auto h-screen">
         {isOpen && <MusicPlayer autoPlay />}
         <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={sampleQrData} />
@@ -218,7 +165,6 @@ export default function Theme1({ data }: Theme1Props) {
               opening={opening}
               childrenData={children}
               isWedding={isWedding}
-              //nameFontSize={{ fontSize: '50px' }}
               weddingTextFontSize={{ fontSize: '20px' }}
               marginBottomWeddingText="mb-3"
               marginBottomName="mb-4"
@@ -230,46 +176,20 @@ export default function Theme1({ data }: Theme1Props) {
               BodyFontFamily={processedBodyFontFamily}
               HeadingFontFamily={processedHeadingFontFamily}
               theme={theme}
-              waktu_acara={eventDateProp || ''}
-              time={eventTime || ''}
             />
 
-            <ImportantEventSection
-              theme={theme}
-              quotes={quotes}
-              specialFontFamily={processedSpecialFontFamily}
-              BodyFontFamily={processedBodyFontFamily}
-            />
+            <ImportantEventSection theme={theme} quotes={quotes} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} />
             <InvitationTextSection invitation={invitation} theme={theme} />
-            <FamilySection
-  childrenData={children}
-  parents={parents}
-  isWedding={isWedding}
-  theme={theme}
-/>
+            <FamilySection childrenData={children} parents={parents} isWedding={isWedding} theme={theme} />
 
             <CountdownSection eventDate={eventDate || new Date()} calendarUrl={calendarUrl} theme={theme} />
-            <EventSection
-              date={eventDateProp || ''}
-              time={eventTime || ''}
-              location={eventLocation || ''}
-              mapsLink={eventMapsLink || ''}
-              theme={theme}
-              title={eventTitleInContent}
-            />
+
+            <EventSection events={eventsList} theme={theme} sectionTitle={eventTitle} />
+
             {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
             <GallerySection gallery={gallery} theme={theme} />
-            <BankSection
-  theme={theme}
-  specialFontFamily={processedSpecialFontFamily}
-  bodyFontFamily={processedBodyFontFamily}
-/>
-            <RsmpSection
-  contentId={3}
-  theme={theme}
-  specialFontFamily={processedSpecialFontFamily}
-  bodyFontFamily={processedBodyFontFamily}
-/>
+            <BankSection theme={theme} specialFontFamily={processedSpecialFontFamily} bodyFontFamily={processedBodyFontFamily} />
+            <RsmpSection contentId={3} theme={theme} specialFontFamily={processedSpecialFontFamily} bodyFontFamily={processedBodyFontFamily} />
             <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
           </div>
         )}

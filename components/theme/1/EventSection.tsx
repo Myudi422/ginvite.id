@@ -2,82 +2,108 @@ import { MapPin, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-interface EventSectionProps {
+interface Event {
+  key: string;
+  title?: string;        // title kini optional, fallback bisa nama key
   date: string;
   time: string;
   location: string;
   mapsLink: string;
-  title?: string; // Tambahkan title sebagai properti opsional jika masih ingin digunakan
-  note?: string;
+}
+
+interface EventSectionProps {
+  /**
+   * Array sesi acara dinamis dari API atau form
+   */
+  events?: Event[];
+
+  // Judul section (opsional)
+  sectionTitle?: string;
+
   theme: {
     accentColor: string;
     defaultBgImage: string;
   };
 }
 
-export default function EventSection({
-  date,
-  time,
-  location,
-  mapsLink,
-  theme,
-  title, // Terima title sebagai properti
-  note,
-}: EventSectionProps) {
+function EventCard({ event, accentColor }: { event: Event; accentColor: string }) {
+  const IconWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded-full shadow-soft">
+      {children}
+    </div>
+  );
+
+  return (
+    <div className="relative bg-white rounded-2xl shadow-soft p-6 mb-8 last:mb-0">
+      <IconWrapper>
+        <CalendarDays size={32} color={accentColor} />
+      </IconWrapper>
+
+      {event.title && (
+        <h3 className="mt-6 text-center font-serif text-xl text-gray-800">
+          {event.title}
+        </h3>
+      )}
+      <p className="text-center text-2xl font-bold" style={{ color: accentColor }}>
+        {event.date}
+      </p>
+      <p className="text-center text-gray-600">
+        {event.time}{' '}
+      </p>
+
+      <div className="mt-4 text-center">
+        <IconWrapper>
+          <MapPin size={32} color={accentColor} />
+        </IconWrapper>
+        <p className="mt-4 text-gray-600 leading-relaxed whitespace-pre-line">
+          {event.location}
+        </p>
+        <Link href={event.mapsLink} target="_blank">
+          <Button
+            className="mt-4 px-4 py-2 rounded-full"
+            style={{ backgroundColor: accentColor, color: '#fff' }}
+          >
+            Petunjuk Lokasi
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function EventSection(props: EventSectionProps) {
+  const { events, sectionTitle, theme } = props;
+  const list: Event[] = events ?? [];
+
+  if (!list.length) return null;
+
   return (
     <section
       id="event"
-      className="home-section"
+      className="py-16 px-4 md:px-8"
       style={{
-        backgroundImage: `linear-gradient(rgba(255,255,255,0.95), rgba(255,245,240,0.97)), url(${theme.defaultBgImage})`,
+        backgroundImage: `url(${theme.defaultBgImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        padding: '3rem 1.5rem',
       }}
     >
-      <div className="home-inner">
-        {title && (
+      <div className="max-w-xl mx-auto bg-[rgba(0,0,0,0.7)] rounded-3xl p-8">
+        {sectionTitle && (
           <h2
-            className="text-4xl md:text-5xl font-cursive mb-4"
+            className="text-4xl font-cursive text-center mb-8"
             style={{ color: theme.accentColor }}
           >
-            {title}
+            {sectionTitle}
           </h2>
         )}
 
-        {/* Date & Time Card */}
-        <div className="relative p-6 bg-white rounded-lg shadow-soft mb-8">
-          <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded-full">
-            <CalendarDays style={{ color: theme.accentColor }} size={36} />
-          </div>
-          <div className="pt-6">
-            <h3 className="text-xl font-serif text-gray-700">Waktu &amp; Tanggal</h3>
-            <p className="text-2xl font-bold" style={{ color: theme.accentColor }}>
-              {date}
-            </p>
-            <p className="text-lg text-gray-600">
-              Pukul {time} {note && <span style={{ color: theme.accentColor }}>({note})</span>}
-            </p>
-          </div>
-        </div>
-
-        {/* Location Card */}
-        <div className="relative p-6 bg-white rounded-lg shadow-soft">
-          <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded-full">
-            <MapPin style={{ color: theme.accentColor }} size={36} />
-          </div>
-          <div className="pt-6">
-            <h3 className="text-xl font-serif text-gray-700">Lokasi Acara</h3>
-            <p className="text-gray-600 leading-relaxed">{location}</p>
-            <div className="mt-4">
-              <Link href={mapsLink} target="_blank">
-                <Button style={{ backgroundColor: theme.accentColor, color: '#fff' }}>
-                  Petunjuk Lokasi
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
+        {list.map((ev, idx) => (
+          <EventCard
+            key={ev.key || idx}
+            event={ev}
+            accentColor={theme.accentColor}
+          />
+        ))}
       </div>
     </section>
   );

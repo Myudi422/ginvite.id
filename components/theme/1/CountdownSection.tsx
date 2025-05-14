@@ -15,28 +15,34 @@ interface CountdownSectionProps {
 export default function CountdownSection({
   eventDate,
   calendarUrl,
-  theme,
+  theme: { accentColor },
 }: CountdownSectionProps) {
   return (
     <section
       id="countdown"
-      className="py-12 px-6 sm:px-8 md:px-10 lg:px-12 xl:px-16" // Penyesuaian padding responsif
+      className="py-12 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 bg-gradient-to-b from-white/80 to-white/90"
     >
-      <div className="max-w-md mx-auto rounded-lg shadow-md bg-white p-8 text-center">
-        <div className="flex items-center justify-center mb-4 text-xl">
+      <div className="max-w-sm mx-auto bg-white rounded-2xl shadow p-8 text-center">
+        <div className="flex items-center justify-center gap-2 mb-4 text-lg font-medium text-gray-700">
           <span>🌸</span>
-          <h3 className="mx-2 font-semibold">Menuju Hari Bahagia</h3>
+          <span>Menuju Hari Bahagia</span>
           <span>🌸</span>
         </div>
-        <div
-          className="text-2xl font-bold mb-6"
-          style={{ color: theme.accentColor }}
-        >
-          <CountdownTimer targetDate={eventDate} />
-        </div>
+
+        <CountdownTimer
+          targetDate={eventDate}
+          containerClassName="flex justify-center gap-3 mb-6"
+          numberClassName="w-14 h-14 rounded-lg shadow flex items-center justify-center text-xl font-bold"
+          labelClassName="text-xs mt-1 text-gray-500"
+          accentColor={accentColor}
+        />
+
         <Link href={calendarUrl} target="_blank" className="inline-block">
-          <Button className="px-6 py-3 rounded-full font-medium shadow-sm" style={{ backgroundColor: theme.accentColor, color: '#fff' }}>
-            <CalendarDays className="mr-2 h-4 w-4" /> Simpan di Kalender
+          <Button
+            className="flex items-center justify-center gap-2 px-5 py-2 rounded-full font-medium shadow-sm"
+            style={{ backgroundColor: accentColor, color: '#fff' }}
+          >
+            <CalendarDays size={16} /> Simpan di Kalender
           </Button>
         </Link>
       </div>
