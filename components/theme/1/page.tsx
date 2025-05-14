@@ -210,7 +210,7 @@ export default function Theme1({ data }: Theme1Props) {
       BodyFontFamily={processedBodyFontFamily}
       HeadingFontFamily={processedHeadingFontFamily}
       theme={theme}
-      event={firstEvent} // Kirimkan firstEvent ke ProfileSection
+      event={firstEvent}
     />
 
             <ImportantEventSection theme={theme} quotes={quotes} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} />
