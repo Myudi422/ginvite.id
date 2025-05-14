@@ -12,21 +12,18 @@ export default function LoginForm() {
     setLoading(true);
     setError(null);
     try {
-      // 1) Sign in with Google via Firebase
       const result = await signInWithPopup(auth, provider);
       const idToken = await result.user.getIdToken();
 
-      // 2) Kirim ke Next.js API route (URL lokal)
       const res = await fetch("/api/auth/google", {
         method: "POST",
-        credentials: "include",           // pastikan cookie diteruskan
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id_token: idToken }),
       });
       const json = await res.json();
 
       if (res.ok && json.token) {
-        // 4) Redirect ke admin dashboard
         window.location.href = "/admin";
       } else {
         throw new Error(json.message || "Login gagal");
@@ -40,20 +37,22 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex h-screen">
-      <main className="flex-1 flex flex-col justify-center items-center bg-gray-50">
-        <div className="bg-white p-8 rounded-xl shadow-lg space-y-6 w-full max-w-sm">
-          <h1 className="text-2xl font-semibold text-center">Masuk dengan Google</h1>
-          {error && <p className="text-red-500 text-center">{error}</p>}
-          <button
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
-          >
-            {loading ? "Memproses…" : "Sign in with Google"}
-          </button>
-        </div>
-      </main>
+    <div className="bg-pink-100 rounded-xl shadow-lg p-4 md:p-6 space-y-4">
+      {error && <p className="text-red-500 text-center">{error}</p>}
+      <button
+        onClick={handleGoogleLogin}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 py-2 bg-white hover:bg-gray-100 rounded-lg disabled:opacity-50 transition"
+      >
+        <img
+          src="/icons/google.svg"       // ganti dengan ikon Google milikmu
+          alt="Google logo"
+          className="w-5 h-5 md:w-6 md:h-6"
+        />
+        <span className="font-medium text-gray-700">
+          {loading ? "Memproses…" : "Masuk dengan Google"}
+        </span>
+      </button>
     </div>
   );
 }
