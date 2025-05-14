@@ -70,23 +70,17 @@ export default function ClosingSection({
           ))}
         </div>
 
-        {/* Brand */}
-        <div className="mt-4">
-          <span
-            className="block text-xs text-white opacity-75"
-            style={{ fontFamily: BodyFontFamily }}
-          >
-            Papunda
-          </span>
-        </div>
-
+       {/* Brand */}
+ <div className="mt-4 flex justify-center">
+   <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
+ </div>
         {/* Footer credit */}
-        <p
-          className="text-xs text-white opacity-75"
-          style={{ fontFamily: BodyFontFamily }}
-        >
-          Undangan Web By: papunda.com
-        </p>
+<p
+  className="text-xs text-white opacity-75"
+  style={{ fontFamily: BodyFontFamily }}
+>
+  Copyright © {new Date().getFullYear()} by papunda.com
+</p>
 
         {/* Social & Music Icons */}
         <div className="mt-4 flex items-center justify-center space-x-6">

@@ -241,7 +241,13 @@ export default function Theme1({ data }: Theme1Props) {
               BodyFontFamily={processedBodyFontFamily}
             />
             <InvitationTextSection invitation={invitation} />
-            <FamilySection children={children} parents={parents} isWedding={isWedding} theme={theme} />
+            <FamilySection
+  childrenData={children}
+  parents={parents}
+  isWedding={isWedding}
+  theme={theme}
+/>
+
             <CountdownSection eventDate={eventDate || new Date()} calendarUrl={calendarUrl} theme={theme} />
             <EventSection
               date={eventDateProp || ''}

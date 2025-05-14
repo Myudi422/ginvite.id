@@ -11,6 +11,7 @@ import SectionCTA from "@/components/sections/SectionCTA";
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import Image from 'next/image';
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 
@@ -72,9 +73,7 @@ function Header() {
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-3 flex items-center justify-between"> {/* Padding vertikal lebih kecil di mobile */}
         {/* Logo (Sample) */}
-        <Link href="#" className="font-bold text-xl text-pink-500">
-          [Papunda]
-        </Link>
+         <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">

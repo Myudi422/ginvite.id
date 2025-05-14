@@ -8,7 +8,7 @@ interface GallerySectionProps {
     textColor: string
     bgColor: string
     accentColor: string
-    defaultBgImage: string
+    background: string
   }
 }
 
@@ -51,7 +51,7 @@ export default function GallerySection({
       id="gallery"
       className="home-section text-center"
       style={{
-        backgroundImage: `url(${theme.defaultBgImage})`,
+        backgroundImage: `url(${theme.background})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: '3rem 1.5rem',

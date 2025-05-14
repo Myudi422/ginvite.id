@@ -1,43 +1,73 @@
-// components/family/FamilySection.tsx
 import Image from 'next/image';
+import { Heart } from 'lucide-react';
 
-export default function FamilySection({ children, parents, isWedding, theme }) {
-  return (
-    <section id="family" className="home-section" style={{ padding: '2rem 1rem' }}>
-      <div className="home-inner">
-        <div className="home-children-parent">
-          {children.map((c, i) => (
-            <div key={i} className="home-children-parent__item">
-              {c.profile1 && (
-                <div className="home-children-parent__avatar">
-                  <Image
-                    src={c.profile1}
-                    alt={`${c.name} Profile`}
-                    width={96}
-                    height={96}
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <h3
-                className="home-children-parent__name"
-                style={{ color: theme.accentColor }}
-              >
-                {c.name}
-              </h3>
-              <p className="home-children-parent__nickname">({c.nickname})</p>
-              <p className="home-children-parent__order">{c.order}</p>
-              <p className="home-children-parent__parents">
-                {isWedding
-                  ? c.order === 'Pengantin Pria'
-                    ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
-                    : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`
-                  : `Putra dari ${parents.father} & ${parents.mother}`}
-              </p>
-            </div>
-          ))}
-        </div>
+interface Child {
+  name: string;
+  order: string;
+  profile: string;
+  nickname?: string;
+}
+
+interface Parents {
+  bride: { father: string; mother: string };
+  groom: { father: string; mother: string };
+}
+
+interface FamilySectionProps {
+  childrenData: Child[];
+  parents: Parents;
+  isWedding: boolean;
+  theme: { accentColor: string, background: string };
+}
+
+export default function FamilySection({ childrenData, parents, isWedding, theme }: FamilySectionProps) {
+  if (childrenData.length < 2) return null; // need both bride & groom
+
+  const [bride, groom] = childrenData;
+
+  const renderCard = (c: Child) => (
+    <div className="relative rounded-lg overflow-hidden shadow-lg">
+      <Image
+        src={c.profile}
+        alt={c.name}
+        width={400}
+        height={500}
+        className="object-cover w-full h-64 relative" // Tambahkan relative di sini
+      />
+      {/* Overlay untuk teks */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-4 text-center">
+        <h3 className="text-xl font-semibold" style={{ color: theme.accentColor }}>
+          {c.name}
+        </h3>
+        <p className="text-sm text-gray-600 mb-1">{c.order}</p>
+        <p className="text-xs text-gray-500">
+          {isWedding
+            ? c.order === 'Pengantin Pria'
+              ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
+              : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`
+            : ''}
+        </p>
       </div>
+    </div>
+  );
+
+  return (
+    <section
+      className="py-16 px-4 flex flex-col items-center gap-8"
+      style={{ backgroundImage: `url(${theme.background})` }}
+    >
+      {/* Bride Card */}
+      {renderCard(bride)}
+
+      {/* Improved Heart Divider */}
+      <div className="flex items-center justify-center gap-2" style={{ color: theme.accentColor }}>
+        <div className="border-t border-solid border-current w-16"></div>
+        <Heart size={36} />
+        <div className="border-t border-solid border-current w-16"></div>
+      </div>
+
+      {/* Groom Card */}
+      {renderCard(groom)}
     </section>
   );
 }
