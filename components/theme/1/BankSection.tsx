@@ -83,7 +83,7 @@ export default function BankSection({ theme, specialFontFamily, bodyFontFamily }
         fontFamily: bodyFontFamily,
         backgroundSize: 'cover',
           backgroundPosition: 'center',
-          padding: '3rem 1.5rem',
+          padding: '1rem 1.5rem',
       }}
     >
       <h2

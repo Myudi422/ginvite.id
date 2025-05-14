@@ -53,7 +53,7 @@ export default function FamilySection({ childrenData, parents, isWedding, theme 
 
   return (
     <section
-      className="py-16 px-4 flex flex-col items-center gap-8"
+      className="py-6 px-4 flex flex-col items-center gap-8"
       style={{ backgroundImage: `url(${theme.background})` }}
     >
       {/* Bride Card */}

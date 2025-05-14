@@ -54,7 +54,7 @@ export default function GallerySection({
         backgroundImage: `url(${theme.background})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        padding: '3rem 1.5rem',
+        padding: '1rem 1.5rem',
       }}
     >
       <div className="home-inner max-w-4xl mx-auto">

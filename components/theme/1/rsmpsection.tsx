@@ -11,7 +11,7 @@ interface RsmpSectionProps {
     textColor: string;
     bgColor: string;
     accentColor: string;
-    defaultBgImage: string;
+    background: string;
   };
   specialFontFamily?: string;
   bodyFontFamily?: string;
@@ -62,7 +62,7 @@ export default function RsmpSection({ contentId, theme, specialFontFamily, bodyF
   return (
     <section
       className="max-w-md mx-auto p-8 rounded-tl-2xl shadow-lg backdrop-blur-sm"
-      style={{ backgroundImage: `url(${theme.defaultBgImage})`, color: theme.accentColor, fontFamily: bodyFontFamily }}
+      style={{ backgroundImage: `url(${theme.background})`, color: theme.accentColor, fontFamily: bodyFontFamily }}
     >
       <h2
         className="text-2xl font-semibold mb-6 text-center flex items-center justify-center gap-2"

@@ -240,7 +240,7 @@ export default function Theme1({ data }: Theme1Props) {
               specialFontFamily={processedSpecialFontFamily}
               BodyFontFamily={processedBodyFontFamily}
             />
-            <InvitationTextSection invitation={invitation} />
+            <InvitationTextSection invitation={invitation} theme={theme} />
             <FamilySection
   childrenData={children}
   parents={parents}
