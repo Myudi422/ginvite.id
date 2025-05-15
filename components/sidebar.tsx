@@ -7,6 +7,7 @@ import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut } from "lucide-react"
 import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import Image from "next/image";
 
 const routes = [
   { href: "/admin", label: "Dashboard", icon: HomeIcon },
@@ -37,20 +38,18 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     <div className="h-full py-6 px-4 bg-gradient-to-b from-pink-50/30 to-white/20 backdrop-blur-md border-r border-pink-100/30 flex flex-col justify-between">
       <div>
         <Link
-          href="/admin"
-          onClick={onLinkClick}
-          className="flex items-center gap-3 px-3 mb-8 group"
-        >
-          <div className="h-8 w-8 rounded-md bg-gradient-to-br from-pink-400 to-pink-600 shadow-md flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-white">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-              <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-          </div>
-          <h1 className="text-xl font-semibold bg-gradient-to-r from-pink-600 to-pink-400 bg-clip-text text-transparent">
-            Papunda.com
-          </h1>
-        </Link>
+  href="/"
+  onClick={onLinkClick}
+  className="flex items-center mb-8" // Hapus justify-center sementara
+>
+  <Image
+    src="logo.svg"
+    alt="Logo Papunda"
+    height={150}
+    width={150}
+    className="ml-auto mr-auto" // Tambahkan ml-auto untuk mendorong ke kanan
+  />
+</Link>
 
         <div className="space-y-2">
           {routes.map(({ href, label, icon: Icon }) => (
