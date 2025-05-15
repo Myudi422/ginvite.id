@@ -1,11 +1,25 @@
+// app/admin/manage/[invitationId]/[title]/ManagePageClient.tsx
 'use client';
 
-import { useRouter, useParams } from 'next/navigation';
-import { ChevronLeft, Eye, ThumbsUp, User, Calendar, ClipboardList, QrCode } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import {
+  ChevronLeft,
+  Eye,
+  ThumbsUp,
+  User,
+  Calendar,
+  ClipboardList,
+  QrCode,
+} from 'lucide-react';
 
-export default function ManagePage() {
+interface Props {
+  invitationId: string;
+  title:        string;
+}
+
+export default function ManagePageClient({ invitationId, title }: Props) {
   const router = useRouter();
-  const { invitationId, title } = useParams() as { invitationId: string; title: string };
+  const slug = encodeURIComponent(title);
 
   // SAMPLE COUNTS
   const seenCount = 139;
@@ -16,11 +30,14 @@ export default function ManagePage() {
     <div className="min-h-screen bg-gray-50">
       {/* HEADER */}
       <div className="flex items-center bg-white shadow p-4">
-        <button onClick={() => router.back()} className="p-2 rounded hover:bg-gray-100">
+        <button
+          onClick={() => router.back()}
+          className="p-2 rounded hover:bg-gray-100"
+        >
           <ChevronLeft className="h-6 w-6 text-pink-600" />
         </button>
         <h1 className="ml-4 text-lg font-semibold text-gray-800">
-          Manage Undangan – {decodeURIComponent(title!)}
+          Manage Undangan – {decodeURIComponent(title)}
         </h1>
       </div>
 
@@ -50,25 +67,28 @@ export default function ManagePage() {
         {/* NOTICE */}
         <div className="flex items-center gap-3 bg-pink-50 border-l-4 border-pink-400 text-pink-800 p-4 rounded">
           <Calendar className="h-5 w-5" />
-          <p>Untuk Mengaktifkan Plugin yang terkunci, silahkan ubah di formulir dan lakukan payment.</p>
+          <p>
+            Untuk Mengaktifkan Plugin yang terkunci, silahkan ubah di formulir
+            dan lakukan payment.
+          </p>
         </div>
 
         {/* ACTION GRID */}
         <div className="grid grid-cols-2 gap-4">
-           <button
-    onClick={() =>
-      router.push(
-        `/admin/formulir/${invitationId}/${encodeURIComponent(title!)}`
-      )
-    }
-    className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
-  >
-    <ClipboardList className="h-8 w-8 mb-2" />
-    <span className="font-semibold">Edit Formulir</span>
-  </button>
+          <button
+            onClick={() =>
+              router.push(`/admin/formulir/${invitationId}/${slug}`)
+            }
+            className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
+          >
+            <ClipboardList className="h-8 w-8 mb-2" />
+            <span className="font-semibold">Edit Formulir</span>
+          </button>
 
           <button
-            onClick={() => router.push('bulk')}
+            onClick={() =>
+              router.push(`/admin/manage/${invitationId}/${slug}/bulk`)
+            }
             className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
           >
             <Calendar className="h-8 w-8 mb-2" />
@@ -78,7 +98,9 @@ export default function ManagePage() {
 
         <div className="grid grid-cols-3 gap-4">
           <button
-            onClick={() => router.push('data-tamu')}
+            onClick={() =>
+              router.push(`/admin/manage/${invitationId}/${slug}/data-tamu`)
+            }
             className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
           >
             <User className="h-8 w-8 mb-2" />
@@ -86,7 +108,9 @@ export default function ManagePage() {
           </button>
 
           <button
-            onClick={() => router.push('rundown')}
+            onClick={() =>
+              router.push(`/admin/manage/${invitationId}/${slug}/rundown`)
+            }
             className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
           >
             <ClipboardList className="h-8 w-8 mb-2" />
@@ -94,7 +118,9 @@ export default function ManagePage() {
           </button>
 
           <button
-            onClick={() => router.push('qr-code')}
+            onClick={() =>
+              router.push(`/admin/manage/${invitationId}/${slug}/qr-code`)
+            }
             className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
           >
             <QrCode className="h-8 w-8 mb-2" />

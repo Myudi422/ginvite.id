@@ -11,13 +11,14 @@ const SECRET = 'very-secret-key';
 
 interface PageProps {
   params: {
-    invitationId: string;
+    invitationId: string; // tetap pakai nama invitationId untuk userId
     title:        string;
   };
 }
 
 export default async function Page({ params }: PageProps) {
   const { invitationId, title } = params;
+  const userIdParam = parseInt(invitationId, 10);
 
   // 1) Auth
   const cookieStore = await cookies();
@@ -36,7 +37,7 @@ export default async function Page({ params }: PageProps) {
   const res = await fetch(
     `https://ccgnimex.my.id/v2/android/ginvite/index.php` +
       `?action=get_content_user` +
-      `&user_id=${jwtUserId}` +
+      `&user_id=${userIdParam}` +
       `&title=${encodeURIComponent(title)}`,
     { cache: 'no-store' }
   );
@@ -46,7 +47,7 @@ export default async function Page({ params }: PageProps) {
   }
   const json = await res.json();
   if (json.status !== 'success' || !json.data.length) {
-    console.log(`Data undangan "${title}" untuk user ${jwtUserId} tidak ditemukan.`);
+    console.log(`Data undangan "${title}" untuk user ${userIdParam} tidak ditemukan.`);
     return redirect('/admin');
   }
 
@@ -81,16 +82,14 @@ export default async function Page({ params }: PageProps) {
         }
       : undefined,
   };
-
-  // 5) Rest of contentData without event
   const { event, ...restContentData } = contentData;
 
-  // 6) Choose FormComponent
+  // 5) Choose FormComponent
   const FormComponent = record.category_name === 'pernikahan'
     ? PernikahanForm
     : null;
 
-  // 7) Preview URL
+  // 6) Preview URL
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;
 
   return (
