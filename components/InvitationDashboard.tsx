@@ -1,3 +1,4 @@
+// components/InvitationDashboard.tsx (or wherever yours lives)
 'use client';
 
 import Image from 'next/image';
@@ -16,10 +17,10 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
   const [search, setSearch] = useState('');
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
 
-  const prev = () => setCurrent((i) => (i === 0 ? slides.length - 1 : i - 1));
-  const next = () => setCurrent((i) => (i + 1) % slides.length);
+  const prev = () => setCurrent(i => (i === 0 ? slides.length - 1 : i - 1));
+  const next = () => setCurrent(i => (i + 1) % slides.length);
 
-  const filtered = invitations.filter((inv) =>
+  const filtered = invitations.filter(inv =>
     inv.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -42,8 +43,8 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
         </div>
         <button
           className="py-3 px-6 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-xl 
-          shadow-sm hover:from-pink-500 hover:to-pink-600 transition-all transform hover:scale-105
-          backdrop-blur-lg bg-white/30 border border-white/20"
+                     shadow-sm hover:from-pink-500 hover:to-pink-600 transition-all transform hover:scale-105
+                     backdrop-blur-lg bg-white/30 border border-white/20"
           onClick={openCreatePopup}
         >
           + Bikin Undangan
@@ -62,26 +63,18 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
       {/* SLIDER */}
       {slides.length > 0 && (
         <div className="relative w-full h-56 md:h-64 overflow-hidden rounded-3xl mb-8 
-          backdrop-blur-md bg-white/30 border border-white/20 shadow-md">
-          <Image 
-            src={slides[current]} 
-            alt={`Slide ${current + 1}`} 
-            fill 
+                        backdrop-blur-md bg-white/30 border border-white/20 shadow-md">
+          <Image
+            src={slides[current]}
+            alt={`Slide ${current + 1}`}
+            fill
             className="object-cover"
             priority
           />
-          <button 
-            onClick={prev} 
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 
-            hover:bg-white/90 backdrop-blur-sm shadow-md transition-all"
-          >
+          <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white/90 backdrop-blur-sm shadow-md transition-all">
             <ChevronLeftIcon className="h-6 w-6 text-pink-600" />
           </button>
-          <button 
-            onClick={next} 
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 
-            hover:bg-white/90 backdrop-blur-sm shadow-md transition-all"
-          >
+          <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white/90 backdrop-blur-sm shadow-md transition-all">
             <ChevronRightIcon className="h-6 w-6 text-pink-600" />
           </button>
         </div>
@@ -93,21 +86,21 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
           type="text"
           placeholder="Cari undangan..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           className="w-full px-6 py-3 rounded-xl border border-pink-200 focus:outline-none 
-          focus:ring-2 focus:ring-pink-300 focus:border-transparent bg-white/50 backdrop-blur-md
-          placeholder:text-pink-400 text-pink-600 shadow-sm"
+                     focus:ring-2 focus:ring-pink-300 focus:border-transparent bg-white/50 backdrop-blur-md
+                     placeholder:text-pink-400 text-pink-600 shadow-sm"
         />
       </div>
 
       {/* GRID UNDANGAN */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((inv) => (
-          <div 
-            key={inv.id} 
+        {filtered.map(inv => (
+          <div
+            key={inv.id}
             className="bg-white/30 backdrop-blur-md rounded-2xl p-6 relative 
-            border border-white/20 shadow-md hover:shadow-1xl transition-all
-            hover:border-pink-200 group"
+                       border border-white/20 shadow-md hover:shadow-1xl transition-all
+                       hover:border-pink-200 group"
           >
             <button className="absolute top-4 right-4 text-pink-500 hover:text-pink-600">
               <EllipsisVerticalIcon className="h-6 w-6" />
@@ -131,9 +124,10 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
             <div className="space-y-2 text-sm text-pink-700 mb-6">
               <p>
                 Status:{' '}
-                <span className={inv.status === 1 
-                  ? 'font-medium text-green-500' 
-                  : 'font-medium text-pink-500'}>
+                <span className={inv.status === 1
+                  ? 'font-medium text-green-500'
+                  : 'font-medium text-pink-500'
+                }>
                   {inv.status === 1 ? 'Aktif' : 'Belum Aktif'}
                 </span>
               </p>
@@ -148,34 +142,20 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
             <div className="flex flex-col md:flex-row gap-3">
               <button
                 className="w-full py-2 px-4 bg-gradient-to-r from-pink-100 to-pink-50 text-pink-700 
-                rounded-lg border border-pink-200 hover:border-pink-300 hover:from-pink-200 
-                transition-all shadow-sm"
+                           rounded-lg border border-pink-200 hover:border-pink-300 hover:from-pink-200 
+                           transition-all shadow-sm"
                 onClick={() => router.push(`/admin/formulir/${user.userId}/${inv.title}`)}
               >
                 Edit
               </button>
+
+              {/* NEW: Manage Button */}
               <button
-                className="w-full py-2 px-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white 
-                rounded-lg hover:from-pink-500 hover:to-pink-600 transition-all shadow-sm"
-                onClick={async () => {
-                  await fetch(
-                    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status`,
-                    {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        user_id: user.userId,
-                        id: inv.id,
-                        title: inv.title,
-                        status: inv.status === 1 ? 0 : 1,
-                        event_date: inv.event_date,
-                      }),
-                    }
-                  );
-                  router.refresh();
-                }}
+                className="w-full py-2 px-4 bg-gradient-to-r from-purple-400 to-purple-500 text-white 
+                           rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all shadow-sm"
+                onClick={() => router.push(`/admin/manage/${user.userId}/${inv.title}`)}
               >
-                {inv.status === 1 ? 'Nonaktifkan' : 'Aktifkan'}
+                Manage
               </button>
             </div>
           </div>

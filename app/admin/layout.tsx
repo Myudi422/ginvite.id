@@ -27,19 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <main className="flex-1 p-2 sm:mt-1">
-          {/* Back Button */}
-          {pathname !== "/admin" && (
-            <div className="flex justify-end mb-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.replace('/admin')}
-              >
-                <ArrowLeftIcon className="h-4 w-4 mr-1" />
-                Kembali Ke Dashboard
-              </Button>
-            </div>
-          )}
+         
 
           {children}
         </main>

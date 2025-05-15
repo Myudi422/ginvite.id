@@ -24,15 +24,15 @@ export default function FooterSection() {
           </div>
 
           {/* Kontak Admin */}
-          <div className="flex flex-col items-center sm:items-start">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Kontak Admin</h3>
-            <p className="text-slate-700 mb-1">
-              Telp: <a href="tel:+628123456789" className="underline hover:text-slate-900">+62 812-3456-789</a>
-            </p>
-            <p className="text-slate-700">
-              Email: <a href="mailto:admin@papunda.id" className="underline hover:text-slate-900">admin@papunda.id</a>
-            </p>
-          </div>
+        <div className="flex flex-col items-center sm:items-start">
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">Kontak Admin</h3>
+          <p className="text-slate-700 mb-1">
+            Telp: <a href="https://wa.me/6285959203739" className="underline hover:text-slate-900">+62 859-5920-3739</a>
+          </p>
+          <p className="text-slate-700">
+            Email: <a href="mailto:papundacare@gmail.com" className="underline hover:text-slate-900">papundacare@gmail.com</a>
+          </p>
+        </div>
         </CardContent>
         <Separator />
         <div className="text-center text-sm text-slate-500 py-4">
