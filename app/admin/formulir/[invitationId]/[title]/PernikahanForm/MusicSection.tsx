@@ -7,7 +7,7 @@ import { useFormContext } from 'react-hook-form';
 import { Collapsible } from './Collapsible';
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlayIcon, PauseIcon } from '@radix-ui/react-icons'; // CheckIcon dihapus karena tidak diperlukan manual lagi
+import { PlayIcon, PauseIcon } from '@radix-ui/react-icons';
 
 interface Music {
   Nama_lagu: string;
@@ -107,14 +107,18 @@ export function MusicSection() {
                           value={music.link_lagu}
                           className="py-2 hover:bg-accent"
                         >
-                          <div className="flex items-center justify-between w-full">
-                            {/* Spacer kosong, jika kamu ingin jaga layout kiri */}
+                          <div className="flex items-center justify-between w-full gap-2">
+                            {/* Spacer untuk kiri */}
                             <div className="w-6 flex-shrink-0" />
+
+                            {/* Nama lagu */}
                             <div className="flex-1 min-w-0 text-center overflow-hidden">
                               <p className="truncate font-medium">{music.Nama_lagu}</p>
                             </div>
-                            <div className="w-auto flex justify-end">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/20 text-accent-foreground">
+
+                            {/* Kategori */}
+                            <div className="w-auto flex justify-end max-w-[100px]">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/20 text-accent-foreground truncate">
                                 {music.kategori}
                               </span>
                             </div>
@@ -142,11 +146,12 @@ export function MusicSection() {
                   )}
                   {isPlaying && currentPlaying === selectedMusicUrl ? 'Jeda' : 'Mainkan'}
                 </Button>
-                <div className="flex flex-col gap-1 min-w-0">
+
+                <div className="flex flex-col gap-1 min-w-0 max-w-full overflow-hidden">
                   <p className="truncate text-sm font-medium">
                     {musicList.find(m => m.link_lagu === selectedMusicUrl)?.Nama_lagu}
                   </p>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="truncate text-xs text-muted-foreground">
                     {musicList.find(m => m.link_lagu === selectedMusicUrl)?.kategori}
                   </span>
                 </div>

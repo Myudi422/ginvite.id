@@ -8,6 +8,7 @@ import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Image from "next/image";
+import LogoSVG from '@/assets/logo.svg';
 
 const routes = [
   { href: "/admin", label: "Dashboard", icon: HomeIcon },
@@ -43,7 +44,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   className="flex items-center mb-8" // Hapus justify-center sementara
 >
   <Image
-    src="logo.svg"
+    src="/logo.svg"
     alt="Logo Papunda"
     height={150}
     width={150}
