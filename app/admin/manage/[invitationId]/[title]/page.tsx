@@ -46,7 +46,7 @@ export default function ManagePage() {
           <div className="relative z-10 flex justify-around items-center h-full">
             <div className="text-center">
               <Eye className="mx-auto h-8 w-8 text-pink-600" />
-              <p className="mt-2 text-sm text-gray-600">Dilihat Tamu</p>
+              <p className="mt-2 text-sm text-gray-600">Dilihat</p>
               <p className="mt-1 text-2xl font-bold text-gray-800">
                 {seenCount}
               </p>
@@ -92,12 +92,12 @@ export default function ManagePage() {
 
           <button
             onClick={() =>
-              router.push(`/admin/manage/${invitationId}/${slug}/bulk`)
+              router.push(`/admin/manage/${invitationId}/${slug}/data-tamu`)
             }
             className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
           >
-            <Calendar className="h-8 w-8 mb-2" />
-            <span className="font-semibold">Bulk Undangan</span>
+            <User className="h-8 w-8 mb-2" />
+            <span className="font-semibold">Data Tamu</span>
           </button>
         </div>
 
@@ -109,8 +109,8 @@ export default function ManagePage() {
             }
             className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
           >
-            <User className="h-8 w-8 mb-2" />
-            <span className="font-semibold">Data Tamu</span>
+            <Calendar className="h-8 w-8 mb-2" />
+            <span className="font-semibold">Bulk Undangan</span>
           </button>
 
           <button

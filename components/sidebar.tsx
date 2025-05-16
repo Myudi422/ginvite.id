@@ -47,8 +47,9 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     alt="Logo Papunda"
     height={150}
     width={150}
-    className="ml-auto mr-auto" // Tambahkan ml-auto untuk mendorong ke kanan
-  />
+    className="ml-auto mr-auto"
+    priority // Tambahkan prop priority
+/>
 </Link>
 
         <div className="space-y-2">

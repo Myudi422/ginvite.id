@@ -11,7 +11,6 @@ interface Props {
 const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationCreated }) => {
   const [category, setCategory] = useState('');
   const [slug, setSlug] = useState('');
-  const [waktuAcara, setWaktuAcara] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,7 +18,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
     setLoading(true);
     setError('');
 
-    if (!category || !slug || !waktuAcara) {
+    if (!category || !slug) {
       setError('Harap isi semua kolom.');
       setLoading(false);
       return;
@@ -37,7 +36,6 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
             user_id: userId,
             category_id: category, // Pastikan mapping ID kategori sudah benar di backend
             title: slug,
-            waktu_acara: waktuAcara,
             content: '{}', // Inisialisasi dengan JSON kosong
           }),
         }
@@ -60,13 +58,13 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
 
   return (
     <div className="fixed inset-0 z-50 bg-pink-100/30 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-gradient-to-br from-pink-50 to-pink-100/50 backdrop-blur-lg rounded-2xl p-8 
+      <div className="bg-gradient-to-br from-pink-50 to-pink-100/50 backdrop-blur-lg rounded-2xl p-8
         shadow-2xl border border-pink-200/30 w-full max-w-md">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-pink-400 bg-clip-text 
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-pink-400 bg-clip-text
           text-transparent mb-6">
           Buat Undangan Baru
         </h2>
-        
+
         {error && (
           <div className="mb-4 p-3 bg-red-100/50 rounded-lg border border-red-200/50">
             <p className="text-red-600 text-sm">{error}</p>
@@ -81,7 +79,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50 
+              className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50
                 focus:ring-2 focus:ring-pink-300 focus:border-transparent text-pink-700 placeholder-pink-400
                 transition-all shadow-sm"
             >
@@ -100,21 +98,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
               placeholder="contoh: pernikahan-andi-siti"
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50 
-                focus:ring-2 focus:ring-pink-300 focus:border-transparent text-pink-700 placeholder-pink-400
-                transition-all shadow-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-pink-700 mb-2">
-              Waktu Acara
-            </label>
-            <input
-              type="date"
-              value={waktuAcara}
-              onChange={(e) => setWaktuAcara(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50 
+              className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50
                 focus:ring-2 focus:ring-pink-300 focus:border-transparent text-pink-700 placeholder-pink-400
                 transition-all shadow-sm"
             />
@@ -124,7 +108,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
             <button
               onClick={onClose}
               disabled={loading}
-              className="px-6 py-2.5 rounded-xl border border-pink-200/50 bg-white/50 hover:bg-white/70 
+              className="px-6 py-2.5 rounded-xl border border-pink-200/50 bg-white/50 hover:bg-white/70
                 text-pink-600 font-medium transition-all shadow-sm hover:shadow-md disabled:opacity-50"
             >
               Batal
@@ -132,8 +116,8 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
             <button
               onClick={handleCreateInvitation}
               disabled={loading}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500 
-                hover:to-pink-600 text-white font-medium transition-all shadow-sm hover:shadow-md 
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500
+                hover:to-pink-600 text-white font-medium transition-all shadow-sm hover:shadow-md
                 disabled:opacity-50 disabled:pointer-events-none"
             >
               {loading ? 'Membuat...' : 'Buat Undangan'}

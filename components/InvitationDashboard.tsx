@@ -151,8 +151,8 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
 
               {/* NEW: Manage Button */}
               <button
-                className="w-full py-2 px-4 bg-gradient-to-r from-purple-400 to-purple-500 text-white 
-                           rounded-lg hover:from-purple-500 hover:to-purple-600 transition-all shadow-sm"
+                className="w-full py-2 px-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white 
+                           rounded-lg hover:from-pink-500 hover:to-pink-600 transition-all shadow-sm"
                 onClick={() => router.push(`/admin/manage/${user.userId}/${inv.title}`)}
               >
                 Manage
