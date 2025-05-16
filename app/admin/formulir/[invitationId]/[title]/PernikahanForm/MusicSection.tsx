@@ -108,8 +108,6 @@ export function MusicSection() {
                           className="py-2 hover:bg-accent"
                         >
                           <div className="flex items-center justify-between w-full gap-2">
-                            {/* Spacer untuk kiri */}
-                            <div className="w-6 flex-shrink-0" />
 
                             {/* Nama lagu */}
                             <div className="flex-1 min-w-0 text-center overflow-hidden">
