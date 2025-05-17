@@ -1,4 +1,4 @@
-// app/undangan/[userId]/[theme]/[title]/page.tsx
+// app/undangan/[userId]/[title]/page.tsx
 import type { Metadata } from "next";
 import WeddingLoading from "@/components/WeddingLoading";
 import React from "react";
@@ -30,27 +30,29 @@ export default async function InvitationPage({ params }: Props) {
   }
   const data = await res.json();
 
-  // if you want a little loading fallback while dynamic-importing:
   const Loading = () => (
     <div className="flex items-center justify-center h-screen">
       <WeddingLoading />
     </div>
   );
 
-  // dynamically import the theme’s page component by folder name = idtheme
+  // Ambil kategori tema dari content yang dikembalikan oleh API
+  const categoryId = data.content.themeCategory; // gunakan themeCategory
+
+  // Dinamis import komponen tema berdasarkan kategori (folder theme)
   let ThemePage: React.ComponentType<{ data: any }>;
   try {
     const mod = await import(
       /* webpackInclude: /page\.tsx$/ */
       /* webpackChunkName: "theme-[request]" */
-      `@/components/theme/${data.theme.idtheme}/page`
+      `@/components/theme/${categoryId}/page`
     );
     ThemePage = mod.default;
   } catch (err) {
-    console.warn("Theme not found:", data.theme.idtheme, err);
+    console.warn("Tema komponen tidak ditemukan untuk kategori:", categoryId, err);
     ThemePage = () => (
       <div className="p-8 text-center">
-        <h2>Tema #{data.theme.idtheme} belum tersedia.</h2>
+        <h2>Tema kategori #{categoryId} belum tersedia.</h2>
       </div>
     );
   }

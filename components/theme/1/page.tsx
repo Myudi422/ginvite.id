@@ -83,8 +83,9 @@ export default function Theme1({ data }: Theme1Props) {
 
   // Destructure API data
   const { theme, content, decorations, event: apiEvents } = data;
-  const { opening, quotes, invitation, children, parents, gallery, our_story, closing, title: eventTitle } = content;
+  const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle } = content;
 
+  const { url: musicUrl = "", enabled: musicEnabled = false } = music || {};
   // Dynamic events list from API
   const eventsList: Event[] = Object.entries(apiEvents ?? {})
     .map(([key, ev]) => {
@@ -172,7 +173,7 @@ export default function Theme1({ data }: Theme1Props) {
 
       {/* Right Content */}
       <div className="w-full md:w-[30%] overflow-y-auto h-screen">
-        {isOpen && <MusicPlayer autoPlay />}
+         {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay />}
         <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={sampleQrData} />
 
         {!isOpen && !isLoading && (

@@ -1,50 +1,68 @@
 // components/MusicPlayer.tsx
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Play, Pause } from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import { Play, Pause } from "lucide-react";
 
 interface MusicPlayerProps {
-  autoPlay?: boolean
+  url: string;
+  autoPlay?: boolean;
 }
 
-export default function MusicPlayer({ autoPlay = false }: MusicPlayerProps) {
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
+export default function MusicPlayer({ url, autoPlay = false }: MusicPlayerProps) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const togglePlay = () => {
-    const audio = audioRef.current
-    if (!audio) return
+    const audio = audioRef.current;
+    if (!audio) return;
     if (isPlaying) {
-      audio.pause()
-      setIsPlaying(false)
+      audio.pause();
+      setIsPlaying(false);
     } else {
       audio.play()
-      setIsPlaying(true)
+        .then(() => setIsPlaying(true))
+        .catch(err => console.warn("Audio play was interrupted:", err));
     }
-  }
+  };
 
   useEffect(() => {
-    const audio = audioRef.current
+    const audio = audioRef.current;
+    // autoplay handling
     if (audio && autoPlay) {
       audio.play()
-      setIsPlaying(true)
+        .then(() => setIsPlaying(true))
+        .catch(err => console.warn("Audio autoPlay interrupted:", err));
     }
-    return () => {
-      if (audio) {
-        audio.pause()
+
+    // pause ketika tab blur / user pindah tab
+    const handleVisibility = () => {
+      if (document.hidden && audio) {
+        audio.pause();
+        setIsPlaying(false);
       }
-    }
-  }, [autoPlay])
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    // pause juga saat page unload/hide (mobile back, refresh, close)
+    const handlePageHide = () => {
+      if (audio) audio.pause();
+      setIsPlaying(false);
+    };
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      // cleanup
+      if (audio) audio.pause();
+      setIsPlaying(false);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [autoPlay]);
 
   return (
     <div className="fixed top-4 right-4 z-50">
-      <audio
-        ref={audioRef}
-        src="https://sin1.contabostorage.com/2db3bf1e16cd47a08843bb881e39cce7:indoinvite-staging/indoinvite-staging/indoinvite-staging/nikah/theme/music/1659167827.mp3"
-        preload="auto"
-        loop
-      />
+      <audio ref={audioRef} src={url} preload="auto" loop />
       <button
         onClick={togglePlay}
         className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 focus:outline-none"
@@ -52,5 +70,5 @@ export default function MusicPlayer({ autoPlay = false }: MusicPlayerProps) {
         {isPlaying ? <Pause className="h-6 w-6 text-blue-600" /> : <Play className="h-6 w-6 text-blue-600" />}
       </button>
     </div>
-  )
+  );
 }

@@ -7,7 +7,8 @@ import { useFormContext } from 'react-hook-form';
 import { Collapsible } from './Collapsible';
 
 export function BankTransferSection() {
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
+  const isBankTransferEnabled = watch('bank_transfer.enabled');
 
   return (
     <Collapsible title="Informasi Bank Transfer">
@@ -27,45 +28,55 @@ export function BankTransferSection() {
             </FormItem>
           )}
         />
-        <FormField
-          control={control}
-          name="bank_transfer.account_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Pemilik Rekening</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="bank_transfer.account_number"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nomor Rekening</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="bank_transfer.bank_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Bank</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {isBankTransferEnabled && (
+          <>
+            <FormField
+              control={control}
+              name="bank_transfer.account_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Pemilik Rekening</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="bank_transfer.account_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nomor Rekening</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '');
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="bank_transfer.bank_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Bank</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
       </div>
     </Collapsible>
   );
