@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { FiCopy, FiExternalLink } from 'react-icons/fi'
 
 // URL endpoints
 const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
@@ -209,16 +210,69 @@ export function PernikahanForm({
   return (
     <FormProvider {...form}>
       <form onSubmit={e => e.preventDefault()} className="space-y-6">
-        <FormField name="slug" control={form.control} render={() => (
-          <FormItem>
-            <FormLabel>Judul URL (Slug)</FormLabel>
-            <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center rounded-md border bg-gray-50 px-3 text-gray-500">papunda.com/undang/{userId}/</span>
-              <FormControl><Input value={inputSlug} onChange={onSlugChange} className="flex-1" /></FormControl>
-            </div>
-            <FormMessage />
-          </FormItem>
-        )} />
+      <FormField
+  name="slug"
+  control={form.control}
+  render={() => (
+    <FormItem>
+      <FormLabel>Judul URL (Yang dibagikan)</FormLabel>
+      <div className="flex items-center space-x-2">
+        <FormControl>
+          <Input
+            placeholder="Masukkan slug undangan Anda"
+            className="flex-1"
+            required                         // <-- HTML5 required
+            value={inputSlug}
+            onChange={e => {
+              const raw = e.target.value
+              const newSlug = raw
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+              setInputSlug(newSlug)
+              form.setValue('slug', newSlug, {
+                shouldValidate: true,
+                shouldDirty: true
+              })
+            }}
+          />
+        </FormControl>
+
+        {/* Copy */}
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!inputSlug}            // <-- disable if empty
+          onClick={() => {
+            const slugVal = inputSlug
+            const url = `papunda.com/undang/${userId}/${encodeURIComponent(slugVal)}`
+            navigator.clipboard.writeText(url)
+            alert('Tautan berhasil disalin!')
+          }}
+        >
+          <FiCopy size={16} />
+        </Button>
+
+        {/* Open in new tab */}
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!inputSlug}            // <-- disable if empty
+          onClick={() => {
+            const slugVal = inputSlug
+            const fullUrl = `https://papunda.com/undang/${userId}/${encodeURIComponent(slugVal)}`
+            window.open(fullUrl, '_blank')
+          }}
+        >
+          <FiExternalLink size={16} />
+        </Button>
+      </div>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
 
         <FormItem>
           <FormLabel>Mengundang Preview “to”</FormLabel>
