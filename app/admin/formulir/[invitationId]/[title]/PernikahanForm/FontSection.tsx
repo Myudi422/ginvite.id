@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import {
@@ -35,17 +35,22 @@ const FONT_OPTIONS = [
 
 export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSectionProps) {
   const { control, getValues, setValue } = useFormContext<FormValues>();
-  const [displayTextColorPicker, setDisplayTextColorPicker] = useState(false);
-  const [displayAccentColorPicker, setDisplayAccentColorPicker] = useState(false);
+  const [showTextPicker, setShowTextPicker] = useState(false);
+  const [showAccentPicker, setShowAccentPicker] = useState(false);
+  const [useDefaultText, setUseDefaultText] = useState(false);
+  const [useDefaultAccent, setUseDefaultAccent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Server Action wrapper
+  // Capture initial defaults from form context
+  const initialTextColor = useRef(getValues('font.color.text_color') || '');
+  const initialAccentColor = useRef(getValues('font.color.accent_color') || '');
+
   const autoSave = useCallback(async () => {
     setError(null);
     try {
       const data = getValues();
       const contentPayload = { ...data, event: { ...data.event, title: slug } };
-      const payload = {
+      await saveContentAction({
         user_id: userId,
         id: invitationId,
         title: slug,
@@ -54,27 +59,23 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
         time: data.event.time,
         location: data.event.location,
         mapsLink: data.event.mapsLink,
-      };
-      // Panggil server action
-      await saveContentAction(payload);
-      // Refresh preview
+      });
       const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
       if (iframe) iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
     } catch (err: any) {
-      setError(err.message);
       console.error('Server action saveContent gagal:', err);
+      setError(err.message);
     }
   }, [getValues, userId, invitationId, slug, onSavedSlug]);
 
-  const handleTextColorChange = useCallback(
+  const handleTextComplete = useCallback(
     (color: { hex: string }) => {
       setValue('font.color.text_color', color.hex);
       autoSave();
     },
     [setValue, autoSave]
   );
-
-  const handleAccentColorChange = useCallback(
+  const handleAccentComplete = useCallback(
     (color: { hex: string }) => {
       setValue('font.color.accent_color', color.hex);
       autoSave();
@@ -82,13 +83,23 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
     [setValue, autoSave]
   );
 
+  const resetText = useCallback(() => {
+    setValue('font.color.text_color', initialTextColor.current);
+    autoSave();
+  }, [setValue, autoSave]);
+  const resetAccent = useCallback(() => {
+    setValue('font.color.accent_color', initialAccentColor.current);
+    autoSave();
+  }, [setValue, autoSave]);
+
   return (
     <Collapsible title="Tampilan (Font & Warna)">
+      {/* Font selectors */}
       {(['body', 'heading', 'special'] as const).map((fieldKey) => (
         <FormField
           key={fieldKey}
           control={control}
-          name={`font.${fieldKey}` as const}
+          name={`font.${fieldKey}`}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="capitalize">{fieldKey}</FormLabel>
@@ -119,19 +130,44 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
       ))}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {/* Text Color */}
         <FormItem>
           <FormLabel>Warna Teks</FormLabel>
           <FormControl>
-            <div className="relative">
-              <div
-                className="w-8 h-8 rounded-md shadow-md cursor-pointer"
-                style={{ backgroundColor: getValues('font.color.text_color') }}
-                onClick={() => setDisplayTextColorPicker((v) => !v)}
-              />
-              {displayTextColorPicker && (
-                <div className="absolute z-20 mt-2">
-                  <div className="fixed inset-0" onClick={() => setDisplayTextColorPicker(false)} />
-                  <SketchPicker color={getValues('font.color.text_color')} onChange={handleTextColorChange} />
+            <div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="useDefaultText"
+                  type="checkbox"
+                  checked={useDefaultText}
+                  onChange={() => {
+                    setUseDefaultText((v) => !v);
+                    if (!useDefaultText) resetText();
+                  }}
+                />
+                <label htmlFor="useDefaultText">Pakai warna default</label>
+              </div>
+              {!useDefaultText && (
+                <div className="flex items-center space-x-2 mt-2">
+                  <div className="relative inline-block">
+                    <div
+                      className="w-8 h-8 rounded-md shadow-md cursor-pointer"
+                      style={{
+                        backgroundColor:
+                          getValues('font.color.text_color') || initialTextColor.current,
+                      }}
+                      onClick={() => setShowTextPicker((v) => !v)}
+                    />
+                    {showTextPicker && (
+                      <div className="absolute z-20 mt-2">
+                        <div className="fixed inset-0" onClick={() => setShowTextPicker(false)} />
+                        <SketchPicker
+                          color={getValues('font.color.text_color')}
+                          onChangeComplete={handleTextComplete}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -139,19 +175,44 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
           <FormMessage />
         </FormItem>
 
+        {/* Accent Color */}
         <FormItem>
           <FormLabel>Warna Aksen</FormLabel>
           <FormControl>
-            <div className="relative">
-              <div
-                className="w-8 h-8 rounded-md shadow-md cursor-pointer"
-                style={{ backgroundColor: getValues('font.color.accent_color') }}
-                onClick={() => setDisplayAccentColorPicker((v) => !v)}
-              />
-              {displayAccentColorPicker && (
-                <div className="absolute z-20 mt-2">
-                  <div className="fixed inset-0" onClick={() => setDisplayAccentColorPicker(false)} />
-                  <SketchPicker color={getValues('font.color.accent_color')} onChange={handleAccentColorChange} />
+            <div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="useDefaultAccent"
+                  type="checkbox"
+                  checked={useDefaultAccent}
+                  onChange={() => {
+                    setUseDefaultAccent((v) => !v);
+                    if (!useDefaultAccent) resetAccent();
+                  }}
+                />
+                <label htmlFor="useDefaultAccent">Pakai warna default</label>
+              </div>
+              {!useDefaultAccent && (
+                <div className="flex items-center space-x-2 mt-2">
+                  <div className="relative inline-block">
+                    <div
+                      className="w-8 h-8 rounded-md shadow-md cursor-pointer"
+                      style={{
+                        backgroundColor:
+                          getValues('font.color.accent_color') || initialAccentColor.current,
+                      }}
+                      onClick={() => setShowAccentPicker((v) => !v)}
+                    />
+                    {showAccentPicker && (
+                      <div className="absolute z-20 mt-2">
+                        <div className="fixed inset-0" onClick={() => setShowAccentPicker(false)} />
+                        <SketchPicker
+                          color={getValues('font.color.accent_color')}
+                          onChangeComplete={handleAccentComplete}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
