@@ -127,17 +127,34 @@ export default function Theme1({ data }: Theme1Props) {
 
   const isWedding = !!parents?.groom;
 
-  // Google Calendar URL (menggunakan data dari event pertama)
+  // Determine nickname (use first child nickname)
+   // Combine two nicknames with '&'
+  const nickname1 = children?.[0]?.nickname || '';
+  const nickname2 = children?.[1]?.nickname || '';
+  const nickname = [nickname1, nickname2].filter(Boolean).join(' & ');
+
+  // Build Google Calendar URL with custom title and details
   let calendarUrl = '';
   if (firstEvent && eventDate) {
     const start = eventDate.toISOString().replace(/-|:|\.\d+/g, '');
-    const end = new Date(eventDate.getTime() + 3600000).toISOString().replace(/-|:|\.\d+/g, '');
-    calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}&text=${encodeURIComponent(
-      opening.title
-    )}&details=${encodeURIComponent(invitation)}&location=${encodeURIComponent(
-      firstEvent.location
-    )}`;
+    const endDate = new Date(eventDate.getTime() + 3600000); // +1 hour
+    const end = endDate.toISOString().replace(/-|:|\.\d+/g, '');
+
+    // Build event details text
+    const eventDetails = sortedEvents.map(ev =>
+      `${ev.title}: ${ev.date} ${ev.time} @ ${ev.location} (${ev.mapsLink})`
+    ).join('\n');
+
+    const detailsText = `Kami dari papunda.com bermaksud mengundang Anda di acara ini. Merupakan suatu kehormatan dan kebahagiaan bagi pihak mengundang, apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada hari :\n${eventDetails}`;
+
+    const titleText = `Undangan Pernikahan - ${nickname}`;
+
+    calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}` +
+      `&text=${encodeURIComponent(titleText)}` +
+      `&details=${encodeURIComponent(detailsText)}` +
+      `&location=${encodeURIComponent(firstEvent.location)}`;
   }
+
 
   const sampleQrData = "SampleGuestID12345";
 
@@ -224,7 +241,14 @@ export default function Theme1({ data }: Theme1Props) {
 
             {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
             <GallerySection gallery={gallery} theme={theme} />
-            <BankSection theme={theme} specialFontFamily={processedSpecialFontFamily} bodyFontFamily={processedBodyFontFamily} />
+            {content.bank_transfer?.enabled && (
+  <BankSection
+    theme={theme}
+    specialFontFamily={processedSpecialFontFamily}
+    bodyFontFamily={processedBodyFontFamily}
+    bankTransfer={content.bank_transfer}
+  />
+)}
             <RsmpSection contentId={3} theme={theme} specialFontFamily={processedSpecialFontFamily} bodyFontFamily={processedBodyFontFamily} />
             <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
           </div>
