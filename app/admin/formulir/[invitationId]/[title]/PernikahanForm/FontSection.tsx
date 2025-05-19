@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import {
@@ -37,13 +37,22 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
   const { control, getValues, setValue } = useFormContext<FormValues>();
   const [showTextPicker, setShowTextPicker] = useState(false);
   const [showAccentPicker, setShowAccentPicker] = useState(false);
-  const [useDefaultText, setUseDefaultText] = useState(false);
-  const [useDefaultAccent, setUseDefaultAccent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Capture initial defaults from form context
+  // Capture initial defaults
   const initialTextColor = useRef(getValues('font.color.text_color') || '');
   const initialAccentColor = useRef(getValues('font.color.accent_color') || '');
+  const [useDefaultText, setUseDefaultText] = useState(() => initialTextColor.current === '');
+  const [useDefaultAccent, setUseDefaultAccent] = useState(() => initialAccentColor.current === '');
+
+  // Reset when toggled to default (after render)
+  useEffect(() => {
+    if (useDefaultText) resetText();
+  }, [useDefaultText]);
+
+  useEffect(() => {
+    if (useDefaultAccent) resetAccent();
+  }, [useDefaultAccent]);
 
   const autoSave = useCallback(async () => {
     setError(null);
@@ -63,30 +72,26 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
       const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
       if (iframe) iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
     } catch (err: any) {
-      console.error('Server action saveContent gagal:', err);
+      console.error('SaveContent gagal:', err);
       setError(err.message);
     }
   }, [getValues, userId, invitationId, slug, onSavedSlug]);
 
-  const handleTextComplete = useCallback(
-    (color: { hex: string }) => {
-      setValue('font.color.text_color', color.hex);
-      autoSave();
-    },
-    [setValue, autoSave]
-  );
-  const handleAccentComplete = useCallback(
-    (color: { hex: string }) => {
-      setValue('font.color.accent_color', color.hex);
-      autoSave();
-    },
-    [setValue, autoSave]
-  );
+  const handleTextComplete = useCallback((color: { hex: string }) => {
+    setValue('font.color.text_color', color.hex);
+    autoSave();
+  }, [setValue, autoSave]);
+
+  const handleAccentComplete = useCallback((color: { hex: string }) => {
+    setValue('font.color.accent_color', color.hex);
+    autoSave();
+  }, [setValue, autoSave]);
 
   const resetText = useCallback(() => {
     setValue('font.color.text_color', initialTextColor.current);
     autoSave();
   }, [setValue, autoSave]);
+
   const resetAccent = useCallback(() => {
     setValue('font.color.accent_color', initialAccentColor.current);
     autoSave();
@@ -104,24 +109,26 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
             <FormItem>
               <FormLabel className="capitalize">{fieldKey}</FormLabel>
               <FormControl>
-                <Select
-                  value={field.value}
-                  onValueChange={(val) => {
-                    field.onChange(val);
-                    autoSave();
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih font..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FONT_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.label} value={opt.css} style={{ fontFamily: opt.family }}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div>
+                  <Select
+                    value={field.value}
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      autoSave();
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Pilih font..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FONT_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.label} value={opt.css} style={{ fontFamily: opt.family }}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -140,10 +147,7 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
                   id="useDefaultText"
                   type="checkbox"
                   checked={useDefaultText}
-                  onChange={() => {
-                    setUseDefaultText((v) => !v);
-                    if (!useDefaultText) resetText();
-                  }}
+                  onChange={() => setUseDefaultText(prev => !prev)}
                 />
                 <label htmlFor="useDefaultText">Pakai warna default</label>
               </div>
@@ -152,11 +156,8 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
                   <div className="relative inline-block">
                     <div
                       className="w-8 h-8 rounded-md shadow-md cursor-pointer"
-                      style={{
-                        backgroundColor:
-                          getValues('font.color.text_color') || initialTextColor.current,
-                      }}
-                      onClick={() => setShowTextPicker((v) => !v)}
+                      style={{ backgroundColor: getValues('font.color.text_color') || initialTextColor.current }}
+                      onClick={() => setShowTextPicker(v => !v)}
                     />
                     {showTextPicker && (
                       <div className="absolute z-20 mt-2">
@@ -185,10 +186,7 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
                   id="useDefaultAccent"
                   type="checkbox"
                   checked={useDefaultAccent}
-                  onChange={() => {
-                    setUseDefaultAccent((v) => !v);
-                    if (!useDefaultAccent) resetAccent();
-                  }}
+                  onChange={() => setUseDefaultAccent(prev => !prev)}
                 />
                 <label htmlFor="useDefaultAccent">Pakai warna default</label>
               </div>
@@ -197,11 +195,8 @@ export function FontSection({ userId, invitationId, slug, onSavedSlug }: FontSec
                   <div className="relative inline-block">
                     <div
                       className="w-8 h-8 rounded-md shadow-md cursor-pointer"
-                      style={{
-                        backgroundColor:
-                          getValues('font.color.accent_color') || initialAccentColor.current,
-                      }}
-                      onClick={() => setShowAccentPicker((v) => !v)}
+                      style={{ backgroundColor: getValues('font.color.accent_color') || initialAccentColor.current }}
+                      onClick={() => setShowAccentPicker(v => !v)}
                     />
                     {showAccentPicker && (
                       <div className="absolute z-20 mt-2">
