@@ -1,26 +1,28 @@
-// components/important-event/ImportantEventSection.tsx
-interface ImportantEventSectionProps {
-  quotes: {
-    importantEvent: string;
-  };
-  specialFontFamily?: string; // Tambahkan properti specialFontFamily
-  BodyFontFamily?: string;
+// components/theme/1/QuoteSection.tsx
+import React from 'react';
+
+interface QuoteSectionProps {
+  quote: string;
   theme: {
     defaultBgImage: string;
     accentColor: string;
     textColor: string;
   };
+  specialFontFamily?: string;
+  BodyFontFamily?: string;
+  HeadingFontFamily?: string;
 }
 
-export default function ImportantEventSection({
-  quotes,
-  specialFontFamily,
+export default function QuoteSection({
+  quote,
   theme,
-  BodyFontFamily,
-}: ImportantEventSectionProps) {
+  specialFontFamily = 'sans-serif',
+  BodyFontFamily = 'sans-serif',
+  HeadingFontFamily = 'sans-serif',
+}: QuoteSectionProps) {
   return (
     <section
-      id="important-event"
+      id="quote-section"
       className="home-section"
       style={{
         padding: '2rem 1rem',
@@ -29,23 +31,22 @@ export default function ImportantEventSection({
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="home-inner">
+      <div className="home-inner mx-auto max-w-2xl">
         <div
-          className="home-important-event"
+          className="p-6 rounded-2xl"
           style={{
-            backgroundColor: theme.accentColor, // Latar belakang kotak menggunakan accentColor
-            opacity: 0.7, // Tingkat transparansi kotak
-            borderRadius: '10px', // Membuat sudut membulat (sesuaikan nilai sesuai keinginan)
-            padding: '1.5rem', // Ruang di dalam kotak agar teks tidak terlalu mepet
-            backdropFilter: 'blur(5px)', // Efek blur pada latar belakang di bawah kotak
+            backgroundColor: theme.accentColor,
+            opacity: 0.8,
+            backdropFilter: 'blur(8px)',
           }}
         >
           <p
-            className="home-important-event__description"
-            style={{ fontFamily: BodyFontFamily, color: theme.textColor }} // Terapkan BodyFontFamily dan textColor
-            dangerouslySetInnerHTML={{
-              __html: quotes.importantEvent.replace(/\n/g, '<br/>'),
+            className="text-lg leading-relaxed"
+            style={{
+              fontFamily: BodyFontFamily,
+              color: theme.textColor,
             }}
+            dangerouslySetInnerHTML={{ __html: quote.replace(/\n/g, '<br/>') }}
           />
         </div>
       </div>

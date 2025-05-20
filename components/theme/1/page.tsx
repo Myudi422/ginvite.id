@@ -83,7 +83,8 @@ export default function Theme1({ data }: Theme1Props) {
 
   // Destructure API data
   const { theme, content, decorations, event: apiEvents } = data;
-  const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle } = content;
+  const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote, 
+    quote_enabled, gallery_enabled = false } = content;
 
   const { url: musicUrl = "", enabled: musicEnabled = false } = music || {};
   // Dynamic events list from API
@@ -231,7 +232,15 @@ export default function Theme1({ data }: Theme1Props) {
       event={firstEvent}
     />
 
-            <ImportantEventSection theme={theme} quotes={quotes} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} />
+            {quote_enabled && (
+              <QuoteSection
+                quote={quote}
+                theme={theme}
+                specialFontFamily={processedSpecialFontFamily}
+                BodyFontFamily={processedBodyFontFamily}
+                HeadingFontFamily={processedHeadingFontFamily}
+              />
+            )}
             <InvitationTextSection invitation={invitation} theme={theme} />
             <FamilySection childrenData={children} parents={parents} isWedding={isWedding} theme={theme} />
 
@@ -240,7 +249,9 @@ export default function Theme1({ data }: Theme1Props) {
             <EventSection events={sortedEvents} theme={theme} sectionTitle={eventTitle} />
 
             {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
-            <GallerySection gallery={gallery} theme={theme} />
+            {gallery_enabled && (
+      <GallerySection gallery={gallery} theme={theme} />
+    )}
             {content.bank_transfer?.enabled && (
   <BankSection
     theme={theme}

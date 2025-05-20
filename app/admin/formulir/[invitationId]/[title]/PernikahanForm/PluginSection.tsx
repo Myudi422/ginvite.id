@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible } from './Collapsible';
 import { Crown } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface PluginSectionProps {
   userId: number;
@@ -20,6 +21,9 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
   const { control, getValues, setValue } = useFormContext();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Watch the gift toggle
+  const giftEnabled = useWatch({ control, name: 'plugin.gift' });
 
   const autoSave = useCallback(async () => {
     setSaving(true);
@@ -76,12 +80,20 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
     autoSave();
   }, [setValue, autoSave]);
 
+  const handleLinkChange = useCallback((value: string) => {
+    setValue('plugin.youtube_link', value);
+  }, [setValue]);
+
+  const handleLinkBlur = useCallback(() => {
+    autoSave();
+  }, [autoSave]);
+
   return (
     <Collapsible title="Plugin Undangan">
       <div className="grid gap-4 py-4">
         {[
           { name: 'plugin.rsvp', label: 'RSVP (Hadir/Tidak)' },
-          { name: 'plugin.gift', label: <>Gift <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
+          { name: 'plugin.gift', label: <>Video <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
           { name: 'plugin.whatsapp_notif', label: <>Whatsapp Notif <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
         ].map(({ name, label }) => (
           <FormField
@@ -101,6 +113,30 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
             )}
           />
         ))}
+
+        {/* Render input for YouTube link when gift is enabled */}
+        {giftEnabled && (
+          <FormField
+            control={control}
+            name="plugin.youtube_link"
+            render={({ field }) => (
+              <FormItem className="flex flex-col space-y-1">
+                <FormLabel>Link YouTube</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Masukkan link YouTube video..."
+                    disabled={saving}
+                    onChange={e => handleLinkChange(e.target.value)}
+                    onBlur={handleLinkBlur}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         {error && <p className="text-red-600 mt-2">Error: {error}</p>}
       </div>
     </Collapsible>

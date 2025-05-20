@@ -5,6 +5,7 @@ import { useFormContext, useFieldArray, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Collapsible } from './Collapsible';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +28,8 @@ interface GallerySectionProps {
 }
 
 export function GallerySection({ userId, invitationId, slug, onSavedSlug }: GallerySectionProps) {
-  const { control, setValue, getValues } = useFormContext();
+  const { control, setValue, getValues, watch } = useFormContext();
+  const enabled = watch('gallery_enabled', false);
   const { fields } = useFieldArray({ control, name: 'gallery.items' });
 
   const [previewImages, setPreviewImages] = useState<string[]>(getValues('gallery.items') || []);
@@ -58,6 +60,7 @@ export function GallerySection({ userId, invitationId, slug, onSavedSlug }: Gall
   }, [getValues, invitationId, onSavedSlug, slug, userId]);
 
   const handleImageChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!enabled) return;
     const files = event.target.files;
     if (!files?.length) return;
     if (previewImages.length + files.length > 6) {
@@ -95,9 +98,10 @@ export function GallerySection({ userId, invitationId, slug, onSavedSlug }: Gall
       setLocalPreviews([]);
       event.target.value = '';
     }
-  }, [autoSave, getValues, previewImages.length, setValue]);
+  }, [autoSave, enabled, getValues, previewImages.length, setValue]);
 
   const handleOpenDeleteConfirmation = (idx: number) => {
+    if (!enabled) return;
     setImageToDeleteIndex(idx);
     setDeleteConfirmationOpen(true);
   };
@@ -128,7 +132,23 @@ export function GallerySection({ userId, invitationId, slug, onSavedSlug }: Gall
 
   return (
     <Collapsible title="Gallery">
-      <div className="mb-4">
+      <div className="pt-4 mb-4 flex items-center space-x-2">
+        <Controller
+          name="gallery_enabled"
+          control={control}
+          render={({ field }) => (
+            <Switch
+              checked={field.value}
+              onCheckedChange={(v) => field.onChange(v)}
+            />
+          )}
+        />
+        <span className="text-sm font-medium">
+          {enabled ? 'Gallery Aktif' : 'Gallery Nonaktif'}
+        </span>
+      </div>
+
+      <div className={`mb-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>  
         <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
           Unggah Gambar (Maksimum 6)
         </label>
@@ -139,7 +159,7 @@ export function GallerySection({ userId, invitationId, slug, onSavedSlug }: Gall
           accept="image/*"
           onChange={handleImageChange}
           className="mt-1 block w-full border rounded-md py-2 px-3 focus:outline-none focus:ring focus:border-blue-300"
-          disabled={uploading}
+          disabled={!enabled || uploading}
         />
         {uploading && <p className="text-yellow-500">Mengunggah gambar...</p>}
         {uploadError && <p className="text-red-600">{uploadError}</p>}
@@ -147,7 +167,7 @@ export function GallerySection({ userId, invitationId, slug, onSavedSlug }: Gall
         {deleteError && <p className="text-red-600">{deleteError}</p>}
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className={`grid grid-cols-3 gap-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>  
         {[...previewImages, ...localPreviews].map((url, idx) => (
           <div key={idx} className="relative">
             <img
