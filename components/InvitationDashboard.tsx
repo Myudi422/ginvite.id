@@ -60,26 +60,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
         />
       )}
 
-      {/* SLIDER */}
-      {slides.length > 0 && (
-        <div className="relative w-full h-56 md:h-64 overflow-hidden rounded-3xl mb-8 
-                        backdrop-blur-md bg-white/30 border border-white/20 shadow-md">
-          <Image
-            src={slides[current]}
-            alt={`Slide ${current + 1}`}
-            fill
-            className="object-cover"
-            priority
-          />
-          <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white/90 backdrop-blur-sm shadow-md transition-all">
-            <ChevronLeftIcon className="h-6 w-6 text-pink-600" />
-          </button>
-          <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white/90 backdrop-blur-sm shadow-md transition-all">
-            <ChevronRightIcon className="h-6 w-6 text-pink-600" />
-          </button>
-        </div>
-      )}
-
+     
       {/* SEARCH */}
       <div className="mb-8">
         <input

@@ -5,37 +5,34 @@ import { PlayCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useRef } from "react";
 
-const sampleImage =
-  "https://i.pinimg.com/736x/86/3c/e4/863ce476748066d7923815576c6fb4fd.jpg";
-const tutorialImage =
-  "https://images.pexels.com/photos/265756/pexels-photo-265756.jpeg";
+// Cover video menggunakan image 1.jpeg
+const tutorialImage = "/1.jpeg";
 
 const steps = [
   {
     step: 1,
     title: "Buat Akun",
-    linkText: "Daftar Sekarang",
-    linkUrl: "/register",
-    image: sampleImage,
+    linkText: "Daftar & Login Sekarang",
+    linkUrl: "/login",
+    image: "/tutor1.jpg",
   },
   {
     step: 2,
-    title: "Konfigurasi Acara & Profil",
-    subtitle: "Upload foto, atur detail acara",
-    image: sampleImage,
+    title: "Klik Tombol + Buat Undangan",
+    subtitle: "Pilih Kategori Undangan Yang ingin dipilih, dan isi judul undangan, lalu simpan",
+    image: "/tutor2.jpg",
   },
   {
     step: 3,
-    title: "Pilih Template",
-    linkText: "Eksplor Template",
-    linkUrl: "/templates",
-    image: sampleImage,
+    title: "Pilih Template & Isi Data",
+    subtitle: "Pilih Template Undangan serta isi data formulir dan aktifkan/nonaktifkan fitur yang ingin dipilih, lalu simpan",
+    image: "/3.jpeg",
   },
   {
     step: 4,
     title: "Terbitkan & Bagikan",
-    subtitle: "Kirim tautan undangan ke tamu",
-    image: sampleImage,
+    subtitle: "Kirim tautan undangan ke tamu, kamu bisa juga kirim tautan spesial per tamu!",
+    image: "/4.jpeg",
   },
 ];
 
@@ -61,10 +58,10 @@ export default function InstructionsSection() {
         {/* Header */}
         <div className="text-center mb-14 md:mb-20">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-            Cara Menggunakan Platform
+            Cara Menggunakan Papunda
           </h2>
           <p className="text-gray-600 md:text-lg max-w-xl mx-auto leading-relaxed">
-            Buat undangan profesional hanya dalam{" "}
+            Buat undangan profesional hanya dalam {" "}
             <span className="font-semibold text-pink-500">5 menit</span>
           </p>
         </div>
@@ -233,5 +230,6 @@ export default function InstructionsSection() {
         </div>
       </div>
     </section>
+
   );
 }
