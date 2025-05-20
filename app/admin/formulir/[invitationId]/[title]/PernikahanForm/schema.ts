@@ -2,7 +2,7 @@
 import { z } from 'zod';
 
 export const pernikahanSchema = z.object({
-  theme: z.number().min(1, 'Pilih theme').optional(),   // <<< tambahan di sini
+  theme: z.number().min(1, 'Pilih theme').optional(),
   font: z.object({
     body: z.string(),
     heading: z.string(),
@@ -75,6 +75,10 @@ export const pernikahanSchema = z.object({
       whatsapp_notif: z.boolean().default(false),
     })
     .optional(),
+  // Tambahkan toggle untuk kutipan
+  quote_enabled: z.boolean().default(false),
+  quoteCategory: z.string().min(1, 'Pilih kategori kutipan').optional(),
+  quote: z.string().min(1, 'Pilih kutipan').optional(),
 });
 
 export type FormValues = z.infer<typeof pernikahanSchema>;

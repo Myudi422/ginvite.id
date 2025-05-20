@@ -19,6 +19,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { FiCopy, FiExternalLink } from 'react-icons/fi'
+import { QoutesSection } from './QoutesSection'; // Import QoutesSection
 
 // URL endpoints
 const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
@@ -54,6 +55,8 @@ export function PernikahanForm({
     plugin: { rsvp: false, gift: false, whatsapp_notif: false },
     bank_transfer: { enabled: false, account_name: '', account_number: '', bank_name: '' },
     music: { enabled: false, url: '' },
+    quote: '',
+    quoteCategory: '',
   };
 
   // initial event data
@@ -282,6 +285,7 @@ export function PernikahanForm({
         <ThemeSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <EventSection />
+        <QoutesSection />
         <GallerySection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <ParentsSection />
         <ChildrenSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
