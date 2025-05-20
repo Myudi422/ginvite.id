@@ -6,13 +6,14 @@ import Image from "next/image";
 import { useRef } from "react";
 
 // Cover video menggunakan image 1.jpeg
-const tutorialImage = "/1.jpeg";
+const tutorialImage = "/tutor1.jpg";
 
 const steps = [
   {
     step: 1,
     title: "Buat Akun",
     linkText: "Daftar & Login Sekarang",
+    subtitle: "Cukup Login Pakai akun google anda",
     linkUrl: "/login",
     image: "/tutor1.jpg",
   },
@@ -26,13 +27,13 @@ const steps = [
     step: 3,
     title: "Pilih Template & Isi Data",
     subtitle: "Pilih Template Undangan serta isi data formulir dan aktifkan/nonaktifkan fitur yang ingin dipilih, lalu simpan",
-    image: "/3.jpeg",
+    image: "/tutor3.jpg",
   },
   {
     step: 4,
     title: "Terbitkan & Bagikan",
     subtitle: "Kirim tautan undangan ke tamu, kamu bisa juga kirim tautan spesial per tamu!",
-    image: "/4.jpeg",
+    image: "/tutor4.jpg",
   },
 ];
 
@@ -219,12 +220,6 @@ export default function InstructionsSection() {
 
             {/* Text overlay */}
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white bg-gradient-to-t from-gray-900/80">
-              <h3 className="text-2xl font-bold mb-2">
-                Tutorial <span className="text-pink-300">Video</span>
-              </h3>
-              <p className="text-gray-200 text-sm">
-                Buat undangan online dengan cepat dan mudah.
-              </p>
             </div>
           </div>
         </div>
