@@ -11,7 +11,7 @@ const eventTypes = [
   "Aqiqah",
   "Peresmian",
   "Launching",
-  "Ulang Tahun",
+  "Ultah",
   "Semuanya",
   "Wisuda",
   "Seminar",
@@ -97,7 +97,7 @@ export default function HeroSection() {
             <div className="relative h-[400px] md:h-[500px] lg:h-[600px] w-full max-w-[300px] mx-auto">
               <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/4 h-[320px] md:h-[400px] lg:h-[500px] w-[180px] md:w-[230px] lg:w-[260px] rounded-3xl shadow-xl transform -rotate-12 overflow-hidden border-4 md:border-6 lg:border-8 border-white">
                 <img
-                  src="https://images.pexels.com/photos/3014856/pexels-photo-3014856.jpeg"
+                  src="/1.jpg"
                   alt="Wedding Invitation"
                   className="h-full w-full object-cover"
                 />
@@ -105,7 +105,7 @@ export default function HeroSection() {
 
               <div className="absolute right-0 top-1/2 -translate-y-1/2 h-[360px] md:h-[450px] lg:h-[550px] w-[200px] md:w-[260px] lg:w-[290px] rounded-3xl shadow-xl transform rotate-3 overflow-hidden border-4 md:border-6 lg:border-8 border-white z-10">
                 <img
-                  src="https://images.pexels.com/photos/1391580/pexels-photo-1391580.jpeg"
+                  src="/2.jpg"
                   alt="Wedding Invitation Template"
                   className="h-full w-full object-cover"
                 />
@@ -113,7 +113,7 @@ export default function HeroSection() {
 
               <div className="absolute right-0 bottom-0 translate-x-1/4 translate-y-1/4 h-[200px] md:h-[250px] lg:h-[300px] w-[160px] md:w-[200px] lg:w-[250px] rounded-3xl shadow-xl transform rotate-12 overflow-hidden border-4 md:border-6 lg:border-8 border-white">
                 <img
-                  src="https://images.pexels.com/photos/5874232/pexels-photo-5874232.jpeg"
+                  src="/3.jpg"
                   alt="Wedding Invitation Preview"
                   className="h-full w-full object-cover"
                 />
