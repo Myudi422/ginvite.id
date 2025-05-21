@@ -261,9 +261,9 @@ export default function Theme1({ data }: Theme1Props) {
             {gallery_enabled && gallery?.items?.length > 0 && (
       <GallerySection gallery={gallery} theme={theme} />
     )}
-    {content?.plugin?.youtube_link && (
-      <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={theme.defaultBgImage1} />
-    )}
+    {content?.plugin?.gift && content?.plugin?.youtube_link && (
+  <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={theme.defaultBgImage1} />
+)}
             {content.bank_transfer?.enabled && (
               <BankSection
                 theme={theme}

@@ -45,15 +45,16 @@ const VideoSection: React.FC<VideoSectionProps> = ({
       <section id="video" className="w-full bg-black overflow-hidden relative" style={{ minHeight: '300px' }}>
         {defaultBgImage1 && (
           <Image
-            src={defaultBgImage1}
+            src="/1.jpg"
             alt="Background Video Error"
             layout="fill"
             objectFit="cover"
           />
         )}
-        <div className="absolute inset-0 flex items-center justify-center text-white text-lg italic">
+        {/* Anda bisa menghilangkan atau mengganti pesan ini jika tidak diperlukan */}
+        {/* <div className="absolute inset-0 flex items-center justify-center text-white text-lg italic">
           Tautan YouTube tidak valid
-        </div>
+        </div> */}
       </section>
     );
   }

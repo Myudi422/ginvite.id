@@ -60,26 +60,28 @@ export default function OpeningSection({
       style={backgroundImageStyle}
     >
       {/* Decoration Elements */}
-      {[
-        decorations.topLeft,
-        decorations.topRight,
-        decorations.bottomLeft,
-        decorations.bottomRight,
-      ].map((src, i) => (
-        <img
-          key={i}
-          src={src}
-          className={`absolute ${
-            [
-              'top-0 left-0',
-              'top-0 right-0',
-              'bottom-0 left-0',
-              'bottom-0 right-0',
-            ][i]
-          } w-24 h-24 md:w-48 md:h-48 animate-pulse pointer-events-none z-0`}
-          alt=""
-        />
-      ))}
+  {[
+    decorations.topLeft,
+    decorations.topRight,
+    decorations.bottomLeft,
+    decorations.bottomRight,
+  ]
+    .filter(src => src) // Filter out null, undefined, and empty strings
+    .map((src, i) => (
+      <img
+        key={i}
+        src={src}
+        className={`absolute ${
+          [
+            'top-0 left-0',
+            'top-0 right-0',
+            'bottom-0 left-0',
+            'bottom-0 right-0',
+          ][i % 4] // Gunakan modulo untuk index yang benar setelah filter
+        } w-24 h-24 md:w-48 md:h-48 animate-pulse pointer-events-none z-0`}
+        alt=""
+      />
+    ))}
 
       {/* Main Content */}
       <div className="text-center space-y-6 relative z-10 max-w-2xl mx-auto">
