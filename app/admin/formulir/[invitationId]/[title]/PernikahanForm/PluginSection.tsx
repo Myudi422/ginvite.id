@@ -22,18 +22,9 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Watch the gift toggle
+  // Watch the gift and whatsapp_notif toggles
   const giftEnabled = useWatch({ control, name: 'plugin.gift' });
-
-  // Efek untuk mereset youtube_link ketika gift dimatikan
-  useEffect(() => {
-    if (!giftEnabled) {
-      setValue('plugin.youtube_link', '');
-      // Anda mungkin ingin melakukan autoSave di sini juga
-      // jika perubahan ini perlu langsung disimpan.
-      // autoSave();
-    }
-  }, [giftEnabled, setValue]);
+  const whatsappNotifEnabled = useWatch({ control, name: 'plugin.whatsapp_notif' });
 
   const autoSave = useCallback(async () => {
     setSaving(true);
@@ -85,6 +76,22 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
     }
   }, [getValues, userId, invitationId, slug, onSavedSlug, onStatusChange]);
 
+  // Efek untuk mereset youtube_link dan auto-save ketika gift dimatikan
+  useEffect(() => {
+    if (!giftEnabled) {
+      setValue('plugin.youtube_link', '');
+      autoSave(); // Panggil autoSave di sini
+    }
+  }, [giftEnabled, setValue, autoSave]);
+
+  // Efek untuk memastikan whatsapp_number ada saat whatsapp_notif aktif
+  useEffect(() => {
+    if (whatsappNotifEnabled && !getValues('plugin.whatsapp_number')) {
+      // Anda bisa set nilai default di sini jika diperlukan
+      // setValue('plugin.whatsapp_number', '');
+    }
+  }, [whatsappNotifEnabled, setValue, getValues]);
+
   const handleToggle = useCallback((name: string, value: boolean) => {
     setValue(name as any, value);
     autoSave();
@@ -94,7 +101,11 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
     setValue('plugin.youtube_link', value);
   }, [setValue]);
 
-  const handleLinkBlur = useCallback(() => {
+  const handleWaNumberChange = useCallback((value: string) => {
+    setValue('plugin.whatsapp_number', value);
+  }, [setValue]);
+
+  const handleInputChangeBlur = useCallback(() => {
     autoSave();
   }, [autoSave]);
 
@@ -124,7 +135,7 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
           />
         ))}
 
-        {/* Render input for YouTube link when gift is enabled */}
+       {/* Render input for YouTube link when gift is enabled */}
         {giftEnabled && (
           <FormField
             control={control}
@@ -135,10 +146,36 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
                 <FormControl>
                   <Input
                     {...field}
+                    value={field.value || ''} // Ensure value is always provided
                     placeholder="Masukkan link YouTube video..."
                     disabled={saving}
                     onChange={e => handleLinkChange(e.target.value)}
-                    onBlur={handleLinkBlur}
+                    onBlur={handleInputChangeBlur}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        {/* Render input for WhatsApp number when whatsapp_notif is enabled */}
+        {whatsappNotifEnabled && (
+          <FormField
+            control={control}
+            name="plugin.whatsapp_number"
+            render={({ field }) => (
+              <FormItem className="flex flex-col space-y-1">
+                <FormLabel>Nomor WhatsApp</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="tel"
+                    value={field.value || ''} // Ensure value is always provided
+                    placeholder="Masukkan nomor WhatsApp..."
+                    disabled={saving}
+                    onChange={e => handleWaNumberChange(e.target.value)}
+                    onBlur={handleInputChangeBlur}
                   />
                 </FormControl>
                 <FormMessage />
