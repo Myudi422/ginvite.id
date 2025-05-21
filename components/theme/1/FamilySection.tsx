@@ -17,7 +17,7 @@ interface FamilySectionProps {
   childrenData: Child[];
   parents: Parents;
   isWedding: boolean;
-  theme: { accentColor: string, background: string };
+  theme: { accentColor: string; background: string };
 }
 
 export default function FamilySection({ childrenData, parents, isWedding, theme }: FamilySectionProps) {
@@ -26,14 +26,16 @@ export default function FamilySection({ childrenData, parents, isWedding, theme 
   const [bride, groom] = childrenData;
 
   const renderCard = (c: Child) => (
-    <div className="relative rounded-lg overflow-hidden shadow-lg">
-      <Image
-        src={c.profile}
-        alt={c.name}
-        width={400}
-        height={500}
-        className="object-cover w-full h-64 relative" // Tambahkan relative di sini
-      />
+    <div className="relative rounded-lg overflow-hidden shadow-lg w-64">
+      {/* Square image container */}
+      <div className="relative w-full aspect-square">
+        <Image
+          src={c.profile}
+          alt={c.name}
+          fill
+          className="object-cover"
+        />
+      </div>
       {/* Overlay untuk teks */}
       <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-4 text-center">
         <h3 className="text-xl font-semibold" style={{ color: theme.accentColor }}>

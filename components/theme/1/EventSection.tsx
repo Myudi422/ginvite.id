@@ -1,11 +1,10 @@
-// EventSection.tsx
 import { MapPin, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 interface Event {
   key: string;
-  title?: string;        // title kini optional, fallback bisa nama key
+  title?: string;
   date: string;
   time: string;
   location: string;
@@ -13,14 +12,8 @@ interface Event {
 }
 
 interface EventSectionProps {
-  /**
-   * Array sesi acara dinamis dari API atau form
-   */
   events?: Event[];
-
-  // Judul section (opsional)
   sectionTitle?: string;
-
   theme: {
     accentColor: string;
     background: string;
@@ -42,7 +35,7 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string }
       return `${formattedDate} ${timeString}`;
     } catch (error) {
       console.error("Error formatting date and time:", error, dateString, timeString);
-      return `${dateString} ${timeString}`; // Kembalikan format asli jika gagal
+      return `${dateString} ${timeString}`;
     }
   };
 
@@ -58,12 +51,8 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string }
         </h3>
       )}
       <p className="text-center text-2xl font-bold" style={{ color: accentColor }}>
-        {formatDateWithTime(event.date, event.time)} {/* Gunakan fungsi formatDateWithTime */}
+        {formatDateWithTime(event.date, event.time)}
       </p>
-      {/* Anda tidak perlu menampilkan waktu lagi di sini karena sudah termasuk di atas */}
-      {/* <p className="text-center text-gray-600">
-        {event.time}{' '}
-      </p> */}
 
       <div className="mt-4 text-center">
         <IconWrapper>
@@ -85,19 +74,13 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string }
   );
 }
 
-export default function EventSection(props: EventSectionProps) {
-  const { events, sectionTitle, theme } = props;
-  const list: Event[] = events ?? [];
+export default function EventSection({ events = [], sectionTitle, theme }: EventSectionProps) {
+  if (!events.length) return null;
 
-  if (!list.length) return null;
-
-  const sortedList = [...list].sort((a, b) => {
+  const sortedList = [...events].sort((a, b) => {
     try {
-      const dateA = new Date(`${a.date}T${a.time}`);
-      const dateB = new Date(`${b.date}T${b.time}`);
-      return dateA.getTime() - dateB.getTime();
-    } catch (error) {
-      console.error("Error parsing date:", error, a, b);
+      return new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime();
+    } catch {
       return 0;
     }
   });
@@ -112,10 +95,19 @@ export default function EventSection(props: EventSectionProps) {
         backgroundPosition: 'center',
       }}
     >
+      {/* Main Title outside card */}
+      <h2
+        className="text-4xl font-cursive text-center mb-12"
+        style={{ color: theme.accentColor }}
+      >
+        Save The Date
+      </h2>
+
       <div className="max-w-xl mx-auto bg-[rgba(0,0,0,0.7)] rounded-3xl p-8">
+        {/* Optional Subsection Title */}
         {sectionTitle && (
           <h2
-            className="text-4xl font-cursive text-center mb-8"
+            className="text-3xl font-cursive text-center mb-8"
             style={{ color: theme.accentColor }}
           >
             {sectionTitle}

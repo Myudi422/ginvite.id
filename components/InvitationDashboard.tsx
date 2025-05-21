@@ -112,7 +112,6 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
                   {inv.status === 1 ? 'Aktif' : 'Belum Aktif'}
                 </span>
               </p>
-              <p>Tanggal acara: <span className="font-medium">{inv.event_date}</span></p>
               <p>
                 <a href="#" className="text-pink-600 hover:text-pink-700 font-medium">
                   Preview Undangan
