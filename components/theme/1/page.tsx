@@ -89,6 +89,7 @@ export default function Theme1({ data }: Theme1Props) {
     quote_enabled, gallery_enabled = false } = content;
 
   const { url: musicUrl = "", enabled: musicEnabled = false } = music || {};
+  const leftBgImage = gallery?.items?.[1] || theme.defaultBgImage1
 
   // Dynamic events list from API
   const eventsList: Event[] = Object.entries(apiEvents ?? {})
@@ -159,7 +160,7 @@ export default function Theme1({ data }: Theme1Props) {
   const processedBodyFontFamily = content?.font?.body?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
   const processedHeadingFontFamily = content?.font?.heading?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
 
-  return (
+    return (
     <main className="relative min-h-screen text-center overflow-hidden flex md:flex-row" style={{ color: theme.textColor }}>
       {isLoading && (
         <motion.div
@@ -188,7 +189,7 @@ export default function Theme1({ data }: Theme1Props) {
       )}
 
       {/* Left Cover */}
-      <div className="hidden md:block w-[70%] sticky top-0 h-screen relative" style={{ backgroundImage: `url(${gallery?.items?.[1] || '/default-cover.jpg'})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
+      <div className="hidden md:block w-[70%] sticky top-0 h-screen relative" style={{ backgroundImage: `url(${leftBgImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-0" />
         <div className="absolute text-white z-10" style={{ top: '500px', left: '36px', fontSize: '40px', fontFamily: processedSpecialFontFamily }}>
           Hai, {toName}

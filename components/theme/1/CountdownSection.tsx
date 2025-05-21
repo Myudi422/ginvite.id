@@ -21,7 +21,7 @@ export default function CountdownSection({
   return (
     <section
       id="countdown"
-      className="py-16 px-4 md:px-8" // Sama dengan padding EventSection
+      className="py-6 px-4 md:px-8" // Sama dengan padding EventSection
       style={{
         backgroundImage: `url(${defaultBgImage})`,
       }}

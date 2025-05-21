@@ -88,7 +88,7 @@ export default function EventSection({ events = [], sectionTitle, theme }: Event
   return (
     <section
       id="event"
-      className="py-16 px-4 md:px-8"
+      className="py-6 px-4 md:px-8"
       style={{
         backgroundImage: `url(${theme.background})`,
         backgroundSize: 'cover',
