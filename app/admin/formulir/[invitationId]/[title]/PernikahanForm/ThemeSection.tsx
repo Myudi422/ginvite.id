@@ -127,7 +127,7 @@ export function ThemeSection({ userId, invitationId, slug, onSavedSlug }: ThemeS
         control={control}
         render={({ field }) => (
           <FormItem>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {themes
                 .filter(t => t.kategory_theme_id === selectedCategory)
                 .map(t => (
