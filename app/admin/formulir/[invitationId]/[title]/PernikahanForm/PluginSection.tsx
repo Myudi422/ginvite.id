@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
@@ -24,6 +24,16 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
 
   // Watch the gift toggle
   const giftEnabled = useWatch({ control, name: 'plugin.gift' });
+
+  // Efek untuk mereset youtube_link ketika gift dimatikan
+  useEffect(() => {
+    if (!giftEnabled) {
+      setValue('plugin.youtube_link', '');
+      // Anda mungkin ingin melakukan autoSave di sini juga
+      // jika perubahan ini perlu langsung disimpan.
+      // autoSave();
+    }
+  }, [giftEnabled, setValue]);
 
   const autoSave = useCallback(async () => {
     setSaving(true);
