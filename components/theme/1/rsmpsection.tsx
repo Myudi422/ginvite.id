@@ -29,13 +29,13 @@ const timeAgo = (dateString: string) => {
   const date = new Date(dateString);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
-  
+
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
   const weeks = Math.floor(days / 7);
   const months = Math.floor(days / 30);
-  
+
   if (months > 0) return `${months} bulan yang lalu`;
   if (weeks > 0) return `${weeks} minggu yang lalu`;
   if (days > 0) return `${days} hari yang lalu`;
@@ -77,9 +77,9 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
       const res = await fetch(
         `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_rsmp&user_id=${userId}&title=${title}`
       );
-      
+
       if (!res.ok) throw new Error('Gagal mengambil daftar RSVP');
-      
+
       const data = await res.json();
       if (data.status === 'success') {
         setRsvpList(data.data.reverse());
@@ -94,6 +94,13 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
     }
   };
 
+  const handleKeyPressWa = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+      event.preventDefault();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -101,7 +108,12 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
       setError("Semua field wajib diisi.");
       return;
     }
-    
+
+    if (wa.trim().length < 10) {
+      setError("Nomor WhatsApp tidak valid.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=rsmp`, {
@@ -118,7 +130,7 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
       });
 
       if (!res.ok) throw new Error("Gagal mengirim data");
-      
+
       setSuccess(true);
       resetForm();
       if (userIdFromPath && titleFromPath) {
@@ -143,9 +155,9 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
   };
 
   const ProfileInitial = ({ name }: { name: string }) => (
-    <div 
+    <div
       className="w-10 h-10 rounded-full flex items-center justify-center font-semibold flex-shrink-0"
-      style={{ 
+      style={{
         backgroundColor: theme.accentColor,
         color: theme.bgColor,
         fontFamily: specialFontFamily
@@ -164,10 +176,10 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
   return (
     <section
       className="mx-auto p-6 shadow-lg backdrop-blur-sm"
-      style={{ 
-        backgroundImage: `url(${theme.background})`, 
-        color: theme.accentColor, 
-        fontFamily: bodyFontFamily 
+      style={{
+        backgroundImage: `url(${theme.background})`,
+        color: theme.accentColor,
+        fontFamily: bodyFontFamily
       }}
     >
       <h2
@@ -214,6 +226,7 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
               id="wa"
               type="tel"
               value={wa}
+              onKeyPress={handleKeyPressWa}
               onChange={(e) => setWa(e.target.value)}
               placeholder="WhatsApp"
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring"
@@ -266,18 +279,18 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
         </Button>
       </form>
 
-<Button
-  onClick={() => setShowComments(prev => !prev)}
-  className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] mb-4"
-  variant="outline"
-  style={{
-    borderColor: theme.accentColor,
-    color: theme.accentColor,
-    fontFamily: specialFontFamily
-  }}
->
-  {showComments ? 'Sembunyikan Ucapan' : `Tampilkan Ucapan (${rsvpList.length})`}
-</Button>
+      <Button
+        onClick={() => setShowComments(prev => !prev)}
+        className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] mb-4"
+        variant="outline"
+        style={{
+          borderColor: theme.accentColor,
+          color: theme.accentColor,
+          fontFamily: specialFontFamily
+        }}
+      >
+        {showComments ? 'Sembunyikan Ucapan' : `Tampilkan Ucapan (${rsvpList.length})`}
+      </Button>
 
 
       {/* Comments Section */}
