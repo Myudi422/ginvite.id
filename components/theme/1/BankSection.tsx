@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { FiChevronDown } from "react-icons/fi";
+import { FiChevronDown, FiCopy } from "react-icons/fi"; // Import ikon salin
 
 interface BankTransfer {
   bank_name: string;
@@ -32,11 +31,44 @@ export default function BankSection({
   const [visible, setVisible] = useState(false);
   const [nama, setNama] = useState("");
   const [jumlah, setJumlah] = useState("");
+  const [formattedJumlah, setFormattedJumlah] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const accountNumberRef = useRef<HTMLInputElement | null>(null); // Ref untuk input nomor rekening
 
   const toggleVisible = () => setVisible((v) => !v);
+
+  const formatToRupiah = (value: string) => {
+    const numericValue = parseFloat(value.replace(/[^0-9]/g, ''));
+    if (isNaN(numericValue)) {
+      return "";
+    }
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(numericValue);
+  };
+
+  const handleJumlahChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setJumlah(value.replace(/[^0-9]/g, ''));
+    setFormattedJumlah(formatToRupiah(value));
+  };
+
+  const handleCopyAccountNumber = async () => {
+    if (accountNumberRef.current) {
+      try {
+        await navigator.clipboard.writeText(accountNumberRef.current.value);
+        alert("Nomor rekening berhasil disalin!"); // Atau gunakan notifikasi yang lebih baik
+      } catch (err) {
+        console.error("Gagal menyalin nomor rekening:", err);
+        alert("Gagal menyalin nomor rekening.");
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,11 +79,12 @@ export default function BankSection({
     }
     setLoading(true);
     try {
-      // placeholder for API call
+      console.log("Jumlah yang dikirim ke backend:", jumlah);
       await new Promise((res) => setTimeout(res, 1000));
       setSuccess(true);
       setNama("");
       setJumlah("");
+      setFormattedJumlah("");
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan");
     }
@@ -97,29 +130,31 @@ export default function BankSection({
       {visible && (
         <div className="space-y-5">
           <div
-            className="flex items-center p-4 border rounded-lg"
-            style={{ borderColor: theme.accentColor }}
+            className="flex items-center border rounded-lg"
+            style={{ borderColor: theme.accentColor, padding: '0.75rem' }}
           >
-            <div className="w-16 h-16 relative mr-4">
-              <Image
-                src={`https://logo.clearbit.com/${bankTransfer.bank_name.toLowerCase()}.co.id`}
-                alt={`${bankTransfer.bank_name} logo`}
-                fill
-                objectFit="contain"
-              />
-            </div>
             <div className="flex-1">
               <div className="font-medium mb-1" style={{ color: theme.accentColor }}>
                 {bankTransfer.bank_name}
               </div>
-              <input
-                type="text"
-                value={bankTransfer.account_number}
-                readOnly
-                onClick={(e) => (e.target as HTMLInputElement).select()}
-                className="w-full text-sm bg-transparent border-none focus:outline-none cursor-text mb-1"
-                style={{ color: theme.accentColor, fontFamily: bodyFontFamily }}
-              />
+              <div className="relative flex items-center">
+                <input
+                  ref={accountNumberRef}
+                  type="text"
+                  value={bankTransfer.account_number}
+                  readOnly
+                  className="w-full text-sm bg-transparent border-none focus:outline-none cursor-text mb-1 pr-8"
+                  style={{ color: theme.accentColor, fontFamily: bodyFontFamily }}
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+                <button
+                  type="button"
+                  onClick={handleCopyAccountNumber}
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  <FiCopy className="h-5 w-5" />
+                </button>
+              </div>
               <div className="text-sm" style={{ color: theme.accentColor }}>
                 a.n. {bankTransfer.account_name}
               </div>
@@ -153,9 +188,9 @@ export default function BankSection({
             <div>
               <input
                 id="bank-jumlah"
-                type="number"
-                value={jumlah}
-                onChange={(e) => setJumlah(e.target.value)}
+                type="text"
+                value={formattedJumlah}
+                onChange={handleJumlahChange}
                 placeholder="Jumlah Transfer"
                 className="w-full pl-4 pr-8 py-2 border rounded-lg focus:outline-none focus:ring"
                 style={inputStyles}

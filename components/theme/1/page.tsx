@@ -1,4 +1,3 @@
-// Theme1.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,6 +11,9 @@ import MusicPlayer from "@/components/MusicPlayer";
 import QRModal from "@/components/QRModal";
 import '@/styles/font.css';
 import { AnimatePresence, motion } from 'framer-motion';
+
+// Lottie player for loading
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 // Section components
 import RsmpSection from "@/components/theme/1/rsmpsection";
@@ -28,7 +30,6 @@ import OurStorySection from "@/components/theme/1/OurStorySection";
 import GallerySection from "@/components/theme/1/GallerySection";
 import ClosingSection from "@/components/theme/1/ClosingSection";
 import FooterSection from "@/components/theme/1/FooterSection";
-import WeddingLoading from "@/components/WeddingLoading";
 
 interface Theme1Props {
   data: any;
@@ -87,6 +88,7 @@ export default function Theme1({ data }: Theme1Props) {
     quote_enabled, gallery_enabled = false } = content;
 
   const { url: musicUrl = "", enabled: musicEnabled = false } = music || {};
+
   // Dynamic events list from API
   const eventsList: Event[] = Object.entries(apiEvents ?? {})
     .map(([key, ev]) => {
@@ -102,7 +104,6 @@ export default function Theme1({ data }: Theme1Props) {
     })
     .filter(Boolean) as Event[];
 
-  // Urutkan events berdasarkan tanggal dan waktu
   const sortedEvents = [...eventsList].sort((a, b) => {
     try {
       const dateA = new Date(`${a.date}T${a.time}`);
@@ -114,7 +115,6 @@ export default function Theme1({ data }: Theme1Props) {
     }
   });
 
-  // Ambil event pertama untuk countdown
   const firstEvent = sortedEvents[0];
   let eventDate: Date | null = null;
   if (firstEvent?.date && firstEvent?.time) {
@@ -128,20 +128,16 @@ export default function Theme1({ data }: Theme1Props) {
 
   const isWedding = !!parents?.groom;
 
-  // Determine nickname (use first child nickname)
-   // Combine two nicknames with '&'
   const nickname1 = children?.[0]?.nickname || '';
   const nickname2 = children?.[1]?.nickname || '';
   const nickname = [nickname1, nickname2].filter(Boolean).join(' & ');
 
-  // Build Google Calendar URL with custom title and details
   let calendarUrl = '';
   if (firstEvent && eventDate) {
     const start = eventDate.toISOString().replace(/-|:|\.\d+/g, '');
-    const endDate = new Date(eventDate.getTime() + 3600000); // +1 hour
+    const endDate = new Date(eventDate.getTime() + 3600000);
     const end = endDate.toISOString().replace(/-|:|\.\d+/g, '');
 
-    // Build event details text
     const eventDetails = sortedEvents.map(ev =>
       `${ev.title}: ${ev.date} ${ev.time} @ ${ev.location} (${ev.mapsLink})`
     ).join('\n');
@@ -156,10 +152,8 @@ export default function Theme1({ data }: Theme1Props) {
       `&location=${encodeURIComponent(firstEvent.location)}`;
   }
 
-
   const sampleQrData = "SampleGuestID12345";
 
-  // Process font families
   const processedSpecialFontFamily = content?.font?.special?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
   const processedBodyFontFamily = content?.font?.body?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
   const processedHeadingFontFamily = content?.font?.heading?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
@@ -167,8 +161,19 @@ export default function Theme1({ data }: Theme1Props) {
   return (
     <main className="relative min-h-screen text-center overflow-hidden flex md:flex-row" style={{ color: theme.textColor }}>
       {isLoading && (
-        <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="fixed top-0 left-0 w-full h-full bg-white z-50 flex items-center justify-center">
-          <WeddingLoading />
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="fixed top-0 left-0 w-full h-full bg-white z-50 flex items-center justify-center"
+        >
+          <DotLottieReact
+            src="/loading.lottie"
+            autoplay
+            loop
+            style={{ width: '400px', height: '400px' }}
+          />
         </motion.div>
       )}
 
@@ -191,7 +196,7 @@ export default function Theme1({ data }: Theme1Props) {
 
       {/* Right Content */}
       <div className="w-full md:w-[30%] overflow-y-auto h-screen">
-         {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay />}
+        {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay />}
         <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={sampleQrData} />
 
         {!isOpen && !isLoading && (
@@ -211,26 +216,26 @@ export default function Theme1({ data }: Theme1Props) {
         )}
 
         {isOpen && !isLoading && (
-  <div className="w-full">
-    <ProfileSection
-      gallery={gallery}
-      defaultBgImage1={theme.defaultBgImage1}
-      opening={opening}
-      childrenData={children}
-      isWedding={isWedding}
-      weddingTextFontSize={{ fontSize: '20px' }}
-      marginBottomWeddingText="mb-3"
-      marginBottomName="mb-4"
-      topLeftDecoration={decorations?.topLeft}
-      topRightDecoration={decorations?.topRight}
-      bottomLeftDecoration={decorations?.bottomLeft}
-      bottomRightDecoration={decorations?.bottomRight}
-      specialFontFamily={processedSpecialFontFamily}
-      BodyFontFamily={processedBodyFontFamily}
-      HeadingFontFamily={processedHeadingFontFamily}
-      theme={theme}
-      event={firstEvent}
-    />
+          <div className="w-full">
+            <ProfileSection
+              gallery={gallery}
+              defaultBgImage1={theme.defaultBgImage1}
+              opening={opening}
+              childrenData={children}
+              isWedding={isWedding}
+              weddingTextFontSize={{ fontSize: '20px' }}
+              marginBottomWeddingText="mb-3"
+              marginBottomName="mb-4"
+              topLeftDecoration={decorations?.topLeft}
+              topRightDecoration={decorations?.topRight}
+              bottomLeftDecoration={decorations?.bottomLeft}
+              bottomRightDecoration={decorations?.bottomRight}
+              specialFontFamily={processedSpecialFontFamily}
+              BodyFontFamily={processedBodyFontFamily}
+              HeadingFontFamily={processedHeadingFontFamily}
+              theme={theme}
+              event={firstEvent}
+            />
 
             {quote_enabled && (
               <QuoteSection
@@ -250,16 +255,16 @@ export default function Theme1({ data }: Theme1Props) {
 
             {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
             {gallery_enabled && (
-      <GallerySection gallery={gallery} theme={theme} />
-    )}
+              <GallerySection gallery={gallery} theme={theme} />
+            )}
             {content.bank_transfer?.enabled && (
-  <BankSection
-    theme={theme}
-    specialFontFamily={processedSpecialFontFamily}
-    bodyFontFamily={processedBodyFontFamily}
-    bankTransfer={content.bank_transfer}
-  />
-)}
+              <BankSection
+                theme={theme}
+                specialFontFamily={processedSpecialFontFamily}
+                bodyFontFamily={processedBodyFontFamily}
+                bankTransfer={content.bank_transfer}
+              />
+            )}
             <RsmpSection contentId={3} theme={theme} specialFontFamily={processedSpecialFontFamily} bodyFontFamily={processedBodyFontFamily} />
             <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
           </div>
