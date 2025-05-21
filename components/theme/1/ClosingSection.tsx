@@ -7,6 +7,7 @@ interface ClosingSectionProps {
   specialFontFamily?: string;
   BodyFontFamily?: string;
   HeadingFontFamily?: string;
+  defaultBgImage1: string; // Tambahkan properti defaultBgImage1
 }
 
 export default function ClosingSection({
@@ -15,9 +16,10 @@ export default function ClosingSection({
   specialFontFamily,
   BodyFontFamily,
   HeadingFontFamily,
+  defaultBgImage1, // Terima properti defaultBgImage1
 }: ClosingSectionProps) {
-  // Use first image in gallery as background
-  const bgImage = gallery.items[0] || '';
+  // Use first image in gallery as background, or default if gallery is empty
+  const bgImage = gallery?.items?.length > 0 ? gallery.items[0] : defaultBgImage1;
 
   return (
     <section
@@ -71,9 +73,9 @@ export default function ClosingSection({
         </div>
 
        {/* Brand */}
- <div className="mt-4 flex justify-center">
-   <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
- </div>
+       <div className="mt-4 flex justify-center">
+        <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
+       </div>
         {/* Footer credit */}
 <p
   className="text-xs text-white opacity-75"

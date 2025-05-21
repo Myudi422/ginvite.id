@@ -69,14 +69,15 @@ export default function ProfileSection({
     },
   };
 
-  const images = gallery.items.slice(0, 3); // Ambil maksimal 3 gambar
+  const hasGallery = gallery.items && gallery.items.length > 0;
+  const images = hasGallery ? gallery.items.slice(0, 3) : [];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (images.length > 1) {
       const intervalId = setInterval(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-      }, 3000); // Ganti gambar setiap 5 detik (bisa disesuaikan)
+      }, 3000); // Ganti gambar setiap 3 detik
 
       return () => clearInterval(intervalId); // Bersihkan interval saat komponen unmount
     }
@@ -85,18 +86,18 @@ export default function ProfileSection({
   return (
     <section
       id="profile"
-      className="relative overflow-hidden flex flex-col justify-between"
+      className="relative overflow-hidden flex flex-col items-center justify-center" // Ubah justify-start menjadi justify-center
       style={{ minHeight: minHeight }}
     >
       <AnimatePresence>
-        {images.length > 0 && (
+        {hasGallery ? (
           <motion.div
             key={images[currentIndex]}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
-            className="absolute inset-0 overflow-hidden" // Tambahkan overflow-hidden
+            className="absolute inset-0 overflow-hidden"
           >
             <Image
               src={images[currentIndex]}
@@ -106,6 +107,16 @@ export default function ProfileSection({
             />
             <div className="absolute inset-0 bg-black bg-opacity-50"></div>
           </motion.div>
+        ) : (
+          <div className="absolute inset-0 overflow-hidden">
+            <Image
+              src={defaultBgImage1}
+              alt="Default Background"
+              layout="fill"
+              objectFit="cover"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -134,55 +145,49 @@ export default function ProfileSection({
         </div>
       )}
 
-      {/* Judul di paling atas */}
-      {opening.title && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-          className="relative z-10 pt-20 text-center"
-        >
-          <div
+      {/* Kontainer teks di tengah */}
+      <div className="relative z-10 text-center">
+        {/* Judul */}
+        {opening.title && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
             className={`font-semibold ${marginBottomWeddingText}`}
             style={{
-              ...weddingTextFontSize, // Gabungkan weddingTextFontSize menggunakan spread operator
+              ...weddingTextFontSize,
               fontFamily: HeadingFontFamily,
-              color: theme.textColor,  // Tambahkan fontFamily setelahnya (atau sebelumnya)
+              color: theme.textColor,
             }}
           >
             {opening.title}
-          </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
 
-      {/* ↓↓ INI BAGIAN BAWAH YANG DISesuaikan ↓↓ */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2 }}
-        className="relative z-10 pb-20 text-center"
-        style={{
-          opacity: 1,
-          transform: 'none',
-          paddingBottom: '220px',
-        }}
-      >
         {/* Nama */}
-        <div
-          className="font-bold text-3xl md:text-5xl mb-4"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className={`font-bold text-3xl md:text-5xl ${marginBottomName}`}
           style={{ color: theme.textColor, ...nameFontSize }}
         >
           {isWedding
             ? `${childrenData[0]?.nickname} & ${childrenData[1]?.nickname}`
             : childrenData[0]?.nickname}
-        </div>
-        <div
+        </motion.div>
+
+        {/* Waktu Acara */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
           className="text-white font-medium text-xl"
-          style={{ paddingTop: '0px', fontFamily: BodyFontFamily}}
+          style={{ paddingTop: '0px', fontFamily: BodyFontFamily }}
         >
-         {event?.date ? new Date(event.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Segera Dilaksanakan'}
-        </div>
-      </motion.div>
+          {event?.date ? new Date(event.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Segera Dilaksanakan'}
+        </motion.div>
+      </div>
 
       {/* Bottom-left decoration */}
       {bottomLeftDecoration && (

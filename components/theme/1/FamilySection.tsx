@@ -27,29 +27,45 @@ export default function FamilySection({ childrenData, parents, isWedding, theme 
 
   const renderCard = (c: Child) => (
     <div className="relative rounded-lg overflow-hidden shadow-lg w-64">
-      {/* Square image container */}
-      <div className="relative w-full aspect-square">
-        <Image
-          src={c.profile}
-          alt={c.name}
-          fill
-          className="object-cover"
-        />
-      </div>
-      {/* Overlay untuk teks */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-4 text-center">
-        <h3 className="text-xl font-semibold" style={{ color: theme.accentColor }}>
-          {c.name}
-        </h3>
-        <p className="text-sm text-gray-600 mb-1">{c.order}</p>
-        <p className="text-xs text-gray-500">
-          {isWedding
-            ? c.order === 'Pengantin Pria'
-              ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
-              : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`
-            : ''}
-        </p>
-      </div>
+      {c.profile ? (
+        // Layout dengan gambar
+        <div className="relative w-full aspect-square">
+          <Image
+            src={c.profile}
+            alt={c.name}
+            fill
+            className="object-cover"
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-4 text-center">
+            <h3 className="text-xl font-semibold" style={{ color: theme.accentColor }}>
+              {c.name}
+            </h3>
+            <p className="text-sm text-gray-600 mb-1">{c.order}</p>
+            <p className="text-xs text-gray-500">
+              {isWedding
+                ? c.order === 'Pengantin Pria'
+                  ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
+                  : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`
+                : ''}
+            </p>
+          </div>
+        </div>
+      ) : (
+        // Layout tanpa gambar (hanya teks di dalam kotak)
+        <div className="bg-white rounded-lg p-6 text-center shadow-lg">
+          <h3 className="text-xl font-semibold" style={{ color: theme.accentColor }}>
+            {c.name}
+          </h3>
+          <p className="text-sm text-gray-600 mb-1">{c.order}</p>
+          <p className="text-xs text-gray-500">
+            {isWedding
+              ? c.order === 'Pengantin Pria'
+                ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
+                : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`
+              : ''}
+          </p>
+        </div>
+      )}
     </div>
   );
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import Navigation from "@/components/navigation";
 import CountdownTimer from "@/components/countdown-timer";
 import MusicPlayer from "@/components/MusicPlayer";
+import VideoSection from '@/components/theme/1/videosection';
 import QRModal from "@/components/QRModal";
 import '@/styles/font.css';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -202,6 +203,7 @@ export default function Theme1({ data }: Theme1Props) {
         {!isOpen && !isLoading && (
           <OpeningSection
             opening={opening}
+            defaultBgImage1={theme.defaultBgImage1}
             gallery={gallery}
             decorations={decorations}
             theme={theme}
@@ -253,10 +255,15 @@ export default function Theme1({ data }: Theme1Props) {
 
             <EventSection events={sortedEvents} theme={theme} sectionTitle={eventTitle} />
 
-            {our_story?.length > 0 && <OurStorySection ourStory={our_story} theme={theme} />}
-            {gallery_enabled && (
-              <GallerySection gallery={gallery} theme={theme} />
-            )}
+            {content.our_story?.length > 0 && content.our_story_enabled && (
+      <OurStorySection ourStory={our_story} theme={theme} />
+    )}
+            {gallery_enabled && gallery?.items?.length > 0 && (
+      <GallerySection gallery={gallery} theme={theme} />
+    )}
+    {content?.plugin?.youtube_link && (
+      <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={theme.defaultBgImage1} />
+    )}
             {content.bank_transfer?.enabled && (
               <BankSection
                 theme={theme}
@@ -265,8 +272,14 @@ export default function Theme1({ data }: Theme1Props) {
                 bankTransfer={content.bank_transfer}
               />
             )}
-            <RsmpSection contentId={3} theme={theme} specialFontFamily={processedSpecialFontFamily} bodyFontFamily={processedBodyFontFamily} />
-            <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
+           {content?.plugin?.rsvp && (
+      <RsmpSection
+        theme={theme}
+        specialFontFamily={processedSpecialFontFamily}
+        bodyFontFamily={processedBodyFontFamily}
+      />
+    )}
+            <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} defaultBgImage1={theme.defaultBgImage1} />
           </div>
         )}
 

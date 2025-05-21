@@ -17,7 +17,7 @@ interface OpeningSectionProps {
     bottomRight: string;
   };
   theme: {
-    defaultBgImage: string;
+    defaultBgImage1: string; // Pastikan properti ini ada di theme
     accentColor: string;
     textColor: string;
   };
@@ -46,15 +46,19 @@ export default function OpeningSection({
   const searchParams = useSearchParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
 
-  return (
-    <div
-  className="fixed inset-0 flex flex-col items-center justify-center p-6 z-40"
-  style={{
-    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${gallery.items[0]})`,
+  const backgroundImageStyle = {
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${
+      gallery?.items?.length > 0 ? gallery.items[0] : theme.defaultBgImage1
+    })`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-  }}
->
+  };
+
+  return (
+    <div
+      className="fixed inset-0 flex flex-col items-center justify-center p-6 z-40"
+      style={backgroundImageStyle}
+    >
       {/* Decoration Elements */}
       {[
         decorations.topLeft,
@@ -79,7 +83,6 @@ export default function OpeningSection({
 
       {/* Main Content */}
       <div className="text-center space-y-6 relative z-10 max-w-2xl mx-auto">
-
         {/* Titles */}
         <h1 className="text-2xl font-bold" style={{ color: theme.textColor,  fontFamily: HeadingFontFamily }}>{opening.title}</h1>
 
