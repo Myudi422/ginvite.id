@@ -138,7 +138,7 @@ export default function BankSection({
 
   return (
     <section
-      className="mx-auto p-8 rounded-t-2xl shadow-lg backdrop-blur-sm text-left"
+      className="mx-auto p-8 shadow-lg backdrop-blur-sm text-left"
       style={{
         backgroundImage: `url(${theme.defaultBgImage})`,
         color: theme.accentColor,

@@ -163,7 +163,7 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
 
   return (
     <section
-      className="max-w-md mx-auto p-6 rounded-tl-2xl shadow-lg backdrop-blur-sm"
+      className="mx-auto p-6 shadow-lg backdrop-blur-sm"
       style={{ 
         backgroundImage: `url(${theme.background})`, 
         color: theme.accentColor, 
