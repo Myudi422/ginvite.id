@@ -303,7 +303,7 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
                       <div className="flex justify-between items-start">
                         <div>
                           <span
-                            className="font-semibold text-sm block truncate max-w-[180px]"
+                            className="font-semibold text-sm block truncate max-w-[180px] text-left"
                             style={{ color: theme.accentColor }}
                             title={rsvp.nama}
                           >
