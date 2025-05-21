@@ -34,7 +34,7 @@ export default function OurStorySection({ ourStory, theme }: OurStorySectionProp
           <span className="h-px flex-grow" style={{ backgroundColor: theme.accentColor, opacity: 0.5 }} />
         </div>
 
-        <div className="grid grid-cols-1 gap-16">
+        <div className="grid grid-cols-1 gap-6">
           {ourStory.map((item, idx) => (
             <div key={idx} className="relative">
               {/* Title and Date */}
