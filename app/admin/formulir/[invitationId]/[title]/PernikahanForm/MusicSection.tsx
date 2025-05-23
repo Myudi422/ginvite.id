@@ -1,161 +1,103 @@
+// components/MusicSection.tsx
 'use client';
 
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { useFormContext } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { Collapsible } from './Collapsible';
-import { useEffect, useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { PlayIcon, PauseIcon } from '@radix-ui/react-icons';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectTrigger, SelectContent, SelectValue, SelectItem } from '@/components/ui/select';
+import { autoSaveContent } from '@/app/actions/saved';
 
-interface Music {
-  Nama_lagu: string;
-  link_lagu: string;
-  kategori: string;
+interface Music { Nama_lagu: string; link_lagu: string; kategori: string; }
+
+interface MusicSectionProps {
+  userId: number;
+  invitationId: number;
+  slug: string;
+  onSavedSlug: string;
 }
 
-export function MusicSection() {
-  const { control, setValue, watch } = useFormContext();
+export function MusicSection({
+  userId, invitationId, slug, onSavedSlug,
+}: MusicSectionProps) {
+  const { control, setValue, getValues } = useFormContext<any>();
   const [musicList, setMusicList] = useState<Music[]>([]);
-  const isMusicEnabled = watch('music.enabled');
-  const selectedMusicUrl = watch('music.url');
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentPlaying, setCurrentPlaying] = useState<string | null>(null);
+  
+  // watch toggles & selected URL
+  const enabled = useWatch({ control, name: 'music.enabled' });
+  const url     = useWatch({ control, name: 'music.url' });
 
+  // fetch daftar musik
   useEffect(() => {
-    const fetchMusicList = async () => {
-      try {
-        const response = await fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=musiclist');
-        const data = await response.json();
-        if (data.status === 'success' && data.data) {
-          setMusicList(data.data);
-        }
-      } catch (error) {
-        console.error('Error fetching music:', error);
-      }
-    };
-
-    fetchMusicList();
+    fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=musiclist')
+      .then(r => r.json())
+      .then(b => b.status==='success' && setMusicList(b.data))
+      .catch(console.error);
   }, []);
 
-  const handleMusicSelect = (url: string) => {
-    setValue('music.url', url);
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-      setCurrentPlaying(null);
-    }
-  };
-
-  const handlePlayPause = (url: string) => {
-    if (!audioRef.current || audioRef.current.src !== url) {
-      audioRef.current = new Audio(url);
-      audioRef.current.addEventListener('ended', () => {
-        setIsPlaying(false);
-        setCurrentPlaying(null);
-      });
-    }
-
-    if (isPlaying && currentPlaying === url) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      audioRef.current.play();
-      setIsPlaying(true);
-      setCurrentPlaying(url);
-    }
-  };
+  // auto-save setiap enable atau url berubah
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const data = getValues();
+        const payload = {
+          user_id: userId,
+          id: invitationId,
+          title: slug,
+          content: JSON.stringify({ ...data, event: { ...data.event, title: slug } }),
+          waktu_acara: data.event.date,
+          time: data.event.time,
+          location: data.event.location,
+          mapsLink: data.event.mapsLink,
+        };
+        await autoSaveContent(payload);
+        const iframe = document.getElementById('previewFrame') as HTMLIFrameElement|null;
+        if (iframe) iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
+      } catch (e) {
+        console.error('Auto-save Music gagal:', (e as Error).message);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [enabled, url, getValues, invitationId, slug, onSavedSlug, userId]);
 
   return (
     <Collapsible title="Latar Belakang Musik">
       <div className="grid gap-4 py-4">
         <FormField
-          control={control}
           name="music.enabled"
+          control={control}
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-card">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Aktifkan Latar Musik</FormLabel>
-              </div>
-              <FormControl>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
+            <FormItem className="flex items-center justify-between p-4 border rounded">
+              <div><FormLabel>Aktifkan Latar Musik</FormLabel><FormMessage/></div>
+              <FormControl><Switch checked={field.value} onCheckedChange={field.onChange}/></FormControl>
             </FormItem>
           )}
         />
 
-        {isMusicEnabled && (
-          <div className="space-y-4">
-            <FormField
-              control={control}
-              name="music.url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pilih Musik</FormLabel>
-                  <Select onValueChange={handleMusicSelect} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Pilih lagu..." />
-                      </SelectTrigger>
-                    </FormControl>
+        {enabled && (
+          <FormField
+            name="music.url"
+            control={control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pilih Musik</FormLabel>
+                <FormControl>
+                  <Select value={field.value} onValueChange={v => setValue('music.url', v)}>
+                    <SelectTrigger className="w-full"><SelectValue placeholder="Pilih lagu…"/></SelectTrigger>
                     <SelectContent className="max-h-60 overflow-y-auto">
-                      {musicList.map((music) => (
-                        <SelectItem
-                          key={music.link_lagu}
-                          value={music.link_lagu}
-                          className="py-2 hover:bg-accent"
-                        >
-                          <div className="flex items-center justify-between w-full gap-2">
-
-                            {/* Nama lagu */}
-                            <div className="flex-1 min-w-0 text-center overflow-hidden">
-                              <p className="truncate font-medium">{music.Nama_lagu}</p>
-                            </div>
-
-                            {/* Kategori */}
-                            <div className="w-auto flex justify-end max-w-[100px]">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/20 text-accent-foreground truncate">
-                                {music.kategori}
-                              </span>
-                            </div>
-                          </div>
+                      {musicList.map(m => (
+                        <SelectItem key={m.link_lagu} value={m.link_lagu}>
+                          {m.Nama_lagu} <span className="text-xs text-muted-foreground">({m.kategori})</span>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </FormItem>
-              )}
-            />
-
-            {selectedMusicUrl && (
-              <div className="flex items-center gap-2 mt-4">
-                <Button
-                  size="sm"
-                  onClick={() => handlePlayPause(selectedMusicUrl)}
-                  variant="outline"
-                  className="shrink-0"
-                >
-                  {currentPlaying === selectedMusicUrl && isPlaying ? (
-                    <PauseIcon className="h-4 w-4 mr-2" />
-                  ) : (
-                    <PlayIcon className="h-4 w-4 mr-2" />
-                  )}
-                  {isPlaying && currentPlaying === selectedMusicUrl ? 'Jeda' : 'Mainkan'}
-                </Button>
-
-                <div className="flex flex-col gap-1 min-w-0 max-w-full overflow-hidden">
-                  <p className="truncate text-sm font-medium">
-                    {musicList.find(m => m.link_lagu === selectedMusicUrl)?.Nama_lagu}
-                  </p>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {musicList.find(m => m.link_lagu === selectedMusicUrl)?.kategori}
-                  </span>
-                </div>
-              </div>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
             )}
-          </div>
+          />
         )}
       </div>
     </Collapsible>

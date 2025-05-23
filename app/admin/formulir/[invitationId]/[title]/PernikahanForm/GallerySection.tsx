@@ -83,7 +83,7 @@ export function GallerySection({ userId, invitationId, slug, onSavedSlug }: Gall
         // Upload via Server Action
         const formData = new FormData();
         formData.append('image', file);
-        const url = await uploadImageToBackblaze(formData);
+        const url = await uploadImageToBackblaze(formData, userId, invitationId);
 
         // Update gallery items
         const updated = [...getValues('gallery.items'), url].slice(0, 6);

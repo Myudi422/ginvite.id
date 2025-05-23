@@ -1,67 +1,92 @@
+// components/QoutesSection.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { useFormContext, Controller, useWatch } from 'react-hook-form';
 import { Collapsible } from './Collapsible';
 import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectValue,
-  SelectItem,
+  Select, SelectTrigger, SelectContent, SelectValue, SelectItem,
 } from '@/components/ui/select';
 import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
+  FormField, FormItem, FormLabel, FormControl, FormMessage,
 } from '@/components/ui/form';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { autoSaveContent } from '@/app/actions/saved';
 import { FormValues } from './schema';
+
+interface QoutesSectionProps {
+  userId: number;
+  invitationId: number;
+  slug: string;
+  onSavedSlug: string;
+}
 
 interface QuoteGroup {
   category: string;
   quotes: string[];
 }
 
-export function QoutesSection() {
-  const { control, watch, setValue } = useFormContext<FormValues>();
-  const enabled = watch('quote_enabled', false);
-  const selectedCategory = watch('quoteCategory');
-  const selectedQuote = watch('quote');
+export function QoutesSection({
+  userId, invitationId, slug, onSavedSlug,
+}: QoutesSectionProps) {
+  const { control, setValue, getValues } = useFormContext<FormValues>();
+  // watch state
+  const enabled = useWatch({ control, name: 'quote_enabled', defaultValue: false });
+  const category = useWatch({ control, name: 'quoteCategory' });
+  const quote    = useWatch({ control, name: 'quote' });
 
-  const [quoteOptions, setQuoteOptions] = useState<QuoteGroup[]>([]);
+  const [opts, setOpts] = useState<QuoteGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string|null>(null);
 
+  // load quotes once
   useEffect(() => {
     fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=qoute')
-      .then(res => res.json())
-      .then(body => {
-        if (body.status !== 'success') {
-          throw new Error(body.message || 'Gagal memuat kutipan');
-        }
-        setQuoteOptions(body.data);
+      .then(r => r.json())
+      .then(b => {
+        if (b.status!=='success') throw new Error(b.message);
+        setOpts(b.data);
       })
-      .catch(err => setError(err.message))
+      .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
+
+  // auto‐save on any change
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const data = getValues();
+        const payload = {
+          user_id: userId,
+          id: invitationId,
+          title: slug,
+          content: JSON.stringify({ ...data, event: { ...data.event, title: slug } }),
+          waktu_acara: data.event.date,
+          time: data.event.time,
+          location: data.event.location,
+          mapsLink: data.event.mapsLink,
+        };
+        await autoSaveContent(payload);
+        const fr = document.getElementById('previewFrame') as HTMLIFrameElement|null;
+        if (fr) fr.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
+      } catch (e) {
+        console.error('Auto-save Quotes gagal:', (e as Error).message);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [enabled, category, quote, getValues, invitationId, slug, onSavedSlug, userId]);
 
   return (
     <Collapsible title="Kutipan">
       <div className="pt-4 grid gap-4">
-        {/* Toggle enable/disable */}
         <div className="flex items-center space-x-2">
           <Controller
             name="quote_enabled"
             control={control}
             render={({ field }) => (
-              <Switch
-                checked={field.value}
-                onCheckedChange={(v) => field.onChange(v)}
-              />
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
             )}
           />
           <span className="text-sm font-medium">
@@ -69,7 +94,6 @@ export function QoutesSection() {
           </span>
         </div>
 
-        {/* Category Selector */}
         <FormField
           control={control}
           name="quoteCategory"
@@ -78,17 +102,15 @@ export function QoutesSection() {
               <FormLabel>Kategori Kutipan</FormLabel>
               <FormControl>
                 <Select
-                  onValueChange={field.onChange}
-                  value={field.value || ''}
                   disabled={!enabled}
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Pilih Kategori" />
-                  </SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue placeholder="Pilih Kategori" /></SelectTrigger>
                   <SelectContent className="max-h-60 overflow-y-auto w-full">
-                    {quoteOptions.map(opt => (
-                      <SelectItem key={opt.category} value={opt.category}>
-                        {opt.category}
+                    {opts.map(o => (
+                      <SelectItem key={o.category} value={o.category}>
+                        {o.category}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -99,8 +121,7 @@ export function QoutesSection() {
           )}
         />
 
-        {/* Quote Cards */}
-        {enabled && selectedCategory && (
+        {enabled && category && (
           <FormField
             control={control}
             name="quote"
@@ -109,22 +130,20 @@ export function QoutesSection() {
                 <FormLabel>Pilih Kutipan</FormLabel>
                 <FormControl>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {quoteOptions
-                      .find(o => o.category === selectedCategory)
-                      ?.quotes.map((q, idx) => {
-                        const isActive = q === selectedQuote;
-                        return (
-                          <Card
-                            key={idx}
-                            className={`${isActive ? 'border-blue-500 shadow-lg' : ''} cursor-pointer hover:shadow-md transition`}
-                            onClick={() => setValue('quote', q)}
-                          >
-                            <CardContent className="whitespace-normal break-words text-left line-clamp-5">
-                              {q}
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
+                    {opts.find(o => o.category===category)?.quotes.map((q, i) => {
+                      const active = q === quote;
+                      return (
+                        <Card
+                          key={i}
+                          className={`${active?'border-blue-500 shadow-lg':''} cursor-pointer`}
+                          onClick={() => setValue('quote', q)}
+                        >
+                          <CardContent className="line-clamp-5 break-words">
+                            {q}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -133,9 +152,8 @@ export function QoutesSection() {
           />
         )}
 
-        {/* Loading & Error */}
-        {loading && <p>Memuat...</p>}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {loading && <p>Memuat…</p>}
+        {error   && <p className="text-sm text-red-600">{error}</p>}
       </div>
     </Collapsible>
   );

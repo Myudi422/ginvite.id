@@ -30,7 +30,15 @@ const UPLOAD_URL = 'https://ccgnimex.my.id/v2/android/ginvite/page/backblaze.php
 const DELETE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_hapus.php';
 const SAVE_URL   = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
 
-export async function uploadImageToBackblaze(formData: FormData): Promise<string> {
+export async function uploadImageToBackblaze(
+  formData: FormData,
+  user_id: number,
+  id: number
+): Promise<string> {
+  // append user and id ke FormData
+  formData.append('user_id', String(user_id));
+  formData.append('id', String(id));
+
   const res = await fetch(UPLOAD_URL, {
     method: 'POST',
     body: formData,
@@ -65,7 +73,6 @@ export async function saveGalleryContent(payload: SavePayload) {
   if (json.status !== 'success') {
     throw new Error(json.message || 'Auto-save gagal');
   }
-  // optionally revalidate preview path
   revalidatePath(`/undang/${payload.user_id}/${encodeURIComponent(payload.title)}`);
   return json;
 }

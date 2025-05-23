@@ -284,14 +284,14 @@ export function PernikahanForm({
 
         <ThemeSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
-        <EventSection />
-        <QoutesSection />
+        <EventSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
+        <QoutesSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <GallerySection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
-        <ParentsSection />
+        <ParentsSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
         <ChildrenSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
-        <StorySection />
-        <BankTransferSection />
-        <MusicSection />
+        <StorySection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
+        <BankTransferSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
+        <MusicSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
         <PluginSection
           userId={userId}
           invitationId={invitationId}

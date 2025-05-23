@@ -1,11 +1,11 @@
 'use client';
 
+import React, { useState, useCallback } from 'react';
 import { useFormContext, Controller, useWatch } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Collapsible } from './Collapsible';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import React, { useState, useCallback } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,9 +17,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-const UPLOAD_URL = 'https://ccgnimex.my.id/v2/android/ginvite/page/backblaze.php';
-const DELETE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_hapus.php';
-const SAVE_URL  = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
+// Server Actions
+import {
+  uploadImageToBackblaze,
+  deleteImageFromBackblaze,
+  saveGalleryContent, // reuse untuk auto-save
+} from '@/app/actions/backblaze';
 
 interface ChildrenSectionProps {
   userId: number;
@@ -43,7 +46,6 @@ export function ChildrenSection({
     formState: { errors },
   } = useFormContext();
 
-  // pakai useWatch utk rerender otomatis
   const showInstagramAll = useWatch({
     control,
     name: 'showInstagramAll',
@@ -61,7 +63,7 @@ export function ChildrenSection({
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [currentChildIndex, setCurrentChildIndex] = useState<number|null>(null);
 
-  const autoSave = async () => {
+  const autoSave = useCallback(async () => {
     const data = getValues();
     const payload = {
       user_id: userId,
@@ -73,108 +75,106 @@ export function ChildrenSection({
       location: data.event.location,
       mapsLink: data.event.mapsLink,
     };
-    try {
-      const res = await fetch(SAVE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (json.status !== 'success') console.error('Auto-save gagal:', json.message);
-      const frm = document.getElementById('previewFrame') as HTMLIFrameElement;
-      if (frm) frm.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
-    } catch (err) {
-      console.error('Error auto-save:', err);
-    }
-  };
+    await saveGalleryContent(payload);
+    const frm = document.getElementById('previewFrame') as HTMLIFrameElement|null;
+    if (frm) frm.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
+  }, [getValues, invitationId, onSavedSlug, slug, userId]);
 
   const handleImageChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
-    const files = e.target.files; if (!files?.length) return;
-    setUploading(true); setUploadError(null);
-    const fd = new FormData(); fd.append('image', files[0]);
+    const files = e.target.files;
+    if (!files?.length) return;
+    setUploading(true);
+    setUploadError(null);
+
     try {
-      const res = await fetch(UPLOAD_URL, { method: 'POST', body: fd });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'Gagal mengunggah.');
+      // 1. Local preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLocalPreviews(prev => {
+          const copy = [...prev];
+          copy[idx] = reader.result as string;
+          return copy;
+        });
+      };
+      reader.readAsDataURL(files[0]);
+
+      // 2. Upload ke Backblaze lewat helper
+      const formData = new FormData();
+      formData.append('image', files[0]);
+      const url = await uploadImageToBackblaze(formData, userId, invitationId);
+
+      // 3. Update form state & auto-save
       const children: ChildForm[] = getValues('children');
-      children[idx].profile = data.url;
+      children[idx].profile = url;
       setValue('children', children);
       await autoSave();
-      const reader = new FileReader();
-      reader.onloadend = () => setLocalPreviews(p => {
-        const u = [...p]; u[idx] = reader.result as string; return u;
-      });
-      reader.readAsDataURL(files[0]);
     } catch (err: any) {
       setUploadError(err.message);
     } finally {
-      setUploading(false); e.target.value = '';
+      setUploading(false);
+      e.target.value = '';
     }
-  }, [getValues, setValue]);
+  }, [getValues, invitationId, setValue, autoSave, userId]);
 
-  const openDelete = (i: number) => { setCurrentChildIndex(i); setDeleteConfirmationOpen(true); };
-  const closeDelete = () => { setCurrentChildIndex(null); setDeleteConfirmationOpen(false); };
+  const openDelete = (i: number) => {
+    setCurrentChildIndex(i);
+    setDeleteConfirmationOpen(true);
+  };
+  const closeDelete = () => {
+    setCurrentChildIndex(null);
+    setDeleteConfirmationOpen(false);
+  };
   const confirmDelete = useCallback(async () => {
     if (currentChildIndex === null) return;
-    setDeleting(true); setDeleteError(null); setDeleteConfirmationOpen(false);
-    const children: ChildForm[] = getValues('children');
-    const url = children[currentChildIndex].profile;
-    if (!url) { setDeleting(false); setCurrentChildIndex(null); return; }
+    setDeleting(true);
+    setDeleteError(null);
+    setDeleteConfirmationOpen(false);
+
     try {
-      const res = await fetch(DELETE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-        body: `imageUrl=${encodeURIComponent(url)}`,
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
+      const children: ChildForm[] = getValues('children');
+      const url = children[currentChildIndex].profile;
+      await deleteImageFromBackblaze(url);
+
+      // clear & autosave
       children[currentChildIndex].profile = '';
       setValue('children', children);
       await autoSave();
-      setLocalPreviews(p => {
-        const u = [...p]; u[currentChildIndex] = ''; return u;
+      setLocalPreviews(prev => {
+        const copy = [...prev];
+        copy[currentChildIndex] = '';
+        return copy;
       });
     } catch (err: any) {
-      setDeleteError(err.message || 'Gagal menghapus.');
+      setDeleteError(err.message);
     } finally {
-      setDeleting(false); setCurrentChildIndex(null);
+      setDeleting(false);
+      setCurrentChildIndex(null);
     }
-  }, [currentChildIndex, getValues, setValue]);
+  }, [currentChildIndex, getValues, setValue, autoSave]);
 
   return (
     <Collapsible title="Pengantin">
-      {/* FORM NAMA & NICKNAME */}
+      {/* NAMA & NICKNAME */}
       <div className="grid grid-cols-1 gap-4 mt-6 mb-6">
         {['Pria','Wanita'].map((who, i) => (
           <div key={i} className="border p-4 rounded">
-            <Label htmlFor={`${who}-name`} className="block text-sm font-medium text-gray-700">
-              Nama {who}
-            </Label>
+            <Label htmlFor={`${who}-name`}>Nama {who}</Label>
             <Controller
               name={`children.${i}.name`}
               control={control}
               defaultValue={getValues(`children.${i}.name`)}
-              render={({ field }) => (
-                <Input {...field} id={`${who}-name`} placeholder={`Nama ${who}`} />
-              )}
+              render={({ field }) => <Input {...field} id={`${who}-name`} />}
             />
-            <Label htmlFor={`${who}-nick`} className="block mt-4 text-sm font-medium text-gray-700">
-              Nickname {who}
-            </Label>
+            <Label htmlFor={`${who}-nick`} className="mt-4">Nickname {who}</Label>
             <Controller
               name={`children.${i}.nickname`}
               control={control}
               defaultValue={getValues(`children.${i}.nickname`)}
-              render={({ field }) => (
-                <Input {...field} id={`${who}-nick`} placeholder={`Nickname ${who}`} />
-              )}
+              render={({ field }) => <Input {...field} id={`${who}-nick`} />}
             />
 
-            {/* ———————————————————————————————— */}
-            {/* Jarak sebelum Foto */}
-            <Label htmlFor={`${who}-image`} className="block mt-6 text-sm font-medium text-gray-700">
-              Foto {who}
-            </Label>
+            {/* FOTO */}
+            <Label className="mt-6">Foto {who}</Label>
             <div className="mt-1 flex items-center space-x-4">
               {localPreviews[i] ? (
                 <div className="relative w-24 h-24">
@@ -190,13 +190,9 @@ export function ChildrenSection({
                   >×</button>
                 </div>
               ) : (
-                <label
-                  htmlFor={`${who}-image`}
-                  className="cursor-pointer bg-white py-2 px-3 border rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500"
-                >
+                <label className="cursor-pointer bg-white py-2 px-3 border rounded-md shadow-sm text-sm font-medium">
                   {uploading ? 'Mengunggah...' : 'Unggah Foto'}
                   <input
-                    id={`${who}-image`}
                     type="file"
                     accept="image/*"
                     className="sr-only"
@@ -211,43 +207,33 @@ export function ChildrenSection({
         ))}
       </div>
 
-      {/* ———————————————————————————————— */}
-      {/* Jarak sebelum Toggle Instagram */}
+      {/* SWITCH INSTAGRAM */}
       <div className="mt-6 mb-4 flex items-center space-x-2">
         <Controller
           name="showInstagramAll"
           control={control}
           defaultValue={false}
           render={({ field }) => (
-            <Switch
-              checked={field.value}
-              onCheckedChange={val => field.onChange(val)}
-              id="instagram-all-switch"
-            />
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
           )}
         />
-        <Label htmlFor="instagram-all-switch" className="text-sm font-medium text-gray-700">
-          Tampilkan Instagram Pengantin
-        </Label>
+        <Label>Tampilkan Instagram Pengantin</Label>
       </div>
 
       {showInstagramAll && (
         <div className="grid grid-cols-1 gap-4 mt-6 mb-6">
           {['Pria','Wanita'].map((who, i) => (
             <div key={i}>
-              <Label htmlFor={`instagram-${who.toLowerCase()}`} className="block text-sm font-medium text-gray-700">
-                Username Instagram {who}
-              </Label>
+              <Label htmlFor={`instagram-${who}`}>Username Instagram {who}</Label>
               <Input
-                id={`instagram-${who.toLowerCase()}`}
+                id={`instagram-${who}`}
                 {...register(`children.${i}.instagramUsername`, {
                   required: `Username Instagram ${who} wajib diisi`,
                 })}
-                placeholder="Username Instagram"
               />
               {errors.children?.[i]?.instagramUsername && (
                 <p className="text-red-600 text-sm">
-                  {errors.children[i].instagramUsername.message}
+                  {errors.children[i].instagramUsername?.message}
                 </p>
               )}
             </div>
@@ -255,7 +241,7 @@ export function ChildrenSection({
         </div>
       )}
 
-      {/* Dialog hapus foto */}
+      {/* DIALOG HAPUS */}
       <AlertDialog open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

@@ -8,9 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible } from './Collapsible';
 
-// reuse the same upload endpoints as in GallerySection
-const UPLOAD_URL = 'https://ccgnimex.my.id/v2/android/ginvite/page/backblaze.php';
-const DELETE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_hapus.php';
+// Server Actions
+import {
+  uploadImageToBackblaze,
+  deleteImageFromBackblaze,
+  saveGalleryContent, // reuse auto‐save helper
+} from '@/app/actions/backblaze';
 
 interface StoryItem {
   title: string;
@@ -18,57 +21,98 @@ interface StoryItem {
   pictures: string[];
 }
 
-export function StorySection() {
+interface StorySectionProps {
+  userId: number;
+  invitationId: number;
+  slug: string;
+  onSavedSlug: string;
+}
+
+export function StorySection({
+  userId,
+  invitationId,
+  slug,
+  onSavedSlug,
+}: StorySectionProps) {
   const { control, watch, setValue, getValues } = useFormContext();
   const enabled = watch('our_story_enabled', false);
   const { fields, append, remove } = useFieldArray({ control, name: 'our_story' });
-  const [uploading, setUploading] = useState(false);
+
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const handleToggle = (checked: boolean) => {
-    setValue('our_story_enabled', checked);
-  };
+  // auto‐save helper
+  const autoSave = useCallback(async () => {
+    const data = getValues();
+    const payload = {
+      user_id: userId,
+      id: invitationId,
+      title: slug,
+      content: JSON.stringify({ ...data, event: { ...data.event, title: slug } }),
+      waktu_acara: data.event.date,
+      time: data.event.time,
+      location: data.event.location,
+      mapsLink: data.event.mapsLink,
+    };
+    await saveGalleryContent(payload);
+    const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
+    if (iframe) {
+      // tambahkan param time agar iframe reload benar
+      iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
+    }
+  }, [getValues, invitationId, onSavedSlug, slug, userId]);
 
-  const handleFileChange = useCallback(async (file: File, index: number) => {
+  // handle upload foto cerita
+  const handleFileChange = useCallback(async (file: File, idx: number) => {
     if (!enabled) return;
-    setUploading(true);
+    setUploadingIdx(idx);
     setUploadError(null);
-    const formData = new FormData();
-    formData.append('image', file);
+
     try {
-      const res = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'Upload gagal');
+      const formData = new FormData();
+      formData.append('image', file);
+      const url = await uploadImageToBackblaze(formData, userId, invitationId);
+
+      // update our_story[idx].pictures
       const current = getValues('our_story') as StoryItem[];
-      current[index].pictures = [data.url];
+      current[idx].pictures = [url];
       setValue('our_story', current);
+
+      await autoSave();
     } catch (err: any) {
       setUploadError(err.message);
     } finally {
-      setUploading(false);
+      setUploadingIdx(null);
     }
-  }, [enabled, getValues, setValue]);
+  }, [enabled, getValues, invitationId, setValue, autoSave, userId]);
 
-  const handleDeleteImage = async (index: number) => {
+  // handle delete foto cerita
+  const handleDeleteImage = useCallback(async (idx: number) => {
     if (!enabled) return;
-    const urlToDelete = getValues(`our_story.${index}.pictures.0`);
+    const url = getValues(`our_story.${idx}.pictures.0`);
+    if (!url) return;
+
+    setUploadingIdx(idx);
+    setUploadError(null);
+
     try {
-      await fetch(DELETE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `imageUrl=${encodeURIComponent(urlToDelete)}`,
-      });
+      await deleteImageFromBackblaze(url);
+
       const current = getValues('our_story') as StoryItem[];
-      current[index].pictures = [];
+      current[idx].pictures = [];
       setValue('our_story', current);
-    } catch (err) {
-      console.error('Hapus gambar gagal', err);
+
+      await autoSave();
+    } catch (err: any) {
+      setUploadError(err.message);
+    } finally {
+      setUploadingIdx(null);
     }
-  };
+  }, [enabled, getValues, setValue, autoSave]);
 
   return (
     <Collapsible title="Our Story">
-      {/* Toggle enable/disable dengan padding atas */}
+      {/* toggle enable/disable */}
       <div className="pt-4 flex items-center space-x-2 mb-4">
         <Controller
           name="our_story_enabled"
@@ -77,17 +121,22 @@ export function StorySection() {
           render={({ field }) => (
             <Switch
               checked={field.value}
-              onCheckedChange={(v) => { field.onChange(v); handleToggle(v); }}
+              onCheckedChange={field.onChange}
             />
           )}
         />
-        <span className="text-sm font-medium">{enabled ? 'Aktif' : 'Nonaktif'}</span>
+        <span className="text-sm font-medium">
+          {enabled ? 'Aktif' : 'Nonaktif'}
+        </span>
       </div>
 
-      {/* Story items */}
+      {/* list cerita */}
       <div className="space-y-6">
         {fields.map((item, i) => (
-          <div key={item.id} className={`border p-4 rounded-lg space-y-4 ${!enabled ? 'opacity-50' : ''}`}>
+          <div
+            key={item.id}
+            className={`border p-4 rounded-lg space-y-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}
+          >
             <div className="flex justify-between items-center">
               <h4 className="font-semibold">Cerita {i + 1}</h4>
               <Button
@@ -105,11 +154,7 @@ export function StorySection() {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Judul Cerita"
-                  disabled={!enabled}
-                />
+                <Input {...field} placeholder="Judul Cerita" disabled={!enabled} />
               )}
             />
 
@@ -118,12 +163,7 @@ export function StorySection() {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <Textarea
-                  {...field}
-                  placeholder="Deskripsi"
-                  disabled={!enabled}
-                  className="resize-none"
-                />
+                <Textarea {...field} placeholder="Deskripsi" disabled={!enabled} className="resize-none" />
               )}
             />
 
@@ -137,9 +177,9 @@ export function StorySection() {
                   />
                   <button
                     type="button"
-                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
                     onClick={() => handleDeleteImage(i)}
-                    disabled={!enabled}
+                    disabled={!enabled || uploadingIdx === i}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
                   >
                     ×
                   </button>
@@ -148,13 +188,15 @@ export function StorySection() {
                 <input
                   type="file"
                   accept="image/*"
-                  disabled={!enabled}
+                  disabled={!enabled || uploadingIdx === i}
                   onChange={(e) => e.target.files && handleFileChange(e.target.files[0], i)}
                   className="block"
                 />
               )}
-              {uploading && <p className="text-sm text-yellow-600 mt-1">Mengunggah…</p>}
-              {uploadError && <p className="text-sm text-red-600 mt-1">{uploadError}</p>}
+              {uploadingIdx === i && <p className="text-sm text-yellow-600 mt-1">Mengunggah…</p>}
+              {uploadError && uploadingIdx === i && (
+                <p className="text-sm text-red-600 mt-1">{uploadError}</p>
+              )}
             </div>
           </div>
         ))}
