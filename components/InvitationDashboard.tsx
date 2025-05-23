@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import CreateInvitationPopup from '@/components/CreateInvitationPopup';
 
 type User = { userId: number; email: string };
-interface Invitation { id: number; title: string; status: number; event_date: string; avatar_url: string }
+interface Invitation { id: number; title: string; status: number; event_date: string; avatar_url: string;  preview_url: string}
 interface Props { user: User; slides: string[]; invitations: Invitation[] }
 
 export default function InvitationDashboard({ user, slides, invitations }: Props) {
@@ -113,10 +113,16 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
                 </span>
               </p>
               <p>
-                <a href="#" className="text-pink-600 hover:text-pink-700 font-medium">
-                  Preview Undangan
-                </a>
-              </p>
+  <a
+    href={`/${inv.preview_url}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-pink-600 hover:text-pink-700 font-medium"
+  >
+    Preview Undangan
+  </a>
+</p>
+
             </div>
 
             <div className="flex flex-col md:flex-row gap-3">
