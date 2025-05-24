@@ -52,7 +52,7 @@ export function PernikahanForm({
     parents: { bride: { father: '', mother: '' }, groom: { father: '', mother: '' } },
     children: [],
     our_story: [],
-    plugin: { rsvp: false, gift: false,  whatsapp_notif: false },
+    plugin: { rsvp: false, navbar: false, gift: false,  whatsapp_notif: false },
     bank_transfer: { enabled: false, account_name: '', account_number: '', bank_name: '' },
     music: { enabled: false, url: '' },
     quote: '',

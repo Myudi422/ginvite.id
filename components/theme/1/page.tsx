@@ -85,6 +85,7 @@ export default function Theme1({ data }: Theme1Props) {
 
   // Destructure API data
   const { theme, content, decorations, event: apiEvents } = data;
+  const { plugin } = content;
   const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote, 
     quote_enabled, gallery_enabled = false } = content;
 
@@ -284,9 +285,13 @@ export default function Theme1({ data }: Theme1Props) {
           </div>
         )}
 
-        {isOpen && !isLoading && (
-          <Navigation activeSection={activeSection} setActiveSection={setActiveSection} accentColor={theme.accentColor} />
-        )}
+        {isOpen && !isLoading && plugin?.navbar && (
+  <Navigation
+    activeSection={activeSection}
+    setActiveSection={setActiveSection}
+    accentColor={theme.accentColor}
+  />
+)}
       </div>
     </main>
   );

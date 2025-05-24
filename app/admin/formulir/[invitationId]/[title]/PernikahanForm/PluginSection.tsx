@@ -114,6 +114,7 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
       <div className="grid gap-4 py-4">
         {[
           { name: 'plugin.rsvp', label: 'RSVP (Hadir/Tidak)' },
+          { name: 'plugin.navbar', label: 'Navigasi Bar' },
           { name: 'plugin.gift', label: <>Video <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
           { name: 'plugin.whatsapp_notif', label: <>Whatsapp Notif <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
         ].map(({ name, label }) => (

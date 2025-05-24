@@ -71,12 +71,12 @@ export const pernikahanSchema = z.object({
   plugin: z
     .object({
       rsvp: z.boolean().default(false),
+      navbar: z.boolean().default(false),
       gift: z.boolean().default(false),
       whatsapp_notif: z.boolean().default(false),
     })
     .optional(),
   // Tambahkan toggle untuk kutipan
-  quote_enabled: z.boolean().default(false),
   quoteCategory: z.string().min(1, 'Pilih kategori kutipan').optional(),
   quote: z.string().min(1, 'Pilih kutipan').optional(),
 });
