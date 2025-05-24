@@ -1,5 +1,7 @@
 // components/theme/1/QuoteSection.tsx
 import React from 'react';
+import { motion } from 'framer-motion';
+import { sectionVariant, textVariant } from './animasi';
 
 interface QuoteSectionProps {
   quote: string;
@@ -20,8 +22,11 @@ export default function QuoteSection({
   BodyFontFamily = 'sans-serif',
   HeadingFontFamily = 'sans-serif',
 }: QuoteSectionProps) {
+  // Split quote into lines for staggered animation
+  const lines = quote.split('\n');
+
   return (
-    <section
+    <motion.section
       id="quote-section"
       className="home-section"
       style={{
@@ -30,8 +35,15 @@ export default function QuoteSection({
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
       }}
+      variants={sectionVariant}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
     >
-      <div className="home-inner mx-auto max-w-2xl">
+      <motion.div
+        className="home-inner mx-auto max-w-2xl"
+        variants={sectionVariant}
+      >
         <div
           className="p-6 rounded-2xl"
           style={{
@@ -40,16 +52,23 @@ export default function QuoteSection({
             backdropFilter: 'blur(8px)',
           }}
         >
-          <p
-            className="text-lg leading-relaxed"
-            style={{
-              fontFamily: BodyFontFamily,
-              color: theme.textColor,
-            }}
-            dangerouslySetInnerHTML={{ __html: quote.replace(/\n/g, '<br/>') }}
-          />
+          {lines.map((line, idx) => (
+            <motion.p
+              key={idx}
+              className="text-lg leading-relaxed"
+              style={{
+                fontFamily: idx === 0 ? HeadingFontFamily : BodyFontFamily,
+                color: theme.textColor,
+                marginBottom: '0.5rem',
+              }}
+              variants={textVariant}
+              custom={idx}
+            >
+              {line}
+            </motion.p>
+          ))}
         </div>
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }

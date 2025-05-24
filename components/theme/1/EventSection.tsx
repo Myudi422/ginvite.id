@@ -1,6 +1,11 @@
-import { MapPin, CalendarDays } from 'lucide-react';
+// components/theme/1/CountdownSection.tsx
+import React from 'react';
+import { CalendarDays, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import CountdownTimer from '@/components/countdown-timer';
+import { motion } from 'framer-motion';
+import { sectionVariant, textVariant } from './animasi';
 
 interface Event {
   key: string;
@@ -40,7 +45,10 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string }
   };
 
   return (
-    <div className="relative bg-white rounded-2xl shadow-soft p-6 mb-8 last:mb-0">
+    <motion.div
+      className="relative bg-white rounded-2xl shadow-soft p-6 mb-8 last:mb-0"
+      variants={textVariant}
+    >
       <IconWrapper>
         <CalendarDays size={32} color={accentColor} />
       </IconWrapper>
@@ -70,7 +78,7 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string }
           </Button>
         </Link>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -86,7 +94,7 @@ export default function EventSection({ events = [], sectionTitle, theme }: Event
   });
 
   return (
-    <section
+    <motion.section
       id="event"
       className="py-6 px-4 md:px-8"
       style={{
@@ -94,34 +102,44 @@ export default function EventSection({ events = [], sectionTitle, theme }: Event
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
+      variants={sectionVariant}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
     >
-      {/* Main Title outside card */}
-      <h2
+      <motion.h2
         className="text-4xl font-cursive text-center mb-12"
         style={{ color: theme.accentColor }}
+        variants={textVariant}
+        custom={0}
       >
         Save The Date
-      </h2>
+      </motion.h2>
 
-      <div className="max-w-xl mx-auto bg-[rgba(0,0,0,0.7)] rounded-3xl p-8">
-        {/* Optional Subsection Title */}
+      <motion.div
+        className="max-w-xl mx-auto bg-[rgba(0,0,0,0.7)] rounded-3xl p-8"
+        variants={textVariant}
+        custom={1}
+      >
         {sectionTitle && (
-          <h2
+          <motion.h2
             className="text-3xl font-cursive text-center mb-8"
             style={{ color: theme.accentColor }}
+            variants={textVariant}
+            custom={2}
           >
             {sectionTitle}
-          </h2>
+          </motion.h2>
         )}
 
-        {sortedList.map((ev) => (
+        {sortedList.map((ev, i) => (
           <EventCard
             key={ev.key}
             event={ev}
             accentColor={theme.accentColor}
           />
         ))}
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }
