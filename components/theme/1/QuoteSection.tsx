@@ -18,9 +18,9 @@ interface QuoteSectionProps {
 export default function QuoteSection({
   quote,
   theme,
-  specialFontFamily = 'sans-serif',
-  BodyFontFamily = 'sans-serif',
-  HeadingFontFamily = 'sans-serif',
+  specialFontFamily,
+  BodyFontFamily,
+  HeadingFontFamily,
 }: QuoteSectionProps) {
   // Split quote into lines for staggered animation
   const lines = quote.split('\n');
@@ -57,7 +57,7 @@ export default function QuoteSection({
               key={idx}
               className="text-lg leading-relaxed"
               style={{
-                fontFamily: idx === 0 ? HeadingFontFamily : BodyFontFamily,
+                fontFamily: specialFontFamily,
                 color: theme.textColor,
                 marginBottom: '0.5rem',
               }}

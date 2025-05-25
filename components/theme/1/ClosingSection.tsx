@@ -87,7 +87,7 @@ export default function ClosingSection({
         {/* Social & Music Icons */}
         <div className="mt-4 flex items-center justify-center space-x-6">
           <a
-            href="https://papunda.id"
+            href="https://papunda.com"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Website"
@@ -96,7 +96,7 @@ export default function ClosingSection({
             <FaGlobe size={24} />
           </a>
           <a
-            href="https://www.instagram.com/papunda"
+            href="https://www.instagram.com/papunda.id"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"

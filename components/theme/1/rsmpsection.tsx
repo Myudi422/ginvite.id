@@ -295,7 +295,14 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
 
       {/* Comments Section */}
       {showComments && (
-        <div className="space-y-6">
+        <div
+  className="rounded-xl shadow-md space-y-4 max-h-96 overflow-y-auto"
+  style={{
+    backgroundColor: `${theme.bgColor}cc`,
+    border: `1px solid ${theme.accentColor}30`
+  }}
+>
+
           {loadingRsvp ? (
             <div className="text-center py-4">Memuat ucapan...</div>
           ) : errorRsvp ? (
@@ -303,7 +310,7 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
           ) : rsvpList.length > 0 ? (
             <>
               <div
-                className="rounded-xl p-4 space-y-5 shadow-md"
+                className=" p-4 space-y-5 shadow-md"
                 style={{
                   backgroundColor: `${theme.bgColor}cc`,
                   border: `1px solid ${theme.accentColor}30`
@@ -342,23 +349,23 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }
                     </div>
                   </div>
                 ))}
-              </div>
+                {visibleComments < rsvpList.length && (
+  <div className="text-center pt-4">
+    <Button
+      onClick={loadMoreComments}
+      variant="outline"
+      className="text-sm px-6"
+      style={{
+        borderColor: theme.accentColor,
+        color: theme.accentColor
+      }}
+    >
+      Muat Lebih Banyak
+    </Button>
+  </div>
+)}
 
-              {visibleComments < rsvpList.length && (
-                <div className="text-center pt-4">
-                  <Button
-                    onClick={loadMoreComments}
-                    variant="outline"
-                    className="text-sm px-6"
-                    style={{
-                      borderColor: theme.accentColor,
-                      color: theme.accentColor
-                    }}
-                  >
-                    Muat Lebih Banyak
-                  </Button>
-                </div>
-              )}
+              </div>
             </>
           ) : (
             <div className="text-center py-4">Belum ada ucapan</div>

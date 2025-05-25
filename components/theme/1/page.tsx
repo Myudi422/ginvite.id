@@ -255,10 +255,10 @@ export default function Theme1({ data }: Theme1Props) {
 
             <CountdownSection eventDate={eventDate || new Date()} calendarUrl={calendarUrl} theme={theme} />
 
-            <EventSection events={sortedEvents} theme={theme} sectionTitle={eventTitle} />
+            <EventSection events={sortedEvents} theme={theme} sectionTitle={eventTitle} specialFontFamily={processedSpecialFontFamily} />
 
             {content.our_story?.length > 0 && content.our_story_enabled && (
-      <OurStorySection ourStory={our_story} theme={theme} />
+      <OurStorySection ourStory={our_story} theme={theme} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
     )}
             {gallery_enabled && gallery?.items?.length > 0 && (
       <GallerySection gallery={gallery} theme={theme} />

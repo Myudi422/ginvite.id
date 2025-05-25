@@ -23,9 +23,10 @@ interface EventSectionProps {
     accentColor: string;
     background: string;
   };
+  specialFontFamily?: string;
 }
 
-function EventCard({ event, accentColor }: { event: Event; accentColor: string }) {
+function EventCard({ event, accentColor }: { event: Event; accentColor: string,  }) {
   const IconWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded-full shadow-soft">
       {children}
@@ -82,7 +83,7 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string }
   );
 }
 
-export default function EventSection({ events = [], sectionTitle, theme }: EventSectionProps) {
+export default function EventSection({ events = [], sectionTitle, theme, specialFontFamily, }: EventSectionProps) {
   if (!events.length) return null;
 
   const sortedList = [...events].sort((a, b) => {
@@ -108,8 +109,8 @@ export default function EventSection({ events = [], sectionTitle, theme }: Event
       viewport={{ once: true, amount: 0.3 }}
     >
       <motion.h2
-        className="text-4xl font-cursive text-center mb-12"
-        style={{ color: theme.accentColor }}
+        className="text-4xl font-cursive text-center mb-6"
+        style={{ color: theme.accentColor, fontFamily: specialFontFamily }}
         variants={textVariant}
         custom={0}
       >
@@ -124,7 +125,7 @@ export default function EventSection({ events = [], sectionTitle, theme }: Event
         {sectionTitle && (
           <motion.h2
             className="text-3xl font-cursive text-center mb-8"
-            style={{ color: theme.accentColor }}
+            style={{ color: theme.accentColor, fontFamily: specialFontFamily }}
             variants={textVariant}
             custom={2}
           >

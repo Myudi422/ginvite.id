@@ -1,6 +1,9 @@
-// components/theme/1/GallerySection.tsx
+'use client'
+
 import { useState, CSSProperties } from 'react'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
+import { sectionVariant } from './animasi'
 
 interface GallerySectionProps {
   gallery: { items: string[] }
@@ -58,25 +61,34 @@ export default function GallerySection({
       }}
     >
       <div className="home-inner max-w-4xl mx-auto">
-        {/* Judul dengan textColor + shadow */}
-        <h2 className="text-4xl font-serif mb-8" style={titleStyle}>
+        {/* Judul dengan animasi */}
+        <motion.h2
+          className="text-4xl font-serif mb-8"
+          style={titleStyle}
+          variants={sectionVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
           <span className="font-light">Moment</span>{' '}
-          <span
-            className="font-bold italic"
-            style={{ color: theme.accentColor }}
-          >
+          <span className="font-bold italic" style={{ color: theme.accentColor }}>
             Gallery
           </span>
-        </h2>
+        </motion.h2>
 
-        {/* Grid 2 kolom rapat, item tinggi */}
+        {/* Grid 2 kolom */}
         <div className="grid grid-cols-2 gap-2">
           {gallery.items.map((src, idx) => (
-            <button
+            <motion.button
               key={idx}
               onClick={() => openModal(idx)}
               className="overflow-hidden rounded-lg"
               style={cardStyle}
+              variants={sectionVariant}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              custom={idx}
             >
               <div className="relative w-full aspect-[4/5]">
                 <Image
@@ -86,18 +98,20 @@ export default function GallerySection({
                   className="object-cover"
                 />
               </div>
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
 
       {/* Modal Preview */}
       {isOpen && (
-        <div
+        <motion.div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
           onClick={closeModal}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
-          {/* Close */}
           <button
             className="absolute top-4 right-4 text-white text-2xl"
             onClick={(e) => {
@@ -108,7 +122,6 @@ export default function GallerySection({
             &times;
           </button>
 
-          {/* Prev */}
           <button
             className="absolute left-4 text-white text-3xl"
             onClick={(e) => {
@@ -119,7 +132,6 @@ export default function GallerySection({
             ‹
           </button>
 
-          {/* Image container */}
           <div
             className="p-2 rounded-lg"
             style={{
@@ -146,7 +158,6 @@ export default function GallerySection({
             />
           </div>
 
-          {/* Next */}
           <button
             className="absolute right-4 text-white text-3xl"
             onClick={(e) => {
@@ -156,7 +167,7 @@ export default function GallerySection({
           >
             ›
           </button>
-        </div>
+        </motion.div>
       )}
     </section>
   )
