@@ -267,13 +267,14 @@ export default function Theme1({ data }: Theme1Props) {
   <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={theme.defaultBgImage1} />
 )}
             {content.bank_transfer?.enabled && (
-              <BankSection
-                theme={theme}
-                specialFontFamily={processedSpecialFontFamily}
-                bodyFontFamily={processedBodyFontFamily}
-                bankTransfer={content.bank_transfer}
-              />
-            )}
+  <BankSection
+    theme={theme}
+    specialFontFamily={processedSpecialFontFamily}
+    bodyFontFamily={processedBodyFontFamily}
+    bankTransfer={content.bank_transfer}
+    contentUserId={data.content_user_id}
+  />
+)}
            {content?.plugin?.rsvp && (
       <RsmpSection
         theme={theme}

@@ -101,13 +101,28 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
     setValue('plugin.youtube_link', value);
   }, [setValue]);
 
-  const handleWaNumberChange = useCallback((value: string) => {
-    setValue('plugin.whatsapp_number', value);
-  }, [setValue]);
+ const handleWaNumberChange = useCallback((value: string) => {
+  let formattedValue = value.trim();
+
+  // Jika mulai dengan '08', ubah ke '628...'
+  if (/^08/.test(formattedValue)) {
+    formattedValue = '62' + formattedValue.slice(1);
+  }
+
+  // Jika hanya '0' di depan, ubah ke '62...'
+  if (/^0/.test(formattedValue)) {
+    formattedValue = '62' + formattedValue.slice(1);
+  }
+
+  setValue('plugin.whatsapp_number', formattedValue);
+}, [setValue]);
+
 
   const handleInputChangeBlur = useCallback(() => {
     autoSave();
   }, [autoSave]);
+
+  
 
   return (
     <Collapsible title="Plugin Undangan">
