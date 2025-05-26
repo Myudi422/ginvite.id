@@ -12,7 +12,7 @@ interface Event {
   title?: string;
   date: string;
   time: string;
-  location: string;
+  locationDesc: string;
   mapsLink: string;
 }
 
@@ -68,7 +68,7 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string, 
           <MapPin size={32} color={accentColor} />
         </IconWrapper>
         <p className="mt-4 text-gray-600 leading-relaxed whitespace-pre-line">
-          {event.location}
+          {event.locationDesc}
         </p>
         <Link href={event.mapsLink} target="_blank">
           <Button

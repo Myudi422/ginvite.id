@@ -2,10 +2,19 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useFormContext, useWatch, Controller } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import dynamic from 'next/dynamic';
+import { useFormContext, useWatch } from 'react-hook-form';
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Collapsible } from './Collapsible';
+// dynamic import to disable SSR
+const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
 import { autoSaveContent } from '@/app/actions/saved';
 
 interface EventSectionProps {
@@ -15,36 +24,39 @@ interface EventSectionProps {
   onSavedSlug: string;
 }
 
-export function EventSection({
-  userId,
-  invitationId,
-  slug,
-  onSavedSlug,
-}: EventSectionProps) {
+export function EventSection({ userId, invitationId, slug, onSavedSlug }: EventSectionProps) {
   const { control, getValues, setValue } = useFormContext<any>();
   const resepsi = useWatch({ control, name: 'event.resepsi' });
-  const akad    = useWatch({ control, name: 'event.akad' });
+  const akad = useWatch({ control, name: 'event.akad' });
 
-  // auto-save kapanpun resepsi atau akad berubah
   useEffect(() => {
     const timer = setTimeout(async () => {
       const data = getValues();
-      const payload = {
+      const payload: any = {
         user_id: userId,
         id: invitationId,
         title: slug,
         content: JSON.stringify({ ...data, event: { ...data.event, title: slug } }),
-        waktu_acara: data.event.resepsi.date,
-        time: data.event.resepsi.time,
-        location: data.event.resepsi.location,
-        mapsLink: data.event.resepsi.mapsLink,
+        // resepsi fields
+        resepsi_date: data.event.resepsi.date,
+        resepsi_time: data.event.resepsi.time,
+        resepsi_location_desc: data.event.resepsi.locationDesc,
+        resepsi_mapsLink: data.event.resepsi.mapsLink,
+        resepsi_lat: data.event.resepsi.coords?.lat,
+        resepsi_lng: data.event.resepsi.coords?.lng,
       };
+      if (data.event.akad) {
+        payload.akad_date = data.event.akad.date;
+        payload.akad_time = data.event.akad.time;
+        payload.akad_location_desc = data.event.akad.locationDesc;
+        payload.akad_mapsLink = data.event.akad.mapsLink;
+        payload.akad_lat = data.event.akad.coords?.lat;
+        payload.akad_lng = data.event.akad.coords?.lng;
+      }
       try {
         await autoSaveContent(payload);
         const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
-        if (iframe) {
-          iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
-        }
+        if (iframe) iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
       } catch (e) {
         console.error('Auto-save Event gagal:', (e as Error).message);
       }
@@ -54,38 +66,81 @@ export function EventSection({
 
   const showAkad = Boolean(useWatch({ control, name: 'event.akad' }));
 
-  return (
-    <Collapsible title="Detail Acara">
-      {/* Resepsi */}
-      <h4 className="font-semibold mt-2">Resepsi</h4>
-      <FormField name="event.resepsi.date" control={control} render={({ field }) => (
+  const renderEventFields = (prefix: 'resepsi' | 'akad') => (
+    <>
+      <h4 className="font-semibold mt-4">{prefix === 'resepsi' ? 'Resepsi' : 'Akad'}</h4>
+      <FormField name={`event.${prefix}.date`} control={control} render={({ field }) => (
         <FormItem>
           <FormLabel>Tanggal</FormLabel>
-          <FormControl><Input type="date" {...field} /></FormControl>
-          <FormMessage/>
+          <FormControl>
+            <Input type="date" {...field} />
+          </FormControl>
+          <FormMessage />
         </FormItem>
-      )}/>
-      <FormField name="event.resepsi.time" control={control} render={({ field }) => (
+      )} />
+      <FormField name={`event.${prefix}.time`} control={control} render={({ field }) => (
         <FormItem>
           <FormLabel>Waktu</FormLabel>
-          <FormControl><Input type="time" {...field} /></FormControl>
-          <FormMessage/>
+          <FormControl>
+            <Input type="time" {...field} />
+          </FormControl>
+          <FormMessage />
         </FormItem>
-      )}/>
-      <FormField name="event.resepsi.location" control={control} render={({ field }) => (
+      )} />
+      {/* Deskripsi custom lokasi */}
+      <FormField name={`event.${prefix}.locationDesc`} control={control} render={({ field }) => (
         <FormItem>
-          <FormLabel>Lokasi</FormLabel>
-          <FormControl><Input {...field} /></FormControl>
-          <FormMessage/>
+          <FormLabel>Nama Lokasi (bebas)</FormLabel>
+          <FormControl>
+            <Input
+              placeholder="Contoh: Gedung Serbaguna"
+              {...field}
+              value={field.value ?? ''}
+            />
+          </FormControl>
+          <FormMessage />
         </FormItem>
-      )}/>
-      <FormField name="event.resepsi.mapsLink" control={control} render={({ field }) => (
+      )} />
+      {/* Peta dan pencarian */}
+      <FormField name={`event.${prefix}.coords`} control={control} render={({ field }) => (
+        <FormItem>
+          <FormLabel>Pilih Lokasi di Peta</FormLabel>
+          <FormControl>
+            {typeof window !== 'undefined' && (
+              <MapPicker
+                value={field.value}
+                onChange={coords => {
+                  field.onChange(coords);
+                  const link = `https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`;
+                  setValue(`event.${prefix}.mapsLink`, link);
+                }}
+                height={200}
+              />
+            )}
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )} />
+      {/* Link Maps otomatis */}
+      <FormField name={`event.${prefix}.mapsLink`} control={control} render={({ field }) => (
         <FormItem>
           <FormLabel>Link Maps</FormLabel>
-          <FormControl><Input {...field} /></FormControl>
-          <FormMessage/>
+          <FormControl>
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              readOnly
+            />
+          </FormControl>
+          <FormMessage />
         </FormItem>
-      )}/>
+      )} />
+    </>
+  );
+
+  return (
+    <Collapsible title="Detail Acara">
+      {renderEventFields('resepsi')}
 
       {/* Toggle Akad */}
       <div className="mt-4 flex items-center">
@@ -95,12 +150,7 @@ export function EventSection({
           checked={showAkad}
           onChange={e => {
             if (e.target.checked) {
-              setValue('event.akad', {
-                date: '',
-                time: '',
-                location: '',
-                mapsLink: '',
-              });
+              setValue('event.akad', { date: '', time: '', locationDesc: '', mapsLink: '', coords: { lat: 0, lng: 0 } });
             } else {
               setValue('event.akad', undefined);
             }
@@ -108,40 +158,7 @@ export function EventSection({
         />
       </div>
 
-      {/* Akad */}
-      {showAkad && (
-        <>
-          <h4 className="font-semibold mt-4">Akad</h4>
-          <FormField name="event.akad.date" control={control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tanggal</FormLabel>
-              <FormControl><Input type="date" {...field} /></FormControl>
-              <FormMessage/>
-            </FormItem>
-          )}/>
-          <FormField name="event.akad.time" control={control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Waktu</FormLabel>
-              <FormControl><Input type="time" {...field} /></FormControl>
-              <FormMessage/>
-            </FormItem>
-          )}/>
-          <FormField name="event.akad.location" control={control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Lokasi</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage/>
-            </FormItem>
-          )}/>
-          <FormField name="event.akad.mapsLink" control={control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Link Maps</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage/>
-            </FormItem>
-          )}/>
-        </>
-      )}
+      {showAkad && renderEventFields('akad')}
     </Collapsible>
   );
 }

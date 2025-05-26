@@ -39,7 +39,7 @@ interface Theme1Props {
 interface EventData {
   date: string;
   time: string;
-  location: string;
+  locationDesc: string;
   mapsLink: string;
   note?: string;
   title?: string;
@@ -50,7 +50,7 @@ interface Event {
   title?: string;
   date: string;
   time: string;
-  location: string;
+  locationDesc: string;
   mapsLink: string;
 }
 
@@ -101,7 +101,7 @@ export default function Theme1({ data }: Theme1Props) {
         title: eventData.title || key.charAt(0).toUpperCase() + key.slice(1),
         date: eventData.date || '',
         time: eventData.time || '',
-        location: eventData.location || '',
+        locationDesc: eventData.locationDesc || '',
         mapsLink: eventData.mapsLink || '',
       } : null;
     })
@@ -142,7 +142,7 @@ export default function Theme1({ data }: Theme1Props) {
     const end = endDate.toISOString().replace(/-|:|\.\d+/g, '');
 
     const eventDetails = sortedEvents.map(ev =>
-      `${ev.title}: ${ev.date} ${ev.time} @ ${ev.location} (${ev.mapsLink})`
+      `${ev.title}: ${ev.date} ${ev.time} @ ${ev.locationDesc} (${ev.mapsLink})`
     ).join('\n');
 
     const detailsText = `Kami dari papunda.com bermaksud mengundang Anda di acara ini. Merupakan suatu kehormatan dan kebahagiaan bagi pihak mengundang, apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada hari :\n${eventDetails}`;
@@ -152,7 +152,7 @@ export default function Theme1({ data }: Theme1Props) {
     calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}` +
       `&text=${encodeURIComponent(titleText)}` +
       `&details=${encodeURIComponent(detailsText)}` +
-      `&location=${encodeURIComponent(firstEvent.location)}`;
+      `&location=${encodeURIComponent(firstEvent.locationDesc)}`;
   }
 
   const sampleQrData = "SampleGuestID12345";
@@ -280,6 +280,7 @@ export default function Theme1({ data }: Theme1Props) {
         theme={theme}
         specialFontFamily={processedSpecialFontFamily}
         bodyFontFamily={processedBodyFontFamily}
+        contentUserId={data.content_user_id}
       />
     )}
             <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} defaultBgImage1={theme.defaultBgImage1} />

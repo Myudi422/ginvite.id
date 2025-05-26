@@ -15,6 +15,7 @@ interface RsmpSectionProps {
   };
   specialFontFamily?: string;
   bodyFontFamily?: string;
+  contentUserId: number;
 }
 
 interface RsvpData {
@@ -26,9 +27,12 @@ interface RsvpData {
 }
 
 const timeAgo = (dateString: string) => {
-  const date = new Date(dateString);
+  const utcDate = new Date(dateString);
+  const jakartaOffset = 7 * 60; // in minutes
+  const localDate = new Date(utcDate.getTime() + jakartaOffset * 60000); // convert to GMT+7
+
   const now = new Date();
-  const diff = now.getTime() - date.getTime();
+  const diff = now.getTime() - localDate.getTime();
 
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
@@ -43,7 +47,8 @@ const timeAgo = (dateString: string) => {
   return `${minutes} menit yang lalu`;
 };
 
-export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily }: RsmpSectionProps) {
+
+export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, contentUserId, }: RsmpSectionProps) {
   const [nama, setNama] = useState("");
   const [ucapan, setUcapan] = useState("");
   const [wa, setWa] = useState("");
