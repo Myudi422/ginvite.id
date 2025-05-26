@@ -39,7 +39,7 @@ interface Theme1Props {
 interface EventData {
   date: string;
   time: string;
-  locationDesc: string;
+  location: string;
   mapsLink: string;
   note?: string;
   title?: string;
@@ -50,7 +50,7 @@ interface Event {
   title?: string;
   date: string;
   time: string;
-  locationDesc: string;
+  location: string;
   mapsLink: string;
 }
 
@@ -101,7 +101,7 @@ export default function Theme1({ data }: Theme1Props) {
         title: eventData.title || key.charAt(0).toUpperCase() + key.slice(1),
         date: eventData.date || '',
         time: eventData.time || '',
-        locationDesc: eventData.locationDesc || '',
+        location: eventData.location || '',
         mapsLink: eventData.mapsLink || '',
       } : null;
     })
@@ -142,7 +142,7 @@ export default function Theme1({ data }: Theme1Props) {
     const end = endDate.toISOString().replace(/-|:|\.\d+/g, '');
 
     const eventDetails = sortedEvents.map(ev =>
-      `${ev.title}: ${ev.date} ${ev.time} @ ${ev.locationDesc} (${ev.mapsLink})`
+      `${ev.title}: ${ev.date} ${ev.time} @ ${ev.location} (${ev.mapsLink})`
     ).join('\n');
 
     const detailsText = `Kami dari papunda.com bermaksud mengundang Anda di acara ini. Merupakan suatu kehormatan dan kebahagiaan bagi pihak mengundang, apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada hari :\n${eventDetails}`;
@@ -152,7 +152,7 @@ export default function Theme1({ data }: Theme1Props) {
     calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}` +
       `&text=${encodeURIComponent(titleText)}` +
       `&details=${encodeURIComponent(detailsText)}` +
-      `&location=${encodeURIComponent(firstEvent.locationDesc)}`;
+      `&location=${encodeURIComponent(firstEvent.location)}`;
   }
 
   const sampleQrData = "SampleGuestID12345";
