@@ -18,13 +18,13 @@ export default function FeaturesSection() {
             No #1 Platform
           </h3>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-slate-800 mb-4">
-            Pernikahan Digital
+            Undangan Digital
           </h2>
           <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-            Wedding Planner - Invitation - Digital Guestbook
+            Kostumisasi - Banyak Undangan - Fitur All in One
           </p>
           <p className="text-xl font-medium text-slate-700 mt-2">
-            One stop solution your Invitation!
+            Solusi lengkap untuk undangan Anda!
           </p>
         </motion.div>
 
