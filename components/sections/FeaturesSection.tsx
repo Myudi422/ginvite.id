@@ -21,7 +21,7 @@ export default function FeaturesSection() {
             Undangan Digital
           </h2>
           <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-            Kostumisasi - Banyak Undangan - Fitur All in One
+            Kostumisasi - Simple - All in One
           </p>
           <p className="text-xl font-medium text-slate-700 mt-2">
             Solusi lengkap untuk undangan Anda!
