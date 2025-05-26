@@ -23,12 +23,12 @@ export default function SectionCTA() {
           Mulai sekarang, buat undangan digital cantik tanpa ribet dan nikmati kemudahan dalam mengundang tamu.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link href="/free-trial">
+          <Link href="/admin">
             <Button className="bg-pink-500 hover:bg-pink-600 text-white rounded-full px-6 py-3 shadow-lg transform hover:scale-105 transition-transform duration-300">
               Coba Gratis
             </Button>
           </Link>
-          <Link href="/contact-admin">
+          <Link href="/a">
             <Button variant="outline" className="border-pink-500 text-pink-500 hover:bg-pink-50 rounded-full px-6 py-3 shadow-inner transform hover:scale-105 transition-transform duration-300">
               Hubungi Admin
             </Button>

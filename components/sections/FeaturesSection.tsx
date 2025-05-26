@@ -42,7 +42,7 @@ export default function FeaturesSection() {
             },
             {
               icon: <Users className="h-10 w-10 text-amber-500" />,
-              title: "Event Planner",
+              title: "Rundown Planner",
               description: "Kelola dan atur seluruh jadwal acara dengan mudah"
             },
             {

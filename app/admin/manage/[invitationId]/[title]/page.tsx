@@ -9,6 +9,7 @@ import {
   Calendar,
   ClipboardList,
   QrCode,
+  Wallet, // <- Tambahkan ini
 } from 'lucide-react';
 
 export default function ManagePage() {
@@ -38,8 +39,24 @@ export default function ManagePage() {
           Manage Undangan – {decodeURIComponent(title!)}
         </h1>
       </div>
+      
 
       <div className="p-6 space-y-6">
+
+        {/* ESTIMASI UANG YANG DIKIRIM */}
+<div className="bg-white shadow rounded-2xl p-4 flex items-center space-x-4">
+  <div className="flex-shrink-0">
+    <Wallet className="h-8 w-8 text-pink-600" />
+  </div>
+  <div>
+    <p className="text-sm text-gray-600">Gift yang Didapatkan</p>
+    <p className="text-2xl font-bold text-gray-800">Rp2.000.000</p>
+    <p className="text-xs text-gray-500 mt-1">
+      Ini hanya perkiraan, karena belum valid. harap cek di atm yang dipakai & di menu data tamu.
+    </p>
+  </div>
+</div>
+
         {/* STATS */}
         <div className="relative overflow-hidden rounded-2xl h-40 bg-white shadow">
           <div className="absolute inset-0 bg-[url('/sample-bg.jpg')] bg-cover bg-center opacity-20" />
