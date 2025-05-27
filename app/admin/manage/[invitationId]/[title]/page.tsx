@@ -196,14 +196,14 @@ export default function ManagePage() {
                 <div className="grid grid-cols-3 gap-4">
                     {/* Row 2 */}
                     <button
-                        onClick={() =>
-                            router.push(`/admin/manage/${invitationId}/${slug}/bulk-undangan`)
-                        }
-                        className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
-                    >
-                        <Calendar className="h-8 w-8 mb-2" />
-                        <span className="font-semibold">Bulk Undangan</span>
-                    </button>
+  onClick={() =>
+    router.push(`/admin/manage/${invitationId}/${slug}/bulk`)
+  }
+  className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
+>
+  <Calendar className="h-8 w-8 mb-2" />
+  <span className="font-semibold">Bulk Undangan</span>
+</button>
 
                     <button
                         onClick={() =>
