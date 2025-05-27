@@ -1,10 +1,11 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { FaUser, FaWhatsapp, FaComment, FaCalendarCheck, FaPaperPlane } from "react-icons/fa";
-import { FiChevronDown } from "react-icons/fi";
-import { useSearchParams } from "next/navigation";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { FaUser, FaWhatsapp, FaComment, FaCalendarCheck, FaPaperPlane } from 'react-icons/fa';
+import { FiChevronDown } from 'react-icons/fi';
+import { useSearchParams } from 'next/navigation';
+import { submitRsvp, getRsvpList } from '@/app/actions/rsvp';
 
 interface RsmpSectionProps {
   theme: {
@@ -29,11 +30,9 @@ interface RsvpData {
 const timeAgo = (dateString: string) => {
   const utcDate = new Date(dateString);
   const jakartaOffset = 7 * 60; // in minutes
-  const localDate = new Date(utcDate.getTime() + jakartaOffset * 60000); // convert to GMT+7
-
+  const localDate = new Date(utcDate.getTime() + jakartaOffset * 60000);
   const now = new Date();
   const diff = now.getTime() - localDate.getTime();
-
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
@@ -47,18 +46,14 @@ const timeAgo = (dateString: string) => {
   return `${minutes} menit yang lalu`;
 };
 
-
-export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, contentUserId, }: RsmpSectionProps) {
-  const [nama, setNama] = useState("");
-  const [ucapan, setUcapan] = useState("");
-  const [wa, setWa] = useState("");
-  const [konfirmasi, setKonfirmasi] = useState<"hadir" | "tidak hadir" | "">("");
+export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, contentUserId }: RsmpSectionProps) {
+  const [nama, setNama] = useState('');
+  const [ucapan, setUcapan] = useState('');
+  const [wa, setWa] = useState('');
+  const [konfirmasi, setKonfirmasi] = useState<'hadir' | 'tidak hadir' | ''>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const searchParams = useSearchParams();
-  const [userIdFromPath, setUserIdFromPath] = useState<string | null>(null);
-  const titleFromPath = typeof window !== 'undefined' ? window.location.pathname.split('/').pop() : '';
   const [rsvpList, setRsvpList] = useState<RsvpData[]>([]);
   const [loadingRsvp, setLoadingRsvp] = useState(true);
   const [errorRsvp, setErrorRsvp] = useState<string | null>(null);
@@ -66,120 +61,59 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, 
   const [showComments, setShowComments] = useState(false);
 
   useEffect(() => {
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts.length > 2 && pathParts[1] === 'undang') {
-      fetchRsvpList(String(contentUserId));
-    }
-  }, []);
-
-  const fetchRsvpList = async (contentId: string) => {
-    setLoadingRsvp(true);
-    setErrorRsvp(null);
-    try {
-      const res = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_rsmp&content_id=${contentId}`
-      );
-
-      if (!res.ok) throw new Error('Gagal mengambil daftar RSVP');
-
-      const data = await res.json();
-      if (data.status === 'success') {
-        setRsvpList(data.data.reverse());
-      } else {
-        throw new Error(data?.message || 'Gagal mengambil data');
+    (async () => {
+      setLoadingRsvp(true);
+      try {
+        const data = await getRsvpList(contentUserId);
+        setRsvpList(data);
+      } catch (err: any) {
+        setErrorRsvp(err.message);
+      } finally {
+        setLoadingRsvp(false);
       }
-    } catch (err: any) {
-      console.error(err);
-      setErrorRsvp(err.message);
-    } finally {
-      setLoadingRsvp(false);
-    }
-  };
+    })();
+  }, [contentUserId]);
 
   const handleKeyPressWa = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const charCode = event.which ? event.which : event.keyCode;
-    if (charCode > 31 && (charCode < 48 || charCode > 57)) {
-      event.preventDefault();
-    }
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) event.preventDefault();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError(null);
-  if (!nama.trim() || !ucapan.trim() || !konfirmasi || !wa.trim()) {
-    setError("Semua field wajib diisi.");
-    return;
-  }
-
-  if (wa.trim().length < 10) {
-    setError("Nomor WhatsApp tidak valid.");
-    return;
-  }
-
-  setLoading(true);
-  try {
-    const res = await fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=rsmp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content_id: contentUserId,
-        nama,
-        wa,
-        ucapan,
-        konfirmasi,
-      }),
-    });
-
-    if (!res.ok) throw new Error("Gagal mengirim data");
-
-    setSuccess(true);
-    resetForm();
-    if (userIdFromPath && titleFromPath) {
-      await fetchRsvpList(String(contentUserId));
+    e.preventDefault();
+    setError(null);
+    if (!nama.trim() || !ucapan.trim() || !konfirmasi || !wa.trim()) {
+      setError('Semua field wajib diisi.');
+      return;
     }
-        setSuccess(true);
-    resetForm();
-    // pastikan comments sudah ditampilkan
-    if (!showComments) setShowComments(true);
-    // reload list berdasarkan content_id
-    await fetchRsvpList(String(contentUserId));
-  } catch (err: any) {
-    console.error(err);
-    setError(err.message);
-  }
-  setLoading(false);
-};
+    if (wa.trim().length < 10) {
+      setError('Nomor WhatsApp tidak valid.');
+      return;
+    }
 
-
-  const resetForm = () => {
-    setNama("");
-    setWa("");
-    setUcapan("");
-    setKonfirmasi("");
+    setLoading(true);
+    try {
+      await submitRsvp(contentUserId, nama, wa, ucapan, konfirmasi, `/undang/${contentUserId}`);
+      setSuccess(true);
+      setNama(''); setWa(''); setUcapan(''); setKonfirmasi('');
+      setShowComments(true);
+      const updated = await getRsvpList(contentUserId);
+      setRsvpList(updated);
+    } catch (err: any) {
+      setError(err.message);
+    }
+    setLoading(false);
   };
 
-  const loadMoreComments = () => {
-    setVisibleComments(prev => prev + 5);
-  };
+  const loadMoreComments = () => setVisibleComments(prev => prev + 5);
 
   const ProfileInitial = ({ name }: { name: string }) => (
-    <div
-      className="w-10 h-10 rounded-full flex items-center justify-center font-semibold flex-shrink-0"
-      style={{
-        backgroundColor: theme.accentColor,
-        color: theme.bgColor,
-        fontFamily: specialFontFamily
-      }}
-    >
+    <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold flex-shrink-0" style={{ backgroundColor: theme.accentColor, color: theme.bgColor, fontFamily: specialFontFamily }}>
       {name.charAt(0).toUpperCase()}
     </div>
   );
 
-  const inputStyles = {
-    borderColor: theme.accentColor,
-    color: theme.accentColor,
-    fontFamily: bodyFontFamily,
-  };
+  const inputStyles = { borderColor: theme.accentColor, color: theme.accentColor, fontFamily: bodyFontFamily };
 
   return (
     <section
