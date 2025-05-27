@@ -55,6 +55,7 @@ interface Event {
 }
 
 export default function Theme1({ data }: Theme1Props) {
+  const cuId = data.content_user_id;
   const [isOpen, setIsOpen] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
@@ -76,6 +77,41 @@ export default function Theme1({ data }: Theme1Props) {
       clearTimeout(loadingTimeout);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+  if (!cuId) return; // guard
+
+  const viewedKey = `viewed_${cuId}`;
+  const lastViewedTimeKey = `lastViewedTime_${cuId}`;
+  const oneHour = 60 * 60 * 1000; // 1 jam dalam milisekon
+  const currentTime = new Date().getTime();
+  const lastViewed = localStorage.getItem(viewedKey);
+  const lastTime = localStorage.getItem(lastViewedTimeKey);
+
+  // Cek apakah sudah melihat dalam 1 jam terakhir
+  if (lastViewed === 'true' && lastTime && currentTime - parseInt(lastTime) < oneHour) {
+    console.log(`cuId ${cuId} sudah mencatat view dalam 1 jam terakhir.`);
+    return; // Jangan kirim permintaan lagi
+  }
+
+  fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=view`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content_user_id: cuId }),
+  })
+    .then(res => res.json())
+    .then(json => {
+      if (json.status === 'success') {
+        console.log('View count:', json.view);
+        // Tandai sudah dilihat dan simpan waktu saat ini
+        localStorage.setItem(viewedKey, 'true');
+        localStorage.setItem(lastViewedTimeKey, currentTime.toString());
+      } else {
+        console.warn('View update failed:', json.message);
+      }
+    })
+    .catch(err => console.error('Fetch error:', err));
+}, [cuId]);
 
   if (!data) return <div className="flex items-center justify-center h-screen">Loading Data...</div>;
 
