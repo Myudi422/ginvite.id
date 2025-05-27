@@ -3,8 +3,10 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible } from './Collapsible';
-import { Crown } from 'lucide-react';
+import { Crown, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { motion } from 'framer-motion';
 
 interface PluginSectionProps {
   userId: number;
@@ -14,17 +16,14 @@ interface PluginSectionProps {
   onStatusChange?: (newStatus: 0 | 1) => void;
 }
 
-// Endpoint untuk auto-save konten
 const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
 
 export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatusChange }: PluginSectionProps) {
   const { control, getValues, setValue } = useFormContext();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Watch the gift and whatsapp_notif toggles
-  const giftEnabled = useWatch({ control, name: 'plugin.gift' });
-  const whatsappNotifEnabled = useWatch({ control, name: 'plugin.whatsapp_notif' });
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [infoImage, setInfoImage] = useState<string>('');
 
   const autoSave = useCallback(async () => {
     setSaving(true);
@@ -33,12 +32,7 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
       const data = getValues();
       const { gift, whatsapp_notif } = data.plugin;
       const jumlah = gift || whatsapp_notif ? 100000 : 40000;
-
-      const contentPayload = {
-        ...data,
-        event: { ...data.event },
-        jumlah,
-      };
+      const contentPayload = { ...data, event: { ...data.event }, jumlah };
       const payload = {
         user_id: userId,
         id: invitationId,
@@ -49,7 +43,6 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
         location: data.event.resepsi?.location,
         mapsLink: data.event.resepsi?.mapsLink,
       };
-
       const res = await fetch(SAVE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,151 +50,94 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
       });
       const json = await res.json();
       if (json.status !== 'success') throw new Error(json.message || 'Auto-save gagal');
-
-      // Gunakan status yang dikembalikan server
-      const serverStatus = json.data.status as 0 | 1;
-      if (onStatusChange) onStatusChange(serverStatus);
-
-      // Refresh preview iframe
+      onStatusChange?.(json.data.status as 0 | 1);
       const iframe = document.getElementById('previewFrame');
-      if (iframe) {
-        const param = `?time=${Date.now()}`;
-        iframe.setAttribute('src', `/undang/${userId}/${encodeURIComponent(onSavedSlug)}${param}`);
-      }
+      if (iframe) iframe.setAttribute('src', `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`);
     } catch (err: any) {
       setError(err.message);
-      console.error('Error auto-save PluginSection:', err);
+      console.error('Error auto-save:', err);
     } finally {
       setSaving(false);
     }
   }, [getValues, userId, invitationId, slug, onSavedSlug, onStatusChange]);
 
-  // Efek untuk mereset youtube_link dan auto-save ketika gift dimatikan
-  useEffect(() => {
-    if (!giftEnabled) {
-      setValue('plugin.youtube_link', '');
-      autoSave(); // Panggil autoSave di sini
-    }
-  }, [giftEnabled, setValue, autoSave]);
+  const giftEnabled = useWatch({ control, name: 'plugin.gift' });
+  useEffect(() => { if (!giftEnabled) { setValue('plugin.youtube_link', ''); autoSave(); } }, [giftEnabled, setValue, autoSave]);
 
-  // Efek untuk memastikan whatsapp_number ada saat whatsapp_notif aktif
-  useEffect(() => {
-    if (whatsappNotifEnabled && !getValues('plugin.whatsapp_number')) {
-      // Anda bisa set nilai default di sini jika diperlukan
-      // setValue('plugin.whatsapp_number', '');
-    }
-  }, [whatsappNotifEnabled, setValue, getValues]);
+  const whatsappNotifEnabled = useWatch({ control, name: 'plugin.whatsapp_notif' });
+  useEffect(() => { if (whatsappNotifEnabled && !getValues('plugin.whatsapp_number')) { } }, [whatsappNotifEnabled, getValues, setValue]);
 
-  const handleToggle = useCallback((name: string, value: boolean) => {
-    setValue(name as any, value);
-    autoSave();
-  }, [setValue, autoSave]);
-
-  const handleLinkChange = useCallback((value: string) => {
-    setValue('plugin.youtube_link', value);
+  const handleToggle = useCallback((name: string, value: boolean) => { setValue(name as any, value); autoSave(); }, [setValue, autoSave]);
+  const handleLinkChange = useCallback((v: string) => setValue('plugin.youtube_link', v), [setValue]);
+  const handleWaNumberChange = useCallback((v: string) => {
+    let f = v.trim(); if (/^0/.test(f)) f = '62' + f.replace(/^0+/, ''); setValue('plugin.whatsapp_number', f);
   }, [setValue]);
+  const handleBlur = useCallback(() => autoSave(), [autoSave]);
 
- const handleWaNumberChange = useCallback((value: string) => {
-  let formattedValue = value.trim();
+  const pluginItems = [
+    { name: 'plugin.rsvp', label: 'RSVP (Hadir/Tidak)', info: '/samples/rsvp.png' },
+    { name: 'plugin.navbar', label: 'Navigasi Bar', info: '/samples/navbar.png' },
+    { name: 'plugin.gift', label: (<><span>Video</span> <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></>), info: '/samples/video.png' },
+    { name: 'plugin.whatsapp_notif', label: (<><span>Whatsapp Notif</span> <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></>), info: '/samples/whatsapp.png' },
+  ];
 
-  // Jika mulai dengan '08', ubah ke '628...'
-  if (/^08/.test(formattedValue)) {
-    formattedValue = '62' + formattedValue.slice(1);
-  }
-
-  // Jika hanya '0' di depan, ubah ke '62...'
-  if (/^0/.test(formattedValue)) {
-    formattedValue = '62' + formattedValue.slice(1);
-  }
-
-  setValue('plugin.whatsapp_number', formattedValue);
-}, [setValue]);
-
-
-  const handleInputChangeBlur = useCallback(() => {
-    autoSave();
-  }, [autoSave]);
-
-  
+  const openInfo = (img: string) => { setInfoImage(img); setInfoOpen(true); };
 
   return (
-    <Collapsible title="Plugin Undangan">
-      <div className="grid gap-4 py-4">
-        {[
-          { name: 'plugin.rsvp', label: 'RSVP (Hadir/Tidak)' },
-          { name: 'plugin.navbar', label: 'Navigasi Bar' },
-          { name: 'plugin.gift', label: <>Video <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
-          { name: 'plugin.whatsapp_notif', label: <>Whatsapp Notif <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></> },
-        ].map(({ name, label }) => (
-          <FormField
-            key={name}
-            control={control}
-            name={name}
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-md border p-4" onClick={e => e.stopPropagation()}>
-                <div className="space-y-0.5">
-                  <FormLabel className="text-base">{label}</FormLabel>
-                  <FormMessage />
+    <>
+      <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
+        <DialogContent>
+          <div className="flex justify-center p-4">
+            <img src={infoImage} alt="Sample" className="max-h-64 object-contain" />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Collapsible title="Plugin Undangan">
+        <div className="grid gap-4 py-4">
+          {pluginItems.map(({ name, label, info }) => (
+            <FormField key={name} control={control} name={name} render={({ field }) => (
+              <FormItem className="flex items-center justify-between rounded-md border p-4" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center space-x-2">
+                  <FormLabel className="text-base flex items-center space-x-1">{label}</FormLabel>
+                  <motion.div animate={{ scale: [1,1.2,1] }} transition={{ repeat: Infinity, duration:2 }} className="cursor-pointer" onClick={() => openInfo(info)}>
+                    <Info className="w-4 h-4 text-blue-500" />
+                  </motion.div>
                 </div>
                 <FormControl>
                   <Switch checked={field.value} onCheckedChange={val => handleToggle(name, val)} disabled={saving} />
                 </FormControl>
               </FormItem>
-            )}
-          />
-        ))}
+            )} />
+          ))}
 
-       {/* Render input for YouTube link when gift is enabled */}
-        {giftEnabled && (
-          <FormField
-            control={control}
-            name="plugin.youtube_link"
-            render={({ field }) => (
+          {giftEnabled && (
+            <FormField control={control} name="plugin.youtube_link" render={({ field }) => (
               <FormItem className="flex flex-col space-y-1">
                 <FormLabel>Link YouTube</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    value={field.value || ''} // Ensure value is always provided
-                    placeholder="Masukkan link YouTube video..."
-                    disabled={saving}
-                    onChange={e => handleLinkChange(e.target.value)}
-                    onBlur={handleInputChangeBlur}
-                  />
+                  <Input {...field} placeholder="Masukkan link YouTube..." disabled={saving} onChange={e => handleLinkChange(e.target.value)} onBlur={handleBlur} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
-            )}
-          />
-        )}
+            )} />
+          )}
 
-        {/* Render input for WhatsApp number when whatsapp_notif is enabled */}
-        {whatsappNotifEnabled && (
-          <FormField
-            control={control}
-            name="plugin.whatsapp_number"
-            render={({ field }) => (
+          {whatsappNotifEnabled && (
+            <FormField control={control} name="plugin.whatsapp_number" render={({ field }) => (
               <FormItem className="flex flex-col space-y-1">
                 <FormLabel>Nomor WhatsApp</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="tel"
-                    value={field.value || ''} // Ensure value is always provided
-                    placeholder="Masukkan nomor WhatsApp..."
-                    disabled={saving}
-                    onChange={e => handleWaNumberChange(e.target.value)}
-                    onBlur={handleInputChangeBlur}
-                  />
+                  <Input {...field} type="tel" placeholder="Masukkan nomor WhatsApp..." disabled={saving} onChange={e => handleWaNumberChange(e.target.value)} onBlur={handleBlur} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
-            )}
-          />
-        )}
+            )} />
+          )}
 
-        {error && <p className="text-red-600 mt-2">Error: {error}</p>}
-      </div>
-    </Collapsible>
+          {error && <p className="text-red-600 mt-2">Error: {error}</p>}
+        </div>
+      </Collapsible>
+    </>
   );
 }

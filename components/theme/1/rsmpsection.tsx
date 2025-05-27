@@ -68,19 +68,16 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, 
   useEffect(() => {
     const pathParts = window.location.pathname.split('/');
     if (pathParts.length > 2 && pathParts[1] === 'undang') {
-      const userId = pathParts[2];
-      const title = pathParts.pop();
-      setUserIdFromPath(userId);
-      fetchRsvpList(userId, title || '');
+      fetchRsvpList(String(contentUserId));
     }
   }, []);
 
-  const fetchRsvpList = async (userId: string, title: string) => {
+  const fetchRsvpList = async (contentId: string) => {
     setLoadingRsvp(true);
     setErrorRsvp(null);
     try {
       const res = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_rsmp&user_id=${userId}&title=${title}`
+        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_rsmp&content_id=${contentId}`
       );
 
       if (!res.ok) throw new Error('Gagal mengambil daftar RSVP');
@@ -107,46 +104,52 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    if (!nama.trim() || !ucapan.trim() || !konfirmasi || !wa.trim()) {
-      setError("Semua field wajib diisi.");
-      return;
+  e.preventDefault();
+  setError(null);
+  if (!nama.trim() || !ucapan.trim() || !konfirmasi || !wa.trim()) {
+    setError("Semua field wajib diisi.");
+    return;
+  }
+
+  if (wa.trim().length < 10) {
+    setError("Nomor WhatsApp tidak valid.");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const res = await fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=rsmp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content_id: contentUserId,
+        nama,
+        wa,
+        ucapan,
+        konfirmasi,
+      }),
+    });
+
+    if (!res.ok) throw new Error("Gagal mengirim data");
+
+    setSuccess(true);
+    resetForm();
+    if (userIdFromPath && titleFromPath) {
+      await fetchRsvpList(String(contentUserId));
     }
+        setSuccess(true);
+    resetForm();
+    // pastikan comments sudah ditampilkan
+    if (!showComments) setShowComments(true);
+    // reload list berdasarkan content_id
+    await fetchRsvpList(String(contentUserId));
+  } catch (err: any) {
+    console.error(err);
+    setError(err.message);
+  }
+  setLoading(false);
+};
 
-    if (wa.trim().length < 10) {
-      setError("Nomor WhatsApp tidak valid.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=rsmp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: userIdFromPath,
-          title: titleFromPath,
-          nama,
-          wa,
-          ucapan,
-          konfirmasi,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Gagal mengirim data");
-
-      setSuccess(true);
-      resetForm();
-      if (userIdFromPath && titleFromPath) {
-        await fetchRsvpList(userIdFromPath, titleFromPath);
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message);
-    }
-    setLoading(false);
-  };
 
   const resetForm = () => {
     setNama("");
