@@ -63,13 +63,13 @@ export default function RundownPage() {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
 
-    // Dapatkan string Base64 dari JSON
+    // Dapatkan string Base64 dari JSON (bukan dengan getBase64FromUrl)
     const backgroundBase64 = await getBackgroundBase64FromJSON();
 
     // Margin dan padding untuk header & footer
     const margin = 40;
     const paddingTop = 80; // Ruangan atas untuk header/logo
-    const paddingBottom = 80; // Ruangan bawah untuk footer
+    const paddingBottom = 130; // Ruangan bawah untuk footer
     const tableWidth = 450;
     const colStartWidth = 70;
     const colEndWidth = 70;
@@ -117,7 +117,7 @@ export default function RundownPage() {
 
     // Loop tiap item rundown
     items.forEach((item) => {
-      // Pecah teks "Kegiatan" jika panjang sehingga membungkus
+      // Pecah teks "Kegiatan" jika panjang agar membungkus
       const activityLines = doc.splitTextToSize(
         item.activity,
         colActivityWidth - 2 * cellPadding
@@ -193,7 +193,9 @@ export default function RundownPage() {
       currentY += cellHeight;
     });
 
-    // Footer (jika diperlukan) bisa ditambahkan di halaman terakhir
+    // Footer (jika diperlukan) bisa ditambahkan di halaman terakhir, misalnya:
+    // doc.setFontSize(10);
+    // doc.text('Footer text here', margin, pageHeight - paddingBottom / 2);
 
     return doc;
   };
@@ -206,7 +208,7 @@ export default function RundownPage() {
     setShowPreview(true);
   };
 
-  // Fungsi eksport PDF: generate dan simpan file PDF ke perangkat pengguna
+  // Fungsi export PDF: generate dan simpan file PDF ke perangkat pengguna
   const handleExportPDF = async () => {
     const doc = await generatePDFDoc();
     const decodedTitle = decodeURIComponent(title || '');
@@ -218,11 +220,11 @@ export default function RundownPage() {
       {/* Modal untuk preview PDF */}
       {showPreview && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
           onClick={() => setShowPreview(false)}
         >
           <div
-            className="bg-white rounded-lg p-4 w-full max-w-xl sm:max-w-3xl"
+            className="bg-white rounded-lg p-4 max-w-3xl w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -237,7 +239,7 @@ export default function RundownPage() {
             <iframe
               src={previewUrl}
               title="PDF Preview"
-              className="w-full h-[70vh]"
+              className="w-full h-[500px]"
             />
           </div>
         </div>
