@@ -258,7 +258,7 @@ export default function RundownPage() {
         </h1>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4">
         {/* Section Input Rundown */}
         <div className="bg-white shadow rounded-2xl p-6 space-y-4">
           <h2 className="text-sm font-medium text-gray-700">

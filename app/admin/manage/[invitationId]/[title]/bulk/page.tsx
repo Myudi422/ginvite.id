@@ -153,7 +153,7 @@ export default function BulkUndanganPage() {
                 </h1>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 space-y-4">
                 {loadingTemplate && (
                     <div className="bg-white shadow rounded-2xl p-6 text-center text-gray-600">
                         Memuat template undangan...
