@@ -8,8 +8,10 @@ import {
     User,
     Calendar,
     ClipboardList,
+    ListChecks,
     QrCode,
     Wallet,
+    Mails,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -201,7 +203,7 @@ export default function ManagePage() {
   }
   className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
 >
-  <Calendar className="h-8 w-8 mb-2" />
+  <Mails className="h-8 w-8 mb-2" />
   <span className="font-semibold">Bulk Undangan</span>
 </button>
 
@@ -211,7 +213,7 @@ export default function ManagePage() {
                         }
                         className="flex flex-col items-center justify-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700 transition"
                     >
-                        <ClipboardList className="h-8 w-8 mb-2" />
+                        <ListChecks className="h-8 w-8 mb-2" />
                         <span className="font-semibold">Rundown Generate</span>
                     </button>
 

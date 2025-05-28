@@ -9,6 +9,7 @@ import {
     LinkIcon,
     ChevronLeft,
     CopyCheckIcon,
+    MailCheck,
 } from 'lucide-react';
 
 type Item = {
@@ -32,33 +33,56 @@ export default function BulkUndanganPage() {
     const [errorLoadingTemplate, setErrorLoadingTemplate] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchBulkTemplate = async () => {
-            setLoadingTemplate(true);
-            setErrorLoadingTemplate(null);
-            try {
-                const response = await fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_bulk&user_id=${invitationId}&title=${encodeURIComponent(title)}`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData?.message || `Failed to fetch template: ${response.status}`);
-                }
-                const data = await response.json();
-                if (data?.status === 'success' && Array.isArray(data.data) && data.data.length > 0) {
-                    // Assuming the API returns an array of bulk data, we'll use the first one
-                    setTemplate(data.data[0]?.text_undangan || '');
-                } else {
-                    setErrorLoadingTemplate('Template undangan tidak ditemukan.');
-                }
-            } catch (error: any) {
-                setErrorLoadingTemplate(error.message);
-            } finally {
-                setLoadingTemplate(false);
-            }
-        };
+  const fetchBulkTemplate = async () => {
+    setLoadingTemplate(true);
+    setErrorLoadingTemplate(null);
 
-        if (invitationId && title) {
-            fetchBulkTemplate();
-        }
-    }, [invitationId, title]);
+    try {
+      const response = await fetch(
+        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_bulk&user_id=${invitationId}&title=${encodeURIComponent(
+          title
+        )}`
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData?.message || `Failed to fetch template: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      if (
+        data?.status === 'success' &&
+        Array.isArray(data.data) &&
+        data.data.length > 0
+      ) {
+        let raw = data.data[0].text_undangan as string;
+
+        // 1. Ganti semua <br>, <br/> atau <br /> jadi newline
+        raw = raw.replace(/<br\s*\/?>/gi, '\n');
+
+        // 2. Strip tag HTML apapun selain teks
+        raw = raw.replace(/<\/?[^>]+(>|$)/g, '');
+
+        // 3. Normalize CRLF (\r\n) ke LF (\n)
+        raw = raw.replace(/\r\n/g, '\n');
+
+        setTemplate(raw);
+      } else {
+        setErrorLoadingTemplate('Template undangan tidak ditemukan.');
+      }
+    } catch (error: any) {
+      setErrorLoadingTemplate(error.message);
+    } finally {
+      setLoadingTemplate(false);
+    }
+  };
+
+  if (invitationId && title) {
+    fetchBulkTemplate();
+  }
+}, [invitationId, title]);
+
 
     // Generate links + personalized invitation
     const handleGenerate = () => {
@@ -223,6 +247,7 @@ export default function BulkUndanganPage() {
                                 <div className="space-y-3">
                                     {currentItems.map((it, idx) => (
                                         <div key={idx} className="flex items-center space-x-2">
+                                        
                                             <input
                                                 type="text"
                                                 readOnly
@@ -241,7 +266,7 @@ export default function BulkUndanganPage() {
                                                 variant="outline"
                                                 onClick={() => handleCopyInvitation(it.invitation)}
                                             >
-                                                Copy Undangan
+                                                <MailCheck className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     ))}
