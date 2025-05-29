@@ -2,22 +2,32 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
 
-interface FormulirClientProps {
-  contentId: string;
-}
-
-export default function FormulirClient({ contentId }: FormulirClientProps) {
+export default function FormulirClient() {
+  const searchParams = useSearchParams();
+  const contentId = searchParams.get('content_id'); // dari query URL
   const [nama, setNama] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const contentIdNumber = parseInt(contentId || '', 10);
+
+    if (!nama || isNaN(contentIdNumber)) {
+      alert('Nama dan content_id diperlukan.');
+      return;
+    }
+
     setLoading(true);
     try {
       await axios.post(
         'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=qr',
-        { nama, content_id: contentId }
+        {
+          nama,
+          content_id: contentIdNumber,
+        }
       );
       alert('Terima kasih, data Anda telah tercatat.');
     } catch (err: any) {
