@@ -1,4 +1,5 @@
-/* app/formulir/page.tsx */
+//* app/formulir/page.tsx */
+export const dynamic = 'force-dynamic';
 'use client';
 
 import React, { useState, useEffect } from 'react';
