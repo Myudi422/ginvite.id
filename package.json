@@ -63,6 +63,7 @@
     "firebase": "^11.6.1",
     "form-data": "^4.0.2",
     "framer-motion": "latest",
+    "html5-qrcode": "^2.3.8",
     "input-otp": "1.4.1",
     "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",

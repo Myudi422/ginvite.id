@@ -1,38 +1,54 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useState, useEffect } from 'react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useRouter, useParams } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import axios from 'axios';
 
-const QrReader = dynamic(
-  () =>
-    import('react-qr-reader').then((mod) => mod.QrReader),
-  { ssr: false }
-);
-
 export default function QRManagePage() {
   const router = useRouter();
-  const { invitationId, slug } = useParams() as { invitationId: string; slug: string };
+  const { invitationId, slug } = useParams() as {
+    invitationId: string;
+    slug: string;
+  };
   const [tab, setTab] = useState<'scan' | 'generate'>('scan');
   const [scanData, setScanData] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [nameToGen, setNameToGen] = useState('');
-  const qrRef = useRef<any>(null);
 
-  const handleScan = (result: any, error: any) => {
-    if (result && !scanData) {
-      const text = result?.text || result;
-      setScanData(text);
-      setShowModal(true);
-      qrRef.current?.stop();
+  useEffect(() => {
+    let scanner: Html5QrcodeScanner | null = null;
+
+    if (tab === 'scan') {
+      // Inisiasi scanner pada elemen dengan id "qr-reader"
+      scanner = new Html5QrcodeScanner(
+        'qr-reader',
+        { fps: 10, qrbox: 250 },
+        false
+      );
+      scanner.render(
+        (decodedText) => {
+          if (decodedText && !scanData) {
+            setScanData(decodedText);
+            setShowModal(true);
+          }
+        },
+        (errorMessage) => {
+          console.info('QR error:', errorMessage);
+        }
+      );
     }
-    if (error) {
-      console.info(error);
-    }
-  };
+
+    return () => {
+      if (scanner) {
+        scanner.clear().catch((err) =>
+          console.error('Gagal menghapus scanner', err)
+        );
+      }
+    };
+  }, [tab, scanData]);
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -55,35 +71,37 @@ export default function QRManagePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* HEADER */}
-      <div className="flex items-center bg-white shadow p-4">
-        <button
-          onClick={() => router.back()}
-          className="p-2 rounded hover:bg-gray-100"
-        >
-          <ChevronLeft className="h-6 w-6 text-pink-600" />
-        </button>
-        <h1 className="ml-4 text-lg font-semibold text-gray-800">
-          Manage Undangan – {decodeURIComponent(slug)}
-        </h1>
-      </div>
+      <header className="bg-white shadow">
+        <div className="container mx-auto px-4 py-4 flex items-center">
+          <button
+            onClick={() => router.back()}
+            className="p-2 rounded hover:bg-gray-100"
+          >
+            <ChevronLeft className="h-6 w-6 text-pink-600" />
+          </button>
+          <h1 className="ml-4 text-lg font-semibold text-gray-800">
+            Manage Undangan – {decodeURIComponent(slug)}
+          </h1>
+        </div>
+      </header>
 
-      <div className="p-6">
-        {/* INTRO */}
+      {/* MAIN CONTENT */}
+      <main className="flex-grow container mx-auto px-4 py-6">
         <p className="mb-6 text-gray-700">
-          Tamu cukup tampilkan QR (isi nama mereka) untuk dicatat kehadirannya.  
-          Tab <strong>Scan QR</strong> untuk scan & kirim,  
-          tab <strong>Generate QR</strong> untuk contoh QR per nama.
+          Tamu cukup tampilkan QR (isi nama mereka) untuk dicatat kehadirannya. Tab{' '}
+          <strong>Scan QR</strong> untuk scan & kirim, dan tab{' '}
+          <strong>Generate QR</strong> untuk contoh QR per nama.
         </p>
 
         {/* TABS */}
-        <div className="flex mb-6 space-x-4">
-          {(['scan','generate'] as const).map((t) => (
+        <div className="flex flex-col md:flex-row md:space-x-4 mb-6">
+          {(['scan', 'generate'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded ${
+              className={`px-4 py-2 rounded mb-2 md:mb-0 ${
                 tab === t
                   ? 'bg-pink-600 text-white'
                   : 'bg-white text-gray-700 shadow'
@@ -96,19 +114,9 @@ export default function QRManagePage() {
 
         {/* SCAN TAB */}
         {tab === 'scan' && (
-          <div className="bg-white p-6 rounded-2xl shadow max-w-md mx-auto">
-            <h2 className="text-lg font-medium mb-4">Scan QR Tamu</h2>
-            <div className="mx-auto">
-              <QrReader
-                ref={qrRef}
-                onResult={handleScan}
-                constraints={{ facingMode: 'environment' }}
-                // atur ukuran container & video
-                containerStyle={{ width: '300px', margin: '0 auto' }}
-                videoContainerStyle={{ overflow: 'hidden', borderRadius: '1rem' }}
-                videoStyle={{ width: '100%', height: 'auto' }}
-              />
-            </div>
+          <div className="bg-white p-6 rounded-2xl shadow w-full max-w-md mx-auto">
+            <h2 className="text-lg font-medium mb-4 text-center">Scan QR Tamu</h2>
+            <div id="qr-reader" className="mx-auto" style={{ maxWidth: '100%' }}></div>
 
             {showModal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -137,8 +145,10 @@ export default function QRManagePage() {
 
         {/* GENERATE TAB */}
         {tab === 'generate' && (
-          <div className="bg-white p-6 rounded-2xl shadow max-w-md mx-auto">
-            <h2 className="text-lg font-medium mb-4">Generate QR Berdasarkan Nama</h2>
+          <div className="bg-white p-6 rounded-2xl shadow w-full max-w-md mx-auto">
+            <h2 className="text-lg font-medium mb-4 text-center">
+              Generate QR Berdasarkan Nama
+            </h2>
             <input
               type="text"
               placeholder="Masukkan nama tamu"
@@ -153,7 +163,7 @@ export default function QRManagePage() {
             )}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }
