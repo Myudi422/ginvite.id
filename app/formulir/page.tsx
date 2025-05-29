@@ -1,30 +1,23 @@
 /* app/formulir/page.tsx */
 'use client';
 
-export const dynamic = 'force-dynamic';
-
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 
 export default function FormulirPage() {
   const params = useSearchParams();
-  const router = useRouter();
   const contentId = params.get('content_id');
-
-  // Redirect to home if content_id is missing
-  useEffect(() => {
-    if (!contentId) {
-      router.replace('/');
-    }
-  }, [contentId, router]);
 
   const [nama, setNama] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contentId) return;
+    if (!contentId) {
+      alert('Parameter content_id tidak ditemukan');
+      return;
+    }
     setLoading(true);
     try {
       await axios.post(
@@ -32,7 +25,6 @@ export default function FormulirPage() {
         { nama, content_id: contentId }
       );
       alert('Terima kasih, data Anda telah tercatat.');
-      setNama('');
     } catch (err: any) {
       alert('Gagal mengirim: ' + err.message);
     } finally {
