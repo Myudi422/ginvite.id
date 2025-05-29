@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 
-export default function FormulirClient() {
+export default function FormulirPage() {
   const searchParams = useSearchParams();
-  const contentId = searchParams.get('content_id'); // dari query URL
+  const contentId = searchParams.get('content_id');
   const [nama, setNama] = useState('');
   const [loading, setLoading] = useState(false);
 
