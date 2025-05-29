@@ -1,20 +1,39 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 
 function FormulirContent() {
   const searchParams = useSearchParams();
-  const contentId = searchParams.get('content_id');
+  const router = useRouter();
+  const token = searchParams.get('token');
+
   const [nama, setNama] = useState('');
   const [loading, setLoading] = useState(false);
+  const [contentId, setContentId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!token) {
+      router.replace('/');
+      return;
+    }
+
+    try {
+      const decoded = atob(token);
+      const payload = JSON.parse(decoded);
+      if (!payload.contentId || isNaN(payload.contentId)) {
+        throw new Error('Invalid token');
+      }
+      setContentId(payload.contentId);
+    } catch (err) {
+      router.replace('/');
+    }
+  }, [token, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const contentIdNumber = parseInt(contentId || '', 10);
-    if (!nama || isNaN(contentIdNumber)) {
+    if (!nama || !contentId) {
       alert('Nama dan content_id diperlukan.');
       return;
     }
@@ -23,7 +42,7 @@ function FormulirContent() {
     try {
       await axios.post(
         'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=qr',
-        { nama, content_id: contentIdNumber }
+        { nama, content_id: contentId }
       );
       alert('Terima kasih, data Anda telah tercatat.');
     } catch (err: any) {

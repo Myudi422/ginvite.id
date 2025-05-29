@@ -64,10 +64,10 @@ export default function QRManagePage() {
           <ScanTab contentId={contentId} userId={userId} title={decodedTitle} />
         )}
         {tab === TabOption.Generate && (
-          <GenerateTab contentId={contentId} userId={userId} title={decodedTitle} />
+          <GenerateTab contentId={contentId} />
         )}
         {tab === TabOption.Undangan && (
-          <UndanganTab contentId={contentId} userId={userId} title={decodedTitle} />
+          <UndanganTab contentId={contentId} />
         )}
       </main>
     </div>
@@ -147,7 +147,7 @@ function ScanTab({ contentId, userId, title }: { contentId: number; userId: numb
   );
 }
 
-function GenerateTab({ contentId, userId, title }: { contentId: number; userId: number; title: string }) {
+function GenerateTab({ contentId, }: { contentId: number; }) {
   const [name, setName] = useState('');
 
   return (
@@ -175,13 +175,15 @@ function GenerateTab({ contentId, userId, title }: { contentId: number; userId: 
   );
 }
 
-function UndanganTab({ contentId, userId, title }: { contentId: number; userId: number; title: string }) {
+function UndanganTab({ contentId }: { contentId: number }) {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const qrValue = `${baseUrl}/formulir?content_id=${contentId}&user_id=${userId}&title=${encodeURIComponent(title)}`;
+  const payload = JSON.stringify({ contentId });
+  const token = typeof window !== 'undefined' ? btoa(payload) : '';
+  const qrValue = `${baseUrl}/formulir?token=${token}`;
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow max-w-md mx-auto text-center">
-      <h2 className="text-lg font-medium mb-4">Undangan QR ke Formulir</h2>
+      <h2 className="text-lg font-medium mb-4">QR Formulir</h2>
       <QRCode value={qrValue} size={200} />
     </div>
   );
