@@ -155,79 +155,112 @@ function ScanTab({ contentId, userId, title }: { contentId: number; userId: numb
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow">
-      <h2 className="text-lg font-medium mb-4 text-center">Scan QR Tamu</h2>
-      <div id="qr-reader" className="w-full max-w-md aspect-square mx-auto" />
-      {showModal && <Modal data={scanData!} onOK={handleOK} onClose={() => setShowModal(false)} />}
-    </div>
+    <>
+      <div className="bg-white p-4 rounded-2xl shadow mb-4">
+        <h2 className="text-lg font-semibold mb-2">Fitur Scan QR:</h2>
+        <p className="text-sm text-gray-600">
+          Perangkat akan menggunakan kamera untuk memindai kode QR yang ditunjukkan tamu setelah fitur kamera diaktifkan.
+        </p>
+      </div>
+
+      <div className="bg-white p-6 rounded-2xl shadow">
+        <h2 className="text-lg font-medium mb-4 text-center">Scan QR Tamu</h2>
+        <div id="qr-reader" className="w-full max-w-3xl aspect-video mx-auto" />
+        {showModal && <Modal data={scanData!} onOK={handleOK} onClose={() => setShowModal(false)} />}
+      </div>
+    </>
   );
 }
 
-function GenerateTab({ contentId, }: { contentId: number; }) {
+
+function GenerateTab({ contentId }: { contentId: number }) {
   const [name, setName] = useState('');
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow max-w-md mx-auto">
-      <h2 className="text-lg font-medium mb-4 text-center">Generate QR Berdasarkan Nama</h2>
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Masukkan nama tamu"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg"
-        />
+    <>
+      <div className="bg-white p-4 rounded-2xl shadow mb-4">
+        <h2 className="text-lg font-semibold mb-2">Fitur Generate QR:</h2>
+        <p className="text-sm text-gray-600">
+          Memungkinkan pembuatan contoh kode QR dengan nama tamu untuk pengujian atau input manual.
+        </p>
       </div>
-      <div className="w-full flex justify-center"> {/* Lebar penuh untuk QR */}
-        {name ? (
-          <div className="w-full flex justify-center"> {/* Kontainer agar QR tetap di tengah */}
-            <QRCode value={name} size={Math.min(300, (document.querySelector('.max-w-md')?.clientWidth || 300) * 0.8)} />
-          </div>
-        ) : (
-          <div className="w-full flex justify-center items-center bg-gray-100 rounded-lg aspect-square">
-            <div className="text-gray-400">QR Preview</div>
-          </div>
-        )}
+
+      <div className="bg-white p-6 rounded-2xl shadow">
+        <h2 className="text-lg font-medium mb-4 text-center">Generate QR Berdasarkan Nama</h2>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Masukkan nama tamu"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-3 py-2 border rounded-lg"
+          />
+        </div>
+        <div className="w-full flex justify-center">
+          {name ? (
+            <div className="w-full flex justify-center">
+              <QRCode
+                value={name}
+                size={Math.min(300, (document.querySelector('#generate-tab')?.clientWidth || 300) * 0.8)}
+              />
+            </div>
+          ) : (
+            <div className="w-full flex justify-center items-center bg-gray-100 rounded-lg aspect-square">
+              <div className="text-gray-400">QR Preview</div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
+
 function UndanganTab({ contentId }: { contentId: number }) {
-  const [isFullScreen, setIsFullScreen] = useState(false); // State untuk mengontrol modal
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const payload = JSON.stringify({ contentId });
   const token = typeof window !== 'undefined' ? btoa(payload) : '';
   const qrValue = `${baseUrl}/formulir?token=${token}`;
 
-  const handleFullscreenClick = () => {
-    setIsFullScreen(true);
-  };
-
-  const handleCloseFullscreen = () => {
-    setIsFullScreen(false);
-  };
+  const handleFullscreenClick = () => setIsFullScreen(true);
+  const handleCloseFullscreen = () => setIsFullScreen(false);
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow max-w-md mx-auto text-center relative"> {/* Tambahkan relative */}
-      <h2 className="text-lg font-medium mb-4">QR Formulir</h2>
-      <div className="w-full flex justify-center relative"> {/* Tambahkan relative */}
-        <QRCode
-          value={qrValue}
-          size={Math.min(300, (document.querySelector('.max-w-md')?.clientWidth || 300) * 0.8)}
-        />
-        <button
-          onClick={handleFullscreenClick}
-          className="absolute top-0 right-0 p-2 bg-gray-100 rounded-md hover:bg-gray-200"
-        >
-          <Maximize className="h-5 w-5" />
-        </button>
+    <>
+      {/* Box Deskripsi Fitur */}
+      <div className="bg-white p-4 rounded-2xl shadow mb-4">
+        <h2 className="text-lg font-semibold mb-2">Fitur Undangan QR:</h2>
+        <p className="text-sm text-gray-600">
+          Menghasilkan kode QR yang dapat dipindai tamu untuk mengisi formulir undangan digital di perangkat mereka.
+        </p>
       </div>
-      <p className="text-sm text-gray-600 mt-4">Pindai kode QR ini untuk mengisi formulir undangan.</p>
-      {isFullScreen && <FullscreenModal qrValue={qrValue} onClose={handleCloseFullscreen} />}
-    </div>
+
+      {/* QR Code Box */}
+      <div className="bg-white p-6 rounded-2xl shadow text-center relative">
+        <h2 className="text-lg font-medium mb-4">QR Formulir</h2>
+        <div className="w-full flex justify-center relative">
+          <QRCode
+            value={qrValue}
+            size={Math.min(300, (document.querySelector('.shadow')?.clientWidth || 300) * 0.8)}
+          />
+          <button
+            onClick={handleFullscreenClick}
+            className="absolute top-0 right-0 p-2 bg-gray-100 rounded-md hover:bg-gray-200"
+          >
+            <Maximize className="h-5 w-5" />
+          </button>
+        </div>
+        <p className="text-sm text-gray-600 mt-4">
+          Pindai kode QR ini untuk mengisi formulir undangan.
+        </p>
+
+        {isFullScreen && <FullscreenModal qrValue={qrValue} onClose={handleCloseFullscreen} />}
+      </div>
+    </>
   );
 }
+
 
 function Spinner() {
   return (
