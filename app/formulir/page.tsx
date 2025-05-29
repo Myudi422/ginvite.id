@@ -1,23 +1,18 @@
-/* app/formulir/page.tsx */
 'use client';
 
 import React, { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 
-export default function FormulirPage() {
-  const params = useSearchParams();
-  const contentId = params.get('content_id');
+interface FormulirClientProps {
+  contentId: string;
+}
 
+export default function FormulirClient({ contentId }: FormulirClientProps) {
   const [nama, setNama] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contentId) {
-      alert('Parameter content_id tidak ditemukan');
-      return;
-    }
     setLoading(true);
     try {
       await axios.post(
