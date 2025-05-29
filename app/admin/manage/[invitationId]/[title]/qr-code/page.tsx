@@ -22,10 +22,9 @@ export default function QRManagePage() {
     let scanner: Html5QrcodeScanner | null = null;
 
     if (tab === 'scan') {
-      // Inisiasi scanner pada elemen dengan id "qr-reader"
       scanner = new Html5QrcodeScanner(
         'qr-reader',
-        { fps: 10, qrbox: 250 },
+        { fps: 10, rememberLastUsedCamera: false },
         false
       );
       scanner.render(
@@ -114,9 +113,14 @@ export default function QRManagePage() {
 
         {/* SCAN TAB */}
         {tab === 'scan' && (
-          <div className="bg-white p-6 rounded-2xl shadow w-full max-w-md mx-auto">
+          <div className="bg-white p-6 rounded-2xl shadow w-full mx-auto">
             <h2 className="text-lg font-medium mb-4 text-center">Scan QR Tamu</h2>
-            <div id="qr-reader" className="mx-auto" style={{ maxWidth: '100%' }}></div>
+            <div className="flex justify-center">
+              <div
+                id="qr-reader"
+                className="w-full max-w-md aspect-square"
+              />
+            </div>
 
             {showModal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -149,18 +153,29 @@ export default function QRManagePage() {
             <h2 className="text-lg font-medium mb-4 text-center">
               Generate QR Berdasarkan Nama
             </h2>
-            <input
-              type="text"
-              placeholder="Masukkan nama tamu"
-              value={nameToGen}
-              onChange={(e) => setNameToGen(e.target.value)}
-              className="w-full mb-4 px-3 py-2 border rounded-lg"
-            />
-            {nameToGen && (
-              <div className="flex justify-center">
-                <QRCode value={nameToGen} size={200} />
+            <div className="grid grid-cols-2 gap-8 items-start">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Masukkan nama tamu"
+                  value={nameToGen}
+                  onChange={(e) => setNameToGen(e.target.value)}
+                  className="w-full mb-4 px-3 py-2 border rounded-lg"
+                />
+                <p className="text-sm text-gray-600">
+                  Masukkan nama tamu di kolom kiri, dan QR akan muncul di kanan.
+                </p>
               </div>
-            )}
+              <div className="flex justify-center">
+                {nameToGen ? (
+                  <QRCode value={nameToGen} size={200} />
+                ) : (
+                  <div className="w-[200px] h-[200px] bg-gray-100 rounded-lg flex justify-center items-center text-gray-400">
+                    QR Preview
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </main>
