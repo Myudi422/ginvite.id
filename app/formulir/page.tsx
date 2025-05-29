@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import axios from 'axios';
 
-export default function FormulirPage() {
+function FormulirContent() {
   const searchParams = useSearchParams();
   const contentId = searchParams.get('content_id');
   const [nama, setNama] = useState('');
@@ -14,7 +14,6 @@ export default function FormulirPage() {
     e.preventDefault();
 
     const contentIdNumber = parseInt(contentId || '', 10);
-
     if (!nama || isNaN(contentIdNumber)) {
       alert('Nama dan content_id diperlukan.');
       return;
@@ -24,10 +23,7 @@ export default function FormulirPage() {
     try {
       await axios.post(
         'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=qr',
-        {
-          nama,
-          content_id: contentIdNumber,
-        }
+        { nama, content_id: contentIdNumber }
       );
       alert('Terima kasih, data Anda telah tercatat.');
     } catch (err: any) {
@@ -38,30 +34,38 @@ export default function FormulirPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-2xl shadow max-w-md w-full space-y-4"
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-6 rounded-2xl shadow max-w-md w-full space-y-4"
+    >
+      <h1 className="text-xl font-semibold text-center">Formulir Absensi</h1>
+      <input
+        type="text"
+        placeholder="Nama"
+        value={nama}
+        onChange={(e) => setNama(e.target.value)}
+        className="w-full px-3 py-2 border rounded-lg"
+        required
+      />
+      <button
+        type="submit"
+        disabled={loading}
+        className={`w-full py-2 rounded-lg text-white ${
+          loading ? 'bg-gray-400' : 'bg-pink-600'
+        }`}
       >
-        <h1 className="text-xl font-semibold text-center">Formulir Absensi</h1>
-        <input
-          type="text"
-          placeholder="Nama"
-          value={nama}
-          onChange={(e) => setNama(e.target.value)}
-          className="w-full px-3 py-2 border rounded-lg"
-          required
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 rounded-lg text-white ${
-            loading ? 'bg-gray-400' : 'bg-pink-600'
-          }`}
-        >
-          {loading ? 'Mengirim...' : 'Kirim'}
-        </button>
-      </form>
+        {loading ? 'Mengirim...' : 'Kirim'}
+      </button>
+    </form>
+  );
+}
+
+export default function Page() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <Suspense fallback={<p>Loading...</p>}>
+        <FormulirContent />
+      </Suspense>
     </div>
   );
 }
