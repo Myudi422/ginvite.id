@@ -62,26 +62,45 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
   }, [getValues, userId, invitationId, slug, onSavedSlug, onStatusChange]);
 
   const giftEnabled = useWatch({ control, name: 'plugin.gift' });
-  useEffect(() => { if (!giftEnabled) { setValue('plugin.youtube_link', ''); autoSave(); } }, [giftEnabled, setValue, autoSave]);
+  useEffect(() => { 
+    if (!giftEnabled) {
+      setValue('plugin.youtube_link', '');
+      autoSave();
+    }
+  }, [giftEnabled, setValue, autoSave]);
 
   const whatsappNotifEnabled = useWatch({ control, name: 'plugin.whatsapp_notif' });
-  useEffect(() => { if (whatsappNotifEnabled && !getValues('plugin.whatsapp_number')) { } }, [whatsappNotifEnabled, getValues, setValue]);
+  useEffect(() => { 
+    if (whatsappNotifEnabled && !getValues('plugin.whatsapp_number')) { }
+  }, [whatsappNotifEnabled, getValues, setValue]);
 
-  const handleToggle = useCallback((name: string, value: boolean) => { setValue(name as any, value); autoSave(); }, [setValue, autoSave]);
+  const handleToggle = useCallback((name: string, value: boolean) => {
+    setValue(name as any, value);
+    autoSave();
+  }, [setValue, autoSave]);
+  
   const handleLinkChange = useCallback((v: string) => setValue('plugin.youtube_link', v), [setValue]);
   const handleWaNumberChange = useCallback((v: string) => {
-    let f = v.trim(); if (/^0/.test(f)) f = '62' + f.replace(/^0+/, ''); setValue('plugin.whatsapp_number', f);
+    let f = v.trim(); 
+    if (/^0/.test(f)) f = '62' + f.replace(/^0+/, '');
+    setValue('plugin.whatsapp_number', f);
   }, [setValue]);
+  
   const handleBlur = useCallback(() => autoSave(), [autoSave]);
-
+  
+  // Tambahan switch baru untuk QR CODE
   const pluginItems = [
-    { name: 'plugin.rsvp', label: 'RSVP (Hadir/Tidak)', info: '/samples/rsvp.png' },
-    { name: 'plugin.navbar', label: 'Navigasi Bar', info: '/samples/navbar.png' },
-    { name: 'plugin.gift', label: (<><span>Video</span> <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></>), info: '/samples/video.png' },
-    { name: 'plugin.whatsapp_notif', label: (<><span>Whatsapp Notif</span> <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></>), info: '/samples/whatsapp.png' },
+    { name: 'plugin.rsvp', label: 'RSVP (Hadir/Tidak)', info: '/rsvp.jpg' },
+    { name: 'plugin.navbar', label: 'Navigasi Bar', info: '/navigasi.jpg' },
+    { name: 'plugin.gift', label: (<><span>Video</span> <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></>), info: '/video.jpg' },
+    { name: 'plugin.whatsapp_notif', label: (<><span>Whatsapp Notif</span> <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></>), info: '/wanotif.jpg' },
+    { name: 'plugin.qrcode', label: 'QR CODE', info: '/qrcode.jpg' },
   ];
-
-  const openInfo = (img: string) => { setInfoImage(img); setInfoOpen(true); };
+  
+  const openInfo = (img: string) => { 
+    setInfoImage(img); 
+    setInfoOpen(true); 
+  };
 
   return (
     <>
@@ -100,7 +119,12 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
               <FormItem className="flex items-center justify-between rounded-md border p-4" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center space-x-2">
                   <FormLabel className="text-base flex items-center space-x-1">{label}</FormLabel>
-                  <motion.div animate={{ scale: [1,1.2,1] }} transition={{ repeat: Infinity, duration:2 }} className="cursor-pointer" onClick={() => openInfo(info)}>
+                  <motion.div 
+                    animate={{ scale: [1, 1.2, 1] }} 
+                    transition={{ repeat: Infinity, duration: 2 }} 
+                    className="cursor-pointer" 
+                    onClick={() => openInfo(info)}
+                  >
                     <Info className="w-4 h-4 text-blue-500" />
                   </motion.div>
                 </div>
@@ -116,7 +140,13 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
               <FormItem className="flex flex-col space-y-1">
                 <FormLabel>Link YouTube</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Masukkan link YouTube..." disabled={saving} onChange={e => handleLinkChange(e.target.value)} onBlur={handleBlur} />
+                  <Input 
+                    {...field} 
+                    placeholder="Masukkan link YouTube..." 
+                    disabled={saving} 
+                    onChange={e => handleLinkChange(e.target.value)} 
+                    onBlur={handleBlur} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -128,7 +158,14 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
               <FormItem className="flex flex-col space-y-1">
                 <FormLabel>Nomor WhatsApp</FormLabel>
                 <FormControl>
-                  <Input {...field} type="tel" placeholder="Masukkan nomor WhatsApp..." disabled={saving} onChange={e => handleWaNumberChange(e.target.value)} onBlur={handleBlur} />
+                  <Input 
+                    {...field} 
+                    type="tel" 
+                    placeholder="Masukkan nomor WhatsApp..." 
+                    disabled={saving} 
+                    onChange={e => handleWaNumberChange(e.target.value)} 
+                    onBlur={handleBlur} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
