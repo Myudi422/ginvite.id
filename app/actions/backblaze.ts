@@ -1,4 +1,3 @@
-// app/actions/backblaze.ts
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -25,16 +24,22 @@ interface SavePayload {
   mapsLink: string;
 }
 
-// Endpoints
-const UPLOAD_URL = 'https://ccgnimex.my.id/v2/android/ginvite/page/backblaze.php';
-const DELETE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_hapus.php';
-const SAVE_URL   = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
+// Endpoints diambil dari variabel lingkungan
+const UPLOAD_URL = process.env.UPLOAD_URL;
+const DELETE_URL = process.env.DELETE_URL;
+const SAVE_URL = process.env.SAVE_CONTENT_URL; // Menggunakan kembali SAVE_CONTENT_URL yang sudah ada
 
 export async function uploadImageToBackblaze(
   formData: FormData,
   user_id: number,
   id: number
 ): Promise<string> {
+  // Pastikan UPLOAD_URL telah diatur
+  if (!UPLOAD_URL) {
+    console.error('UPLOAD_URL is not defined in environment variables.');
+    throw new Error('Server configuration error: UPLOAD_URL is missing.');
+  }
+
   // append user and id ke FormData
   formData.append('user_id', String(user_id));
   formData.append('id', String(id));
@@ -51,6 +56,12 @@ export async function uploadImageToBackblaze(
 }
 
 export async function deleteImageFromBackblaze(imageUrl: string): Promise<void> {
+  // Pastikan DELETE_URL telah diatur
+  if (!DELETE_URL) {
+    console.error('DELETE_URL is not defined in environment variables.');
+    throw new Error('Server configuration error: DELETE_URL is missing.');
+  }
+
   const body = new URLSearchParams({ imageUrl });
   const res = await fetch(DELETE_URL, {
     method: 'POST',
@@ -64,6 +75,12 @@ export async function deleteImageFromBackblaze(imageUrl: string): Promise<void> 
 }
 
 export async function saveGalleryContent(payload: SavePayload) {
+  // Pastikan SAVE_URL telah diatur
+  if (!SAVE_URL) {
+    console.error('SAVE_CONTENT_URL is not defined in environment variables.');
+    throw new Error('Server configuration error: SAVE_CONTENT_URL is missing.');
+  }
+
   const res = await fetch(SAVE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

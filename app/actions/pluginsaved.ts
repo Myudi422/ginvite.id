@@ -1,7 +1,7 @@
-// app/actions/pluginsaved.ts
 'use server';
 
-const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
+// Mengambil SAVE_CONTENT_URL dari variabel lingkungan
+const SAVE_URL = process.env.SAVE_CONTENT_URL;
 
 interface PluginSavePayload {
   user_id: number;
@@ -19,6 +19,12 @@ interface PluginSavePayload {
  * Mengirim data plugin beserta metadata event resepsi.
  */
 export async function pluginSaveAction(payload: PluginSavePayload) {
+  // Pastikan SAVE_URL telah diatur
+  if (!SAVE_URL) {
+    console.error('SAVE_CONTENT_URL is not defined in environment variables.');
+    throw new Error('Server configuration error: SAVE_CONTENT_URL is missing.');
+  }
+
   const res = await fetch(SAVE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
