@@ -5,8 +5,9 @@ import { Switch } from '@/components/ui/switch';
 import { Collapsible } from './Collapsible';
 import { Crown, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
+import { pluginSaveAction } from '@/app/actions/pluginsaved';
 
 interface PluginSectionProps {
   userId: number;
@@ -15,8 +16,6 @@ interface PluginSectionProps {
   onSavedSlug: string;
   onStatusChange?: (newStatus: 0 | 1) => void;
 }
-
-const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
 
 export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatusChange }: PluginSectionProps) {
   const { control, getValues, setValue } = useFormContext();
@@ -43,16 +42,14 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
         location: data.event.resepsi?.location,
         mapsLink: data.event.resepsi?.mapsLink,
       };
-      const res = await fetch(SAVE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (json.status !== 'success') throw new Error(json.message || 'Auto-save gagal');
-      onStatusChange?.(json.data.status as 0 | 1);
-      const iframe = document.getElementById('previewFrame');
-      if (iframe) iframe.setAttribute('src', `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`);
+
+      const result = await pluginSaveAction(payload);
+      onStatusChange?.(result.status as 0 | 1);
+
+      const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
+      if (iframe) {
+        iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
+      }
     } catch (err: any) {
       setError(err.message);
       console.error('Error auto-save:', err);
@@ -62,7 +59,7 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
   }, [getValues, userId, invitationId, slug, onSavedSlug, onStatusChange]);
 
   const giftEnabled = useWatch({ control, name: 'plugin.gift' });
-  useEffect(() => { 
+  useEffect(() => {
     if (!giftEnabled) {
       setValue('plugin.youtube_link', '');
       autoSave();
@@ -70,25 +67,37 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
   }, [giftEnabled, setValue, autoSave]);
 
   const whatsappNotifEnabled = useWatch({ control, name: 'plugin.whatsapp_notif' });
-  useEffect(() => { 
-    if (whatsappNotifEnabled && !getValues('plugin.whatsapp_number')) { }
+  useEffect(() => {
+    if (whatsappNotifEnabled && !getValues('plugin.whatsapp_number')) {
+      // You can set default or prompt user here
+    }
   }, [whatsappNotifEnabled, getValues, setValue]);
 
-  const handleToggle = useCallback((name: string, value: boolean) => {
-    setValue(name as any, value);
-    autoSave();
-  }, [setValue, autoSave]);
-  
-  const handleLinkChange = useCallback((v: string) => setValue('plugin.youtube_link', v), [setValue]);
-  const handleWaNumberChange = useCallback((v: string) => {
-    let f = v.trim(); 
-    if (/^0/.test(f)) f = '62' + f.replace(/^0+/, '');
-    setValue('plugin.whatsapp_number', f);
+  const handleToggle = useCallback(
+    (name: string, value: boolean) => {
+      setValue(name as any, value);
+      autoSave();
+    },
+    [setValue, autoSave]
+  );
+
+  const handleLinkChange = useCallback((v: string) => {
+    setValue('plugin.youtube_link', v);
   }, [setValue]);
-  
+
+  const handleWaNumberChange = useCallback(
+    (v: string) => {
+      let formatted = v.trim();
+      if (/^0/.test(formatted)) {
+        formatted = '62' + formatted.replace(/^0+/, '');
+      }
+      setValue('plugin.whatsapp_number', formatted);
+    },
+    [setValue]
+  );
+
   const handleBlur = useCallback(() => autoSave(), [autoSave]);
-  
-  // Tambahan switch baru untuk QR CODE
+
   const pluginItems = [
     { name: 'plugin.rsvp', label: 'RSVP (Hadir/Tidak)', info: '/rsvp.jpg' },
     { name: 'plugin.navbar', label: 'Navigasi Bar', info: '/navigasi.jpg' },
@@ -96,10 +105,10 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
     { name: 'plugin.whatsapp_notif', label: (<><span>Whatsapp Notif</span> <Crown className="inline-block w-4 h-4 text-yellow-500 ml-1" /></>), info: '/wanotif.jpg' },
     { name: 'plugin.qrcode', label: 'QR CODE', info: '/qrcode.jpg' },
   ];
-  
-  const openInfo = (img: string) => { 
-    setInfoImage(img); 
-    setInfoOpen(true); 
+
+  const openInfo = (img: string) => {
+    setInfoImage(img);
+    setInfoOpen(true);
   };
 
   return (
@@ -119,10 +128,10 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
               <FormItem className="flex items-center justify-between rounded-md border p-4" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center space-x-2">
                   <FormLabel className="text-base flex items-center space-x-1">{label}</FormLabel>
-                  <motion.div 
-                    animate={{ scale: [1, 1.2, 1] }} 
-                    transition={{ repeat: Infinity, duration: 2 }} 
-                    className="cursor-pointer" 
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    className="cursor-pointer"
                     onClick={() => openInfo(info)}
                   >
                     <Info className="w-4 h-4 text-blue-500" />
@@ -140,12 +149,12 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
               <FormItem className="flex flex-col space-y-1">
                 <FormLabel>Link YouTube</FormLabel>
                 <FormControl>
-                  <Input 
-                    {...field} 
-                    placeholder="Masukkan link YouTube..." 
-                    disabled={saving} 
-                    onChange={e => handleLinkChange(e.target.value)} 
-                    onBlur={handleBlur} 
+                  <Input
+                    {...field}
+                    placeholder="Masukkan link YouTube..."
+                    disabled={saving}
+                    onChange={e => handleLinkChange(e.target.value)}
+                    onBlur={handleBlur}
                   />
                 </FormControl>
                 <FormMessage />
@@ -158,13 +167,13 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
               <FormItem className="flex flex-col space-y-1">
                 <FormLabel>Nomor WhatsApp</FormLabel>
                 <FormControl>
-                  <Input 
-                    {...field} 
-                    type="tel" 
-                    placeholder="Masukkan nomor WhatsApp..." 
-                    disabled={saving} 
-                    onChange={e => handleWaNumberChange(e.target.value)} 
-                    onBlur={handleBlur} 
+                  <Input
+                    {...field}
+                    type="tel"
+                    placeholder="Masukkan nomor WhatsApp..."
+                    disabled={saving}
+                    onChange={e => handleWaNumberChange(e.target.value)}
+                    onBlur={handleBlur}
                   />
                 </FormControl>
                 <FormMessage />

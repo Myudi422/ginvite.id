@@ -20,11 +20,8 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { FiCopy, FiExternalLink } from 'react-icons/fi'
 import { QoutesSection } from './QoutesSection'; // Import QoutesSection
+import { saveContentAction, toggleStatusAction, midtransAction } from '@/app/actions/indexcontent';
 
-// URL endpoints
-const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
-const TOGGLE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status';
-const MIDTRANS_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=midtrans';
 
 interface Props {
   previewUrl: string;
@@ -123,38 +120,32 @@ export function PernikahanForm({
   };
 
   // save content
-  const onSave = async () => {
-    setSaving(true);
-    setError(null);
-    try {
-      const data = form.getValues();
-      const slugToSave = inputSlug;
-      const { gift, whatsapp_notif } = data.plugin;
-      const jumlah = gift || whatsapp_notif ? 100000 : 40000;
-      const payload = {
-        user_id: userId,
-        id: invitationId,
-        title: slugToSave,
-        theme_id: data.theme,
-        content: JSON.stringify({ ...data, event: data.event, jumlah }),
-      };
+ const onSave = async () => {
+  setSaving(true);
+  setError(null);
 
-      const res = await fetch(SAVE_URL, { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
-      const json = await res.json();
-      if (json.status !== 'success') throw new Error(json.message);
+  try {
+    const data = form.getValues();
+    const jumlah = (data.plugin.gift || data.plugin.whatsapp_notif) ? 100000 : 40000;
+    const payload = {
+      user_id: userId,
+      id: invitationId,
+      title: inputSlug,
+      theme_id: data.theme,
+      content: JSON.stringify({ ...data, event: data.event, jumlah }),
+    };
 
-      // langsung gunakan status server
-      const serverStatus = json.data.status as 0 | 1;
-      setStatus(serverStatus);
-      refreshPreview();
-      setSlug(slugToSave);
-      router.replace(`/admin/formulir/${userId}/${encodeURIComponent(slugToSave)}`);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
+    const result = await saveContentAction(payload);
+    setStatus(result.status as 0 | 1);
+    setSlug(inputSlug);
+    refreshPreview();
+    router.replace(`/admin/formulir/${userId}/${encodeURIComponent(inputSlug)}`);
+  } catch (err: any) {
+    setError(err.message);
+  } finally {
+    setSaving(false);
+  }
+};
 
   // refresh preview iframe
   const refreshPreview = () => {
@@ -165,50 +156,61 @@ export function PernikahanForm({
     }
   };
 
-  // finalize toggle: toggle_status API
-  const finalizeToggle = async (newStatus: 0 | 1) => {
-    const res = await fetch(TOGGLE_URL, {
-      method: 'POST', headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify({ user_id: userId, id: invitationId, title: slug, status: newStatus }),
-    });
-    const j = await res.json();
-    if (j.status !== 'success') throw new Error(j.message);
-    setStatus(j.data.status);
-  };
-
-  // handler toggle aktif/non-aktif
   const onToggle = async () => {
-    setSaving(true);
-    setError(null);
-    try {
-      if (status === 0) {
-        const mid = await fetch(MIDTRANS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId, id_content: invitationId, title: slug }) });
-        const mjson = await mid.json();
-        if (mjson.status === 'paid') {
-          await finalizeToggle(1);
-          refreshPreview();
-        } else if (mjson.status === 'pending') {
-          // @ts-ignore
-          window.snap.pay(mjson.snap_token, {
-            onSuccess: async () => {
-              await finalizeToggle(1);
-              refreshPreview();
-            },
-            onError: (e: any) => setError('Pembayaran gagal: ' + e),
-          });
-        } else {
-          throw new Error(mjson.message || 'Midtrans error');
-        }
-      } else {
-        await finalizeToggle(0);
+  setSaving(true);
+  setError(null);
+
+  try {
+    if (status === 0) {
+      const mjson = await midtransAction({
+        user_id: userId,
+        id_content: invitationId,
+        title: slug,
+      });
+
+      if (mjson.status === 'paid') {
+        const toggled = await toggleStatusAction({
+          user_id: userId,
+          id: invitationId,
+          title: slug,
+          status: 1,
+        });
+        setStatus(toggled.status);
         refreshPreview();
+      } else {
+        // pending -> buka Snap
+        // @ts-ignore
+        window.snap.pay(mjson.snap_token, {
+          onSuccess: async () => {
+            const toggled = await toggleStatusAction({
+              user_id: userId,
+              id: invitationId,
+              title: slug,
+              status: 1,
+            });
+            setStatus(toggled.status);
+            refreshPreview();
+          },
+          onError: (e: any) => setError('Pembayaran gagal: ' + e),
+        });
       }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
+    } else {
+      // jika sudah aktif, langsung non-aktifkan
+      const toggled = await toggleStatusAction({
+        user_id: userId,
+        id: invitationId,
+        title: slug,
+        status: 0,
+      });
+      setStatus(toggled.status);
+      refreshPreview();
     }
-  };
+  } catch (err: any) {
+    setError(err.message);
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
     <FormProvider {...form}>
@@ -226,6 +228,7 @@ export function PernikahanForm({
             className="flex-1"
             required                         // <-- HTML5 required
             value={inputSlug}
+            disabled // <-- ADD THIS LINE TO DISABLE THE INPUT
             onChange={e => {
               const raw = e.target.value
               const newSlug = raw

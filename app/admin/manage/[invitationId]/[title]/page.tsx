@@ -112,7 +112,6 @@ export default function ManagePage() {
       </div>
 
       <div className="p-6 space-y-6">
-        <div className="text-sm text-gray-500">Content ID: {id_content_user}</div>
 
         <div className="bg-white shadow rounded-2xl p-4 flex items-center space-x-4">
           <Wallet className="h-8 w-8 text-pink-600" />
