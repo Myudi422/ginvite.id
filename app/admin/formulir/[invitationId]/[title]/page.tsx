@@ -1,18 +1,17 @@
-// app/admin/formulir/[invitationId]/[title]/page.tsx
-
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ChevronLeftIcon } from 'lucide-react';
 import jwt from 'jsonwebtoken';
 import { PernikahanForm } from './PernikahanForm';
+import LivePreview from './LivePreview';
 
 const SECRET = 'very-secret-key';
 
 interface PageProps {
   params: {
-    invitationId: string; // tetap pakai nama invitationId untuk userId
-    title:        string;
+    invitationId: string; // tetapkan nama invitationId untuk mendapatkan userId
+    title: string;
   };
 }
 
@@ -28,7 +27,7 @@ export default async function Page({ params }: PageProps) {
   let payload: any;
   try {
     payload = jwt.verify(token, SECRET);
-  } catch {
+  } catch (error) {
     return redirect('/login');
   }
   const jwtUserId = payload.data.userId as number;
@@ -66,17 +65,17 @@ export default async function Page({ params }: PageProps) {
   const eventRaw = contentData.event || {};
   const initialEventData = {
     resepsi: {
-      date:     eventRaw.resepsi?.date     ?? '',
-      note:     eventRaw.resepsi?.note     ?? '',
-      time:     eventRaw.resepsi?.time     ?? '',
+      date: eventRaw.resepsi?.date ?? '',
+      note: eventRaw.resepsi?.note ?? '',
+      time: eventRaw.resepsi?.time ?? '',
       location: eventRaw.resepsi?.location ?? '',
       mapsLink: eventRaw.resepsi?.mapsLink ?? '',
     },
     akad: eventRaw.akad
       ? {
-          date:     eventRaw.akad.date,
-          note:     eventRaw.akad.note,
-          time:     eventRaw.akad.time,
+          date: eventRaw.akad.date,
+          note: eventRaw.akad.note,
+          time: eventRaw.akad.time,
           location: eventRaw.akad.location,
           mapsLink: eventRaw.akad.mapsLink,
         }
@@ -84,10 +83,9 @@ export default async function Page({ params }: PageProps) {
   };
   const { event, ...restContentData } = contentData;
 
-  // 5) Choose FormComponent
-  const FormComponent = record.category_name === 'pernikahan'
-    ? PernikahanForm
-    : null;
+  // 5) Choose FormComponent berdasarkan jenis acara
+  const FormComponent =
+    record.category_name === 'pernikahan' ? PernikahanForm : null;
 
   // 6) Preview URL
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;
@@ -106,24 +104,8 @@ export default async function Page({ params }: PageProps) {
 
       <div className="py-2 px-2">
         <div className="flex flex-col lg:flex-row items-stretch h-full max-w-7xl mx-auto gap-4">
-          
-          {/* Preview */}
-          <div className="
-            order-first lg:order-last
-            w-full lg:w-1/2
-            bg-white shadow-md rounded-lg overflow-hidden
-            flex flex-col
-            lg:sticky lg:top-16 lg:flex-1 lg:h-[calc(100vh-64px)]
-          ">
-            <div className="w-full aspect-[9/16] lg:aspect-auto flex-1">
-              <iframe
-                id="previewFrame"
-                src={previewUrl}
-                className="w-full h-full"
-                title="Pratinjau Undangan"
-              />
-            </div>
-          </div>
+          {/* Live Preview dengan toggle */}
+          <LivePreview previewUrl={previewUrl} />
 
           {/* Form */}
           <div className="order-last lg:order-first w-full lg:w-1/2 bg-white shadow-md rounded-lg p-6 flex flex-col">
@@ -143,7 +125,6 @@ export default async function Page({ params }: PageProps) {
               </p>
             )}
           </div>
-
         </div>
       </div>
     </div>

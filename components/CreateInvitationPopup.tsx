@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Props {
   userId: number;
@@ -13,6 +13,12 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
   const [slug, setSlug] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let newSlug = e.target.value.toLowerCase().replace(/\s+/g, '-'); // Ubah spasi jadi - dan lowercase
+    newSlug = newSlug.replace(/[^a-z0-9-]/g, ''); // Hapus karakter selain huruf, angka, dan -
+    setSlug(newSlug);
+  };
 
   const handleCreateInvitation = async () => {
     setLoading(true);
@@ -71,6 +77,10 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
           </div>
         )}
 
+        <div className="mb-4 p-3 bg-yellow-100/50 rounded-md border border-yellow-200/50 text-yellow-700 text-sm">
+  <strong className="font-semibold">Penting:</strong> Judul (Slug) tidak bisa diubah setelah dibuat. Hapus formulir untuk mengganti judul.
+</div>
+
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-pink-700 mb-2">
@@ -97,7 +107,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
               type="text"
               placeholder="contoh: pernikahan-andi-siti"
               value={slug}
-              onChange={(e) => setSlug(e.target.value)}
+              onChange={handleSlugChange} // Gunakan fungsi handleSlugChange
               className="w-full px-4 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-pink-200/50
                 focus:ring-2 focus:ring-pink-300 focus:border-transparent text-pink-700 placeholder-pink-400
                 transition-all shadow-sm"
