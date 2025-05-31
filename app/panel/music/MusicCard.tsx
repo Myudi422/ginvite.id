@@ -16,15 +16,23 @@ interface MusicCardProps {
 
 export default function MusicCard({ music }: MusicCardProps) {
   return (
-    <div className="bg-white/30 backdrop-blur-md rounded-2xl p-4 relative
-                    border border-white/20 shadow-md hover:shadow-lg transition-all
-                    hover:border-pink-200 group">
-      <h3 className="text-lg font-semibold text-pink-800 mb-2">{music.Nama_lagu}</h3>
-      <p className="text-sm text-pink-700 mb-4">Kategori: <span className="font-medium">{music.kategori}</span></p>
+    <div
+      className="bg-white/30 backdrop-blur-md rounded-2xl p-4 relative
+                 border border-white/20 shadow-md hover:shadow-lg transition-all
+                 hover:border-pink-200 group"
+    >
+      <h3 className="text-lg font-semibold text-pink-800 mb-2">
+        {music.Nama_lagu}
+      </h3>
+      <div className="inline-block mb-4">
+        <span className="px-2 py-1 bg-pink-500 text-white rounded-full text-sm">
+          {music.kategori}
+        </span>
+      </div>
       <button
         onClick={() => window.open(music.link_lagu, '_blank')}
         className="absolute top-4 right-4 text-pink-500 hover:text-pink-600"
-        title="Buka link"
+        title="Putar lagu"
       >
         <PlayIcon className="h-5 w-5" />
       </button>

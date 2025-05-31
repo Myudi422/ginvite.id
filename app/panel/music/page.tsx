@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import UploadMusicForm from './UploadMusicForm';
 import MusicCard from './MusicCard';
 
-// Definisi tipe musik
 interface Music {
   Nama_lagu: string;
   link_lagu: string;
@@ -17,12 +16,16 @@ export default function MusicPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fungsi fetch daftar musik
+  const [searchText, setSearchText] = useState('');
+  const [filterKategori, setFilterKategori] = useState<string>('');
+
   const fetchMusics = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=musiclist');
+      const res = await fetch(
+        'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=musiclist'
+      );
       const data = await res.json();
       if (data.status === 'success') {
         setMusics(data.data);
@@ -41,21 +44,66 @@ export default function MusicPage() {
     fetchMusics();
   }, []);
 
+  // Ambil daftar kategori unik dari data
+  const categories = Array.from(new Set(musics.map((m) => m.kategori))).sort();
+
+  // Filter berdasarkan searchText & filterKategori
+  const filteredMusics = musics.filter((m) => {
+    const matchesSearch = m.Nama_lagu
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+    const matchesKategori =
+      filterKategori === '' || m.kategori === filterKategori;
+    return matchesSearch && matchesKategori;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-100 to-white p-6 md:p-8">
       {/* HEADER */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 
-                       bg-clip-text text-transparent mb-2">
+        <h1
+          className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 
+                     bg-clip-text text-transparent mb-2"
+        >
           Kelola Musik
         </h1>
         <p className="text-sm text-pink-600">
-          Tambahkan dan lihat daftar lagu untuk undangan Anda
+          Tambahkan dan cari lagu berdasarkan kategori atau nama
         </p>
       </div>
 
       {/* FORM UPLOAD */}
       <UploadMusicForm onUploadSuccess={fetchMusics} />
+
+      {/* FILTER & SEARCH (FULL WIDTH, RATA SEJULUR) */}
+      <div className="flex flex-col md:flex-row items-center gap-4 mb-6 w-full">
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="Cari judul lagu..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          className="flex-1 px-4 py-2 rounded-xl border border-pink-200
+                     focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white/50 backdrop-blur-md
+                     placeholder:text-pink-400 text-pink-600 shadow-sm"
+        />
+
+        {/* Kategori Dropdown */}
+        <select
+          value={filterKategori}
+          onChange={(e) => setFilterKategori(e.target.value)}
+          className="flex-1 px-4 py-2 rounded-xl border border-pink-200
+                     focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white/50 backdrop-blur-md
+                     text-pink-600 shadow-sm"
+        >
+          <option value="">Semua Kategori</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {/* DAFTAR MUSIK */}
       <div className="mb-4">
@@ -65,13 +113,15 @@ export default function MusicPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {!loading && musics.length === 0 && (
+        {!loading && filteredMusics.length === 0 && (
           <div className="col-span-full text-center py-12">
-            <p className="text-pink-500 text-lg">Belum ada lagu terdaftar.</p>
+            <p className="text-pink-500 text-lg">
+              Tidak ada lagu yang sesuai pencarian.
+            </p>
           </div>
         )}
 
-        {musics.map((music, idx) => (
+        {filteredMusics.map((music, idx) => (
           <MusicCard key={idx} music={music} />
         ))}
       </div>

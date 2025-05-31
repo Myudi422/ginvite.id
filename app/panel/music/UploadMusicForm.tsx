@@ -31,7 +31,7 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
       const file = e.target.files[0];
       setFileMusic(file);
 
-      // Otomatis isi namaLagu dari nama file (tanpa ekstensi)
+      // Ambil nama file tanpa ekstensi untuk isi otomatis "namaLagu"
       const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
       setNamaLagu(nameWithoutExt);
     }
@@ -55,38 +55,40 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
     formData.append('music', fileMusic);
 
     try {
-      // Ganti URL berikut dengan path ke music_upload.php Anda
-      const res = await axios.post(
-        'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=music_upload',
+      const response = await axios.post(
+        // → Ganti URL ini ke lokasi sesungguhnya music_upload.php kalian:
+        'https://ccgnimex.my.id/v2/android/ginvite/page/music_upload.php',
         formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: (ev) => {
+            if (ev.total) {
+              const percent = Math.round((ev.loaded * 100) / ev.total);
               setProgress(percent);
             }
           },
         }
       );
 
-      const data = res.data;
+      // Debug: lihat respons PHP
+      console.log('Response dari PHP:', response.data);
+
+      const data = response.data;
       if (data.success) {
         setMessage('Upload berhasil 🎉');
         setNamaLagu('');
         setKategori(undefined);
         setFileMusic(null);
+        // Setelah upload sukses, refresh daftar musik
         setTimeout(() => {
           setProgress(0);
-          onUploadSuccess(); // refresh list
+          onUploadSuccess();
         }, 500);
       } else {
-        setMessage(`Error: ${data.message}`);
+        setMessage(`Error: ${data.message || 'Upload gagal.'}`);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error waktu upload:', err);
       setMessage('Gagal menghubungi server.');
     } finally {
       setLoading(false);
@@ -139,7 +141,7 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
           </Select>
         </div>
 
-        {/* File MP3 (input bawaan, styling sederhana) */}
+        {/* File MP3 */}
         <div>
           <label className="block text-pink-700 font-medium mb-1">
             File MP3 <span className="text-red-500">*</span>
@@ -155,7 +157,7 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
           />
         </div>
 
-        {/* Progress Bar (tampil hanya saat uploading) */}
+        {/* Progress Bar (hanya tampil saat sedang upload) */}
         {loading && (
           <div>
             <label className="block text-pink-700 font-medium mb-1">
