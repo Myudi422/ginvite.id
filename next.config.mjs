@@ -1,6 +1,6 @@
 // next.config.mjs
 import WebpackObfuscator from 'webpack-obfuscator';
-import path from 'path'; // Import modul 'path' menggunakan sintaks ESM
+import path from 'path';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -18,16 +18,16 @@ const nextConfig = {
       bodySizeLimit: '10MB',
     },
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
+  webpack: (config, { isServer, dev }) => {
+    if (!isServer && !dev) { // Hanya terapkan obfuscator saat build produksi (bukan server dan bukan development)
       config.plugins.push(
         new WebpackObfuscator(
           {
             rotateStringArray: true,
-            // Tambahkan opsi obfuscator lain sesuai kebutuhan Anda
+            // Tambahkan opsi obfuscator lain sesuai kebutuhan Anda untuk produksi
           },
-          ['./_next/static/chunks/**/*.js'], // Pola include untuk chunk JS Next.js
-          [] // Pola exclude (opsional)
+          ['./_next/static/chunks/**/*.js'],
+          []
         )
       );
     }
