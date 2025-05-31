@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette   } from "lucide-react" // Import MusicIcon
+import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette, LayoutDashboardIcon, MessageSquareWarning, Clapperboard   } from "lucide-react" // Import MusicIcon
 import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -23,10 +23,19 @@ interface NestedRoute extends Route {
 
 const routes: NestedRoute[] = [
   { href: "/admin", label: "Dashboard", icon: HomeIcon },
-  { href: "/themes", label: "List Theme", icon: LayoutTemplateIcon },
+  {
+    href: "/manage",
+    label: "Browse",
+    icon: LayoutDashboardIcon,
+    items: [
+      { href: "/tutorial", label: "Tutorial", icon: Clapperboard  },
+      { href: "/wa", label: "Report", icon: MessageSquareWarning  },
+       //
+    ],
+  },
   {
     href: "/panel",
-    label: "Admin Manage",
+    label: "Admin",
     icon: FolderOpenDot,
     items: [
        { href: "/panel", label: "Statistik", icon: ChartArea },

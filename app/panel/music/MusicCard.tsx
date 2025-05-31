@@ -15,14 +15,16 @@ interface MusicCardProps {
 }
 
 export default function MusicCard({ music }: MusicCardProps) {
+  const displayedTitle = music.Nama_lagu.length > 20 ? `${music.Nama_lagu.substring(0, 20)}...` : music.Nama_lagu;
+
   return (
     <div
       className="bg-white/30 backdrop-blur-md rounded-2xl p-4 relative
-                 border border-white/20 shadow-md hover:shadow-lg transition-all
-                 hover:border-pink-200 group"
+               border border-white/20 shadow-md hover:shadow-lg transition-all
+               hover:border-pink-200 group"
     >
-      <h3 className="text-lg font-semibold text-pink-800 mb-2">
-        {music.Nama_lagu}
+      <h3 className="text-lg font-semibold text-pink-800 mb-2" title={music.Nama_lagu}>
+        {displayedTitle}
       </h3>
       <div className="inline-block mb-4">
         <span className="px-2 py-1 bg-pink-500 text-white rounded-full text-sm">
