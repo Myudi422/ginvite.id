@@ -1,109 +1,149 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Eye } from "lucide-react";
 import Image from 'next/image';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Category data
-const categories = [
-  { id: "all", name: "Semua" },
-  { id: "wedding", name: "Pernikahan" },
-  { id: "birthday", name: "Ulang Tahun" },
-  { id: "aqiqah", name: "Aqiqah" },
-  { id: "khitan", name: "Khitanan" },
-  { id: "graduation", name: "Wisuda" },
-  { id: "seminar", name: "Seminar" },
+// Testimonial data (sama seperti sebelumnya)
+const testimonials = [
+  { name: "Merry & Anne", image: "https://hi.browedding.id/wp-content/uploads/2024/10/resepsi-1-scaled-e1687971665857-150x150.jpg" },
+  { name: "Elsa & Ahmad", image: "https://hi.browedding.id/wp-content/uploads/2024/10/3_11zon-150x150.webp" },
+  { name: "Putri & Lyus", image: "https://hi.browedding.id/wp-content/uploads/2024/10/Tanpa-judul-300-×-300-piksel-1-1-150x150.png" },
+  { name: "Intan & Sandi", image: "https://hi.browedding.id/wp-content/uploads/2024/10/intan-150x150.png" },
+  { name: "Alisa & Khoir", image: "https://hi.browedding.id/wp-content/uploads/2024/10/6_11zon-1-150x150.webp" },
+  { name: "Alfina & Dimas", image: "https://hi.browedding.id/wp-content/uploads/2024/10/4_11zon-150x150.webp" },
+  { name: "Wita & Arya", image: "https://hi.browedding.id/wp-content/uploads/2024/10/wita-arya-8-150x150-1.jpg" },
+  { name: "Novi & Ari", image: "https://hi.browedding.id/wp-content/uploads/2024/10/5_11zon-150x150.webp" },
 ];
 
-// Theme data
-const themes = [
-  { id: 1, name: "Bee-Classic", price: "Rp.39.000", image: "https://i.pinimg.com/736x/5a/ff/2c/5aff2c0f8e41dcc3a2b5c98700fe8b72.jpg", category: "wedding" },
-  { id: 2, name: "Baby-Sweet", price: "Rp.39.000", image: "https://i.pinimg.com/736x/92/67/da/9267da618d0a2f2965a43e2125898c2a.jpg", category: "aqiqah" },
-  { id: 3, name: "Honey-Night", price: "Rp.39.000", image: "https://i.pinimg.com/736x/f1/1a/84/f11a843c1c2efc8dca8d587ae3a4245f.jpg", category: "wedding" },
-  { id: 4, name: "Elegan-Black", price: "Rp.39.000", image: "https://i.pinimg.com/736x/d8/c7/ba/d8c7ba234e63270d007bd48f1d52d3e0.jpg", category: "seminar" },
-];
+export default function TestimonialsSection() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(3); // Default for larger screens
 
-interface ThemesSectionProps {
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
-}
+  // Ini adalah inti dari responsivitas "grid" slider Anda:
+  // Menyesuaikan jumlah testimonial yang terlihat per tampilan berdasarkan lebar layar.
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setItemsPerPage(1); // Tampilkan 1 testimonial per slide di layar kecil (mobile)
+      } else if (window.innerWidth < 1024) {
+        setItemsPerPage(2); // Tampilkan 2 testimonial per slide di layar menengah (tablet)
+      } else {
+        setItemsPerPage(3); // Tampilkan 3 testimonial per slide di layar besar (desktop)
+      }
+    };
 
-export default function ThemesSection({
-  selectedCategory,
-  setSelectedCategory
-}: ThemesSectionProps) {
-  const filteredThemes = selectedCategory === "all"
-    ? themes
-    : themes.filter(theme => theme.category === selectedCategory);
+    handleResize(); // Set nilai awal saat komponen dimuat
+    window.addEventListener("resize", handleResize); // Tambahkan event listener untuk resize
+    return () => window.removeEventListener("resize", handleResize); // Cleanup event listener
+  }, []);
+
+  // Fungsionalitas autoplay
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    }, 5000); // Ganti slide setiap 5 detik
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handler navigasi manual
+  const goToNextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+  };
+
+  const goToPrevSlide = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
+    );
+  };
 
   return (
-    <section className="px-6 py-12">
-      <div className="container mx-auto">
+    <section className="py-16 bg-gradient-to-br from-pink-50 to-white overflow-hidden relative">
+      <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-slate-800 mb-6">
-            Pilih Template Undangan
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-800 mb-4 tracking-tight">
+            Our Happy Clients
           </h2>
-          <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-            Temukan template undangan yang sesuai dengan kebutuhan dan tema acara Anda
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Dengarkan cerita dari pasangan yang telah berbahagia menciptakan momen tak terlupakan bersama kami.
           </p>
         </div>
 
-        <div className="mb-10">
-          <Tabs
-            defaultValue="all"
-            value={selectedCategory}
-            onValueChange={setSelectedCategory}
-            className="w-full justify-center"
+        {/* Wrapper utama untuk slider dan tombol navigasi */}
+        <div className="relative">
+          {/* Kontainer untuk semua testimonial yang bergerak */}
+          <div
+            className="flex transition-transform duration-700 ease-in-out"
+            style={{
+              // Mengatur pergerakan horizontal berdasarkan slide yang aktif dan jumlah item per tampilan
+              transform: `translateX(-${(100 / testimonials.length) * currentIndex}%)`,
+              // Mengatur lebar total kontainer agar semua testimonial muat dalam satu baris,
+              // dan setiap testimonial mengambil porsi lebarnya sendiri
+              width: `${(100 / itemsPerPage) * testimonials.length}%`,
+            }}
           >
-            <TabsList className="bg-slate-100 p-1 overflow-x-auto flex flex-nowrap max-w-full justify-start md:justify-center">
-              {categories.map((category) => (
-                <TabsTrigger
-                  key={category.id}
-                  value={category.id}
-                  className="px-4 py-2 data-[state=active]:bg-white data-[state=active]:text-pink-600 whitespace-nowrap"
-                >
-                  {category.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
-          {filteredThemes.map((theme) => (
-            <div key={theme.id} className="group">
-              <Card className="overflow-hidden">
-                <div className="relative overflow-hidden" style={{ paddingBottom: 'calc(100% * 16 / 9)' }}>
-                  <Image
-                    src={theme.image}
-                    alt={theme.name}
-                    fill
-                    style={{ objectFit: 'cover', objectPosition: 'center' }}
-                    className="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <Button variant="secondary" size="sm">
-                      <Eye size={16} className="mr-1" />
-                      Preview
-                    </Button>
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                // flex-shrink-0 memastikan item tidak mengecil
+                // px-4 memberikan padding horizontal yang menciptakan "gap" antar kartu
+                // py-6 memberikan padding vertikal di atas/bawah kartu
+                className="flex-shrink-0 px-4 py-6"
+                // Mengatur lebar setiap testimonial agar sesuai dengan itemsPerPage yang dihitung
+                style={{ width: `${100 / testimonials.length}%` }}
+              >
+                <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 flex flex-col items-center text-center h-full">
+                  <div className="w-32 h-32 relative rounded-full overflow-hidden border-4 border-pink-200 mb-6 flex-shrink-0">
+                    <Image
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      className="rounded-full"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
                   </div>
+                  <h3 className="text-2xl font-semibold text-gray-800 mt-auto">
+                    {testimonial.name}
+                  </h3>
                 </div>
-                <CardContent className="p-4">
-                  <h3 className="font-medium text-lg text-slate-800 mb-0">{theme.name}</h3>
-                  {/* Harga dihilangkan */}
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Tombol Navigasi (disembunyikan di mobile) */}
+          <button
+            onClick={goToPrevSlide}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 -ml-6 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-700 hover:text-pink-600 p-3 rounded-full shadow-lg focus:outline-none transition-all duration-200 z-10 hidden md:block"
+            aria-label="Previous testimonial"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button
+            onClick={goToNextSlide}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 -mr-6 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-700 hover:text-pink-600 p-3 rounded-full shadow-lg focus:outline-none transition-all duration-200 z-10 hidden md:block"
+            aria-label="Next testimonial"
+          >
+            <ChevronRight size={24} />
+          </button>
         </div>
 
-        <div className="text-center mt-12">
-          <Button className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-6 rounded-lg text-lg">
-            Lihat Semua Template
-          </Button>
+        {/* Indikator Pagination Dots */}
+        <div className="flex justify-center mt-10 space-x-2">
+          {testimonials.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                // Highlight dot jika slide testimonial berada dalam tampilan saat ini
+                index >= currentIndex && index < currentIndex + itemsPerPage
+                  ? "bg-pink-500 scale-125"
+                  : "bg-gray-300 hover:bg-gray-400"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            ></button>
+          ))}
         </div>
       </div>
     </section>
