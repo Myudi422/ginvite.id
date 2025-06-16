@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import Image from 'next/image';
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import TestimonialsSection from "@/components/sections/testimoni";
 
 interface NavItem {
   name: string;
@@ -138,10 +139,7 @@ export default function Home() {
       <Header />
       <HeroSection />
       <FeaturesSection />
-      <ThemesSection
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-      />
+      <TestimonialsSection/>
       <InstructionsSection />
       <PricingSection />
       <SectionCTA />

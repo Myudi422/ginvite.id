@@ -57,9 +57,28 @@ export const pernikahanSchema = z.object({
   bank_transfer: z
     .object({
       enabled: z.boolean().default(false),
-      account_name: z.string().optional(),
-      account_number: z.string().optional(),
-      bank_name: z.string().optional(),
+      accounts: z
+        .array(
+          z.object({
+            account_name: z.string().min(1, 'Nama pemilik rekening wajib diisi'),
+            account_number: z.string().min(1, 'Nomor rekening wajib diisi'),
+            bank_name: z.string().min(1, 'Nama bank wajib diisi'),
+          })
+        )
+        .min(1, 'Minimal 1 rekening')
+        .max(2, 'Maksimal 2 rekening'),
+    })
+    .optional(),
+  turut: z
+    .object({
+      enabled: z.boolean().default(false),
+      list: z
+        .array(
+          z.object({
+            name: z.string().min(1, 'Nama tamu wajib diisi'),
+          })
+        )
+        .min(1, 'Minimal 1 tamu'),
     })
     .optional(),
   music: z

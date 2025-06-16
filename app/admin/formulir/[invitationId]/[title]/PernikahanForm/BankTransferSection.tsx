@@ -1,8 +1,8 @@
-// components/BankTransferSection.tsx
+/// components/BankTransferSection.tsx
 'use client';
 
 import React, { useEffect } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch, useFieldArray } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -19,10 +19,14 @@ interface BankTransferSectionProps {
 export function BankTransferSection({
   userId, invitationId, slug, onSavedSlug,
 }: BankTransferSectionProps) {
-  const { control, getValues } = useFormContext<any>();
-  
+  const { control, getValues, register, watch } = useFormContext<any>();
+  const enabled = watch('bank_transfer.enabled');
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'bank_transfer.accounts',
+  });
+
   // watch semua field bank transfer
-  const enabled       = useWatch({ control, name: 'bank_transfer.enabled' });
   const accountName   = useWatch({ control, name: 'bank_transfer.account_name' });
   const accountNumber = useWatch({ control, name: 'bank_transfer.account_number' });
   const bankName      = useWatch({ control, name: 'bank_transfer.bank_name' });
@@ -71,29 +75,47 @@ export function BankTransferSection({
         />
         {enabled && (
           <>
-            <FormField name="bank_transfer.account_name" control={control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Pemilik Rekening</FormLabel>
-                <FormControl><Input {...field}/></FormControl>
-                <FormMessage/>
-              </FormItem>
-            )}/>
-            <FormField name="bank_transfer.account_number" control={control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nomor Rekening</FormLabel>
-                <FormControl>
-                  <Input {...field} onChange={e => field.onChange(e.target.value.replace(/[^0-9]/g, ''))}/>
-                </FormControl>
-                <FormMessage/>
-              </FormItem>
-            )}/>
-            <FormField name="bank_transfer.bank_name" control={control} render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Bank</FormLabel>
-                <FormControl><Input {...field}/></FormControl>
-                <FormMessage/>
-              </FormItem>
-            )}/>
+            {fields.map((field, idx) => (
+              <div key={field.id} className="p-4 border rounded mb-4">
+                <FormField name={`bank_transfer.accounts.${idx}.account_name`} control={control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama Pemilik Rekening</FormLabel>
+                    <FormControl><Input {...field}/></FormControl>
+                    <FormMessage/>
+                  </FormItem>
+                )}/>
+                <FormField name={`bank_transfer.accounts.${idx}.account_number`} control={control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nomor Rekening</FormLabel>
+                    <FormControl>
+                      <Input {...field} onChange={e => field.onChange(e.target.value.replace(/[^0-9]/g, ''))}/>
+                    </FormControl>
+                    <FormMessage/>
+                  </FormItem>
+                )}/>
+                <FormField name={`bank_transfer.accounts.${idx}.bank_name`} control={control} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama Bank</FormLabel>
+                    <FormControl><Input {...field}/></FormControl>
+                    <FormMessage/>
+                  </FormItem>
+                )}/>
+                {fields.length > 1 && (
+                  <button type="button" onClick={() => remove(idx)} className="text-red-500">
+                    Hapus Rekening
+                  </button>
+                )}
+              </div>
+            ))}
+            {fields.length < 2 && (
+              <button
+                type="button"
+                onClick={() => append({ account_name: '', account_number: '', bank_name: '' })}
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+              >
+                Tambah Rekening
+              </button>
+            )}
           </>
         )}
       </div>

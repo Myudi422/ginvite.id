@@ -1,14 +1,19 @@
 "use client";
+//
 
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FiCopy } from "react-icons/fi";
 
-interface BankTransfer {
+interface BankAccount {
   bank_name: string;
   account_number: string;
   account_name: string;
+}
+
+interface BankTransfer {
   enabled: boolean;
+  accounts: BankAccount[];
 }
 
 interface BankSectionProps {
@@ -38,7 +43,8 @@ export default function BankSection({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const accountNumberRef = useRef<HTMLInputElement | null>(null);
+  const [selectedAccountIdx, setSelectedAccountIdx] = useState(0);
+  const accountNumberRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const toggleVisible = () => setVisible((v) => !v);
 
@@ -59,10 +65,11 @@ export default function BankSection({
     setFormattedJumlah(formatToRupiah(raw));
   };
 
-  const handleCopyAccountNumber = async () => {
-    if (accountNumberRef.current) {
+  const handleCopyAccountNumber = async (idx: number) => {
+    const ref = accountNumberRefs.current[idx];
+    if (ref) {
       try {
-        await navigator.clipboard.writeText(accountNumberRef.current.value);
+        await navigator.clipboard.writeText(ref.value);
         alert("Nomor rekening berhasil disalin!");
       } catch {
         alert("Gagal menyalin nomor rekening.");
@@ -111,6 +118,14 @@ export default function BankSection({
 
   if (!bankTransfer.enabled) return null;
 
+  // Filter only valid accounts (minimal bank_name, account_name, account_number)
+  const validAccounts = (bankTransfer.accounts || []).filter(
+    acc =>
+      acc.bank_name?.trim() &&
+      acc.account_name?.trim() &&
+      acc.account_number?.trim()
+  );
+
   return (
     <section
       className="mx-auto p-8 shadow-lg backdrop-blur-sm text-left"
@@ -143,40 +158,61 @@ export default function BankSection({
 
       {visible && (
         <div className="space-y-5">
-          <div
-            className="flex items-center border rounded-lg"
-            style={{ borderColor: theme.accentColor, padding: "0.75rem" }}
-          >
-            <div className="flex-1">
-              <div
-                className="font-medium mb-1"
-                style={{ color: theme.accentColor }}
-              >
-                {bankTransfer.bank_name}
-              </div>
-              <div className="relative flex items-center">
-                <input
-                  ref={accountNumberRef}
-                  type="text"
-                  value={bankTransfer.account_number}
-                  readOnly
-                  className="w-full text-sm bg-transparent border-none focus:outline-none cursor-text mb-1 pr-8"
-                  style={{ color: theme.accentColor, fontFamily: bodyFontFamily }}
-                  onClick={(e) => (e.target as HTMLInputElement).select()}
-                />
+          {validAccounts.length > 1 && (
+            <div className="flex gap-2 mb-2">
+              {validAccounts.map((acc, idx) => (
                 <button
+                  key={idx}
                   type="button"
-                  onClick={handleCopyAccountNumber}
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 focus:outline-none"
+                  className={`px-3 py-1 rounded border ${selectedAccountIdx === idx ? 'bg-pink-200 border-pink-400' : 'bg-white border-gray-300'}`}
+                  style={{
+                    color: theme.accentColor,
+                    fontFamily: bodyFontFamily,
+                  }}
+                  onClick={() => setSelectedAccountIdx(idx)}
                 >
-                  <FiCopy className="h-5 w-5" />
+                  {acc.bank_name}
                 </button>
-              </div>
-              <div className="text-sm" style={{ color: theme.accentColor }}>
-                a.n. {bankTransfer.account_name}
+              ))}
+            </div>
+          )}
+
+          {validAccounts[selectedAccountIdx] && (
+            <div
+              className="flex items-center border rounded-lg"
+              style={{ borderColor: theme.accentColor, padding: "0.75rem" }}
+            >
+              <div className="flex-1">
+                <div
+                  className="font-medium mb-1"
+                  style={{ color: theme.accentColor }}
+                >
+                  {validAccounts[selectedAccountIdx].bank_name}
+                </div>
+                <div className="relative flex items-center">
+                  <input
+                    ref={el => (accountNumberRefs.current[selectedAccountIdx] = el)}
+                    type="text"
+                    value={validAccounts[selectedAccountIdx].account_number}
+                    readOnly
+                    className="w-full text-sm bg-transparent border-none focus:outline-none cursor-text mb-1 pr-8"
+                    style={{ color: theme.accentColor, fontFamily: bodyFontFamily }}
+                    onClick={(e) => (e.target as HTMLInputElement).select()}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleCopyAccountNumber(selectedAccountIdx)}
+                    className="absolute right-0 top-1/2 transform -translate-y-1/2 p-2 focus:outline-none"
+                  >
+                    <FiCopy className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="text-sm" style={{ color: theme.accentColor }}>
+                  a.n. {validAccounts[selectedAccountIdx].account_name}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (

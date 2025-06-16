@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { FiCopy, FiExternalLink } from 'react-icons/fi'
 import { QoutesSection } from './QoutesSection'; // Import QoutesSection
+import { TurutSection } from './TurutSection';
 import { saveContentAction, toggleStatusAction, midtransAction } from '@/app/actions/indexcontent';
 
 
@@ -305,6 +306,7 @@ export function PernikahanForm({
             refreshPreview();
           }}
         />
+        <TurutSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
 
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onSave} disabled={saving}>{saving ? 'Menyimpan…' : 'Simpan'}</Button>

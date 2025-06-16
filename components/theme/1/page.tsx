@@ -25,6 +25,7 @@ import QuoteSection from "@/components/theme/1/QuoteSection";
 import ImportantEventSection from "@/components/theme/1/ImportantEventSection";
 import InvitationTextSection from "@/components/theme/1/InvitationTextSection";
 import FamilySection from "@/components/theme/1/FamilySection";
+import TurutSection from "@/components/theme/1/TurutSection";
 import CountdownSection from "@/components/theme/1/CountdownSection";
 import EventSection from "@/components/theme/1/EventSection";
 import OurStorySection from "@/components/theme/1/OurStorySection";
@@ -197,6 +198,10 @@ export default function Theme1({ data }: Theme1Props) {
   const processedBodyFontFamily = content?.font?.body?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
   const processedHeadingFontFamily = content?.font?.heading?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
 
+    // setelah destructure content
+    const turutList = content?.turut?.list || [];
+    const turutEnabled = content?.turut?.enabled;
+
     return (
     <main className="relative min-h-screen text-center overflow-hidden flex md:flex-row" style={{ color: theme.textColor }}>
       {isLoading && (
@@ -288,6 +293,9 @@ export default function Theme1({ data }: Theme1Props) {
             )}
             <InvitationTextSection invitation={invitation} theme={theme} />
             <FamilySection childrenData={children} parents={parents} isWedding={isWedding} theme={theme} />
+
+            {/* Tambahkan TurutSection di sini */}
+            <TurutSection enabled={turutEnabled} list={turutList} accentColor={theme.accentColor} />
 
             <CountdownSection eventDate={eventDate || new Date()} calendarUrl={calendarUrl} theme={theme} />
 
