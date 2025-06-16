@@ -69,7 +69,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
   useEffect(() => {
     setTypeUser(getTypeUserFromToken());
-  }, []);
+  }, [pathname]); // <-- tambahkan dependency pathname
 
   const handleLogout = async () => {
     try {
