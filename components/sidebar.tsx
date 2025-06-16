@@ -4,7 +4,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette, LayoutDashboardIcon, MessageSquareWarning, Clapperboard   } from "lucide-react" // Import MusicIcon
-import { useState } from "react"; // Import useState
+import { useState, useEffect } from "react"; // Import useState
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Image from "next/image";
@@ -45,10 +45,31 @@ const routes: NestedRoute[] = [
   },
 ];
 
+function getTypeUserFromToken(): number | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|;\s*)token=([^;]+)/);
+  if (!match) return null;
+  const token = match[1];
+  const parts = token.split(".");
+  if (parts.length < 2) return null;
+  try {
+    const payload = JSON.parse(atob(parts[1]));
+    // type_user bisa di payload.data.type_user atau payload.type_user
+    return payload?.data?.type_user ?? payload?.type_user ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname()
   const router = useRouter();
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
+  const [typeUser, setTypeUser] = useState<number | null>(null);
+
+  useEffect(() => {
+    setTypeUser(getTypeUserFromToken());
+  }, [pathname]); // <-- tambahkan dependency pathname
 
   const handleLogout = async () => {
     try {
@@ -89,58 +110,64 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
         </Link>
 
         <div className="space-y-2">
-          {routes.map(({ href, label, icon: Icon, items }) => (
-            <div key={label}>
-              <Link
-                href={items ? '#' : href}
-                onClick={() => {
-                  if (items) {
-                    toggleSubMenu(label);
-                  } else if (onLinkClick) {
-                    onLinkClick();
+          {routes
+            .filter(route => {
+              // Sembunyikan menu "Admin" jika typeUser bukan 0
+              if (route.href === "/panel" && typeUser !== 0) return false;
+              return true;
+            })
+            .map(({ href, label, icon: Icon, items }) => (
+              <div key={label}>
+                <Link
+                  href={items ? '#' : href}
+                  onClick={() => {
+                    if (items) {
+                      toggleSubMenu(label);
+                    } else if (onLinkClick) {
+                      onLinkClick();
+                    }
+                  }}
+                  className={`flex items-center justify-between gap-3 rounded-md px-3 py-3 text-base font-medium transition-all
+                    ${pathname.startsWith(href) && !items
+                      ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm'
+                      : 'text-pink-500 hover:bg-pink-100/30 hover:text-pink-600'}`
                   }
-                }}
-                className={`flex items-center justify-between gap-3 rounded-md px-3 py-3 text-base font-medium transition-all
-                  ${pathname.startsWith(href) && !items
-                    ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm'
-                    : 'text-pink-500 hover:bg-pink-100/30 hover:text-pink-600'}`
-                }
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded-sm bg-pink-50/80">
-                    <Icon className="h-5 w-5" />
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-1.5 rounded-sm bg-pink-50/80">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span>{label}</span>
                   </div>
-                  <span>{label}</span>
-                </div>
-                {items && (
-                  <div className="transition-transform duration-200">
-                    {openSubMenu === label ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {items && (
+                    <div className="transition-transform duration-200">
+                      {openSubMenu === label ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </div>
+                  )}
+                </Link>
+                {items && openSubMenu === label && (
+                  <div className="ml-6 mt-1 space-y-1">
+                    {items.map((subItem) => (
+                      <Link
+                        key={subItem.href}
+                        href={subItem.href}
+                        onClick={onLinkClick}
+                        className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all
+                          ${pathname === subItem.href
+                            ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm'
+                            : 'text-pink-500 hover:bg-pink-100/30 hover:text-pink-600'}`
+                        }
+                      >
+                        <div className="p-1 rounded-sm bg-pink-50/80">
+                          <subItem.icon className="h-4 w-4" />
+                        </div>
+                        <span>{subItem.label}</span>
+                      </Link>
+                    ))}
                   </div>
                 )}
-              </Link>
-              {items && openSubMenu === label && (
-                <div className="ml-6 mt-1 space-y-1">
-                  {items.map((subItem) => (
-                    <Link
-                      key={subItem.href}
-                      href={subItem.href}
-                      onClick={onLinkClick}
-                      className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all
-                        ${pathname === subItem.href
-                          ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm'
-                          : 'text-pink-500 hover:bg-pink-100/30 hover:text-pink-600'}`
-                      }
-                    >
-                      <div className="p-1 rounded-sm bg-pink-50/80">
-                        <subItem.icon className="h-4 w-4" />
-                      </div>
-                      <span>{subItem.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+              </div>
+            ))}
         </div>
       </div>
 
