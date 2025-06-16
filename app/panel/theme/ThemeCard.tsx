@@ -10,8 +10,10 @@ interface Theme {
   name: string;
   text_color: string;
   accent_color: string;
-  background_url: string;
-  image_theme_url: string;
+  background: string;
+  image_theme: string;
+  kategory_theme_id: number;
+  kategory_theme_name?: string;
 }
 
 interface ThemeCardProps {
@@ -32,13 +34,19 @@ export default function ThemeCard({ theme, onDelete }: ThemeCardProps) {
         {/* Tampilkan background sebagai background card */}
         <div
           className="h-48 bg-center bg-cover"
-          style={{ backgroundImage: `url(${theme.background_url})` }}
+          style={{ backgroundImage: `url(${theme.background})` }}
         />
       </CardHeader>
       <CardContent className="px-4 py-3">
         <CardTitle className="text-lg font-semibold text-pink-800 mb-2">
           {theme.name}
         </CardTitle>
+        {/* Tampilkan kategori */}
+        <div className="mb-2">
+          <span className="inline-block bg-pink-100 text-pink-700 text-xs px-3 py-1 rounded-full">
+            {theme.kategory_theme_name || `Kategori ${theme.kategory_theme_id}`}
+          </span>
+        </div>
         <div className="flex items-center gap-4 mb-3">
           {/* Kotak kecil untuk contoh warna text dan accent */}
           <div className="flex items-center gap-1">
@@ -55,14 +63,6 @@ export default function ThemeCard({ theme, onDelete }: ThemeCardProps) {
             />
             <span className="text-sm text-gray-600">Accent</span>
           </div>
-        </div>
-        {/* Tampilkan image_theme di dalam card */}
-        <div className="mb-3">
-          <img
-            src={theme.image_theme_url}
-            alt={`Image theme ${theme.name}`}
-            className="w-20 h-20 object-cover rounded-xl border border-gray-200"
-          />
         </div>
         {/* Tombol untuk edit atau hapus */}
         <div className="flex gap-2">

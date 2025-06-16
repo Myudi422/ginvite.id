@@ -16,6 +16,9 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
   const [current, setCurrent] = useState(0);
   const [search, setSearch] = useState('');
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
+  const [deletePopup, setDeletePopup] = useState<{open: boolean, invitation?: Invitation}>(() => ({open: false}));
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const prev = () => setCurrent(i => (i === 0 ? slides.length - 1 : i - 1));
   const next = () => setCurrent(i => (i + 1) % slides.length);
@@ -30,6 +33,32 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
   const handleInvitationCreated = (slug: string) => {
     router.push(`/admin/formulir/${user.userId}/${slug}`);
   };
+
+  async function handleDeleteInvitation(invitation: Invitation) {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(
+        `https://ccgnimex.my.id/v2/android/ginvite/page/delete_invitation.php`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: user.userId, id: invitation.id }),
+        }
+      );
+      const json = await res.json();
+      if (json.status === 'success') {
+        setDeletePopup({open: false});
+        router.refresh?.(); // Next.js 13+ (app dir) - reload data
+        window.location.reload(); // fallback
+      } else {
+        setDeleteError(json.message || 'Gagal menghapus undangan.');
+      }
+    } catch (e) {
+      setDeleteError('Gagal menghapus undangan.');
+    }
+    setDeleting(false);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-100 to-white p-6 md:p-8">
@@ -60,7 +89,35 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
         />
       )}
 
-     
+      {/* POPUP DELETE */}
+      {deletePopup.open && deletePopup.invitation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl p-6 shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-2 text-pink-700">Hapus Undangan?</h2>
+            <p className="mb-4 text-pink-600">
+              Yakin ingin menghapus undangan <b>{deletePopup.invitation.title}</b>? Tindakan ini tidak dapat dibatalkan.
+            </p>
+            {deleteError && <div className="text-red-500 mb-2">{deleteError}</div>}
+            <div className="flex gap-3">
+              <button
+                className="flex-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+                onClick={() => setDeletePopup({open: false})}
+                disabled={deleting}
+              >
+                Batal
+              </button>
+              <button
+                className="flex-1 py-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white font-semibold"
+                onClick={() => handleDeleteInvitation(deletePopup.invitation!)}
+                disabled={deleting}
+              >
+                {deleting ? 'Menghapus...' : 'Hapus'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* SEARCH */}
       <div className="mb-8">
         <input
@@ -83,7 +140,11 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
                        border border-white/20 shadow-md hover:shadow-1xl transition-all
                        hover:border-pink-200 group"
           >
-            <button className="absolute top-4 right-4 text-pink-500 hover:text-pink-600">
+            <button
+              className="absolute top-4 right-4 text-pink-500 hover:text-pink-600"
+              onClick={() => setDeletePopup({open: true, invitation: inv})}
+              aria-label="Opsi undangan"
+            >
               <EllipsisVerticalIcon className="h-6 w-6" />
             </button>
 

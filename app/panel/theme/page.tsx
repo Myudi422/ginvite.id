@@ -10,8 +10,10 @@ interface Theme {
   name: string;
   text_color: string;
   accent_color: string;
-  background_url: string;
-  image_theme_url: string;
+  background: string;
+  image_theme: string;
+  kategory_theme_id: number;
+  kategory_theme_name?: string; // opsional, jika ada di API
 }
 
 export default function ThemePage() {
@@ -21,7 +23,7 @@ export default function ThemePage() {
 
   // Pengaturan state untuk search/filter (jika nanti mau ditambah)
   const [searchText, setSearchText] = useState('');
-  const [filterColor, setFilterColor] = useState<string>('');
+  const [filterCategory, setFilterCategory] = useState<string>(''); // ganti dari filterColor
 
   const fetchThemes = async () => {
     setLoading(true);
@@ -32,7 +34,12 @@ export default function ThemePage() {
       );
       const data = await res.json();
       if (data.status === 'success') {
-        setThemes(data.data);
+        // Map kategori jika belum ada nama kategori
+        const themesWithCategory = data.data.map((t: any) => ({
+          ...t,
+          kategory_theme_name: t.kategory_theme_name || `Kategori ${t.kategory_theme_id}`,
+        }));
+        setThemes(themesWithCategory);
       } else {
         setError('Gagal memuat daftar tema.');
       }
@@ -49,33 +56,37 @@ export default function ThemePage() {
   }, []);
 
   // Contoh di page.tsx (edit URL jika diperlukan)
-const handleDelete = async (id: number) => {
-  try {
-    const formData = new FormData();
-    formData.append('id', id.toString());
-    const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/theme_delete.php', {
-      method: 'POST',
-      body: formData,
-    });
-    const data = await res.json();
-    if (data.success) {
-      fetchThemes();
-    } else {
-      alert(`Error hapus: ${data.message}`);
+  const handleDelete = async (id: number) => {
+    try {
+      const formData = new FormData();
+      formData.append('id', id.toString());
+      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/theme_delete.php', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchThemes();
+      } else {
+        alert(`Error hapus: ${data.message}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menghubungi server untuk menghapus.');
     }
-  } catch (err) {
-    console.error(err);
-    alert('Gagal menghubungi server untuk menghapus.');
-  }
-};
+  };
 
-
-  // Contoh filter berdasarkan nama saja (bisa diperluas)
+  // Filter berdasarkan kategori
   const filteredThemes = themes.filter((t) => {
     const matchesSearch = t.name.toLowerCase().includes(searchText.toLowerCase());
-    const matchesColor = filterColor === '' || t.accent_color === filterColor;
-    return matchesSearch && matchesColor;
+    const matchesCategory = filterCategory === '' || String(t.kategory_theme_id) === filterCategory;
+    return matchesSearch && matchesCategory;
   });
+
+  // Ambil daftar kategori unik
+  const categories = Array.from(
+    new Map(themes.map((t) => [String(t.kategory_theme_id), t.kategory_theme_name])).entries()
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-100 to-white p-6 md:p-8">
@@ -108,22 +119,20 @@ const handleDelete = async (id: number) => {
                      placeholder:text-pink-400 text-pink-600 shadow-sm"
         />
 
-        {/* (Optional) Dropdown Accent Color */}
+        {/* Dropdown Kategori */}
         <select
-          value={filterColor}
-          onChange={(e) => setFilterColor(e.target.value)}
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
           className="flex-1 px-4 py-2 rounded-xl border border-pink-200
                      focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white/50 backdrop-blur-md
                      text-pink-600 shadow-sm"
         >
-          <option value="">Semua Warna Aksen</option>
-          {Array.from(new Set(themes.map((t) => t.accent_color)))
-            .sort()
-            .map((col) => (
-              <option key={col} value={col}>
-                {col}
-              </option>
-            ))}
+          <option value="">Semua Kategori</option>
+          {categories.map(([id, name]) => (
+            <option key={id} value={id}>
+              {name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -134,7 +143,8 @@ const handleDelete = async (id: number) => {
         {error && <p className="text-red-500">{error}</p>}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Perbaiki grid agar gambar lebih proporsional */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {!loading && filteredThemes.length === 0 && (
           <div className="col-span-full text-center py-12">
             <p className="text-pink-500 text-lg">Tidak ada tema yang sesuai pencarian.</p>
