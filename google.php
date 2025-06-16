@@ -132,7 +132,7 @@ setcookie('token', $appJwt, [
     'expires' => $expTs,
     'path' => '/',
     'secure' => true,
-    'httponly' => true, // <-- Ubah ke true agar tidak bisa diakses JS
+    'httponly' => false, // <-- ubah ke false agar bisa dibaca JS client-side
     'samesite' => 'Lax' // Mencegah CSRF
 ]);
 

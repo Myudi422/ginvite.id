@@ -4,7 +4,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette, LayoutDashboardIcon, MessageSquareWarning, Clapperboard   } from "lucide-react" // Import MusicIcon
-import { useState, useEffect } from "react"; // Import useState
+import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Image from "next/image";
@@ -45,31 +45,12 @@ const routes: NestedRoute[] = [
   },
 ];
 
-function getTypeUserFromToken(): number | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/(?:^|;\s*)token=([^;]+)/);
-  if (!match) return null;
-  const token = match[1];
-  const parts = token.split(".");
-  if (parts.length < 2) return null;
-  try {
-    const payload = JSON.parse(atob(parts[1]));
-    // type_user bisa di payload.data.type_user atau payload.type_user
-    return payload?.data?.type_user ?? payload?.type_user ?? null;
-  } catch {
-    return null;
-  }
-}
+// Hapus getTypeUserFromToken dan useEffect terkait typeUser
 
-function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
+function SidebarContent({ onLinkClick, typeUser }: { onLinkClick?: () => void, typeUser?: number }) {
   const pathname = usePathname()
   const router = useRouter();
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
-  const [typeUser, setTypeUser] = useState<number | null>(null);
-
-  useEffect(() => {
-    setTypeUser(getTypeUserFromToken());
-  }, [pathname]); // <-- tambahkan dependency pathname
 
   const handleLogout = async () => {
     try {
@@ -184,7 +165,7 @@ function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   )
 }
 
-export function SidebarMobile() {
+export function SidebarMobile({ typeUser }: { typeUser?: number }) {
   const [open, setOpen] = useState(false)
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -202,16 +183,16 @@ export function SidebarMobile() {
         side="left"
         className="p-0 w-64 overflow-y-auto bg-gradient-to-b from-pink-50/30 to-white/20 backdrop-blur-lg"
       >
-        <SidebarContent onLinkClick={() => setOpen(false)} />
+        <SidebarContent onLinkClick={() => setOpen(false)} typeUser={typeUser} />
       </SheetContent>
     </Sheet>
   )
 }
 
-export function SidebarDesktop() {
+export function SidebarDesktop({ typeUser }: { typeUser?: number }) {
   return (
     <div className="hidden md:block fixed left-0 top-0 h-full w-64 z-50">
-      <SidebarContent />
+      <SidebarContent typeUser={typeUser} />
     </div>
   )
 }
