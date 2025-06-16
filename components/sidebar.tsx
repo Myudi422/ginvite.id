@@ -45,7 +45,6 @@ const routes: NestedRoute[] = [
   },
 ];
 
-// Hapus getTypeUserFromToken dan useEffect terkait typeUser
 
 function SidebarContent({ onLinkClick, typeUser }: { onLinkClick?: () => void, typeUser?: number }) {
   const pathname = usePathname()
