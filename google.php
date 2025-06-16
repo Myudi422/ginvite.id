@@ -131,8 +131,8 @@ $appJwt = JWT::encode($tokenPayload, $secretKey, 'HS256');
 setcookie('token', $appJwt, [
     'expires' => $expTs,
     'path' => '/',
-    'secure' => true, // Gunakan hanya di HTTPS
-    'httponly' => false, // <-- Ubah ke false agar bisa dibaca JS client-side
+    'secure' => true,
+    'httponly' => true, // <-- Ubah ke true agar tidak bisa diakses JS
     'samesite' => 'Lax' // Mencegah CSRF
 ]);
 
