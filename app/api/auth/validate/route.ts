@@ -24,6 +24,13 @@ export async function GET(req: Request) {
 
   // Tangkap Set-Cookie kalau ada
   const sc = backend.headers.get("set-cookie");
+
+  // Jika backend tidak mengirim type_user, bisa tambahkan transformasi di sini
+  // (opsional, jika backend sudah benar, bagian ini bisa dihapus)
+  // if (data.status === "success" && !data.data?.type_user) {
+  //   // ...tambahkan logic jika perlu...
+  // }
+
   const res = NextResponse.json(data, { status: backend.status });
   if (sc) res.headers.set("set-cookie", sc);
 

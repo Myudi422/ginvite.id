@@ -1,3 +1,135 @@
+// app/api/auth/validate/route.ts
+import { NextResponse } from "next/server";
+
+export async function GET(req: Request) {
+  // Ambil cookie + header Authorization dari client
+  const cookie = req.headers.get("cookie") || "";
+  const authHeader = req.headers.get("authorization") || "";
+
+  // Forward ke backend PHP
+  const backend = await fetch(
+    "https://ccgnimex.my.id/v2/android/ginvite/validate_token.php",
+    {
+      method: "GET",
+      headers: {
+        // teruskan cookie dan Authorization
+        cookie,
+        authorization: authHeader,
+      },
+    }
+  );
+
+  // Ambil JSON response
+  const data = await backend.json();
+
+  // Tangkap Set-Cookie kalau ada
+  const sc = backend.headers.get("set-cookie");
+
+  // Jika backend tidak mengirim type_user, bisa tambahkan transformasi di sini
+  // (opsional, jika backend sudah benar, bagian ini bisa dihapus)
+  // if (data.status === "success" && !data.data?.type_user) {
+  //   // ...tambahkan logic jika perlu...
+  // }
+
+  const res = NextResponse.json(data, { status: backend.status });
+  if (sc) res.headers.set("set-cookie", sc);
+
+  return res;
+}
+
+// app/components/layout.tsx
+"use client";
+import React from "react";
+import { SidebarMobile, SidebarDesktop } from "@/components/sidebar";
+import { Header } from "@/components/header";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowLeftIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  return (
+    <div className="flex min-h-screen bg-background text-foreground">
+      {/* Mobile trigger */}
+      <SidebarMobile />
+
+      {/* Desktop Sidebar */}
+      <SidebarDesktop />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col md:ml-64"> {/* Tambahkan margin kiri */}
+        {/* Header dengan z-index lebih rendah */}
+        <div className="sticky top-0 z-30">
+          <Header />
+        </div>
+
+        <main className="flex-1 p-2 sm:mt-1">
+         
+
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+// middleware.ts
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const token = req.cookies.get("token")?.value;
+
+  // Helper: decode JWT payload (tanpa verifikasi signature)
+  function getJwtPayload(token: string | undefined): any {
+    if (!token) return null;
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+    try {
+      const payload = JSON.parse(Buffer.from(parts[1], "base64").toString());
+      return payload;
+    } catch {
+      return null;
+    }
+  }
+
+  // 1. Jika user punya token dan mencoba buka /login (atau home), kirim ke /admin
+  if ((pathname === "/login") && token) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/admin";
+    return NextResponse.redirect(url);
+  }
+
+  // 2. Jika user belum punya token dan mencoba buka /admin, kirim ke /login
+  if (pathname.startsWith("/admin") && !token) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // 3. Jika user akses /panel, cek type_user (hanya 0 yang boleh)
+  if (pathname.startsWith("/panel")) {
+    const payload = getJwtPayload(token);
+    // type_user bisa di payload.data.type_user atau payload.type_user tergantung backend
+    const typeUser = payload?.data?.type_user ?? payload?.type_user;
+    if (typeUser !== 0) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/admin";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // 4. Lainnya: lanjutkan request seperti biasa
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ["/", "/login", "/admin/:path*"],
+};
+
 // app/components/sidebar.tsx
 "use client"
 
@@ -214,4 +346,33 @@ export function SidebarDesktop() {
       <SidebarContent />
     </div>
   )
+}
+
+// app/api/auth/google.ts 
+import { NextResponse } from "next/server";
+
+export async function POST(req: Request) {
+  const { id_token } = await req.json();
+
+  // forward ke backend utama
+  const backend = await fetch(
+    "https://ccgnimex.my.id/v2/android/ginvite/google.php",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // NOTE: untuk menerima Set-Cookie dari backend, Next.js app router
+      // perlu opsi credentials: 'include', tapi di server fetch tidak mengirim cookie.
+      // Jika backend meng-Set-Cookie, kita tangkap header-nya:
+      body: JSON.stringify({ id_token }),
+    }
+  );
+
+  const data = await backend.json();
+
+  // Forward Set-Cookie kalau ada
+  const sc = backend.headers.get("set-cookie");
+  const res = NextResponse.json(data, { status: backend.status });
+  if (sc) res.headers.set("set-cookie", sc);
+
+  return res;
 }
