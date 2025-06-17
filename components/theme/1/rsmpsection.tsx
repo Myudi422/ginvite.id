@@ -17,6 +17,7 @@ interface RsmpSectionProps {
   specialFontFamily?: string;
   bodyFontFamily?: string;
   contentUserId: number;
+  id?: string;
 }
 
 interface RsvpData {
@@ -46,7 +47,7 @@ const timeAgo = (dateString: string) => {
   return `${minutes} menit yang lalu`;
 };
 
-export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, contentUserId }: RsmpSectionProps) {
+export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, contentUserId, id, plugin }: RsmpSectionProps & { plugin?: any }) {
   const [nama, setNama] = useState('');
   const [ucapan, setUcapan] = useState('');
   const [wa, setWa] = useState('');
@@ -117,6 +118,7 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, 
 
   return (
     <section
+      id={id}
       className="mx-auto p-6 shadow-lg backdrop-blur-sm"
       style={{
         backgroundImage: `url(${theme.background})`,

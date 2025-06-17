@@ -241,7 +241,7 @@ export default function Theme1({ data }: Theme1Props) {
       {/* Right Content */}
       <div className="w-full md:w-[30%] overflow-y-auto h-screen">
         {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay />}
-        <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={sampleQrData} />
+        <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={toName} />
 
         {!isOpen && !isLoading && (
           <OpeningSection
@@ -257,12 +257,14 @@ export default function Theme1({ data }: Theme1Props) {
             specialFontFamily={processedSpecialFontFamily}
             BodyFontFamily={processedBodyFontFamily}
             HeadingFontFamily={processedHeadingFontFamily}
+            plugin={plugin} // <-- Tambahkan prop plugin
           />
         )}
 
         {isOpen && !isLoading && (
           <div className="w-full">
             <ProfileSection
+              id="home"
               gallery={gallery}
               defaultBgImage1={theme.defaultBgImage1}
               opening={opening}
@@ -325,6 +327,8 @@ export default function Theme1({ data }: Theme1Props) {
         specialFontFamily={processedSpecialFontFamily}
         bodyFontFamily={processedBodyFontFamily}
         contentUserId={data.content_user_id}
+        id="rsvp"
+        plugin={plugin} // <-- Tambahkan jika RsmpSection butuh plugin
       />
     )}
             <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} defaultBgImage1={theme.defaultBgImage1} />
@@ -336,6 +340,8 @@ export default function Theme1({ data }: Theme1Props) {
     activeSection={activeSection}
     setActiveSection={setActiveSection}
     accentColor={theme.accentColor}
+    showGallery={!!gallery_enabled}
+    showRsvp={!!plugin?.rsvp}
   />
 )}
       </div>

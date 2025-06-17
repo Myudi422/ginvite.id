@@ -33,6 +33,7 @@ interface ProfileSectionProps {
   specialFontFamily?: string;
   BodyFontFamily?: string;
   HeadingFontFamily?: string;
+  id?: string; // Tambahkan prop opsional id
 }
 
 export default function ProfileSection({
@@ -55,8 +56,8 @@ export default function ProfileSection({
   BodyFontFamily,
   theme,
   event, // Gunakan properti event
-  HeadingFontFamily
-
+  HeadingFontFamily,
+  id, // Ambil prop id
 }: ProfileSectionProps) {
   const nameStyle: React.CSSProperties = {
     ...nameFontSize,
@@ -85,7 +86,7 @@ export default function ProfileSection({
 
   return (
     <section
-      id="profile"
+      id={id || 'profile'} // Gunakan id jika ada, jika tidak gunakan 'profile'
       className="relative overflow-hidden flex flex-col items-center justify-center" // Ubah justify-start menjadi justify-center
       style={{ minHeight: minHeight }}
     >

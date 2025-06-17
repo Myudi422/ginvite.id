@@ -28,6 +28,7 @@ interface OpeningSectionProps {
   specialFontFamily?: string;
   BodyFontFamily?: string;
   HeadingFontFamily?: string;
+  plugin?: any; // Tambahkan prop plugin opsional
 }
 
 export default function OpeningSection({
@@ -41,7 +42,8 @@ export default function OpeningSection({
   onShowQr,
   specialFontFamily,
   BodyFontFamily,
-  HeadingFontFamily
+  HeadingFontFamily,
+  plugin,
 }: OpeningSectionProps) {
   const searchParams = useSearchParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
@@ -130,7 +132,8 @@ export default function OpeningSection({
             Buka Undangan
           </Button>
 
-          {isWedding && (
+          {/* Tampilkan tombol QR hanya jika plugin.qrcode true dan ada toName yang bukan default */}
+          {plugin?.qrcode && toName !== "Bapak/Ibu/Saudara/i" && (
             <Button
               onClick={onShowQr}
               className="px-6 py-3 rounded-full font-medium shadow-lg transform transition-transform hover:scale-105"

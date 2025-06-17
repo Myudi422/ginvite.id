@@ -7,27 +7,30 @@ interface NavigationProps {
   activeSection: string
   setActiveSection: (section: string) => void
   accentColor: string // Accent color passed as prop
+  showGallery?: boolean
+  showRsvp?: boolean
 }
 
-export default function Navigation({ activeSection, setActiveSection, accentColor }: NavigationProps) {
+export default function Navigation({
+  activeSection,
+  setActiveSection,
+  accentColor,
+  showGallery = true,
+  showRsvp = true,
+}: NavigationProps) {
   const navItems = [
-    { id: "home", icon: Home, label: "Home" },
-    { id: "event", icon: Calendar, label: "Acara" },
-    { id: "gallery", icon: ImageIcon, label: "Galeri" },
-    { id: "maps", icon: MapPin, label: "Peta" }, // Item untuk Maps
-    { id: "rsvp", icon: Heart, label: "Kehadiran" }, // Item untuk Kehadiran
-  ]
+    { id: "home", icon: Home, label: "Home", show: true },
+    { id: "event", icon: Calendar, label: "Acara", show: true },
+    { id: "gallery", icon: ImageIcon, label: "Galeri", show: showGallery },
+    { id: "rsvp", icon: Heart, label: "Kehadiran", show: showRsvp }, // Item untuk Kehadiran
+  ].filter(item => item.show);
 
   const handleNavClick = (sectionId: string) => {
-    setActiveSection(sectionId)
+    setActiveSection(sectionId);
 
-    if (sectionId === "home") {
-      window.scrollTo({ top: 0, behavior: "smooth" })
-    } else {
-      const element = document.getElementById(sectionId)
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" })
-      }
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
     }
   }
 

@@ -10,7 +10,7 @@ interface QRModalProps {
 }
 
 export default function QRModal({ show, onClose, qrData }: QRModalProps) {
-  // generate URL (bisa diganti sesuai back-end kalian)
+  // generate QR dari nama tamu, bukan link
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
 
   return (
