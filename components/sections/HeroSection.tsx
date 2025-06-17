@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { MessageSquare } from "lucide-react";
+import { trackCTAClick } from "@/lib/analytics";
 
 const eventTypes = [
   "Pernikahan",
@@ -27,6 +28,10 @@ export default function HeroSection() {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleCTAClick = (buttonName: string) => {
+    trackCTAClick(buttonName, 'hero_section');
+  };
 
   return (
     <section className="relative py-6 px-6 overflow-hidden bg-white"> {/* Background putih */}
@@ -73,6 +78,7 @@ export default function HeroSection() {
             >
               <Button
                 size="lg"
+                onClick={() => handleCTAClick('create_invitation')}
                 className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white rounded-full shadow-md hover:shadow-lg transition-all px-6 py-3 font-semibold"
               >
                 🚀 Coba Gratis Sekarang
