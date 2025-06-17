@@ -29,7 +29,7 @@ const routes: NestedRoute[] = [
     icon: LayoutDashboardIcon,
     items: [
       { href: "/tutorial", label: "Tutorial", icon: Clapperboard  },
-      { href: "/wa", label: "Report", icon: MessageSquareWarning  },
+      { href: "https://wa.me/6289654728249", label: "Report", icon: MessageSquareWarning  },
        //
     ],
   },

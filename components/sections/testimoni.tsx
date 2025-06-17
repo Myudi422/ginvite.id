@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users, FileText } from "lucide-react";
 
 // Testimonial data (sama seperti sebelumnya)
 const testimonials = [
@@ -74,6 +74,24 @@ export default function TestimonialsSection() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Dengarkan cerita dari pasangan yang telah berbahagia menciptakan momen tak terlupakan bersama kami.
           </p>
+        </div>
+
+        {/* Tambahkan bagian statistik */}
+        <div className="flex justify-center gap-8 mb-12">
+          <div className="flex items-center gap-4">
+            <Users size={32} className="text-pink-500" />
+            <div>
+              <h3 className="text-2xl font-bold text-gray-800">200+</h3>
+              <p className="text-gray-600">User Aktif</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <FileText size={32} className="text-pink-500" />
+            <div>
+              <h3 className="text-2xl font-bold text-gray-800">1500+</h3>
+              <p className="text-gray-600">Undangan Dibuat</p>
+            </div>
+          </div>
         </div>
 
         {/* Wrapper utama untuk slider dan tombol navigasi */}

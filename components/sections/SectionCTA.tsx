@@ -28,7 +28,7 @@ export default function SectionCTA() {
               Coba Gratis
             </Button>
           </Link>
-          <Link href="/a">
+          <Link href="https://wa.me/6289654728249">
             <Button variant="outline" className="border-pink-500 text-pink-500 hover:bg-pink-50 rounded-full px-6 py-3 shadow-inner transform hover:scale-105 transition-transform duration-300">
               Hubungi Admin
             </Button>
