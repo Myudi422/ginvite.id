@@ -47,15 +47,21 @@ export default function TestimonialsSection() {
     return () => clearInterval(interval);
   }, []);
 
-  // Handler navigasi manual
+  // Modifikasi handler navigasi
   const goToNextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    setCurrentIndex((prevIndex) => {
+      const nextIndex = prevIndex + 1;
+      // Kembali ke 0 jika mencapai batas maksimum yang bisa ditampilkan
+      return nextIndex > testimonials.length - itemsPerPage ? 0 : nextIndex;
+    });
   };
 
   const goToPrevSlide = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
-    );
+    setCurrentIndex((prevIndex) => {
+      const nextIndex = prevIndex - 1;
+      // Pindah ke index maksimum yang masih bisa menampilkan itemsPerPage item
+      return nextIndex < 0 ? testimonials.length - itemsPerPage : nextIndex;
+    });
   };
 
   return (
@@ -76,21 +82,15 @@ export default function TestimonialsSection() {
           <div
             className="flex transition-transform duration-700 ease-in-out"
             style={{
-              // Mengatur pergerakan horizontal berdasarkan slide yang aktif dan jumlah item per tampilan
-              transform: `translateX(-${(100 / testimonials.length) * currentIndex}%)`,
-              // Mengatur lebar total kontainer agar semua testimonial muat dalam satu baris,
-              // dan setiap testimonial mengambil porsi lebarnya sendiri
+              transform: `translateX(-${(currentIndex * 100) / testimonials.length}%)`,
               width: `${(100 / itemsPerPage) * testimonials.length}%`,
             }}
           >
-            {testimonials.map((testimonial, index) => (
+            {/* Duplikasi testimonials untuk efek infinite scroll */}
+            {[...testimonials, ...testimonials.slice(0, itemsPerPage)].map((testimonial, index) => (
               <div
                 key={index}
-                // flex-shrink-0 memastikan item tidak mengecil
-                // px-4 memberikan padding horizontal yang menciptakan "gap" antar kartu
-                // py-6 memberikan padding vertikal di atas/bawah kartu
                 className="flex-shrink-0 px-4 py-6"
-                // Mengatur lebar setiap testimonial agar sesuai dengan itemsPerPage yang dihitung
                 style={{ width: `${100 / testimonials.length}%` }}
               >
                 <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-8 flex flex-col items-center text-center h-full">
