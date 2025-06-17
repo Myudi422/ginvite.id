@@ -182,7 +182,6 @@ export default function Theme1({ data }: Theme1Props) {
       `&location=${encodeURIComponent(firstEvent.location)}`;
   }
 
-  const sampleQrData = "SampleGuestID12345";
 
   const processedSpecialFontFamily = content?.font?.special?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
   const processedBodyFontFamily = content?.font?.body?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';

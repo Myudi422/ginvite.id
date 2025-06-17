@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
+import QRCode from "react-qr-code";
 
 interface QRModalProps {
   show: boolean;
@@ -10,9 +10,6 @@ interface QRModalProps {
 }
 
 export default function QRModal({ show, onClose, qrData }: QRModalProps) {
-  // generate QR dari nama tamu, bukan link
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
-
   return (
     <AnimatePresence>
       {show && (
@@ -30,7 +27,7 @@ export default function QRModal({ show, onClose, qrData }: QRModalProps) {
               </button>
             </div>
             <div className="flex justify-center mb-4">
-              <Image src={qrUrl} alt="QR Code" width={200} height={200} />
+              <QRCode value={qrData} size={200} />
             </div>
             <p className="text-sm text-gray-600">
               Harap tunjukkan QR code ini untuk check-in di lokasi acara.

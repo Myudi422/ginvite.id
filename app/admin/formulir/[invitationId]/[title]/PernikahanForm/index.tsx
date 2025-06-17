@@ -103,7 +103,7 @@ export function PernikahanForm({
       const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
       if (iframe) {
         const param = toParam ? `?to=${encodeURIComponent(toParam)}&time=${Date.now()}` : `?time=${Date.now()}`;
-        iframe.src = `/undang/${userId}/${encodeURIComponent(slug)}${param}`;
+        iframe.src = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`; // Use full URL
       }
     }, 500);
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };

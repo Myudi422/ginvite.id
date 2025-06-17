@@ -19,6 +19,7 @@ export default function LivePreview({ previewUrl }: LivePreviewProps) {
             src={previewUrl}
             className="w-full h-full"
             title="Pratinjau Undangan"
+            sandbox="allow-same-origin allow-scripts allow-popups allow-forms" // Add sandbox attribute
           />
         </div>
       )}
