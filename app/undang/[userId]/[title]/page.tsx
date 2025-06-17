@@ -108,7 +108,7 @@ export default async function InvitationPage({ params }: Props) {
   );
 
   // Ambil kategori tema dari content yang dikembalikan oleh API
-  const categoryId = data.content.themeCategory; // gunakan themeCategory
+  const categoryId = data.content.themeCategory;
 
   // Dinamis import komponen tema berdasarkan kategori (folder theme)
   let ThemePage: React.ComponentType<{ data: any }>;
