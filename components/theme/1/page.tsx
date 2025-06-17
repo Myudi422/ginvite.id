@@ -64,9 +64,6 @@ export default function Theme1({ data }: Theme1Props) {
 
   const searchParams = useSearchParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
-  const [showWatermark, setShowWatermark] = useState(false);
-  const [watermarkText, setWatermarkText] = useState("UNDANGAN BELUM AKTIF/UJICOBA");
-
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
@@ -113,14 +110,7 @@ export default function Theme1({ data }: Theme1Props) {
     })
     .catch(err => console.error('Fetch error:', err));
 }, [cuId]);
-
-  if (!data) return <div className="flex items-center justify-center h-screen">Loading Data...</div>;
-
-  useEffect(() => {
-    setShowWatermark(data?.status === "tidak");
-  }, [data?.status]);
-
-  // Destructure API data
+ // Destructure API data
   const { theme, content, decorations, event: apiEvents } = data;
   const { plugin } = content;
   const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote, 
@@ -204,6 +194,11 @@ export default function Theme1({ data }: Theme1Props) {
 
     return (
     <main className="relative min-h-screen text-center overflow-hidden flex md:flex-row" style={{ color: theme.textColor }}>
+      {data.status === "tidak" && (
+        <div className="fixed top-0 left-0 w-full bg-yellow-300 text-yellow-900 py-3 z-50 text-center font-semibold">
+          Undangan dalam mode ujicoba/gratis.
+        </div>
+      )}
       {isLoading && (
         <motion.div
           initial={{ opacity: 1 }}
@@ -221,14 +216,6 @@ export default function Theme1({ data }: Theme1Props) {
         </motion.div>
       )}
 
-      {showWatermark && (
-        <div className="fixed top-0 left-0 w-full h-full z-40 pointer-events-none flex items-center justify-center" style={{ backgroundColor: 'transparent' }}>
-          <div className="relative text-white text-center text-xl font-bold opacity-50">
-            {watermarkText}
-            <div className="absolute bottom-[-5px] left-0 w-full h-[3px]" style={{ backgroundColor: 'rgba(255, 192, 203, 0.5)' }} />
-          </div>
-        </div>
-      )}
 
       {/* Left Cover */}
       <div className="hidden md:block w-[70%] sticky top-0 h-screen relative" style={{ backgroundImage: `url(${leftBgImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
@@ -319,6 +306,7 @@ export default function Theme1({ data }: Theme1Props) {
     bodyFontFamily={processedBodyFontFamily}
     bankTransfer={content.bank_transfer}
     contentUserId={data.content_user_id}
+    status={data.status} // Pass status here
   />
 )}
            {content?.plugin?.rsvp && (
@@ -328,7 +316,8 @@ export default function Theme1({ data }: Theme1Props) {
         bodyFontFamily={processedBodyFontFamily}
         contentUserId={data.content_user_id}
         id="rsvp"
-        plugin={plugin} // <-- Tambahkan jika RsmpSection butuh plugin
+        plugin={plugin}
+        status={data.status} // Pass status here
       />
     )}
             <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} defaultBgImage1={theme.defaultBgImage1} />

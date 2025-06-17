@@ -47,7 +47,7 @@ const timeAgo = (dateString: string) => {
   return `${minutes} menit yang lalu`;
 };
 
-export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, contentUserId, id, plugin }: RsmpSectionProps & { plugin?: any }) {
+export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, contentUserId, id, plugin, status }: RsmpSectionProps & { plugin?: any; status: string }) {
   const [nama, setNama] = useState('');
   const [ucapan, setUcapan] = useState('');
   const [wa, setWa] = useState('');
@@ -210,16 +210,16 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, 
 
         <Button
           type="submit"
-          disabled={loading}
+          disabled={loading || status === "tidak"}
           className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02]"
           style={{
             backgroundColor: theme.accentColor,
             color: theme.bgColor,
-            opacity: loading ? 0.7 : 1
+            opacity: loading || status === "tidak" ? 0.7 : 1
           }}
         >
           <FaPaperPlane className="mr-2" />
-          {loading ? "Mengirim..." : "Kirim Ucapan"}
+          {status === "tidak" ? "Mode Gratis - Tidak Tersedia" : loading ? "Mengirim..." : "Kirim Ucapan"}
         </Button>
       </form>
 

@@ -35,7 +35,8 @@ export default function BankSection({
   bodyFontFamily,
   bankTransfer,
   contentUserId,
-}: BankSectionProps) {
+  status,
+}: BankSectionProps & { status: string }) {
   const [visible, setVisible] = useState(false);
   const [nama, setNama] = useState("");
   const [jumlah, setJumlah] = useState("");
@@ -248,15 +249,15 @@ export default function BankSection({
 
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || status === "tidak"}
               className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02]"
               style={{
                 backgroundColor: theme.accentColor,
                 color: theme.bgColor,
-                opacity: loading ? 0.7 : 1,
+                opacity: loading || status === "tidak" ? 0.7 : 1,
               }}
             >
-              {loading ? "Mengirim..." : "Kirim Konfirmasi"}
+              {status === "tidak" ? "Mode Gratis - Tidak Tersedia" : loading ? "Mengirim..." : "Kirim Konfirmasi"}
             </Button>
           </form>
         </div>
