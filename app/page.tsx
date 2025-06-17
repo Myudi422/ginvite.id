@@ -12,7 +12,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from 'next/image';
-import { Menu, X, Phone, BadgeCheck } from "lucide-react";
+import { Menu, X, Phone, BadgeCheck, LogIn } from "lucide-react";
 import Link from "next/link";
 import TestimonialsSection from "@/components/sections/testimoni";
 
@@ -77,13 +77,19 @@ function Header() {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-2">
-          <Link href={navigation[0].href} className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all px-3 py-1 text-sm font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50">
-            <Phone className="w-4 h-4 mr-1" />
-            Hubungi Admin
+          <Link
+            href={navigation[0].href}
+            className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50"
+            aria-label="Hubungi Admin"
+          >
+            <Phone className="w-5 h-5" />
           </Link>
-          <Link href="/admin" className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-3 py-1 text-sm font-semibold whitespace-nowrap inline-flex items-center">
-            <BadgeCheck className="w-4 h-4 mr-1" />
-            Coba Gratis
+          <Link
+            href="/admin"
+            className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center"
+            aria-label="Coba Gratis"
+          >
+            <LogIn className="w-5 h-5" />
           </Link>
         </div>
       </div>
