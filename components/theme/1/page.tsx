@@ -65,7 +65,7 @@ export default function Theme1({ data }: Theme1Props) {
   const searchParams = useSearchParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
   const [showWatermark, setShowWatermark] = useState(false);
-  const [watermarkText, setWatermarkText] = useState("UNDANGAN BELUM AKTIF");
+  const [watermarkText, setWatermarkText] = useState("UNDANGAN BELUM AKTIF/UJICOBA");
 
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {

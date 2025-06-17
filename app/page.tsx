@@ -23,7 +23,7 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-  { name: "Kontak", href: "https://wa.me/+6289654728249" },
+  { name: "Kontak", href: "https://wa.me/6289654728249" },
 ];
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {

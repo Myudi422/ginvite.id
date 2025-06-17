@@ -27,7 +27,7 @@ export default function FooterSection() {
         <div className="flex flex-col items-center sm:items-start">
           <h3 className="text-lg font-semibold text-slate-900 mb-2">Kontak Admin</h3>
           <p className="text-slate-700 mb-1">
-            Telp: <a href="https://wa.me/6285959203739" className="underline hover:text-slate-900">+62 859-5920-3739</a>
+            Telp: <a href="https://wa.me/6289654728249" className="underline hover:text-slate-900">+62 896-5472-8249</a>
           </p>
           <p className="text-slate-700">
             Email: <a href="mailto:papundacare@gmail.com" className="underline hover:text-slate-900">papundacare@gmail.com</a>
