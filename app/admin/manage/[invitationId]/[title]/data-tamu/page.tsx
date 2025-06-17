@@ -113,15 +113,20 @@ export default function DataTamuPage() {
     });
 
     return (
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', maxWidth: '100%' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="bg-gray-100">
+              <tr key={headerGroup.id} style={{ backgroundColor: '#f3f3f3' }}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="p-3 text-left whitespace-nowrap cursor-pointer"
+                    style={{
+                      padding: '12px',
+                      textAlign: 'left',
+                      whiteSpace: 'nowrap',
+                      cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                    }}
                     onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
                   >
                     {flexRender(header.column.columnDef.header, header.getContext())}
@@ -136,9 +141,9 @@ export default function DataTamuPage() {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-t">
+              <tr key={row.id} style={{ borderTop: '1px solid #e5e5e5' }}>
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="p-3 whitespace-nowrap">
+                  <td key={cell.id} style={{ padding: '12px', whiteSpace: 'nowrap' }}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -146,7 +151,7 @@ export default function DataTamuPage() {
             ))}
             {table.getRowModel().rows.length === 0 && (
               <tr>
-                <td className="p-3 text-center" colSpan={columns.length}>
+                <td style={{ padding: '12px', textAlign: 'center' }} colSpan={columns.length}>
                   Data tidak ditemukan.
                 </td>
               </tr>

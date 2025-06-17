@@ -78,6 +78,7 @@ export default function RundownPage() {
     const cellPadding = 5;
     const lineHeight = 12;
     const decodedTitle = decodeURIComponent(title || '');
+    const dynamicMargin = (pageWidth - tableWidth) / 2; // Dynamically calculate margin to center the table
 
     // Tambahkan background pada halaman pertama
     doc.addImage(backgroundBase64, 'PNG', 0, 0, pageWidth, pageHeight);
@@ -86,16 +87,19 @@ export default function RundownPage() {
     let currentY = margin + paddingTop;
 
     // Judul dokumen
-    doc.setFontSize(18);
-    doc.text(`Rundown – ${decodedTitle}`, margin, currentY);
+    doc.setFontSize(30);
+    const titleText = `Rundown – ${decodedTitle.replace(/-/g, ' ')}`; // Replace hyphens with spaces
+    const titleWidth = doc.getTextWidth(titleText);
+    const titleX = (pageWidth - titleWidth) / 2; // Calculate centered position
+    doc.text(titleText, titleX, currentY);
     currentY += headerHeight + 10;
 
     // Header tabel
     doc.setFillColor(249, 207, 217); // light pink
-    doc.rect(margin, currentY, colStartWidth, headerHeight, 'F');
-    doc.rect(margin + colStartWidth, currentY, colEndWidth, headerHeight, 'F');
+    doc.rect(dynamicMargin, currentY, colStartWidth, headerHeight, 'F');
+    doc.rect(dynamicMargin + colStartWidth, currentY, colEndWidth, headerHeight, 'F');
     doc.rect(
-      margin + colStartWidth + colEndWidth,
+      dynamicMargin + colStartWidth + colEndWidth,
       currentY,
       colActivityWidth,
       headerHeight,
@@ -104,16 +108,16 @@ export default function RundownPage() {
     doc.setFontSize(12);
     doc.setTextColor(127, 17, 65); // dark pink
     const headerTextY = currentY + headerHeight / 2 + 4;
-    doc.text('Start', margin + cellPadding, headerTextY);
-    doc.text('End', margin + colStartWidth + cellPadding, headerTextY);
+    doc.text('Mulai', dynamicMargin + cellPadding, headerTextY);
+    doc.text('Berakhir', dynamicMargin + colStartWidth + cellPadding, headerTextY);
     doc.text(
       'Kegiatan',
-      margin + colStartWidth + colEndWidth + cellPadding,
+      dynamicMargin + colStartWidth + colEndWidth + cellPadding,
       headerTextY
     );
     currentY += headerHeight;
     doc.setDrawColor(200);
-    doc.line(margin, currentY, margin + tableWidth, currentY);
+    doc.line(dynamicMargin, currentY, dynamicMargin + tableWidth, currentY);
 
     // Loop tiap item rundown
     items.forEach((item) => {
@@ -133,10 +137,10 @@ export default function RundownPage() {
         currentY = margin + paddingTop;
         // Gambar ulang header tabel di halaman baru
         doc.setFillColor(249, 207, 217);
-        doc.rect(margin, currentY, colStartWidth, headerHeight, 'F');
-        doc.rect(margin + colStartWidth, currentY, colEndWidth, headerHeight, 'F');
+        doc.rect(dynamicMargin, currentY, colStartWidth, headerHeight, 'F');
+        doc.rect(dynamicMargin + colStartWidth, currentY, colEndWidth, headerHeight, 'F');
         doc.rect(
-          margin + colStartWidth + colEndWidth,
+          dynamicMargin + colStartWidth + colEndWidth,
           currentY,
           colActivityWidth,
           headerHeight,
@@ -144,51 +148,53 @@ export default function RundownPage() {
         );
         doc.setTextColor(127, 17, 65);
         const newHeaderY = currentY + headerHeight / 2 + 4;
-        doc.text('Start', margin + cellPadding, newHeaderY);
-        doc.text('End', margin + colStartWidth + cellPadding, newHeaderY);
+        doc.text('Mulai', dynamicMargin + cellPadding, newHeaderY); // Use consistent text
+        doc.text('Berakhir', dynamicMargin + colStartWidth + cellPadding, newHeaderY); // Use consistent text
         doc.text(
           'Kegiatan',
-          margin + colStartWidth + colEndWidth + cellPadding,
+          dynamicMargin + colStartWidth + colEndWidth + cellPadding,
           newHeaderY
         );
         currentY += headerHeight;
         doc.setDrawColor(200);
-        doc.line(margin, currentY, margin + tableWidth, currentY);
+        doc.line(dynamicMargin, currentY, dynamicMargin + tableWidth, currentY);
       }
 
       // Gambar border baris sebagai satu rectangle dan garis vertikal pembagi
-      doc.rect(margin, currentY, tableWidth, cellHeight);
+      doc.rect(dynamicMargin, currentY, tableWidth, cellHeight);
       doc.line(
-        margin + colStartWidth,
+        dynamicMargin + colStartWidth,
         currentY,
-        margin + colStartWidth,
+        dynamicMargin + colStartWidth,
         currentY + cellHeight
       );
       doc.line(
-        margin + colStartWidth + colEndWidth,
+        dynamicMargin + colStartWidth + colEndWidth,
         currentY,
-        margin + colStartWidth + colEndWidth,
+        dynamicMargin + colStartWidth + colEndWidth,
         currentY + cellHeight
       );
 
-      // Isi tiap sel dengan teks
+      // Isi tiap sel dengan teks, memastikan teks tetap berada dalam batas sel
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(12);
       doc.text(
         item.start,
-        margin + cellPadding,
+        dynamicMargin + cellPadding,
         currentY + cellPadding + lineHeight
       );
       doc.text(
         item.end,
-        margin + colStartWidth + cellPadding,
+        dynamicMargin + colStartWidth + cellPadding,
         currentY + cellPadding + lineHeight
       );
-      doc.text(
-        activityLines,
-        margin + colStartWidth + colEndWidth + cellPadding,
-        currentY + cellPadding + lineHeight
-      );
+      activityLines.forEach((line, index) => {
+        doc.text(
+          line,
+          dynamicMargin + colStartWidth + colEndWidth + cellPadding,
+          currentY + cellPadding + lineHeight * (index + 1)
+        );
+      });
 
       currentY += cellHeight;
     });
