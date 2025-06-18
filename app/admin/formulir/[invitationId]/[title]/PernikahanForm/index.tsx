@@ -85,7 +85,6 @@ export function PernikahanForm({
   // component state
   const [slug, setSlug] = useState(initialSlug);
   const [inputSlug, setInputSlug] = useState(initialSlug);
-  const [toParam, setToParam] = useState('');
   const [status, setStatus] = useState<0 | 1>(initialStatus);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,12 +101,12 @@ export function PernikahanForm({
     timeoutRef.current = setTimeout(() => {
       const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
       if (iframe) {
-        const param = toParam ? `?to=${encodeURIComponent(toParam)}&time=${Date.now()}` : `?time=${Date.now()}`;
+        const param = `?time=${Date.now()}`;
         iframe.src = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`; // Use full URL
       }
     }, 500);
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
-  }, [slug, toParam]);
+  }, [slug]);
 
   // slug sanitization
   const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,7 +151,7 @@ export function PernikahanForm({
   const refreshPreview = () => {
     const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
     if (iframe) {
-      const param = toParam ? `?to=${encodeURIComponent(toParam)}&time=${Date.now()}` : `?time=${Date.now()}`;
+      const param = `?time=${Date.now()}`;
       iframe.src = `/undang/${userId}/${encodeURIComponent(slug)}${param}`;
     }
   };
@@ -216,75 +215,70 @@ export function PernikahanForm({
   return (
     <FormProvider {...form}>
       <form onSubmit={e => e.preventDefault()} className="space-y-6">
-      <FormField
-  name="slug"
-  control={form.control}
-  render={() => (
-    <FormItem>
-      <FormLabel>Judul URL (Yang dibagikan)</FormLabel>
-      <div className="flex items-center space-x-2">
-        <FormControl>
-          <Input
-            placeholder="Masukkan slug undangan Anda"
-            className="flex-1"
-            required                         // <-- HTML5 required
-            value={inputSlug}
-            disabled // <-- ADD THIS LINE TO DISABLE THE INPUT
-            onChange={e => {
-              const raw = e.target.value
-              const newSlug = raw
-                .toLowerCase()
-                .replace(/[^a-z0-9\s-]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-')
-              setInputSlug(newSlug)
-              form.setValue('slug', newSlug, {
-                shouldValidate: true,
-                shouldDirty: true
-              })
-            }}
-          />
-        </FormControl>
+        <FormField
+          name="slug"
+          control={form.control}
+          render={() => (
+            <FormItem>
+              <FormLabel>Judul URL (Yang dibagikan)</FormLabel>
+              <div className="flex items-center space-x-2">
+                <FormControl>
+                  <Input
+                    placeholder="Masukkan slug undangan Anda"
+                    className="flex-1"
+                    required                         // <-- HTML5 required
+                    value={inputSlug}
+                    disabled // <-- ADD THIS LINE TO DISABLE THE INPUT
+                    onChange={e => {
+                      const raw = e.target.value
+                      const newSlug = raw
+                        .toLowerCase()
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-')
+                      setInputSlug(newSlug)
+                      form.setValue('slug', newSlug, {
+                        shouldValidate: true,
+                        shouldDirty: true
+                      })
+                    }}
+                  />
+                </FormControl>
 
-        {/* Copy */}
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!inputSlug}            // <-- disable if empty
-          onClick={() => {
-            const slugVal = inputSlug
-            const url = `papunda.com/undang/${userId}/${encodeURIComponent(slugVal)}`
-            navigator.clipboard.writeText(url)
-            alert('Tautan berhasil disalin!')
-          }}
-        >
-          <FiCopy size={16} />
-        </Button>
+                {/* Copy */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!inputSlug}            // <-- disable if empty
+                  onClick={() => {
+                    const slugVal = inputSlug
+                    const url = `papunda.com/undang/${userId}/${encodeURIComponent(slugVal)}`
+                    navigator.clipboard.writeText(url)
+                    alert('Tautan berhasil disalin!')
+                  }}
+                >
+                  <FiCopy size={16} />
+                </Button>
 
-        {/* Open in new tab */}
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!inputSlug}            // <-- disable if empty
-          onClick={() => {
-            const slugVal = inputSlug
-            const fullUrl = `https://papunda.com/undang/${userId}/${encodeURIComponent(slugVal)}`
-            window.open(fullUrl, '_blank')
-          }}
-        >
-          <FiExternalLink size={16} />
-        </Button>
-      </div>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+                {/* Open in new tab */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!inputSlug}            // <-- disable if empty
+                  onClick={() => {
+                    const slugVal = inputSlug
+                    const fullUrl = `https://papunda.com/undang/${userId}/${encodeURIComponent(slugVal)}`
+                    window.open(fullUrl, '_blank')
+                  }}
+                >
+                  <FiExternalLink size={16} />
+                </Button>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-
-        <FormItem>
-          <FormLabel>Mengundang Preview “to”</FormLabel>
-          <Input placeholder="Contoh: Nama Tamu" value={toParam} onChange={e => setToParam(e.target.value)} />
-        </FormItem>
 
         <ThemeSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
         <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
