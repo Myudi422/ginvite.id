@@ -23,6 +23,7 @@ interface ManageData {
     hadir: number;
     tidak_hadir: number;
   };
+  QR: boolean;
 }
 
 export default function ManagePage() {
@@ -177,13 +178,37 @@ export default function ManagePage() {
             <ListChecks className="h-8 w-8 mb-2" />
             <span className="font-semibold">Rundown Generate</span>
           </button>
-          {/* Hanya menuju /qr-code tanpa parameter apa pun */}
           <button
-            onClick={() => router.push(`/admin/manage/${invitationId}/${slug}/qr-code`)}
-            className="flex flex-col items-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700"
+            onClick={async () => {
+              if (!manageData.QR) return;
+              
+              try {
+                // Verify QR access again before navigation
+                const res = await fetch(
+                  `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_manage&user_id=${userId}&title=${slug}`
+                );
+                const json = await res.json();
+                
+                if (json.status === 'success' && json.data?.QR) {
+                  router.push(`/admin/manage/${invitationId}/${slug}/qr-code`);
+                } else {
+                  alert('Fitur QR Code belum diaktifkan');
+                }
+              } catch (err) {
+                alert('Terjadi kesalahan saat mengakses QR Code');
+              }
+            }}
+            className={`flex flex-col items-center rounded-lg p-6 ${
+              manageData.QR 
+                ? 'bg-pink-600 text-white hover:bg-pink-700' 
+                : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+            }`}
           >
             <QrCode className="h-8 w-8 mb-2" />
             <span className="font-semibold">QR CODE Manage</span>
+            {!manageData.QR && (
+              <span className="text-xs mt-1">🔒 Terkunci</span>
+            )}
           </button>
         </div>
       </div>
