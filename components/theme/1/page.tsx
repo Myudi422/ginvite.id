@@ -226,7 +226,7 @@ export default function Theme1({ data }: Theme1Props) {
 
       {/* Right Content */}
       <div className="w-full md:w-[30%] overflow-y-auto h-screen">
-        {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay />}
+        {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay accentColor={theme.accentColor} />}
         <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={toName} />
 
         {!isOpen && !isLoading && (

@@ -7,9 +7,10 @@ import { Play, Pause } from "lucide-react";
 interface MusicPlayerProps {
   url: string;
   autoPlay?: boolean;
+  accentColor?: string; // Add accentColor prop
 }
 
-export default function MusicPlayer({ url, autoPlay = false }: MusicPlayerProps) {
+export default function MusicPlayer({ url, autoPlay = false, accentColor = "#c80e5f" }: MusicPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -67,7 +68,10 @@ export default function MusicPlayer({ url, autoPlay = false }: MusicPlayerProps)
         onClick={togglePlay}
         className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 focus:outline-none"
       >
-        {isPlaying ? <Pause className="h-6 w-6 text-blue-600" /> : <Play className="h-6 w-6 text-blue-600" />}
+        {isPlaying ? 
+          <Pause className="h-6 w-6" style={{ color: accentColor }} /> : 
+          <Play className="h-6 w-6" style={{ color: accentColor }} />
+        }
       </button>
     </div>
   );

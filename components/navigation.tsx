@@ -1,12 +1,12 @@
 "use client"
 
-import { Home, Calendar, ImageIcon, MapPin, Heart } from "lucide-react" // Import ikon baru
+import { Home, Calendar, ImageIcon, MapPin, Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
   activeSection: string
   setActiveSection: (section: string) => void
-  accentColor: string // Accent color passed as prop
+  accentColor: string
   showGallery?: boolean
   showRsvp?: boolean
 }
@@ -22,7 +22,7 @@ export default function Navigation({
     { id: "home", icon: Home, label: "Home", show: true },
     { id: "event", icon: Calendar, label: "Acara", show: true },
     { id: "gallery", icon: ImageIcon, label: "Galeri", show: showGallery },
-    { id: "rsvp", icon: Heart, label: "Kehadiran", show: showRsvp }, // Item untuk Kehadiran
+    { id: "rsvp", icon: Heart, label: "Kehadiran", show: showRsvp },
   ].filter(item => item.show);
 
   const handleNavClick = (sectionId: string) => {
@@ -38,8 +38,8 @@ export default function Navigation({
     <div
       className="fixed bottom-0 left-0 right-0 bg-black bg-opacity-80 backdrop-blur-sm z-30 rounded-tl-xl rounded-tr-xl"
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.8)', // Transparent background with black color
-        borderTop: `2px solid white`, // Adding accent color stroke at the top
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        borderTop: `2px solid ${accentColor}`,
       }}
     >
       <div className="flex justify-around items-center h-16">
@@ -50,18 +50,18 @@ export default function Navigation({
             className={cn(
               "flex flex-col items-center justify-center w-full h-full text-xs transition-colors",
               activeSection === item.id
-                ? `text-white` // Active section uses accent color (text-white)
-                : "text-gray-400", // Inactive section text color is gray
+                ? "text-[" + accentColor + "]"
+                : "text-gray-400",
             )}
           >
             <item.icon
               size={20}
               className={cn(
-                activeSection === item.id ? "text-white" : "text-gray-400" // Color change based on active section
+                activeSection === item.id ? "text-[" + accentColor + "]" : "text-gray-400"
               )}
             />
             <span className={cn(
-              activeSection === item.id ? "text-white" : "text-gray-400" // Color change based on active section
+              activeSection === item.id ? "text-[" + accentColor + "]" : "text-gray-400"
             )}>
               {item.label}
             </span>
