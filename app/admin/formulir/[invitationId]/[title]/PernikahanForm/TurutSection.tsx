@@ -6,9 +6,19 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Switch } from '@/components/ui/switch';
 import { Collapsible } from './Collapsible';
 import { Textarea } from '@/components/ui/textarea';
+import { autoSaveContent } from '@/app/actions/saved';
 
-export function TurutSection() {
-  const { control, setValue } = useFormContext<any>();
+interface TurutSectionProps {
+  userId: number;
+  invitationId: number;
+  slug: string;
+  onSavedSlug: string;
+}
+
+export function TurutSection({
+  userId, invitationId, slug, onSavedSlug,
+}: TurutSectionProps) {
+  const { control, setValue, getValues } = useFormContext<any>();
   const enabled = useWatch({ control, name: 'turut.enabled' });
   const list = useWatch({ control, name: 'turut.list' });
 
@@ -23,6 +33,31 @@ export function TurutSection() {
       setTextValue('');
     }
   }, [enabled, list]);
+
+  // Auto-save functionality
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const data = getValues();
+        const payload = {
+          user_id: userId,
+          id: invitationId,
+          title: slug,
+          content: JSON.stringify({ ...data, event: { ...data.event, title: slug } }),
+          waktu_acara: data.event.date,
+          time: data.event.time,
+          location: data.event.location,
+          mapsLink: data.event.mapsLink,
+        };
+        await autoSaveContent(payload);
+        const iframe = document.getElementById('previewFrame') as HTMLIFrameElement|null;
+        if (iframe) iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
+      } catch (e) {
+        console.error('Auto-save Turut gagal:', (e as Error).message);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [enabled, list, getValues, invitationId, slug, onSavedSlug, userId]);
 
   return (
     <Collapsible title="Turut Mengundang">

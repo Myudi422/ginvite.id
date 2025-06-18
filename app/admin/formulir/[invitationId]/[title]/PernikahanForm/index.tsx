@@ -300,7 +300,12 @@ export function PernikahanForm({
             refreshPreview();
           }}
         />
-        <TurutSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        <TurutSection 
+          userId={userId} 
+          invitationId={invitationId} 
+          slug={inputSlug} 
+          onSavedSlug={slug} 
+        />
 
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onSave} disabled={saving}>{saving ? 'Menyimpan…' : 'Simpan'}</Button>

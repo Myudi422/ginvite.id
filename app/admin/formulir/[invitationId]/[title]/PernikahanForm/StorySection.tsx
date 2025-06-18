@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useFormContext, useFieldArray, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -61,6 +61,18 @@ export function StorySection({
       iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
     }
   }, [getValues, invitationId, onSavedSlug, slug, userId]);
+
+  // Add useEffect for auto-save when enabled changes
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        await autoSave();
+      } catch (e) {
+        console.error('Auto-save Story gagal:', (e as Error).message);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [enabled, autoSave]);
 
   // handle upload foto cerita
   const handleFileChange = useCallback(async (file: File, idx: number) => {
