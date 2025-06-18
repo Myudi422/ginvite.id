@@ -6,7 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 
 // Google Tag Manager and Facebook Pixel Configuration
 const GTM_ID = 'GTM-XXXXXX' // Replace with your GTM ID
-const FB_PIXEL_ID = 'XXXXXXXXXXXXXXX' // Replace with your Facebook Pixel ID
+const FB_PIXEL_ID = '30411664605114249' // Updated Facebook Pixel ID
 
 export const metadata: Metadata = {
   title: 'Papunda | Buat Undangan Digital Gratis',
