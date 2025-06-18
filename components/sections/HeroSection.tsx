@@ -30,7 +30,16 @@ export default function HeroSection() {
   }, []);
 
   const handleCTAClick = (buttonName: string) => {
+    // Track with existing analytics
     trackCTAClick(buttonName, 'hero_section');
+    
+    // Add Facebook Pixel tracking
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      (window as any).fbq('track', 'Lead', {
+        content_name: buttonName,
+        content_category: 'hero_section'
+      });
+    }
   };
 
   return (

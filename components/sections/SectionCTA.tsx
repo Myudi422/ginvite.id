@@ -5,6 +5,16 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function SectionCTA() {
+  const handleCTAClick = (buttonName: string) => {
+    // Track with Facebook Pixel
+    if (typeof window !== 'undefined' && (window as any).fbq) {
+      (window as any).fbq('track', 'Lead', {
+        content_name: buttonName,
+        content_category: 'cta_section'
+      });
+    }
+  };
+
   return (
     <motion.section
       className="relative py-16 bg-pink-100 overflow-hidden"
@@ -24,12 +34,19 @@ export default function SectionCTA() {
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link href="/admin">
-            <Button className="bg-pink-500 hover:bg-pink-600 text-white rounded-full px-6 py-3 shadow-lg transform hover:scale-105 transition-transform duration-300">
+            <Button 
+              onClick={() => handleCTAClick('try_free')}
+              className="bg-pink-500 hover:bg-pink-600 text-white rounded-full px-6 py-3 shadow-lg transform hover:scale-105 transition-transform duration-300"
+            >
               Coba Gratis
             </Button>
           </Link>
           <Link href="https://wa.me/6289654728249">
-            <Button variant="outline" className="border-pink-500 text-pink-500 hover:bg-pink-50 rounded-full px-6 py-3 shadow-inner transform hover:scale-105 transition-transform duration-300">
+            <Button 
+              onClick={() => handleCTAClick('contact_admin')}
+              variant="outline" 
+              className="border-pink-500 text-pink-500 hover:bg-pink-50 rounded-full px-6 py-3 shadow-inner transform hover:scale-105 transition-transform duration-300"
+            >
               Hubungi Admin
             </Button>
           </Link>

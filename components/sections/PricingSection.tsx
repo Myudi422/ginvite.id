@@ -93,6 +93,18 @@ export default function PricingSection() {
   const remainingUjiCobaFeaturesCount =
     (ujiCobaPlan?.features.length || 0) - displayedUjiCobaFeatures.length;
 
+  const handlePricingCTA = (planTitle: string, planPrice: string) => {
+    // Track with Facebook Pixel
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "InitiateCheckout", {
+        content_name: planTitle,
+        content_category: "pricing",
+        value: planPrice,
+        currency: "IDR",
+      });
+    }
+  };
+
   return (
     <section className="py-16 px-4 md:px-8 lg:px-16 bg-white">
       <div className="max-w-6xl mx-auto">
@@ -260,7 +272,11 @@ export default function PricingSection() {
                 )}
 
                 {/* Tombol CTA */}
-                <Link href="/admin" className="block mt-6">
+                <Link
+                  href="/admin"
+                  className="block mt-6"
+                  onClick={() => handlePricingCTA(plan.title, plan.price)}
+                >
                   <Button
                     className={`w-full rounded-full text-lg font-semibold py-3 ${
                       selectedType === "langganan"
