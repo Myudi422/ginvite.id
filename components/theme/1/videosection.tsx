@@ -1,19 +1,23 @@
-import React from 'react';
-import ReactPlayer from 'react-player';
+import React, { Suspense, lazy, useState } from 'react';
 import Image from 'next/image';
+
+// Dynamically import ReactPlayer
+const ReactPlayer = lazy(() => import('react-player/youtube'));
 
 interface VideoSectionProps {
   youtubeLink?: string;
   defaultBgImage1?: string;
-  horizontalPadding?: string; // Properti untuk mengatur jarak kiri dan kanan
+  horizontalPadding?: string;
 }
 
 const VideoSection: React.FC<VideoSectionProps> = ({
   youtubeLink,
   defaultBgImage1,
-  horizontalPadding = 'mx-auto max-w-3xl', // Contoh padding menggunakan max-width
+  horizontalPadding = 'mx-auto max-w-3xl',
 }) => {
-  if (!youtubeLink) {
+  const [hasError, setHasError] = useState(false);
+
+  if (!youtubeLink || hasError) {
     return (
       <section
         id="video"
@@ -28,9 +32,6 @@ const VideoSection: React.FC<VideoSectionProps> = ({
             objectFit="cover"
           />
         )}
-        <div className="absolute inset-0 flex items-center justify-center text-white text-lg italic">
-          Video tidak tersedia
-        </div>
       </section>
     );
   }
@@ -51,28 +52,36 @@ const VideoSection: React.FC<VideoSectionProps> = ({
             objectFit="cover"
           />
         )}
-        {/* Anda bisa menghilangkan atau mengganti pesan ini jika tidak diperlukan */}
-        {/* <div className="absolute inset-0 flex items-center justify-center text-white text-lg italic">
-          Tautan YouTube tidak valid
-        </div> */}
       </section>
     );
   }
 
   return (
-    <section id="video" className="w-full bg-black overflow-hidden py-8"> {/* Tambahkan sedikit padding atas dan bawah */}
+    <section id="video" className="w-full bg-black overflow-hidden py-8">
       <div className={`${horizontalPadding} overflow-hidden`}>
         <div className="relative aspect-video w-full">
-          <ReactPlayer
-            url={youtubeLink}
-            width="100%"
-            height="100%"
-            controls={true}
-            muted={true} // Aktifkan auto-mute
-            playing={false}
-            loop={false}
-            style={{ position: 'absolute', top: 0, left: 0 }}
-          />
+          <Suspense fallback={
+            <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white">
+              Loading video...
+            </div>
+          }>
+            <ReactPlayer
+              url={youtubeLink}
+              width="100%"
+              height="100%"
+              controls={true}
+              muted={true}
+              playing={false}
+              loop={false}
+              onError={() => setHasError(true)}
+              fallback={
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white">
+                  Error loading video
+                </div>
+              }
+              style={{ position: 'absolute', top: 0, left: 0 }}
+            />
+          </Suspense>
         </div>
       </div>
     </section>
