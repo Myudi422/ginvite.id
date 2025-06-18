@@ -1,9 +1,9 @@
 "use client";
-//
 
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { FiCopy } from "react-icons/fi";
+import { submitBankTransfer } from "@/app/actions/bank";
 
 interface BankAccount {
   bank_name: string;
@@ -87,25 +87,11 @@ export default function BankSection({
     }
     setLoading(true);
     try {
-      const formData = {
+      await submitBankTransfer({
         nominal: parseFloat(jumlah),
         user_id: contentUserId,
         nama_pemberi: nama,
-      };
-
-      const response = await fetch(
-        "https://ccgnimex.my.id/v2/android/ginvite/index.php?action=bank",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Terjadi kesalahan saat mengirim data.");
-      }
+      });
 
       setSuccess(true);
       setNama("");

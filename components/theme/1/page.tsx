@@ -32,6 +32,7 @@ import OurStorySection from "@/components/theme/1/OurStorySection";
 import GallerySection from "@/components/theme/1/GallerySection";
 import ClosingSection from "@/components/theme/1/ClosingSection";
 import FooterSection from "@/components/theme/1/FooterSection";
+import { recordContentView } from "@/app/actions/view";
 
 interface Theme1Props {
   data: any;
@@ -77,40 +78,27 @@ export default function Theme1({ data }: Theme1Props) {
   }, [isOpen]);
 
   useEffect(() => {
-  if (!cuId) return; // guard
+    if (!cuId) return;
 
-  const viewedKey = `viewed_${cuId}`;
-  const lastViewedTimeKey = `lastViewedTime_${cuId}`;
-  const oneHour = 60 * 60 * 1000; // 1 jam dalam milisekon
-  const currentTime = new Date().getTime();
-  const lastViewed = localStorage.getItem(viewedKey);
-  const lastTime = localStorage.getItem(lastViewedTimeKey);
+    const viewedKey = `viewed_${cuId}`;
+    const lastViewedTimeKey = `lastViewedTime_${cuId}`;
+    const oneHour = 60 * 60 * 1000;
+    const currentTime = new Date().getTime();
+    const lastViewed = localStorage.getItem(viewedKey);
+    const lastTime = localStorage.getItem(lastViewedTimeKey);
 
-  // Cek apakah sudah melihat dalam 1 jam terakhir
-  if (lastViewed === 'true' && lastTime && currentTime - parseInt(lastTime) < oneHour) {
-    console.log(`cuId ${cuId} sudah mencatat view dalam 1 jam terakhir.`);
-    return; // Jangan kirim permintaan lagi
-  }
+    // Only record view if not viewed in last hour
+    if (lastViewed !== 'true' || !lastTime || currentTime - parseInt(lastTime) >= oneHour) {
+      recordContentView(cuId)
+        .then(() => {
+          localStorage.setItem(viewedKey, 'true');
+          localStorage.setItem(lastViewedTimeKey, currentTime.toString());
+        })
+        .catch(console.error);
+    }
+  }, [cuId]);
 
-  fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=view`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content_user_id: cuId }),
-  })
-    .then(res => res.json())
-    .then(json => {
-      if (json.status === 'success') {
-        console.log('View count:', json.view);
-        // Tandai sudah dilihat dan simpan waktu saat ini
-        localStorage.setItem(viewedKey, 'true');
-        localStorage.setItem(lastViewedTimeKey, currentTime.toString());
-      } else {
-        console.warn('View update failed:', json.message);
-      }
-    })
-    .catch(err => console.error('Fetch error:', err));
-}, [cuId]);
- // Destructure API data
+  // Destructure API data
   const { theme, content, decorations, event: apiEvents } = data;
   const { plugin } = content;
   const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote, 
