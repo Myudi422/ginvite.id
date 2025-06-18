@@ -90,15 +90,17 @@ export default function HeroSection() {
                 onClick={() => handleCTAClick('create_invitation')}
                 className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white rounded-full shadow-md hover:shadow-lg transition-all px-6 py-3 font-semibold"
               >
-                🚀 Coba Gratis Sekarang
+                <a href="/admin">🚀 Coba Gratis Sekarang</a>
               </Button>
               <Button
                 variant="outline"
                 size="lg"
                 className="w-full sm:w-auto border-2 border-green-600 text-green-700 hover:bg-green-50 rounded-full flex items-center gap-2 px-6 py-3 font-semibold"
               >
-                <MessageSquare size={18} />
-                <span>Minta Dibuatkan</span>
+                <a href="https://wa.me/6289654728249" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <MessageSquare size={18} />
+                  <span>Minta Dibuatkan</span>
+                </a>
               </Button>
             </motion.div>
           </div>
