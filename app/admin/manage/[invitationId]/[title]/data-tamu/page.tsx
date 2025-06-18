@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ChevronLeft, Eye, ThumbsUp, TrashIcon, User, Wallet } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { fetchUserManageData, deleteUserManageData } from "@/app/actions/usermanage";
 
 import {
   useReactTable,
@@ -31,6 +32,17 @@ type Transfer = {
   nominal: number;
 };
 
+type QRAttendance = {
+  id: number;
+  nama: string;
+  tanggal: string;
+};
+
+function formatToLocalTime(utcDate: string): string {
+  const date = new Date(utcDate);
+  return date.toLocaleString("id-ID", { timeZone: "Asia/Jakarta" });
+}
+
 export default function DataTamuPage() {
   const router = useRouter();
   const { invitationId, title } = useParams() as {
@@ -42,32 +54,37 @@ export default function DataTamuPage() {
   // State untuk data, aggregates dan pagination
   const [rsvpData, setRsvpData] = useState<RSVP[]>([]);
   const [transferData, setTransferData] = useState<Transfer[]>([]);
+  const [qrAttendanceData, setQrAttendanceData] = useState<QRAttendance[]>([]);
   const [aggregates, setAggregates] = useState({
     bank_transfer_total_nominal: 0,
     rsvp_counts: { total: 0, hadir: 0, tidak_hadir: 0 },
+    qr_attendance_total: 0, // Add total count for QR attendance
   });
   const [rsvpPage, setRsvpPage] = useState(1);
   const [transferPage, setTransferPage] = useState(1);
+  const [qrAttendancePage, setQrAttendancePage] = useState(1);
   const [loading, setLoading] = useState(false);
 
   // Fungsi ambil data dari API dengan parameter pagination
   async function fetchData() {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      params.append('user_id', String(user_id));
-      params.append('title', title || '');
-      params.append('rsvp_page', String(rsvpPage));
-      params.append('transfer_page', String(transferPage));
+      const params = {
+        user_id: String(user_id),
+        title: title || '',
+        rsvp_page: String(rsvpPage),
+        transfer_page: String(transferPage),
+        qr_attendance_page: String(qrAttendancePage),
+      };
 
-      const url = `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_usermanage&${params.toString()}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      if (json.status === 'success') {
-        setRsvpData(json.data.rsmp);
-        setTransferData(json.data.bank_transfer);
-        setAggregates(json.data.aggregates);
-      }
+      const data = await fetchUserManageData(params);
+      setRsvpData(data.rsmp);
+      setTransferData(data.bank_transfer);
+      setQrAttendanceData(data.qr_attendance || []);
+      setAggregates({
+        ...data.aggregates,
+        qr_attendance_total: data.qr_attendance_total || 0, // Update aggregates
+      });
     } catch (error) {
       console.error('Error fetching data', error);
     }
@@ -76,27 +93,15 @@ export default function DataTamuPage() {
 
   useEffect(() => {
     fetchData();
-  }, [rsvpPage, transferPage, title, user_id]);
+  }, [rsvpPage, transferPage, qrAttendancePage, title, user_id]);
 
   // Fungsi hapus data (API delete)
   async function deleteData(id: number, type: string) {
     if (!confirm(`Yakin hapus data ${type} dengan id ${id}?`)) return;
     try {
-      const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=delete_usermanage',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id, type }),
-        }
-      );
-      const json = await res.json();
-      if (json.status === 'success') {
-        alert(json.message);
-        fetchData();
-      } else {
-        alert(json.message);
-      }
+      await deleteUserManageData(id, type);
+      alert(`Data ${type} dengan id ${id} telah dihapus.`);
+      fetchData();
     } catch (error) {
       console.error('Error deleting data', error);
       alert('Terjadi kesalahan saat menghapus data.');
@@ -186,7 +191,7 @@ export default function DataTamuPage() {
   const rsvpColumns = useMemo<ColumnDef<RSVP, any>[]>(() => [
     rsvpColumnHelper.accessor('created_at', {
       header: 'Tanggal',
-      cell: info => <span className="whitespace-nowrap">{info.getValue() || '-'}</span>,
+      cell: info => <span className="whitespace-nowrap">{formatToLocalTime(info.getValue() || '')}</span>,
     }),
     rsvpColumnHelper.accessor('nama', {
       header: 'Nama',
@@ -237,6 +242,29 @@ export default function DataTamuPage() {
     },
   ], []);
 
+  // Column definitions untuk tabel QR Attendance
+  const qrAttendanceColumnHelper = createColumnHelper<QRAttendance>();
+  const qrAttendanceColumns = useMemo<ColumnDef<QRAttendance, any>[]>(() => [
+    qrAttendanceColumnHelper.accessor('tanggal', {
+      header: 'Tanggal',
+      cell: info => <span className="whitespace-nowrap">{formatToLocalTime(info.getValue() || '')}</span>,
+    }),
+    qrAttendanceColumnHelper.accessor('nama', {
+      header: 'Nama',
+      cell: info => <span className="font-medium">{info.getValue()}</span>,
+    }),
+    {
+      id: 'aksi',
+      header: 'Aksi',
+      enableSorting: false,
+      cell: ({ row }) => (
+        <Button variant="ghost" onClick={() => deleteData(row.original.id, 'qr_attendance')}>
+          <TrashIcon className="h-4 w-4 text-red-500" />
+        </Button>
+      ),
+    },
+  ], []);
+
   return (
     <div className="min-h-screen bg-pink-50">
       <div className="sticky top-0 z-10 flex items-center bg-white shadow p-4">
@@ -253,6 +281,7 @@ export default function DataTamuPage() {
           <TabsList className="w-full bg-white shadow rounded-lg p-1">
             <TabsTrigger value="rsvp" className="flex-1">Tamu RSVP</TabsTrigger>
             <TabsTrigger value="transfer" className="flex-1">Tamu Transfer</TabsTrigger>
+            <TabsTrigger value="qr_attendance" className="flex-1">Tamu QR</TabsTrigger>
           </TabsList>
 
           {/* Tab Tamu RSVP */}
@@ -332,6 +361,42 @@ export default function DataTamuPage() {
                 )}
                 {transferData.length === 20 && (
                   <Button onClick={() => setTransferPage(transferPage + 1)} disabled={loading}>
+                    Next Page
+                  </Button>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Tab Tamu QR */}
+          <TabsContent value="qr_attendance">
+            <div className="bg-white shadow rounded-2xl p-6 space-y-6">
+              <h2 className="text-lg font-semibold text-pink-700">Daftar Tamu QR</h2>
+              {/* Card Total QR Attendance */}
+              <div className="bg-white shadow rounded-2xl p-4 flex items-center space-x-4">
+                <div className="flex-shrink-0">
+                  <Eye className="h-8 w-8 text-pink-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Total QR Attendance</p>
+                  <p className="text-2xl font-bold text-gray-800">
+                    {aggregates.qr_attendance_total}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Data ini mencakup semua tamu yang hadir melalui QR.
+                  </p>
+                </div>
+              </div>
+
+              <ResponsiveTable columns={qrAttendanceColumns} data={qrAttendanceData} />
+              <div className="flex justify-between mt-4">
+                {qrAttendancePage > 1 && (
+                  <Button onClick={() => setQrAttendancePage(qrAttendancePage - 1)} disabled={loading}>
+                    Prev Page
+                  </Button>
+                )}
+                {qrAttendanceData.length === 20 && (
+                  <Button onClick={() => setQrAttendancePage(qrAttendancePage + 1)} disabled={loading}>
                     Next Page
                   </Button>
                 )}
