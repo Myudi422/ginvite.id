@@ -33,7 +33,7 @@ export function QoutesSection({
 }: QoutesSectionProps) {
   const { control, setValue, getValues } = useFormContext<FormValues>();
   // watch state
-  const enabled = useWatch({ control, name: 'quote_enabled', defaultValue: false });
+  const enabled = useWatch({ control, name: 'quote_enabled' });
   const category = useWatch({ control, name: 'quoteCategory' });
   const quote    = useWatch({ control, name: 'quote' });
 
@@ -82,8 +82,13 @@ export function QoutesSection({
           <Controller
             name="quote_enabled"
             control={control}
-            render={({ field }) => (
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            defaultValue={false}
+            render={({ field: { value, onChange, ...field } }) => (
+              <Switch
+                checked={value || false}
+                onCheckedChange={onChange}
+                {...field}
+              />
             )}
           />
           <span className="text-sm font-medium">
