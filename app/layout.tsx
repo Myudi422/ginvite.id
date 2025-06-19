@@ -83,22 +83,20 @@ export default function RootLayout({
           data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
           strategy="beforeInteractive"
         />
-        {/* Google Analytics (optional) */}
+        {/* Google tag (gtag.js) for Google Ads */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_TRACKING_ID"
+          src="https://www.googletagmanager.com/gtag/js?id=AW-674897184"
           strategy="afterInteractive"
+          async
         />
-        <Script id="gtag-init" strategy="afterInteractive">
+        <Script id="google-ads-gtag-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'YOUR_GA_TRACKING_ID', {
-              page_path: window.location.pathname,
-            });
+            gtag('config', 'AW-674897184');
           `}
         </Script>
-
         {/* Google Tag Manager */}
         <Script id="google-tag-manager" strategy="afterInteractive">
           {`
