@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Script from 'next/script'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import { usePathname } from 'next/navigation'
 
 // Google Tag Manager and Facebook Pixel Configuration
 const GTM_ID = 'GTM-TBLT72Q4' // Updated GTM ID
@@ -69,6 +70,24 @@ export const metadata: Metadata = {
   },
 }
 
+// Komponen untuk event conversion hanya di halaman /
+function ConversionScript() {
+  const pathname = usePathname()
+  if (pathname !== '/') return null
+  return (
+    <Script id="google-ads-conversion" strategy="afterInteractive">
+      {`
+        gtag('event', 'conversion', {
+            'send_to': 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
+            'value': 1.0,
+            'currency': 'IDR',
+            'transaction_id': ''
+        });
+      `}
+    </Script>
+  )
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -123,6 +142,8 @@ export default function RootLayout({
             fbq('track', 'PageView');
           `}
         </Script>
+        {/* Google Ads Conversion Event Snippet hanya di halaman / */}
+        <ConversionScript />
       </head>
       <body>
         {/* Google Tag Manager (noscript) */}

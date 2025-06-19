@@ -42,6 +42,28 @@ export default function HeroSection() {
     }
   };
 
+  // Tambahkan fungsi gtag_report_conversion
+  function gtag_report_conversion(url: string) {
+    if (typeof window === 'undefined' || !(window as any).gtag) {
+      window.location.href = url;
+      return;
+    }
+    const callback = function () {
+      if (typeof url !== 'undefined') {
+        window.location.href = url;
+      }
+    };
+    (window as any).gtag('event', 'conversion', {
+      'send_to': 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
+      'value': 1.0,
+      'currency': 'IDR',
+      'transaction_id': '',
+      'event_callback': callback,
+    });
+    // Prevent default navigation
+    return false;
+  }
+
   return (
     <section className="relative py-6 px-6 overflow-hidden bg-white"> {/* Background putih */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-300 to-transparent opacity-20 z-0" /> {/* Overlay gradient */}
@@ -87,20 +109,27 @@ export default function HeroSection() {
             >
               <Button
                 size="lg"
-                onClick={() => handleCTAClick('create_invitation')}
+                onClick={() => {
+                  handleCTAClick('create_invitation');
+                  gtag_report_conversion('/admin');
+                }}
                 className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white rounded-full shadow-md hover:shadow-lg transition-all px-6 py-3 font-semibold"
               >
-                <a href="/admin">🚀 Coba Gratis Sekarang</a>
+                {/* Hapus <a> agar tidak trigger default navigation */}
+                🚀 Coba Gratis Sekarang
               </Button>
               <Button
                 variant="outline"
                 size="lg"
+                onClick={() => {
+                  handleCTAClick('wa_cta');
+                  gtag_report_conversion('https://wa.me/6289654728249');
+                }}
                 className="w-full sm:w-auto border-2 border-green-600 text-green-700 hover:bg-green-50 rounded-full flex items-center gap-2 px-6 py-3 font-semibold"
               >
-                <a href="https://wa.me/6289654728249" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                  <MessageSquare size={18} />
-                  <span>Minta Dibuatkan</span>
-                </a>
+                {/* Hapus <a> agar tidak trigger default navigation */}
+                <MessageSquare size={18} />
+                <span>Minta Dibuatkan</span>
               </Button>
             </motion.div>
           </div>
