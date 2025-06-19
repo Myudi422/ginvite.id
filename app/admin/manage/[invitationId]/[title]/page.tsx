@@ -14,17 +14,7 @@ import {
   Mails,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
-interface ManageData {
-  id_content_user: number;
-  view: number;
-  total_nominal_bank_transfer: number;
-  jumlah_konfirmasi: {
-    hadir: number;
-    tidak_hadir: number;
-  };
-  QR: boolean;
-}
+import { getManageData, type ManageData } from '@/app/actions/manage';
 
 export default function ManagePage() {
   const router = useRouter();
@@ -45,20 +35,8 @@ export default function ManagePage() {
       setLoading(true);
       setError(null);
       try {
-        // Pastikan title di‐encode sebelum dikirim ke backend
-        const res = await fetch(
-          `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_manage&user_id=${userId}&title=${slug}`
-        );
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.message || 'Gagal mengambil data.');
-        }
-        const json = await res.json();
-        if (json.status === 'success' && json.data) {
-          setManageData(json.data as ManageData);
-        } else {
-          throw new Error(json.message || 'Data tidak valid.');
-        }
+        const data = await getManageData(userId, slug);
+        setManageData(data);
       } catch (err: any) {
         setError(err.message);
       } finally {

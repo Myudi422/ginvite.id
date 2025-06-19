@@ -8,6 +8,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectTrigger, SelectContent, SelectValue, SelectItem } from '@/components/ui/select';
 import { autoSaveContent } from '@/app/actions/saved';
+import { getMusicList } from '@/app/actions/musiclist';
 
 interface Music { Nama_lagu: string; link_lagu: string; kategori: string; }
 
@@ -30,9 +31,8 @@ export function MusicSection({
 
   // fetch daftar musik
   useEffect(() => {
-    fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=musiclist')
-      .then(r => r.json())
-      .then(b => b.status==='success' && setMusicList(b.data))
+    getMusicList()
+      .then(data => setMusicList(data))
       .catch(console.error);
   }, []);
 

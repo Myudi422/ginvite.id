@@ -13,6 +13,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { autoSaveContent } from '@/app/actions/saved';
+import { getQuotes } from '@/app/actions/quotes';
 import { FormValues } from './schema';
 
 interface QoutesSectionProps {
@@ -42,12 +43,8 @@ export function QoutesSection({
 
   // load quotes once
   useEffect(() => {
-    fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=qoute')
-      .then(r => r.json())
-      .then(b => {
-        if (b.status!=='success') throw new Error(b.message);
-        setOpts(b.data);
-      })
+    getQuotes()
+      .then(data => setOpts(data))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
