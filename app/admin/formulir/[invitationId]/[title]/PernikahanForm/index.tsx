@@ -95,18 +95,27 @@ export function PernikahanForm({
     defaultValues: initialValues,
   });
 
+  // Add this flag to track initial mount
+  const isInitialMount = useRef(true);
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
+    // Skip effect on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
       if (iframe) {
         const param = `?time=${Date.now()}`;
-        iframe.src = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`; // Use full URL
+        iframe.src = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
       }
     }, 500);
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
-  }, [slug]);
+  }, [slug, userId]);
 
   // slug sanitization
   const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
