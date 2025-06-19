@@ -125,7 +125,6 @@ export default function RootLayout({
           `}
         </Script>
         {/* Google Ads Conversion Event Snippet hanya di halaman / */}
-        <ConversionScript />
       </head>
       <body>
         {/* Google Tag Manager (noscript) */}
@@ -144,6 +143,7 @@ export default function RootLayout({
         <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
           {children}
         </GoogleOAuthProvider>
+        <ConversionScript />
       </body>
     </html>
   )

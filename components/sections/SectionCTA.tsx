@@ -15,6 +15,28 @@ export default function SectionCTA() {
     }
   };
 
+  // Tambahkan fungsi gtag_report_conversion
+  function gtag_report_conversion(url: string, label: string) {
+    if (typeof window === 'undefined' || !(window as any).gtag) {
+      window.location.href = url;
+      return;
+    }
+    const callback = function () {
+      if (typeof url !== 'undefined') {
+        window.location.href = url;
+      }
+    };
+    (window as any).gtag('event', 'conversion', {
+      'send_to': 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
+      'event_label': label,
+      'value': 1.0,
+      'currency': 'IDR',
+      'transaction_id': '',
+      'event_callback': callback,
+    });
+    return false;
+  }
+
   return (
     <motion.section
       className="relative py-16 bg-pink-100 overflow-hidden"
@@ -33,23 +55,19 @@ export default function SectionCTA() {
           Mulai sekarang, buat undangan digital cantik tanpa ribet dan nikmati kemudahan dalam mengundang tamu.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link href="/admin">
-            <Button 
-              onClick={() => handleCTAClick('try_free')}
-              className="bg-pink-500 hover:bg-pink-600 text-white rounded-full px-6 py-3 shadow-lg transform hover:scale-105 transition-transform duration-300"
-            >
-              Coba Gratis
-            </Button>
-          </Link>
-          <Link href="https://wa.me/6289654728249">
-            <Button 
-              onClick={() => handleCTAClick('contact_admin')}
-              variant="outline" 
-              className="border-pink-500 text-pink-500 hover:bg-pink-50 rounded-full px-6 py-3 shadow-inner transform hover:scale-105 transition-transform duration-300"
-            >
-              Hubungi Admin
-            </Button>
-          </Link>
+          <Button 
+            onClick={() => gtag_report_conversion('/admin', 'cta_section_admin')}
+            className="bg-pink-500 hover:bg-pink-600 text-white rounded-full px-6 py-3 shadow-lg transform hover:scale-105 transition-transform duration-300"
+          >
+            Coba Gratis
+          </Button>
+          <Button 
+            onClick={() => gtag_report_conversion('https://wa.me/6289654728249', 'cta_section_wa')}
+            variant="outline" 
+            className="border-pink-500 text-pink-500 hover:bg-pink-50 rounded-full px-6 py-3 shadow-inner transform hover:scale-105 transition-transform duration-300"
+          >
+            Hubungi Admin
+          </Button>
         </div>
       </div>
     </motion.section>

@@ -49,6 +49,28 @@ function DropdownMenu({ items }: { items: NavItem[] }) {
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Tambahkan fungsi tracking Google Ads conversion
+  function gtag_report_conversion(url: string, label: string) {
+    if (typeof window === 'undefined' || !(window as any).gtag) {
+      window.location.href = url;
+      return;
+    }
+    const callback = function () {
+      if (typeof url !== 'undefined') {
+        window.location.href = url;
+      }
+    };
+    (window as any).gtag('event', 'conversion', {
+      'send_to': 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
+      'event_label': label,
+      'value': 1.0,
+      'currency': 'IDR',
+      'transaction_id': '',
+      'event_callback': callback,
+    });
+    return false;
+  }
+
   return (
     <motion.header
       className="sticky top-0 z-20 shadow-sm"
@@ -65,32 +87,54 @@ function Header() {
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex items-center space-x-4">
-          <Link href={navigation[0].href} className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50">
+          <a
+            href={navigation[0].href}
+            className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50"
+            onClick={e => {
+              e.preventDefault();
+              gtag_report_conversion(navigation[0].href, 'cta_header_wa');
+            }}
+          >
             <Phone className="w-4 h-4 mr-2" />
             Minta dibuatkan
-          </Link>
-          <Link href="/admin" className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center">
+          </a>
+          <a
+            href="/admin"
+            className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center"
+            onClick={e => {
+              e.preventDefault();
+              gtag_report_conversion('/admin', 'cta_header_admin');
+            }}
+          >
             <BadgeCheck className="w-4 h-4 mr-2" />
             Coba Gratis Sekarang!
-          </Link>
+          </a>
         </nav>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-2">
-          <Link
+          <a
             href={navigation[0].href}
             className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50"
             aria-label="Hubungi Admin"
+            onClick={e => {
+              e.preventDefault();
+              gtag_report_conversion(navigation[0].href, 'cta_header_wa');
+            }}
           >
             <Phone className="w-5 h-5" />
-          </Link>
-          <Link
+          </a>
+          <a
             href="/admin"
             className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center"
             aria-label="Coba Gratis"
+            onClick={e => {
+              e.preventDefault();
+              gtag_report_conversion('/admin', 'cta_header_admin');
+            }}
           >
             <LogIn className="w-5 h-5" />
-          </Link>
+          </a>
         </div>
       </div>
     </motion.header>

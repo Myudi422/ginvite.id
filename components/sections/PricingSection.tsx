@@ -93,6 +93,28 @@ export default function PricingSection() {
   const remainingUjiCobaFeaturesCount =
     (ujiCobaPlan?.features.length || 0) - displayedUjiCobaFeatures.length;
 
+  // Tambahkan fungsi gtag_report_conversion
+  function gtag_report_conversion(url: string, label: string) {
+    if (typeof window === 'undefined' || !(window as any).gtag) {
+      window.location.href = url;
+      return;
+    }
+    const callback = function () {
+      if (typeof url !== 'undefined') {
+        window.location.href = url;
+      }
+    };
+    (window as any).gtag('event', 'conversion', {
+      'send_to': 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
+      'event_label': label,
+      'value': 1.0,
+      'currency': 'IDR',
+      'transaction_id': '',
+      'event_callback': callback,
+    });
+    return false;
+  }
+
   const handlePricingCTA = (planTitle: string, planPrice: string) => {
     // Track with Facebook Pixel
     if (typeof window !== "undefined" && (window as any).fbq) {
@@ -103,6 +125,7 @@ export default function PricingSection() {
         currency: "IDR",
       });
     }
+    gtag_report_conversion('/admin', `cta_pricing_${planTitle}`);
   };
 
   return (
