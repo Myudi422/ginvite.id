@@ -1,8 +1,6 @@
-import React, { Suspense, lazy, useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-
-// Dynamically import ReactPlayer
-const ReactPlayer = lazy(() => import('react-player/youtube'));
+import ReactPlayer from 'react-player/youtube';
 
 interface VideoSectionProps {
   youtubeLink?: string;
@@ -60,28 +58,22 @@ const VideoSection: React.FC<VideoSectionProps> = ({
     <section id="video" className="w-full bg-black overflow-hidden py-8">
       <div className={`${horizontalPadding} overflow-hidden`}>
         <div className="relative aspect-video w-full">
-          <Suspense fallback={
-            <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white">
-              Loading video...
-            </div>
-          }>
-            <ReactPlayer
-              url={youtubeLink}
-              width="100%"
-              height="100%"
-              controls={true}
-              muted={true}
-              playing={false}
-              loop={false}
-              onError={() => setHasError(true)}
-              fallback={
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white">
-                  Error loading video
-                </div>
-              }
-              style={{ position: 'absolute', top: 0, left: 0 }}
-            />
-          </Suspense>
+          <ReactPlayer
+            url={youtubeLink}
+            width="100%"
+            height="100%"
+            controls={true}
+            muted={true}
+            playing={false}
+            loop={false}
+            onError={() => setHasError(true)}
+            fallback={
+              <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white">
+                Error loading video
+              </div>
+            }
+            style={{ position: 'absolute', top: 0, left: 0 }}
+          />
         </div>
       </div>
     </section>
