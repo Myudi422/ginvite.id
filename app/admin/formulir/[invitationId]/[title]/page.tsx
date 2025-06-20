@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { ChevronLeftIcon } from 'lucide-react';
 import jwt from 'jsonwebtoken';
 import { PernikahanForm } from './PernikahanForm';
-import KhitananForm from './KhitananForm';
+import { KhitananForm } from './KhitananForm';
 import LivePreview from './LivePreview';
 
 const SECRET = 'very-secret-key';
@@ -62,35 +62,61 @@ export default async function Page({ params }: PageProps) {
     return <p className="text-red-600">Gagal mem-parsing data undangan.</p>;
   }
 
-  // 4) Prepare eventData
-  const eventRaw = contentData.event || {};
-  const initialEventData = {
-    resepsi: {
-      date: eventRaw.resepsi?.date ?? '',
-      note: eventRaw.resepsi?.note ?? '',
-      time: eventRaw.resepsi?.time ?? '',
-      location: eventRaw.resepsi?.location ?? '',
-      mapsLink: eventRaw.resepsi?.mapsLink ?? '',
-    },
-    akad: eventRaw.akad
-      ? {
-          date: eventRaw.akad.date,
-          note: eventRaw.akad.note,
-          time: eventRaw.akad.time,
-          location: eventRaw.akad.location,
-          mapsLink: eventRaw.akad.mapsLink,
-        }
-      : undefined,
-  };
-  const { event, ...restContentData } = contentData;
+  // 4) Prepare eventData & contentData sesuai kategori
+  let initialEventData: any = {};
+  let restContentData: any = {};
+  if (record.category_name === 'pernikahan') {
+    const eventRaw = contentData.event || {};
+    initialEventData = {
+      resepsi: {
+        date: eventRaw.resepsi?.date ?? '',
+        note: eventRaw.resepsi?.note ?? '',
+        time: eventRaw.resepsi?.time ?? '',
+        location: eventRaw.resepsi?.location ?? '',
+        mapsLink: eventRaw.resepsi?.mapsLink ?? '',
+      },
+      akad: eventRaw.akad
+        ? {
+            date: eventRaw.akad.date,
+            note: eventRaw.akad.note,
+            time: eventRaw.akad.time,
+            location: eventRaw.akad.location,
+            mapsLink: eventRaw.akad.mapsLink,
+          }
+        : undefined,
+    };
+    // Exclude event from contentData
+    const { event, ...rest } = contentData;
+    restContentData = rest;
+  } else if (record.category_name === 'khitanan') {
+    // Sesuaikan struktur sesuai kebutuhan form Khitanan
+    const eventRaw = contentData.event || {};
+    initialEventData = {
+      khitanan: {
+        date: eventRaw.khitanan?.date ?? '',
+        time: eventRaw.khitanan?.time ?? '',
+        location: eventRaw.khitanan?.location ?? '',
+        mapsLink: eventRaw.khitanan?.mapsLink ?? '',
+      }
+    };
+    // Exclude event from contentData
+    const { event, ...rest } = contentData;
+    restContentData = rest;
+  } else {
+    // Default
+    initialEventData = {};
+    restContentData = contentData;
+  }
 
   // 5) Choose FormComponent berdasarkan jenis acara
-  const FormComponent =
-    record.category_name === 'pernikahan'
-      ? PernikahanForm
-      : record.category_name === 'khitanan'
-      ? KhitananForm
-      : null;
+  let FormComponent: React.ComponentType<any> | null = null;
+  if (record.category_name === 'pernikahan') {
+    FormComponent = PernikahanForm;
+  } else if (record.category_name === 'khitanan') {
+    FormComponent = KhitananForm;
+  } else {
+    FormComponent = null;
+  }
 
   // 6) Preview URL
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;

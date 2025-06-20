@@ -99,7 +99,7 @@ export default function Theme1({ data }: Theme1Props) {
   }, [cuId]);
 
   // Destructure API data
-  const { theme, content, decorations, event: apiEvents } = data;
+  const { theme, content, decorations, event: apiEvents, category_type } = data;
   const { plugin } = content;
   const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote, 
     quote_enabled, gallery_enabled = false } = content;
@@ -232,6 +232,7 @@ export default function Theme1({ data }: Theme1Props) {
             BodyFontFamily={processedBodyFontFamily}
             HeadingFontFamily={processedHeadingFontFamily}
             plugin={plugin} // <-- Tambahkan prop plugin
+            category_type={category_type} // <-- Tambahkan prop category_type
           />
         )}
 

@@ -29,6 +29,7 @@ interface OpeningSectionProps {
   BodyFontFamily?: string;
   HeadingFontFamily?: string;
   plugin?: any; // Tambahkan prop plugin opsional
+  category_type?: { id: number; name: string };
 }
 
 export default function OpeningSection({
@@ -44,6 +45,7 @@ export default function OpeningSection({
   BodyFontFamily,
   HeadingFontFamily,
   plugin,
+  category_type,
 }: OpeningSectionProps) {
   const searchParams = useSearchParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
@@ -55,6 +57,28 @@ export default function OpeningSection({
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   };
+
+  // Determine display name(s) based on category_type
+  let displayNames = null;
+  if (category_type?.name?.toLowerCase() === "pernikahan") {
+    displayNames = (
+      <h2
+        className="text-2xl md:text-4xl font-extrabold"
+        style={{ color: theme.textColor, fontFamily: specialFontFamily}}
+      >
+        {childrenData[0]?.nickname} &amp; {childrenData[1]?.nickname}
+      </h2>
+    );
+  } else {
+    displayNames = (
+      <h2
+        className="text-2xl md:text-4xl font-extrabold"
+        style={{ color: theme.textColor, fontFamily: specialFontFamily}}
+      >
+        {childrenData[0]?.nickname}
+      </h2>
+    );
+  }
 
   return (
     <div
@@ -91,24 +115,7 @@ export default function OpeningSection({
         <h1 className="text-2xl font-bold" style={{ color: theme.textColor,  fontFamily: HeadingFontFamily }}>{opening.title}</h1>
 
         <div className="mt-2 space-y-1">
-          {isWedding ? (
-            <h2
-              className="text-2xl md:text-4xl font-extrabold"
-              style={{ color: theme.textColor, fontFamily: specialFontFamily}}
-            >
-              {childrenData[0].nickname} &amp; {childrenData[1].nickname}
-            </h2>
-          ) : (
-            childrenData.map((c, i) => (
-              <h2
-                key={i}
-                className="text-2xl md:text-4xl font-extrabold"
-                style={{ color: theme.textColor, fontFamily: specialFontFamily}}
-              >
-                {c.nickname}
-              </h2>
-            ))
-          )}
+          {displayNames}
         </div>
 
         {/* Invitation Text */}
