@@ -257,6 +257,7 @@ export default function Theme1({ data }: Theme1Props) {
               HeadingFontFamily={processedHeadingFontFamily}
               theme={theme}
               event={firstEvent}
+              category_type={category_type}
             />
 
             {quote_enabled && (
@@ -269,7 +270,13 @@ export default function Theme1({ data }: Theme1Props) {
               />
             )}
             <InvitationTextSection invitation={invitation} theme={theme} />
-            <FamilySection childrenData={children} parents={parents} isWedding={isWedding} theme={theme} />
+            <FamilySection
+              childrenData={children}
+              parents={parents}
+              isWedding={isWedding}
+              theme={theme}
+              category_type={category_type}
+            />
 
             {/* Tambahkan TurutSection di sini */}
             <TurutSection enabled={turutEnabled} list={turutList} accentColor={theme.accentColor} />
@@ -308,7 +315,15 @@ export default function Theme1({ data }: Theme1Props) {
         status={data.status} // Pass status here
       />
     )}
-            <ClosingSection gallery={gallery} childrenData={children} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} defaultBgImage1={theme.defaultBgImage1} />
+            <ClosingSection
+              gallery={gallery}
+              childrenData={children}
+              specialFontFamily={processedSpecialFontFamily}
+              BodyFontFamily={processedBodyFontFamily}
+              HeadingFontFamily={processedHeadingFontFamily}
+              defaultBgImage1={theme.defaultBgImage1}
+              category_type={category_type}
+            />
           </div>
         )}
 
