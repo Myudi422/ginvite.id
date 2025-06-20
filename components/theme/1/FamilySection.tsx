@@ -15,6 +15,8 @@ interface Child {
 interface Parents {
   bride: { father: string; mother: string };
   groom: { father: string; mother: string };
+  father?: string;
+  mother?: string;
 }
 
 interface FamilySectionProps {
@@ -22,11 +24,13 @@ interface FamilySectionProps {
   parents: Parents;
   isWedding: boolean;
   theme: { accentColor: string; background: string };
+  category_type?: { id: number; name: string }; // Tambahkan prop category_type opsional
 }
 
-export default function FamilySection({ childrenData, parents, isWedding, theme }: FamilySectionProps) {
-  if (childrenData.length < 2) return null;
-  const [bride, groom] = childrenData;
+export default function FamilySection({ childrenData, parents, isWedding, theme, category_type }: FamilySectionProps) {
+  if (!childrenData || childrenData.length === 0) return null;
+
+  const isWeddingCategory = category_type?.name?.toLowerCase() === "pernikahan";
 
   const renderCard = (c: Child, idx: number) => (
     <motion.div
@@ -42,13 +46,18 @@ export default function FamilySection({ childrenData, parents, isWedding, theme 
             <h3 className="text-xl font-semibold" style={{ color: theme.accentColor }}>
               {c.name}
             </h3>
-            <p className="text-sm text-gray-600 mb-1">{c.order}</p>
+            {/* Hanya tampilkan order jika pernikahan, selain itu kosong */}
+            <p className="text-sm text-gray-600 mb-1">
+              {isWeddingCategory ? c.order : ""}
+            </p>
             <p className="text-xs text-gray-500">
-              {isWedding
-                ? c.order === 'Pengantin Pria'
-                  ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
-                  : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`
-                : ''}
+              {isWeddingCategory
+                ? (c.order === 'Pengantin Pria'
+                    ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
+                    : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`)
+                : (parents.father && parents.mother
+                    ? `Putra/Putri dari ${parents.father} & ${parents.mother}`
+                    : '')}
             </p>
           </div>
         </div>
@@ -57,13 +66,18 @@ export default function FamilySection({ childrenData, parents, isWedding, theme 
           <h3 className="text-xl font-semibold" style={{ color: theme.accentColor }}>
             {c.name}
           </h3>
-          <p className="text-sm text-gray-600 mb-1">{c.order}</p>
+          {/* Hanya tampilkan order jika pernikahan, selain itu kosong */}
+          <p className="text-sm text-gray-600 mb-1">
+            {isWeddingCategory ? c.order : ""}
+          </p>
           <p className="text-xs text-gray-500">
-            {isWedding
-              ? c.order === 'Pengantin Pria'
-                ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
-                : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`
-              : ''}
+            {isWeddingCategory
+              ? (c.order === 'Pengantin Pria'
+                  ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
+                  : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`)
+              : (parents.father && parents.mother
+                  ? `Putra/Putri dari ${parents.father} & ${parents.mother}`
+                  : '')}
           </p>
         </div>
       )}
@@ -79,18 +93,24 @@ export default function FamilySection({ childrenData, parents, isWedding, theme 
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
     >
-      {renderCard(bride, 0)}
-      <motion.div
-        className="flex items-center justify-center gap-2"
-        style={{ color: theme.accentColor }}
-        variants={textVariant}
-        custom={1}
-      >
-        <div className="border-t border-solid border-current w-16"></div>
-        <Heart size={36} />
-        <div className="border-t border-solid border-current w-16"></div>
-      </motion.div>
-      {renderCard(groom, 2)}
+      {isWeddingCategory ? (
+        <>
+          {renderCard(childrenData[0], 0)}
+          <motion.div
+            className="flex items-center justify-center gap-2"
+            style={{ color: theme.accentColor }}
+            variants={textVariant}
+            custom={1}
+          >
+            <div className="border-t border-solid border-current w-16"></div>
+            <Heart size={36} />
+            <div className="border-t border-solid border-current w-16"></div>
+          </motion.div>
+          {renderCard(childrenData[1], 2)}
+        </>
+      ) : (
+        renderCard(childrenData[0], 0)
+      )}
     </motion.section>
   );
 }

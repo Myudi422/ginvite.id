@@ -22,7 +22,7 @@ interface OpeningSectionProps {
     textColor: string;
   };
   isWedding: boolean;
-  childrenData: Array<{ nickname: string }>;
+  childrenData: Array<{ name: string; nickname?: string }>;
   onOpen: () => void;
   onShowQr: () => void;
   specialFontFamily?: string;
@@ -75,7 +75,7 @@ export default function OpeningSection({
         className="text-2xl md:text-4xl font-extrabold"
         style={{ color: theme.textColor, fontFamily: specialFontFamily}}
       >
-        {childrenData[0]?.nickname}
+        {childrenData[0]?.name}
       </h2>
     );
   }

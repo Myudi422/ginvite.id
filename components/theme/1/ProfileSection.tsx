@@ -19,7 +19,7 @@ interface ProfileSectionProps {
   };
   waktu_acara: string; // Ganti event.date dengan waktu_acara
   event?: Event; // Tambahkan properti event (opsional)
-  childrenData: Array<{ nickname: string }>;
+  childrenData: Array<{ name: string; nickname?: string }>;
   isWedding: boolean;
   minHeight?: string;
   nameFontSize?: React.CSSProperties;
@@ -34,6 +34,7 @@ interface ProfileSectionProps {
   BodyFontFamily?: string;
   HeadingFontFamily?: string;
   id?: string; // Tambahkan prop opsional id
+  category_type?: { id: number; name: string }; // Tambahkan prop category_type opsional
 }
 
 export default function ProfileSection({
@@ -58,6 +59,7 @@ export default function ProfileSection({
   event, // Gunakan properti event
   HeadingFontFamily,
   id, // Ambil prop id
+  category_type,
 }: ProfileSectionProps) {
   const nameStyle: React.CSSProperties = {
     ...nameFontSize,
@@ -83,6 +85,14 @@ export default function ProfileSection({
       return () => clearInterval(intervalId); // Bersihkan interval saat komponen unmount
     }
   }, [images.length]);
+
+  // Nama utama berdasarkan category_type
+  let displayNames = null;
+  if (category_type?.name?.toLowerCase() === "pernikahan") {
+    displayNames = `${childrenData[0]?.nickname} & ${childrenData[1]?.nickname}`;
+  } else {
+    displayNames = childrenData[0]?.name;
+  }
 
   return (
     <section
@@ -173,9 +183,7 @@ export default function ProfileSection({
           className={`font-bold text-3xl md:text-5xl ${marginBottomName}`}
           style={{ color: theme.textColor, ...nameFontSize }}
         >
-          {isWedding
-            ? `${childrenData[0]?.nickname} & ${childrenData[1]?.nickname}`
-            : childrenData[0]?.nickname}
+          {displayNames}
         </motion.div>
 
         {/* Waktu Acara */}

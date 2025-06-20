@@ -3,11 +3,12 @@ import Image from 'next/image';
 
 interface ClosingSectionProps {
   gallery: { items: string[] };
-  childrenData: Array<{ nickname: string }>;
+  childrenData: Array<{ name: string; nickname?: string }>;
   specialFontFamily?: string;
   BodyFontFamily?: string;
   HeadingFontFamily?: string;
   defaultBgImage1: string; // Tambahkan properti defaultBgImage1
+  category_type?: { id: number; name: string }; // Tambahkan prop category_type opsional
 }
 
 export default function ClosingSection({
@@ -16,10 +17,14 @@ export default function ClosingSection({
   specialFontFamily,
   BodyFontFamily,
   HeadingFontFamily,
-  defaultBgImage1, // Terima properti defaultBgImage1
+  defaultBgImage1,
+  category_type,
 }: ClosingSectionProps) {
   // Use first image in gallery as background, or default if gallery is empty
   const bgImage = gallery?.items?.length > 0 ? gallery.items[0] : defaultBgImage1;
+
+  // Tentukan apakah pernikahan
+  const isWeddingCategory = category_type?.name?.toLowerCase() === "pernikahan";
 
   return (
     <section
@@ -60,16 +65,21 @@ export default function ClosingSection({
 
         {/* Names */}
         <div className="space-y-2">
-          {childrenData.map((c, i) => (
+          {isWeddingCategory ? (
             <h2
-              key={i}
               className="text-2xl md:text-4xl font-extrabold text-white italic tracking-wide"
               style={{ fontFamily: specialFontFamily }}
             >
-              {c.nickname}
-              {i < childrenData.length - 1 && ' & '}
+              {childrenData[0]?.nickname} &amp; {childrenData[1]?.nickname}
             </h2>
-          ))}
+          ) : (
+            <h2
+              className="text-2xl md:text-4xl font-extrabold text-white italic tracking-wide"
+              style={{ fontFamily: specialFontFamily }}
+            >
+              {childrenData[0]?.name}
+            </h2>
+          )}
         </div>
 
        {/* Brand */}
