@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { ChevronLeftIcon } from 'lucide-react';
 import jwt from 'jsonwebtoken';
 import { PernikahanForm } from './PernikahanForm';
+import KhitananForm from './KhitananForm';
 import LivePreview from './LivePreview';
 
 const SECRET = 'very-secret-key';
@@ -85,7 +86,11 @@ export default async function Page({ params }: PageProps) {
 
   // 5) Choose FormComponent berdasarkan jenis acara
   const FormComponent =
-    record.category_name === 'pernikahan' ? PernikahanForm : null;
+    record.category_name === 'pernikahan'
+      ? PernikahanForm
+      : record.category_name === 'khitanan'
+      ? KhitananForm
+      : null;
 
   // 6) Preview URL
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;

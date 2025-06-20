@@ -95,7 +95,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
             >
               <option value="">Pilih Kategori</option>
               <option value="2">Pernikahan</option>
-              <option value="3">Khitanan</option>
+              <option value="1">Khitanan</option>
             </select>
           </div>
 
