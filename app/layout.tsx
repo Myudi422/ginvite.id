@@ -4,10 +4,10 @@ import './globals.css'
 import Script from 'next/script'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import ConversionScript from '../components/ConversionScript'
+import { usePathname } from 'next/navigation'
 
 // Google Tag Manager and Facebook Pixel Configuration
 const GTM_ID = 'GTM-TBLT72Q4' // Updated GTM ID
-const FB_PIXEL_ID = '30411664605114249' // Updated Facebook Pixel ID
 
 export const metadata: Metadata = {
   title: 'Papunda | Buat Undangan Digital Gratis',
@@ -70,6 +70,36 @@ export const metadata: Metadata = {
   },
 }
 
+function FacebookPixel() {
+  const pathname = usePathname()
+  if (pathname !== '/') return null
+  return (
+    <>
+      {/* Meta Pixel Code */}
+      <Script id="facebook-pixel" strategy="afterInteractive">
+        {`
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '1443686970096931');
+          fbq('track', 'PageView');
+        `}
+      </Script>
+      <noscript>
+        <img height="1" width="1" style={{ display: 'none' }}
+          src="https://www.facebook.com/tr?id=1443686970096931&ev=PageView&noscript=1"
+        />
+      </noscript>
+      {/* End Meta Pixel Code */}
+    </>
+  )
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -109,21 +139,7 @@ export default function RootLayout({
           `}
         </Script>
 
-        {/* Facebook Pixel */}
-        <Script id="facebook-pixel" strategy="afterInteractive">
-          {`
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${FB_PIXEL_ID}');
-            fbq('track', 'PageView');
-          `}
-        </Script>
+        {/* Ganti Facebook Pixel dengan komponen baru */}
         {/* Google Ads Conversion Event Snippet hanya di halaman / */}
       </head>
       <body>
@@ -132,18 +148,12 @@ export default function RootLayout({
           <iframe src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
             height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}/>
         </noscript>
-        
-        {/* Facebook Pixel (noscript) */}
-        <noscript>
-          <img height="1" width="1" style={{ display: 'none' }}
-            src={`https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1`}
-          />
-        </noscript>
 
         <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
           {children}
         </GoogleOAuthProvider>
         <ConversionScript />
+        <FacebookPixel />
       </body>
     </html>
   )
