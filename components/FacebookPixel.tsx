@@ -1,11 +1,8 @@
 "use client"
 
 import Script from 'next/script'
-import { usePathname } from 'next/navigation'
 
 export default function FacebookPixel() {
-  const pathname = usePathname()
-  if (pathname !== '/') return null
   return (
     <>
       {/* Meta Pixel Code */}
