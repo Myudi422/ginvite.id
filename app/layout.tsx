@@ -124,6 +124,39 @@ export default function RootLayout({
         </GoogleOAuthProvider>
         <ConversionScript />
         <FacebookPixel />
+
+        {/* Floating WhatsApp Button ala plugin */}
+        <a
+          href="https://wa.me/6289654728249"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            position: 'fixed',
+            right: '24px',
+            bottom: '24px',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            background: '#25D366',
+            color: '#fff',
+            borderRadius: '999px',
+            padding: '10px 18px 10px 12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            textDecoration: 'none',
+            fontWeight: 500,
+            fontSize: '16px',
+            gap: '10px',
+            transition: 'box-shadow 0.2s',
+          }}
+          aria-label="Butuh Bantuan via WhatsApp"
+        >
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="16" fill="#25D366"/>
+            <path d="M23.5 17.5c-.3-.2-1.8-.9-2.1-1-... (potong untuk ringkas) ..." fill="#fff"/>
+            <path d="M16 6C10.5 6 6 10.5 6 16c0 2.1.7 4.1 1.9 5.7L6 26l4.4-1.8C12.1 25 14 25.5 16 25.5c5.5 0 10-4.5 10-10S21.5 6 16 6zm0 17c-1.8 0-3.5-.5-4.9-1.4l-.3-.2-2.6 1 1-2.6-.2-.3C7.5 19.5 7 17.8 7 16c0-5 4-9 9-9s9 4 9 9-4 9-9 9z" fill="#fff"/>
+          </svg>
+          <span style={{ fontWeight: 600, letterSpacing: 0.2 }}>Butuh Bantuan?</span>
+        </a>
       </body>
     </html>
   )
