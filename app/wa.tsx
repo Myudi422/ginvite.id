@@ -9,8 +9,8 @@ export default function WhatsAppButton() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    // Hide the button on /undang and /login paths
-    if (pathname === '/undang' || pathname === '/login') {
+    // Hide the button on paths that start with /undang or are exactly /login
+    if (pathname.startsWith('/undang') || pathname === '/login') {
       setIsVisible(false);
     } else {
       setIsVisible(true);
