@@ -1,13 +1,14 @@
-//app\layout.tsx
-import type { Metadata } from 'next'
-import './globals.css'
-import Script from 'next/script'
-import { GoogleOAuthProvider } from '@react-oauth/google'
-import ConversionScript from '../components/ConversionScript'
-import FacebookPixel from '../components/FacebookPixel'
+// app/layout.tsx
+import type { Metadata } from 'next';
+import './globals.css';
+import Script from 'next/script';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import ConversionScript from '../components/ConversionScript';
+import FacebookPixel from '../components/FacebookPixel';
+import WhatsAppButton from './wa'; // Import the new component
 
 // Google Tag Manager and Facebook Pixel Configuration
-const GTM_ID = 'GTM-TBLT72Q4' // Updated GTM ID
+const GTM_ID = 'GTM-TBLT72Q4'; // Updated GTM ID
 
 export const metadata: Metadata = {
   title: 'Papunda | Buat Undangan Digital Gratis',
@@ -68,12 +69,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="id">
@@ -126,40 +127,8 @@ export default function RootLayout({
         <FacebookPixel />
 
         {/* Floating WhatsApp Button ala plugin */}
-        <a
-          href="https://wa.me/6289654728249"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            position: 'fixed',
-            right: '24px',
-            bottom: '24px',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            background: '#25D366',
-            color: '#fff',
-            borderRadius: '999px',
-            padding: '10px 18px 10px 12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            textDecoration: 'none',
-            fontWeight: 500,
-            fontSize: '16px',
-            gap: '10px',
-            transition: 'box-shadow 0.2s',
-          }}
-          aria-label="Butuh Bantuan via WhatsApp"
-        >
-          <img
-            src="/wa.svg"
-            alt="WhatsApp"
-            width={28}
-            height={28}
-            style={{ display: 'block' }}
-          />
-          <span style={{ fontWeight: 600, letterSpacing: 0.2 }}>Butuh Bantuan?</span>
-        </a>
+        <WhatsAppButton /> {/* Use the new WhatsAppButton component here */}
       </body>
     </html>
-  )
+  );
 }
