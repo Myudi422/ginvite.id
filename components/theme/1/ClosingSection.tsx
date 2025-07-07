@@ -93,29 +93,6 @@ export default function ClosingSection({
 >
   Copyright © {new Date().getFullYear()} by papunda.com
 </p>
-
-        {/* Social & Music Icons */}
-        <div className="mt-4 flex items-center justify-center space-x-6">
-          <a
-            href="https://papunda.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Website"
-            className="hover:text-gray-300 transition"
-          >
-            <FaGlobe size={24} />
-          </a>
-          <a
-            href="https://www.instagram.com/papunda.id"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram"
-            className="hover:text-gray-300 transition"
-          >
-            <FaInstagram size={24} />
-          </a>
-
-        </div>
       </div>
     </section>
   );
