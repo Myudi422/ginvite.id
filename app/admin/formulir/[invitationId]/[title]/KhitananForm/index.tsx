@@ -87,11 +87,21 @@ export function KhitananForm({
     defaultValues: initialValues,
   });
 
-  // Render iframe with src only set once on mount
-  const [iframeSrc] = useState(() => {
-    const param = `?time=${Date.now()}`;
-    return `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
-  });
+  // Only refresh iframe ONCE on mount (prevent double reload)
+  const didReloadRef = useRef(false);
+  useEffect(() => {
+    if (didReloadRef.current) return;
+    didReloadRef.current = true;
+    const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
+    if (iframe) {
+      const param = `?time=${Date.now()}`;
+      const newSrc = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
+      if (iframe.src !== newSrc) {
+        iframe.src = newSrc;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // slug sanitization
   const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -294,19 +304,6 @@ export function KhitananForm({
         <div className="flex gap-2">
           <Button variant="secondary" onClick={onSave} disabled={saving}>{saving ? 'Menyimpan…' : 'Simpan'}</Button>
           <Button onClick={onToggle} disabled={saving}>{status === 1 ? 'Non-aktifkan' : 'Aktifkan'}</Button>
-        </div>
-        {/* Preview iframe, only set src once */}
-        <div style={{marginTop: 24}}>
-          <iframe
-            id="previewFrame"
-            src={iframeSrc}
-            width="100%"
-            height="600"
-            style={{border: '1px solid #eee', borderRadius: 8}}
-            allow="autoplay; clipboard-write"
-            sandbox="allow-scripts"
-            title="Preview Undangan"
-          />
         </div>
 
         {error && <p className="text-red-600">Error: {error}</p>}
