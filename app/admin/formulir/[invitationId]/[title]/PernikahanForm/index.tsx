@@ -95,27 +95,19 @@ export function PernikahanForm({
     defaultValues: initialValues,
   });
 
-  // Add this flag to track initial mount
-  const isInitialMount = useRef(true);
-
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Only refresh iframe ONCE on mount
+  // Only refresh iframe ONCE on mount (prevent double reload)
   useEffect(() => {
-    // Skip effect on initial mount
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
+    let didSet = false;
+    const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
+    if (iframe && !didSet) {
+      didSet = true;
+      const param = `?time=${Date.now()}`;
+      iframe.src = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
     }
-
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
-      if (iframe) {
-        const param = `?time=${Date.now()}`;
-        iframe.src = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
-      }
-    }, 500);
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
-  }, [slug, userId]);
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // slug sanitization
   const onSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
