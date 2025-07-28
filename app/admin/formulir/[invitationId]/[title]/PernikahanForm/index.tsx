@@ -95,14 +95,21 @@ export function PernikahanForm({
     defaultValues: initialValues,
   });
 
-  // Prevent unnecessary iframe reloads
+  // Only refresh iframe ONCE on mount, with debug log
+  const didReloadRef = useRef(false);
   useEffect(() => {
+    if (didReloadRef.current) return;
+    didReloadRef.current = true;
+    console.log('RELOAD IFRAME SEKALI');
     const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
-    if (iframe && !iframe.src) {
-      const newSrc = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}`;
+    if (iframe) {
+      const param = `?time=${Date.now()}`;
+      const newSrc = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
+      // Always set src, browser will dedup if same
       iframe.src = newSrc;
     }
-  }, [userId, slug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     return () => {
       console.log('UNMOUNT PernikahanForm');
