@@ -97,15 +97,18 @@ export function PernikahanForm({
 
   // Only refresh iframe ONCE on mount
   // Only refresh iframe ONCE on mount (prevent double reload)
+  const didReloadRef = useRef(false);
   useEffect(() => {
-    let didSet = false;
+    if (didReloadRef.current) return;
+    didReloadRef.current = true;
     const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
-    if (iframe && !didSet) {
-      didSet = true;
+    if (iframe) {
       const param = `?time=${Date.now()}`;
-      iframe.src = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
+      const newSrc = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
+      if (iframe.src !== newSrc) {
+        iframe.src = newSrc;
+      }
     }
-    // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

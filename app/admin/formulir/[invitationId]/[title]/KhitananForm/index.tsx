@@ -88,13 +88,18 @@ export function KhitananForm({
   });
 
   // Only refresh iframe ONCE on mount (prevent double reload)
+  const didReloadRef = useRef(false);
   useEffect(() => {
+    if (didReloadRef.current) return;
+    didReloadRef.current = true;
     const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
     if (iframe) {
       const param = `?time=${Date.now()}`;
-      iframe.src = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
+      const newSrc = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
+      if (iframe.src !== newSrc) {
+        iframe.src = newSrc;
+      }
     }
-    // Only run once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
