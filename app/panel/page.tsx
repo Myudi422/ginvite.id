@@ -11,6 +11,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import ListUser from "./listuser";
 import { UserIcon, CreditCardIcon, MailIcon } from "lucide-react";
 
 // shadcn/ui imports
@@ -348,6 +349,12 @@ export default function PanelPage() {
             </LineChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* List User Component */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-pink-800 mb-4">User List</h2>
+        <ListUser />
       </div>
     </div>
   );
