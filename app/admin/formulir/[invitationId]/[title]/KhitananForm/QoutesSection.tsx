@@ -49,6 +49,21 @@ export function QoutesSection({
       .finally(() => setLoading(false));
   }, []);
 
+  // Set default quote/category when enabled and none is selected
+  useEffect(() => {
+    if (enabled && opts.length > 0 && (!category || !quote)) {
+      const firstCat = opts[0];
+      if (firstCat) {
+        setValue('quoteCategory', firstCat.category);
+        if (firstCat.quotes && firstCat.quotes.length > 0) {
+          setValue('quote', firstCat.quotes[0]);
+        }
+      }
+    }
+    // Do not clear quote/category when disabled
+    // eslint-disable-next-line
+  }, [enabled, opts, category, quote, setValue]);
+
   // auto‐save on any change
   useEffect(() => {
     const timer = setTimeout(async () => {
