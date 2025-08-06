@@ -96,34 +96,50 @@ export default function BlogCard({ blog, onDelete }: BlogCardProps) {
         : blog.slug;
       
       // Update the blog via API
+      const formData = new FormData();
+      formData.append('id', blog.id.toString());
+      formData.append('title', blogData.title);
+      formData.append('slug', newSlug);
+      formData.append('content', blogData.content);
+      formData.append('category', blog.category || 'General');
+      formData.append('status', blog.status || 'draft');
+      // Tidak menambahkan image karena kita tidak mengubah gambar
+
+      console.log('Updating blog with FormData:', {
+        id: blog.id,
+        title: blogData.title,
+        slug: newSlug,
+        category: blog.category,
+        status: blog.status
+      });
+
       const updateResponse = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=update&id=${blog.id}`,
+        'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=update',
         {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title: blogData.title,
-            slug: newSlug,
-            content: blogData.content,
-            category: blog.category,
-            status: blog.status,
-            image_url: blog.image_url
-          })
+          method: 'POST',
+          body: formData
         }
       );
       
       const updateResult = await updateResponse.json();
+      console.log('Update API response:', updateResult);
+      
       if (updateResult.status === 'success') {
         alert('Artikel berhasil di-regenerate dengan AI!');
         onDelete(); // Refresh the blog list
       } else {
-        throw new Error(updateResult.message || 'Gagal update artikel');
+        console.error('Update failed:', updateResult);
+        throw new Error(updateResult.message || `Update failed: ${updateResult.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error regenerating blog:', error);
-      alert('Gagal regenerate artikel: ' + (error as Error).message);
+      
+      // Tampilkan error yang lebih detail
+      if (error instanceof Error) {
+        alert('Gagal regenerate artikel: ' + error.message);
+      } else {
+        alert('Gagal regenerate artikel: Error tidak dikenal');
+      }
     } finally {
       setIsRegenerating(false);
     }

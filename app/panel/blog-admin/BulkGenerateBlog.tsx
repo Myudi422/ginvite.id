@@ -64,23 +64,25 @@ export default function BulkGenerateBlog({ onBlogsGenerated }: BulkGenerateBlogP
         // Create slug from title
         const slug = GeminiAPI.generateSlug(blogData.title);
         
+        // Prepare form data for API
+        const formData = new FormData();
+        formData.append('title', blogData.title);
+        formData.append('slug', slug);
+        formData.append('content', blogData.content);
+        formData.append('category', 'General');
+        formData.append('status', 'draft');
+        
+        console.log(`Bulk creating blog ${i + 1}/${validTopics.length}:`, blogData.title);
+        
         // Save to database via API
         const response = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=create', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title: blogData.title,
-            slug: slug,
-            content: blogData.content,
-            category: 'General',
-            status: 'draft',
-            image_url: ''
-          })
+          body: formData
         });
 
         const result = await response.json();
+        console.log(`Bulk create result for "${topic}":`, result);
+        
         if (result.status === 'success') {
           results.success++;
         } else {

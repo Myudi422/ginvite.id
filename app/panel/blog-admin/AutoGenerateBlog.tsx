@@ -29,34 +29,48 @@ export default function AutoGenerateBlog({ onBlogGenerated }: AutoGenerateBlogPr
       // Create slug from title
       const slug = GeminiAPI.generateSlug(blogData.title);
       
+      // Prepare form data for API
+      const formData = new FormData();
+      formData.append('title', blogData.title);
+      formData.append('slug', slug);
+      formData.append('content', blogData.content);
+      formData.append('category', 'General'); // Default category
+      formData.append('status', 'draft'); // Save as draft first
+      
+      console.log('Creating blog with FormData:', {
+        title: blogData.title,
+        slug: slug,
+        category: 'General',
+        status: 'draft'
+      });
+      
       // Save to database via API
       const response = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: blogData.title,
-          slug: slug,
-          content: blogData.content,
-          category: 'General', // Default category
-          status: 'draft', // Save as draft first
-          image_url: '' // No image for auto-generated blogs
-        })
+        body: formData
       });
 
       const result = await response.json();
+      console.log('Create API response:', result);
+      
       if (result.status === 'success') {
         alert('Blog berhasil di-generate dan disimpan sebagai draft!');
         setPrompt('');
         setShowDialog(false);
         onBlogGenerated();
       } else {
-        throw new Error(result.message || 'Gagal menyimpan blog');
+        console.error('Create failed:', result);
+        throw new Error(result.message || `Create failed: ${result.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error generating blog:', error);
-      alert('Gagal generate blog: ' + (error as Error).message);
+      
+      // Tampilkan error yang lebih detail
+      if (error instanceof Error) {
+        alert('Gagal generate blog: ' + error.message);
+      } else {
+        alert('Gagal generate blog: Error tidak dikenal');
+      }
     } finally {
       setIsGenerating(false);
     }

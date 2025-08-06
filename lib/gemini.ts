@@ -8,6 +8,44 @@ export class GeminiAPI {
   private static API_KEY = 'AIzaSyAxd3bXoh0MnwufqV1B3vtEFSMWBPDTunE';
   private static BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
+  private static cleanGeneratedText(text: string): string {
+    // Remove common markdown formatting
+    let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+    
+    // Remove any leading/trailing text that's not JSON
+    const jsonStart = cleaned.indexOf('{');
+    const jsonEnd = cleaned.lastIndexOf('}');
+    
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+    }
+    
+    return cleaned.trim();
+  }
+
+  private static fixJsonQuotes(jsonString: string): string {
+    // Fix common JSON issues with quotes in content
+    // This is a simple fix, more complex content might need better handling
+    try {
+      // Try to parse first
+      JSON.parse(jsonString);
+      return jsonString;
+    } catch (e) {
+      // If it fails, try to fix quotes
+      let fixed = jsonString;
+      
+      // Find content field and escape quotes within it
+      const contentMatch = fixed.match(/"content"\s*:\s*"([^"]*(?:\\.[^"]*)*)"(?=\s*[,}])/);
+      if (contentMatch) {
+        const contentValue = contentMatch[1];
+        const fixedContent = contentValue.replace(/"/g, '\\"');
+        fixed = fixed.replace(contentMatch[0], `"content":"${fixedContent}"`);
+      }
+      
+      return fixed;
+    }
+  }
+
   private static async makeRequest(systemPrompt: string): Promise<GeneratedBlog> {
     try {
       console.log('Making request to Gemini API...');
@@ -86,25 +124,24 @@ export class GeminiAPI {
         throw new Error('AI tidak menghasilkan konten. Coba lagi dengan topik yang berbeda.');
       }
       
-      // Extract JSON from the response with better error handling
-      const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        console.error('No JSON found in response:', generatedText);
-        // Coba ekstrak dengan cara lain
-        const lines = generatedText.split('\n');
-        const jsonLines = lines.filter((line: string) => line.includes('"title"') || line.includes('"content"'));
-        if (jsonLines.length > 0) {
-          throw new Error('AI menghasilkan format yang tidak sesuai. Response diterima tapi tidak dalam format JSON yang diharapkan.');
-        }
+      // Clean the generated text
+      const cleanedText = this.cleanGeneratedText(generatedText);
+      console.log('Cleaned text:', cleanedText.substring(0, 200) + '...');
+      
+      if (!cleanedText || cleanedText.length < 10) {
+        console.error('No valid JSON structure found:', generatedText);
         throw new Error('AI tidak menghasilkan format JSON yang valid. Coba lagi.');
       }
 
       let blogData;
       try {
-        blogData = JSON.parse(jsonMatch[0]);
+        // Try to parse the cleaned JSON
+        const fixedJson = this.fixJsonQuotes(cleanedText);
+        blogData = JSON.parse(fixedJson);
       } catch (parseError) {
         console.error('JSON parse error:', parseError);
-        console.error('Raw JSON string:', jsonMatch[0]);
+        console.error('Cleaned JSON string:', cleanedText);
+        console.error('Original response:', generatedText);
         throw new Error('Format JSON tidak valid dari AI. Coba generate ulang.');
       }
       
@@ -137,43 +174,49 @@ export class GeminiAPI {
   }
 
   static async generateBlog(prompt: string): Promise<GeneratedBlog> {
-    const systemPrompt = `Kamu adalah seorang penulis blog yang ahli. Buatkan artikel blog dalam bahasa Indonesia yang berkualitas tinggi dengan format JSON berikut:
-{
-  "title": "judul yang menarik dan SEO friendly",
-  "content": "konten artikel yang lengkap, informatif, dan engaging. Minimal 500 kata. Gunakan HTML tags untuk formatting seperti <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>, dll. Buat artikel yang terstruktur dengan baik dengan subjudul dan paragraf yang jelas."
-}
+    const systemPrompt = `Kamu adalah seorang penulis blog yang ahli. PENTING: Responmu HARUS berupa JSON yang valid dengan format PERSIS seperti ini:
+
+{"title":"judul yang menarik dan SEO friendly","content":"konten artikel yang lengkap, informatif, dan engaging. Minimal 500 kata. Gunakan HTML tags untuk formatting seperti <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>, dll. Buat artikel yang terstruktur dengan baik dengan subjudul dan paragraf yang jelas."}
 
 Topik yang diminta: ${prompt}
 
-Pastikan:
-1. Judul menarik dan clickable
-2. Konten informatif dan bermanfaat
-3. Menggunakan HTML formatting yang baik
-4. Artikel minimal 500 kata
-5. Terstruktur dengan baik (intro, body, conclusion)
-6. SEO friendly`;
+ATURAN KETAT:
+1. HANYA berikan JSON, jangan ada teks lain
+2. Jangan gunakan markdown code blocks (\`\`\`)
+3. Jangan ada penjelasan tambahan
+4. JSON harus dalam satu baris
+5. Judul menarik dan clickable
+6. Konten minimal 500 kata dengan HTML formatting
+7. Terstruktur dengan baik (intro, body, conclusion)
+8. SEO friendly
+
+CONTOH RESPONSE:
+{"title":"Tips Memilih Tema Wedding yang Sempurna untuk Hari Bahagia Anda","content":"<h2>Memilih Tema Wedding yang Tepat</h2><p>Memilih tema wedding adalah salah satu keputusan penting dalam perencanaan pernikahan...</p>"}`;
 
     return this.makeRequest(systemPrompt);
   }
 
   static async regenerateBlog(originalTitle: string, originalContent: string): Promise<GeneratedBlog> {
-    const systemPrompt = `Kamu adalah seorang penulis blog yang ahli. Regenerate dan perbaiki artikel blog ini dengan konten yang lebih baik, lebih informatif, dan engaging. Buatkan dalam format JSON berikut:
-{
-  "title": "judul yang diperbaiki (bisa sama atau lebih baik)",
-  "content": "konten artikel yang diperbaiki dan diperluas. Minimal 800 kata. Gunakan HTML tags untuk formatting seperti <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>, dll. Buat artikel yang terstruktur dengan baik."
-}
+    const systemPrompt = `Kamu adalah seorang penulis blog yang ahli. PENTING: Responmu HARUS berupa JSON yang valid dengan format PERSIS seperti ini:
+
+{"title":"judul yang diperbaiki (bisa sama atau lebih baik)","content":"konten artikel yang diperbaiki dan diperluas. Minimal 800 kata. Gunakan HTML tags untuk formatting seperti <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>, dll. Buat artikel yang terstruktur dengan baik."}
 
 Artikel asli:
 Judul: ${originalTitle}
 Konten: ${originalContent}
 
-Pastikan:
-1. Judul tetap relevan atau lebih baik
-2. Konten lebih informatif dan bermanfaat  
-3. Menggunakan HTML formatting yang baik
-4. Artikel minimal 800 kata
-5. Terstruktur dengan baik (intro, body, conclusion)
-6. SEO friendly`;
+ATURAN KETAT:
+1. HANYA berikan JSON, jangan ada teks lain
+2. Jangan gunakan markdown code blocks (\`\`\`)
+3. Jangan ada penjelasan tambahan
+4. JSON harus dalam satu baris
+5. Judul tetap relevan atau lebih baik
+6. Konten minimal 800 kata dengan HTML formatting
+7. Terstruktur dengan baik (intro, body, conclusion)
+8. SEO friendly
+
+CONTOH RESPONSE:
+{"title":"Tips Memilih Tema Wedding yang Sempurna untuk Hari Bahagia Anda","content":"<h2>Memilih Tema Wedding yang Tepat</h2><p>Memilih tema wedding adalah salah satu keputusan penting dalam perencanaan pernikahan...</p>"}`;
 
     return this.makeRequest(systemPrompt);
   }
