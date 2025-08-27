@@ -130,11 +130,10 @@ export default function OurStorySection({
                   </div>
                 </div>
               ) : (
-                <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg flex items-end">
-                  {/* Description Box Only, no image */}
+                <div className="w-full">
                   <div className="w-full p-4">
                     <div
-                      className="inline-block w-full max-w-full px-3 py-2 rounded-md"
+                      className="inline-block w-full max-w-full px-3 py-2 rounded-md shadow-lg"
                       style={{ backgroundColor: theme.accentColor, opacity: 0.8 }}
                     >
                       <p
