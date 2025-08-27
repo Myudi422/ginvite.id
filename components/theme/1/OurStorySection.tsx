@@ -103,17 +103,36 @@ export default function OurStorySection({
               </div>
 
               {/* Image with square aspect and description overlay */}
-              <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg">
-                <Image
-                  src={item.pictures?.[0] || theme.bgColor}
-                  alt={item.title}
-                  fill
-                  className="object-cover grayscale hover:grayscale-0 transition duration-300"
-                />
-                {/* Description Box Overlay */}
-                <div className="absolute inset-0 flex items-end">
+              {item.pictures && item.pictures[0] && item.pictures[0].trim() !== '' ? (
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg">
+                  <Image
+                    src={item.pictures[0]}
+                    alt={item.title}
+                    fill
+                    className="object-cover grayscale hover:grayscale-0 transition duration-300"
+                  />
+                  {/* Description Box Overlay */}
+                  <div className="absolute inset-0 flex items-end">
+                    <div className="w-full p-4">
+                      {/* Background box behind text */}
+                      <div
+                        className="inline-block w-full max-w-full px-3 py-2 rounded-md"
+                        style={{ backgroundColor: theme.accentColor, opacity: 0.8 }}
+                      >
+                        <p
+                          className="text-sm leading-relaxed"
+                          style={{ color: theme.textColor }}
+                        >
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg flex items-end">
+                  {/* Description Box Only, no image */}
                   <div className="w-full p-4">
-                    {/* Background box behind text */}
                     <div
                       className="inline-block w-full max-w-full px-3 py-2 rounded-md"
                       style={{ backgroundColor: theme.accentColor, opacity: 0.8 }}
@@ -127,7 +146,7 @@ export default function OurStorySection({
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </motion.div>
           ))}
         </div>
