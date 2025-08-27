@@ -76,30 +76,33 @@ export default function GallerySection({
           </span>
         </motion.h2>
 
-        {/* Grid 2 kolom */}
+        {/* Grid 2 kolom, hide blank/empty items */}
         <div className="grid grid-cols-2 gap-2">
-          {gallery.items.map((src, idx) => (
-            <motion.button
-              key={idx}
-              onClick={() => openModal(idx)}
-              className="overflow-hidden rounded-lg"
-              style={cardStyle}
-              variants={sectionVariant}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
-              custom={idx}
-            >
-              <div className="relative w-full aspect-[4/5]">
-                <Image
-                  src={src}
-                  alt={`Moment ${idx + 1}`}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            </motion.button>
-          ))}
+          {gallery.items
+            .map((src, idx) => ({ src, idx }))
+            .filter(item => item.src && item.src.trim() !== '')
+            .map(({ src, idx }) => (
+              <motion.button
+                key={idx}
+                onClick={() => openModal(idx)}
+                className="overflow-hidden rounded-lg"
+                style={cardStyle}
+                variants={sectionVariant}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={idx}
+              >
+                <div className="relative w-full aspect-[4/5]">
+                  <Image
+                    src={src}
+                    alt={`Moment ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </motion.button>
+            ))}
         </div>
       </div>
 

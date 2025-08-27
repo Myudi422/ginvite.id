@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import RichTextEditor from '@/components/QuillRichTextEditor';
 
 interface Blog {
   id: number;
@@ -52,6 +53,33 @@ export default function EditBlogForm({ blogId, onUpdateSuccess }: EditBlogFormPr
       .replace(/[^a-z0-9\s]/g, '') // Remove special characters
       .replace(/\s+/g, '-') // Replace spaces with hyphens
       .trim();
+  };
+
+  // Function to sync blog images with database
+  const syncBlogImages = async (blogId: string | number, content: string) => {
+    try {
+      const formData = new FormData();
+      formData.append('blog_id', blogId.toString());
+      formData.append('content', content);
+
+      // Use local API endpoint for development
+      const apiUrl = window.location.hostname === 'localhost' 
+        ? '/api/page/blog_images.php?action=mark_unused'
+        : 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_images.php?action=mark_unused';
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        console.log('Images synced successfully:', data);
+      }
+    } catch (error) {
+      console.error('Error syncing images:', error);
+      // Fail silently for now
+    }
   };
 
   // Fetch blog data
@@ -148,6 +176,9 @@ export default function EditBlogForm({ blogId, onUpdateSuccess }: EditBlogFormPr
 
       const data = response.data;
       if (data.status === 'success') {
+        // Sync images after successful blog update
+        await syncBlogImages(blogId, content);
+        
         setMessage('Artikel berhasil diperbarui 🎉');
         
         setTimeout(() => {
@@ -274,13 +305,19 @@ export default function EditBlogForm({ blogId, onUpdateSuccess }: EditBlogFormPr
           <label className="block text-pink-700 font-medium mb-1">
             Konten Artikel <span className="text-red-500">*</span>
           </label>
-          <Textarea
+          <RichTextEditor
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={setContent}
             placeholder="Tulis konten artikel di sini..."
-            className="w-full min-h-[200px]"
-            required
+            height={400}
+            blogId={blogId}
           />
+          <p className="text-sm text-pink-500 mt-1">
+            Anda dapat menyisipkan gambar langsung ke dalam konten dengan cara:
+            <br />• Klik tombol gambar di toolbar
+            <br />• Seret dan lepas (drag & drop) gambar
+            <br />• Copy paste gambar dari clipboard
+          </p>
         </div>
 
         {/* Current Image */}

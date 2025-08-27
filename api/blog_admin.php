@@ -122,11 +122,16 @@ function createBlog($pdo) {
         
         $stmt->execute([$title, $slug, $content, $image_url, $category, $status]);
         
+        $blog_id = $pdo->lastInsertId();
+        
+        // Update blog_id for images that might be in the content
+        updateContentImagesBlogId($pdo, $blog_id, $content);
+        
         echo json_encode([
             'status' => 'success',
             'message' => 'Blog created successfully',
             'data' => [
-                'id' => $pdo->lastInsertId(),
+                'id' => $blog_id,
                 'title' => $title,
                 'slug' => $slug
             ]
@@ -184,7 +189,8 @@ function updateBlog($pdo) {
             }
             
             if (move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
-                $image_url = 'https://ccgnimex.my.id/v2/android/ginvite/' . $file_path;
+                // Perbaikan: Menambahkan '/page/' ke dalam URL
+                $image_url = 'https://ccgnimex.my.id/v2/android/ginvite/page/' . $file_path;
                 
                 // Update with new image
                 $stmt = $pdo->prepare("
@@ -203,6 +209,9 @@ function updateBlog($pdo) {
             ");
             $stmt->execute([$title, $slug, $content, $category, $status, $id]);
         }
+        
+        // Update blog_id for images that might be in the content
+        updateContentImagesBlogId($pdo, $id, $content);
         
         echo json_encode([
             'status' => 'success',
@@ -287,6 +296,25 @@ function getBlog($pdo) {
         
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to fetch blog: ' . $e->getMessage()]);
+    }
+}
+
+// Helper function to update blog_id for images in content
+function updateContentImagesBlogId($pdo, $blog_id, $content) {
+    try {
+        // Extract image URLs from content using regex
+        preg_match_all('/https:\/\/ccgnimex\.my\.id\/v2\/android\/ginvite\/page\/uploads\/editor\/([^"\'>\s]+)/', $content, $matches);
+        
+        if (!empty($matches[1])) {
+            foreach ($matches[1] as $filename) {
+                // Update blog_id for this image
+                $stmt = $pdo->prepare("UPDATE blog_images SET blog_id = ?, is_used = 1 WHERE filename = ? AND blog_id IS NULL");
+                $stmt->execute([$blog_id, $filename]);
+            }
+        }
+    } catch (PDOException $e) {
+        // Log error but don't fail the blog creation
+        error_log('Failed to update image blog_id: ' . $e->getMessage());
     }
 }
 ?>

@@ -110,6 +110,9 @@ export default function RootLayout({
           `}
         </Script>
 
+        {/* Quill.js CSS */}
+        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+
         {/* Ganti Facebook Pixel dengan komponen baru */}
         {/* Google Ads Conversion Event Snippet hanya di halaman / */}
       </head>

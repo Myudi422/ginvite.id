@@ -18,6 +18,27 @@ CREATE TABLE IF NOT EXISTS `blogs` (
   KEY `created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Tabel untuk menyimpan metadata gambar yang diupload melalui rich text editor
+CREATE TABLE IF NOT EXISTS `blog_images` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `blog_id` int(11) DEFAULT NULL,
+  `filename` varchar(255) NOT NULL,
+  `original_name` varchar(255) NOT NULL,
+  `file_path` varchar(500) NOT NULL,
+  `file_url` varchar(500) NOT NULL,
+  `file_size` int(11) NOT NULL,
+  `mime_type` varchar(100) NOT NULL,
+  `is_featured` tinyint(1) DEFAULT 0,
+  `is_used` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `blog_id` (`blog_id`),
+  KEY `filename` (`filename`),
+  KEY `is_featured` (`is_featured`),
+  KEY `is_used` (`is_used`),
+  FOREIGN KEY (`blog_id`) REFERENCES `blogs` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Menambahkan beberapa data contoh (opsional)
 INSERT INTO `blogs` (`title`, `slug`, `content`, `category`, `status`) VALUES
 ('Tips Membuat Undangan Pernikahan yang Menarik', 'tips-membuat-undangan-pernikahan-menarik', 
