@@ -51,24 +51,58 @@ function Header() {
 
   // Tambahkan fungsi tracking Google Ads conversion
   function gtag_report_conversion(url: string, label: string) {
-    if (typeof window === 'undefined' || !(window as any).gtag) {
-      window.location.href = url;
-      return;
-    }
-    const callback = function () {
-      if (typeof url !== 'undefined') {
+    // navigation helper: open external links in a new tab, internal with location
+    const navigate = () => {
+      if (typeof url === 'undefined') return;
+      if (/^https?:\/\//.test(url)) {
+        try {
+          window.open(url, '_blank');
+        } catch (e) {
+          window.location.href = url;
+        }
+      } else {
         window.location.href = url;
       }
     };
-    (window as any).gtag('event', 'conversion', {
-      'send_to': 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
-      'event_label': label,
-      'value': 1.0,
-      'currency': 'IDR',
-      'transaction_id': '',
-      'event_callback': callback,
-    });
-    return false;
+
+    if (typeof window === 'undefined') return;
+
+    const isGtagReady = !!(window as any).gtag;
+    if (!isGtagReady) {
+      // if gtag not ready, just navigate
+      navigate();
+      return;
+    }
+
+    // if gtag exists, fire event but ensure navigation even if callback doesn't run
+    let navigated = false;
+    const callback = () => {
+      if (navigated) return;
+      navigated = true;
+      navigate();
+    };
+
+    try {
+      (window as any).gtag('event', 'conversion', {
+        send_to: 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
+        event_label: label,
+        value: 1.0,
+        currency: 'IDR',
+        transaction_id: '',
+        event_callback: callback,
+      });
+    } catch (e) {
+      // fallback if gtag call throws
+      callback();
+    }
+
+    // fallback timeout: navigate after 1s if gtag didn't call back
+    setTimeout(() => {
+      if (!navigated) {
+        navigated = true;
+        navigate();
+      }
+    }, 1000);
   }
 
   return (
@@ -87,54 +121,42 @@ function Header() {
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex items-center space-x-4">
-          <a
-            href={navigation[0].href}
+          <button
+            type="button"
+            onClick={() => gtag_report_conversion(navigation[0].href, 'cta_header_wa')}
             className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50"
-            onClick={e => {
-              e.preventDefault();
-              gtag_report_conversion(navigation[0].href, 'cta_header_wa');
-            }}
           >
             <Phone className="w-4 h-4 mr-2" />
             Minta dibuatkan
-          </a>
-          <a
-            href="/admin"
+          </button>
+          <button
+            type="button"
+            onClick={() => gtag_report_conversion('/admin', 'cta_header_admin')}
             className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center"
-            onClick={e => {
-              e.preventDefault();
-              gtag_report_conversion('/admin', 'cta_header_admin');
-            }}
           >
             <BadgeCheck className="w-4 h-4 mr-2" />
             Coba Gratis Sekarang!
-          </a>
+          </button>
         </nav>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-2">
-          <a
-            href={navigation[0].href}
+          <button
+            type="button"
             className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50"
             aria-label="Hubungi Admin"
-            onClick={e => {
-              e.preventDefault();
-              gtag_report_conversion(navigation[0].href, 'cta_header_wa');
-            }}
+            onClick={() => gtag_report_conversion(navigation[0].href, 'cta_header_wa')}
           >
             <Phone className="w-5 h-5" />
-          </a>
-          <a
-            href="/admin"
+          </button>
+          <button
+            type="button"
             className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center"
             aria-label="Coba Gratis"
-            onClick={e => {
-              e.preventDefault();
-              gtag_report_conversion('/admin', 'cta_header_admin');
-            }}
+            onClick={() => gtag_report_conversion('/admin', 'cta_header_admin')}
           >
             <LogIn className="w-5 h-5" />
-          </a>
+          </button>
         </div>
       </div>
     </motion.header>
