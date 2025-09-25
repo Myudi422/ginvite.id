@@ -43,25 +43,55 @@ export default function HeroSection() {
   };
 
   // Tambahkan fungsi gtag_report_conversion
-  function gtag_report_conversion(url: string) {
-    if (typeof window === 'undefined' || !(window as any).gtag) {
-      window.location.href = url;
-      return;
-    }
-    const callback = function () {
-      if (typeof url !== 'undefined') {
+  // Tambahkan fungsi gtag_report_conversion (robust: fallback & external open)
+  function gtag_report_conversion(url: string, label?: string) {
+    const navigate = () => {
+      if (typeof url === 'undefined') return;
+      if (/^https?:\/\//.test(url)) {
+        try {
+          window.open(url, '_blank');
+        } catch (e) {
+          window.location.href = url;
+        }
+      } else {
         window.location.href = url;
       }
     };
-    (window as any).gtag('event', 'conversion', {
-      'send_to': 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
-      'value': 1.0,
-      'currency': 'IDR',
-      'transaction_id': '',
-      'event_callback': callback,
-    });
-    // Prevent default navigation
-    return false;
+
+    if (typeof window === 'undefined') return;
+
+    const isGtagReady = !!(window as any).gtag;
+    if (!isGtagReady) {
+      navigate();
+      return;
+    }
+
+    let navigated = false;
+    const callback = () => {
+      if (navigated) return;
+      navigated = true;
+      navigate();
+    };
+
+    try {
+      (window as any).gtag('event', 'conversion', {
+        send_to: 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
+        event_label: label || 'hero_cta',
+        value: 1.0,
+        currency: 'IDR',
+        transaction_id: '',
+        event_callback: callback,
+      });
+    } catch (e) {
+      callback();
+    }
+
+    setTimeout(() => {
+      if (!navigated) {
+        navigated = true;
+        navigate();
+      }
+    }, 1000);
   }
 
   return (
