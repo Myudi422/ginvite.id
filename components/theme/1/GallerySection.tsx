@@ -96,14 +96,16 @@ export default function GallerySection({
                   viewport={{ once: true, amount: 0.3 }}
                   custom={idx}
                 >
-                  <div className="relative w-full aspect-[4/5]">
-                    <Image
-                      src={src}
-                      alt={`Moment ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+                    <div className="relative w-full aspect-[4/5] bg-gray-100" style={{overflow:'hidden'}}>
+                      <Image
+                        src={src}
+                        alt={`Moment ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(min-width: 1024px) 480px, (min-width: 640px) 360px, 100vw"
+                        loading="lazy"
+                      />
+                    </div>
                 </motion.button>
               ))}
             </div>
@@ -155,6 +157,8 @@ export default function GallerySection({
             <img
               src={gallery.items[currentIdx]}
               alt={`Moment ${currentIdx + 1}`}
+              loading="eager"
+              decoding="async"
               style={{
                 display: 'block',
                 maxWidth: '100%',

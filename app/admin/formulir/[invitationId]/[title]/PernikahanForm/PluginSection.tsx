@@ -113,6 +113,13 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
 
   return (
     <>
+      {/* Pricing / info banner */}
+      <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-800">
+        <div className="font-semibold text-yellow-900 mb-1">Informasi Biaya</div>
+        <p className="mb-1">Intinya: bikin undangan GRATIS, tetapi ada watermark (WM) dan tidak permanen.</p>
+        <p className="mb-1">Untuk menghapus watermark dan mengaktifkan undangan secara permanen, pelanggan wajib melakukan pembayaran minimal <strong>Rp 40.000</strong> (aktivasi).</p>
+        <p className="mb-0">Tersedia juga paket <strong>Premium Rp 100.000</strong> — paket ini memberikan fitur tambahan dan ditandai dengan ikon <span className="inline-flex items-center"><Crown className="w-4 h-4 text-yellow-500 mr-1" />Premium</span>.</p>
+      </div>
       <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
         <DialogContent>
           <div className="flex justify-center p-4">

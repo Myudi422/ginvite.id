@@ -7,14 +7,17 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Navigation from "@/components/navigation";
 import CountdownTimer from "@/components/countdown-timer";
-import MusicPlayer from "@/components/MusicPlayer";
-import VideoSection from '@/components/theme/1/videosection';
+// MusicPlayer and VideoSection are lazy-loaded below via next/dynamic
 import QRModal from "@/components/QRModal";
 import '@/styles/font.css';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // Lottie player for loading
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import dynamic from 'next/dynamic';
+// Lazy-load heavy/hydration-sensitive components
+const DotLottieReact = dynamic(() => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact), { ssr: false, loading: () => <div className="flex items-center justify-center p-8">Loading…</div> });
+const MusicPlayer = dynamic(() => import('@/components/MusicPlayer'), { ssr: false, loading: () => null });
+const VideoSection = dynamic(() => import('@/components/theme/1/videosection'), { ssr: false, loading: () => null });
 
 // Section components
 import RsmpSection from "@/components/theme/1/rsmpsection";
@@ -30,6 +33,7 @@ import CountdownSection from "@/components/theme/1/CountdownSection";
 import EventSection from "@/components/theme/1/EventSection";
 import OurStorySection from "@/components/theme/1/OurStorySection";
 import GallerySection from "@/components/theme/1/GallerySection";
+import LazyHydrate from '@/components/ui/lazy-hydrate';
 import ClosingSection from "@/components/theme/1/ClosingSection";
 import FooterSection from "@/components/theme/1/FooterSection";
 import { recordContentView } from "@/app/actions/view";
@@ -47,7 +51,7 @@ interface EventData {
   title?: string;
 }
 
-interface Event {
+interface ThemeEvent {
   key: string;
   title?: string;
   date: string;
@@ -108,7 +112,7 @@ export default function Theme1({ data }: Theme1Props) {
   const leftBgImage = gallery?.items?.[1] || theme.defaultBgImage1
 
   // Dynamic events list from API
-  const eventsList: Event[] = Object.entries(apiEvents ?? {})
+  const eventsList: ThemeEvent[] = Object.entries(apiEvents ?? {})
     .map(([key, ev]) => {
       const eventData = ev as EventData;
       return eventData ? {
@@ -120,7 +124,7 @@ export default function Theme1({ data }: Theme1Props) {
         mapsLink: eventData.mapsLink || '',
       } : null;
     })
-    .filter(Boolean) as Event[];
+  .filter(Boolean) as ThemeEvent[];
 
   const sortedEvents = [...eventsList].sort((a, b) => {
     try {
@@ -186,7 +190,7 @@ export default function Theme1({ data }: Theme1Props) {
           Undangan dalam mode ujicoba/gratis.
         </div>
       )}
-      {isLoading && (
+        {isLoading && (
         <motion.div
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
@@ -214,14 +218,13 @@ export default function Theme1({ data }: Theme1Props) {
 
       {/* Right Content */}
       <div className="w-full md:w-[30%] overflow-y-auto h-screen">
-        {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay accentColor={theme.accentColor} />}
+  {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay accentColor={theme.accentColor} />}
         <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={toName} />
 
         {!isOpen && !isLoading && (
-          <OpeningSection
-            opening={opening}
-            defaultBgImage1={theme.defaultBgImage1}
-            gallery={gallery}
+      <OpeningSection
+        opening={opening}
+        gallery={gallery}
             decorations={decorations}
             theme={theme}
             isWedding={isWedding}
@@ -243,6 +246,7 @@ export default function Theme1({ data }: Theme1Props) {
               gallery={gallery}
               defaultBgImage1={theme.defaultBgImage1}
               opening={opening}
+              waktu_acara={`${firstEvent?.date ?? ''} ${firstEvent?.time ?? ''}`}
               childrenData={children}
               isWedding={isWedding}
               weddingTextFontSize={{ fontSize: '20px' }}
@@ -256,7 +260,7 @@ export default function Theme1({ data }: Theme1Props) {
               BodyFontFamily={processedBodyFontFamily}
               HeadingFontFamily={processedHeadingFontFamily}
               theme={theme}
-              event={firstEvent}
+              event={firstEvent as any}
               category_type={category_type}
             />
 
@@ -286,13 +290,19 @@ export default function Theme1({ data }: Theme1Props) {
             <EventSection events={sortedEvents} theme={theme} sectionTitle={eventTitle} specialFontFamily={processedSpecialFontFamily} />
 
             {content.our_story?.length > 0 && content.our_story_enabled && (
-      <OurStorySection ourStory={our_story} theme={theme} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
+      <LazyHydrate>
+        <OurStorySection ourStory={our_story} theme={theme} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
+      </LazyHydrate>
     )}
             {gallery_enabled && gallery?.items?.length > 0 && (
-      <GallerySection gallery={gallery} theme={theme} />
+      <LazyHydrate>
+        <GallerySection gallery={gallery} theme={theme} />
+      </LazyHydrate>
     )}
-    {content?.plugin?.gift && content?.plugin?.youtube_link && (
-  <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={theme.defaultBgImage1} />
+            {content?.plugin?.gift && content?.plugin?.youtube_link && (
+  <LazyHydrate>
+    <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={theme.defaultBgImage1} />
+  </LazyHydrate>
 )}
             {content.bank_transfer?.enabled && (
   <BankSection

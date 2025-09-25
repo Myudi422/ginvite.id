@@ -63,7 +63,7 @@ export default function MusicPlayer({ url, autoPlay = false, accentColor = "#c80
 
   return (
     <div className="fixed top-4 right-4 z-50">
-      <audio ref={audioRef} src={url} preload="auto" loop />
+  <audio ref={audioRef} src={url} preload="metadata" loop />
       <button
         onClick={togglePlay}
         className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 focus:outline-none"
