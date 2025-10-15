@@ -70,10 +70,10 @@ export default function Theme1({ data }: Theme1Props) {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [urlParams, setUrlParams] = useState<{ userId?: string; title?: string; toName?: string }>({});
 
   const searchParams = useSearchParams();
   const params = useParams();
-  const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
 
   // Payment handler function
   const handlePayment = async () => {
@@ -83,9 +83,8 @@ export default function Theme1({ data }: Theme1Props) {
       return;
     }
 
-    // Get URL params safely on client side only
-    const userId = params?.userId as string;
-    const title = params?.title as string;
+    // Get URL params from state (set in useEffect)
+    const { userId, title } = urlParams;
     
     if (!cuId || !userId || !title) {
       console.error('Payment data missing:', { cuId, userId, title });
@@ -150,8 +149,17 @@ export default function Theme1({ data }: Theme1Props) {
     }
   };
   useEffect(() => {
-    // Set client flag after mount
+    // Set client flag and URL params after mount
     setIsClient(true);
+    
+    // Safely get URL params on client side only
+    if (typeof window !== 'undefined') {
+      const userId = params?.userId as string;
+      const title = params?.title as string;
+      const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
+      
+      setUrlParams({ userId, title, toName });
+    }
     
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
@@ -162,7 +170,7 @@ export default function Theme1({ data }: Theme1Props) {
       document.body.style.overflow = "auto";
       clearTimeout(loadingTimeout);
     };
-  }, [isOpen]);
+  }, [isOpen, params, searchParams]);
 
   useEffect(() => {
     if (!cuId) return;
@@ -313,14 +321,14 @@ export default function Theme1({ data }: Theme1Props) {
       <div className="hidden md:block w-[70%] sticky top-0 h-screen relative" style={{ backgroundImage: `url(${leftBgImage})`, backgroundSize: 'cover', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-0" />
         <div className="absolute text-white z-10" style={{ top: '500px', left: '36px', fontSize: '40px', fontFamily: processedSpecialFontFamily }}>
-          Hai, {toName}
+          Hai, {urlParams.toName || "Bapak/Ibu/Saudara/i"}
         </div>
       </div>
 
       {/* Right Content */}
       <div className="w-full md:w-[30%] overflow-y-auto h-screen">
   {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay accentColor={theme.accentColor} />}
-        <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={toName} />
+        <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"} />
 
         {!isOpen && !isLoading && (
       <OpeningSection
