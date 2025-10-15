@@ -113,6 +113,31 @@ export default function RootLayout({
         {/* Quill.js CSS */}
         <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
 
+        {/* Chunk Loading Error Handler */}
+        <Script id="chunk-error-handler" strategy="beforeInteractive">
+          {`
+            window.addEventListener('error', function(e) {
+              if (e.message && e.message.includes('Loading chunk')) {
+                console.warn('Chunk loading failed, will retry once:', e.message);
+                // Don't auto-reload immediately, let the error boundary handle it
+              }
+            });
+
+            // Register service worker for cache management
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                  .then(function(registration) {
+                    console.log('SW registered: ', registration);
+                  })
+                  .catch(function(registrationError) {
+                    console.log('SW registration failed: ', registrationError);
+                  });
+              });
+            }
+          `}
+        </Script>
+
         {/* Ganti Facebook Pixel dengan komponen baru */}
         {/* Google Ads Conversion Event Snippet hanya di halaman / */}
       </head>

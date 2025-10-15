@@ -14,7 +14,24 @@ export default function Error({
   useEffect(() => {
     // Log the error to an error reporting service
     console.error('Undangan Error:', error);
+    
+    // If it's a chunk loading error, try to reload the page
+    if (error.message.includes('Loading chunk') || error.message.includes('ChunkLoadError')) {
+      console.log('Chunk loading error detected, will suggest page reload');
+    }
   }, [error]);
+
+  const isChunkError = error.message.includes('Loading chunk') || error.message.includes('ChunkLoadError');
+  
+  const handleRetry = () => {
+    if (isChunkError) {
+      // For chunk errors, do a full page reload
+      window.location.reload();
+    } else {
+      // For other errors, use the reset function
+      reset();
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 p-4">
@@ -36,12 +53,14 @@ export default function Error({
             </svg>
           </div>
           <h1 className="text-xl font-semibold text-gray-900 mb-2">
-            Undangan Tidak Ditemukan
+            {isChunkError ? 'Masalah Memuat Halaman' : 'Undangan Tidak Ditemukan'}
           </h1>
           <p className="text-gray-600 text-sm mb-4">
-            {error.message.includes('404') 
-              ? 'Undangan yang Anda cari tidak ditemukan atau mungkin belum dibuat.'
-              : 'Terjadi kesalahan saat memuat undangan.'}
+            {isChunkError 
+              ? 'Terjadi masalah saat memuat komponen halaman. Silakan coba muat ulang halaman.'
+              : error.message.includes('404') 
+                ? 'Undangan yang Anda cari tidak ditemukan atau mungkin belum dibuat.'
+                : 'Terjadi kesalahan saat memuat undangan.'}
           </p>
           <div className="text-xs text-gray-400 bg-gray-50 p-2 rounded">
             Error: {error.message}
@@ -50,10 +69,10 @@ export default function Error({
 
         <div className="space-y-3">
           <Button 
-            onClick={reset}
+            onClick={handleRetry}
             className="w-full bg-pink-500 hover:bg-pink-600 text-white"
           >
-            Coba Lagi
+            {isChunkError ? 'Muat Ulang Halaman' : 'Coba Lagi'}
           </Button>
           
           <Link href="/" className="block">

@@ -14,10 +14,33 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 // Lottie player for loading
 import dynamic from 'next/dynamic';
-// Lazy-load heavy/hydration-sensitive components
-const DotLottieReact = dynamic(() => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact), { ssr: false, loading: () => <div className="flex items-center justify-center p-8">Loading…</div> });
-const MusicPlayer = dynamic(() => import('@/components/MusicPlayer'), { ssr: false, loading: () => null });
-const VideoSection = dynamic(() => import('@/components/theme/1/videosection'), { ssr: false, loading: () => null });
+// Lazy-load heavy/hydration-sensitive components with error handling
+const DotLottieReact = dynamic(
+  () => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact).catch(() => {
+    console.warn('Failed to load DotLottieReact, using fallback');
+    return () => <div className="flex items-center justify-center p-8">Loading…</div>;
+  }), 
+  { 
+    ssr: false, 
+    loading: () => <div className="flex items-center justify-center p-8">Loading…</div> 
+  }
+);
+
+const MusicPlayer = dynamic(
+  () => import('@/components/MusicPlayer').catch(() => {
+    console.warn('Failed to load MusicPlayer');
+    return { default: () => null };
+  }), 
+  { ssr: false, loading: () => null }
+);
+
+const VideoSection = dynamic(
+  () => import('@/components/theme/1/videosection').catch(() => {
+    console.warn('Failed to load VideoSection');
+    return { default: () => null };
+  }), 
+  { ssr: false, loading: () => null }
+);
 
 // Section components
 import RsmpSection from "@/components/theme/1/rsmpsection";
