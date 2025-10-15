@@ -69,6 +69,7 @@ export default function Theme1({ data }: Theme1Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   const searchParams = useSearchParams();
   const params = useParams();
@@ -76,6 +77,13 @@ export default function Theme1({ data }: Theme1Props) {
 
   // Payment handler function
   const handlePayment = async () => {
+    // Only run on client side
+    if (typeof window === 'undefined') {
+      setPaymentError('Fitur pembayaran tidak tersedia');
+      return;
+    }
+
+    // Get URL params safely on client side only
     const userId = params?.userId as string;
     const title = params?.title as string;
     
@@ -142,6 +150,9 @@ export default function Theme1({ data }: Theme1Props) {
     }
   };
   useEffect(() => {
+    // Set client flag after mount
+    setIsClient(true);
+    
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -261,17 +272,19 @@ export default function Theme1({ data }: Theme1Props) {
         <div className="fixed top-0 left-0 w-full bg-yellow-300 text-yellow-900 py-3 z-50 text-center font-semibold">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 px-4">
             <span className="text-sm sm:text-base">Undangan dalam mode ujicoba/gratis.</span>
-            <Button 
-              size="sm"
-              variant="outline"
-              className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap"
-              onClick={handlePayment}
-              disabled={paymentLoading}
-            >
-              {paymentLoading ? 'Memproses...' : 'Bayar Sekarang'}
-            </Button>
+            {isClient && (
+              <Button 
+                size="sm"
+                variant="outline"
+                className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap"
+                onClick={handlePayment}
+                disabled={paymentLoading}
+              >
+                {paymentLoading ? 'Memproses...' : 'Bayar Sekarang'}
+              </Button>
+            )}
           </div>
-          {paymentError && (
+          {paymentError && isClient && (
             <div className="text-red-600 text-xs sm:text-sm mt-1 px-4">
               {paymentError}
             </div>
