@@ -95,11 +95,38 @@ export default async function InvitationPage({ params }: Props) {
     `&title=${encodeURIComponent(title)}`,
   ].join("");
 
+  console.log('API URL:', apiUrl);
+  console.log('Parameters:', { userId, title });
+
   const res = await fetch(apiUrl, { cache: "no-store" });
   if (!res.ok) {
-    throw new Error(`Gagal load data undangan (status ${res.status})`);
+    console.error('API Response Status:', res.status);
+    console.error('API Response Headers:', Object.fromEntries(res.headers.entries()));
+    
+    // Try to get response text for more details
+    try {
+      const errorText = await res.text();
+      console.error('API Error Response:', errorText);
+    } catch (e) {
+      console.error('Could not read error response:', e);
+    }
+    
+    throw new Error(`Gagal load data undangan (status ${res.status}). URL: ${apiUrl}`);
   }
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+    console.log('API Response Data:', data);
+  } catch (e) {
+    console.error('Failed to parse JSON response:', e);
+    throw new Error('Gagal parsing response data dari server');
+  }
+
+  // Check if data is valid
+  if (!data || !data.content) {
+    console.error('Invalid data structure:', data);
+    throw new Error('Data undangan tidak valid atau tidak ditemukan');
+  }
 
   const Loading = () => (
     <div className="flex items-center justify-center h-screen">
