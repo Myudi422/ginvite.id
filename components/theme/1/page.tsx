@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ import LazyHydrate from '@/components/ui/lazy-hydrate';
 import ClosingSection from "@/components/theme/1/ClosingSection";
 import FooterSection from "@/components/theme/1/FooterSection";
 import { recordContentView } from "@/app/actions/view";
+import { midtransAction, toggleStatusAction } from "@/app/actions/indexcontent";
 
 interface Theme1Props {
   data: any;
@@ -66,9 +67,80 @@ export default function Theme1({ data }: Theme1Props) {
   const [showQr, setShowQr] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [isLoading, setIsLoading] = useState(true);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
+  const params = useParams();
   const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
+
+  // Payment handler function
+  const handlePayment = async () => {
+    const userId = params?.userId as string;
+    const title = params?.title as string;
+    
+    if (!cuId || !userId || !title) {
+      console.error('Payment data missing:', { cuId, userId, title });
+      setPaymentError('Data undangan tidak lengkap');
+      return;
+    }
+
+    setPaymentLoading(true);
+    setPaymentError(null);
+
+    try {
+      const mjson = await midtransAction({
+        user_id: parseInt(userId),
+        id_content: cuId,
+        title: decodeURIComponent(title),
+      });
+
+      if (mjson.status === 'paid') {
+        // Already paid, just activate
+        await toggleStatusAction({
+          user_id: parseInt(userId),
+          id: cuId,
+          title: decodeURIComponent(title),
+          status: 1,
+        });
+        // Refresh page to show activated status
+        window.location.reload();
+      } else {
+        // Open Midtrans Snap payment
+        // @ts-ignore
+        if (typeof window.snap !== 'undefined') {
+          console.log('Opening Midtrans Snap payment...');
+          // @ts-ignore
+          window.snap.pay(mjson.snap_token, {
+            onSuccess: async () => {
+              await toggleStatusAction({
+                user_id: parseInt(userId),
+                id: cuId,
+                title: decodeURIComponent(title),
+                status: 1,
+              });
+              // Refresh page to show activated status
+              window.location.reload();
+            },
+            onError: (e: any) => {
+              setPaymentError('Pembayaran gagal: ' + (e?.message || 'Terjadi kesalahan'));
+            },
+            onClose: () => {
+              // User closed the payment popup
+              setPaymentLoading(false);
+            }
+          });
+          // Don't set loading false here since Snap will handle the callbacks
+        } else {
+          setPaymentError('Sistem pembayaran belum siap. Silakan refresh halaman.');
+          setPaymentLoading(false);
+        }
+      }
+    } catch (err: any) {
+      setPaymentError('Gagal memproses pembayaran: ' + err.message);
+      setPaymentLoading(false);
+    }
+  };
   useEffect(() => {
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
@@ -184,10 +256,26 @@ export default function Theme1({ data }: Theme1Props) {
     const turutEnabled = content?.turut?.enabled;
 
     return (
-    <main className="relative min-h-screen text-center overflow-hidden flex md:flex-row" style={{ color: theme.textColor }}>
+    <main className={`relative min-h-screen text-center overflow-hidden flex md:flex-row ${data.status === "tidak" ? "pt-16 sm:pt-12" : ""}`} style={{ color: theme.textColor }}>
       {data.status === "tidak" && (
         <div className="fixed top-0 left-0 w-full bg-yellow-300 text-yellow-900 py-3 z-50 text-center font-semibold">
-          Undangan dalam mode ujicoba/gratis.
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 px-4">
+            <span className="text-sm sm:text-base">Undangan dalam mode ujicoba/gratis.</span>
+            <Button 
+              size="sm"
+              variant="outline"
+              className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap"
+              onClick={handlePayment}
+              disabled={paymentLoading}
+            >
+              {paymentLoading ? 'Memproses...' : 'Bayar Sekarang'}
+            </Button>
+          </div>
+          {paymentError && (
+            <div className="text-red-600 text-xs sm:text-sm mt-1 px-4">
+              {paymentError}
+            </div>
+          )}
         </div>
       )}
         {isLoading && (
