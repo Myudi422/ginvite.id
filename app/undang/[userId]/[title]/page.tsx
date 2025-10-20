@@ -81,28 +81,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const displayName = buildDisplayName(data, title);
 
-  // Ambil foto utama: profile anak > gallery > user.pictures_url > fallback
-  let image = data?.user?.pictures_url;
+  // Ambil foto utama: prioritas gallery > profile anak > user.pictures_url > fallback
+  let image = null;
   
-  // Untuk khitanan, prioritaskan foto profile anak yang dikhitan
-  if (data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
-    const childProfile = data.content.children[0]?.profile;
-    if (childProfile && childProfile.startsWith('http')) {
-      image = childProfile;
-    }
-  }
-  
-  // Fallback ke gallery jika tidak ada foto profile
-  if (!image && data?.content?.gallery?.items?.length) {
+  // 1. Prioritas utama: Gallery images (ukuran pasti lebih besar)
+  if (data?.content?.gallery?.items?.length) {
     const galleryImage = data.content.gallery.items[0];
     if (galleryImage && galleryImage.startsWith('http')) {
       image = galleryImage;
     }
   }
   
-  // Pastikan image adalah URL absolut, bukan relatif
+  // 2. Untuk khitanan, coba foto profile anak yang dikhitan
+  if (!image && data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
+    const childProfile = data.content.children[0]?.profile;
+    if (childProfile && childProfile.startsWith('http')) {
+      image = childProfile;
+    }
+  }
+  
+  // 3. Fallback: User profile picture (dengan resize jika dari Google)
+  if (!image && data?.user?.pictures_url) {
+    let userImage = data.user.pictures_url;
+    // Jika dari Google Photos, ganti parameter size ke yang lebih besar
+    if (userImage.includes('googleusercontent.com') && userImage.includes('=s96-c')) {
+      userImage = userImage.replace('=s96-c', '=s1200-c');
+    }
+    image = userImage;
+  }
+  
+  // 4. Default fallback jika tidak ada gambar yang valid
   if (!image || !image.startsWith('http')) {
-    // Gunakan placeholder image yang pasti tersedia
     image = "https://via.placeholder.com/1200x630/4a281e/ffffff?text=Undangan+Digital";
   }
 
