@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import WeddingLoading from "@/components/WeddingLoading";
 import React from "react";
+import Head from "next/head";
 
 interface Params {
   userId: string;
@@ -87,7 +88,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // 1. Prioritas utama: Gallery images (ukuran pasti lebih besar)
   if (data?.content?.gallery?.items?.length) {
     const galleryImage = data.content.gallery.items[0];
-    if (galleryImage && galleryImage.startsWith('http')) {
+    if (galleryImage && galleryImage.startsWith('https://')) {
+      // Pastikan URL HTTPS untuk WhatsApp compatibility
       image = galleryImage;
     }
   }
@@ -95,7 +97,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // 2. Untuk khitanan, coba foto profile anak yang dikhitan
   if (!image && data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
     const childProfile = data.content.children[0]?.profile;
-    if (childProfile && childProfile.startsWith('http')) {
+    if (childProfile && childProfile.startsWith('https://')) {
       image = childProfile;
     }
   }
@@ -149,16 +151,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [image],
       creator: "@papunda_id",
     },
+    // Tambahan meta tags khusus untuk WhatsApp
+    viewport: "width=device-width, initial-scale=1",
     metadataBase: new URL("https://papunda.com"),
     other: {
-      "og:image": image,
-      "og:image:secure_url": image,
-      "og:image:alt": `Undangan Digital ${displayName}`,
-      "og:image:width": "1200",
-      "og:image:height": "630",
-      "og:image:type": "image/jpeg",
+      // Additional meta for better compatibility
       "article:author": "Papunda",
-      "og:site_name": "Papunda - Undangan Digital",
     },
   };
 }
@@ -205,6 +203,31 @@ export default async function InvitationPage({ params }: Props) {
   // Ambil displayName dengan helper yang sama supaya konsisten dengan metadata
   const displayName = buildDisplayName(data, title);
 
+  // Ambil gambar dengan logika yang sama seperti metadata
+  let pageImage = null;
+  if (data?.content?.gallery?.items?.length) {
+    const galleryImage = data.content.gallery.items[0];
+    if (galleryImage && galleryImage.startsWith('https://')) {
+      pageImage = galleryImage;
+    }
+  }
+  if (!pageImage && data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
+    const childProfile = data.content.children[0]?.profile;
+    if (childProfile && childProfile.startsWith('https://')) {
+      pageImage = childProfile;
+    }
+  }
+  if (!pageImage && data?.user?.pictures_url) {
+    let userImage = data.user.pictures_url;
+    if (userImage.includes('googleusercontent.com') && userImage.includes('=s96-c')) {
+      userImage = userImage.replace('=s96-c', '=s1200-c');
+    }
+    pageImage = userImage;
+  }
+  if (!pageImage) {
+    pageImage = "https://via.placeholder.com/1200x630/4a281e/ffffff?text=Undangan+Digital";
+  }
+
   const Loading = () => (
     <div className="flex items-center justify-center h-screen">
       <WeddingLoading />
@@ -237,8 +260,19 @@ export default async function InvitationPage({ params }: Props) {
   data._displayName = displayName;
 
   return (
-    <React.Suspense fallback={<Loading />}>
-      <ThemePage data={data} />
-    </React.Suspense>
+    <>
+      <Head>
+        <meta property="og:image" content={pageImage} />
+        <meta property="og:image:secure_url" content={pageImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta name="twitter:image" content={pageImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Head>
+      <React.Suspense fallback={<Loading />}>
+        <ThemePage data={data} />
+      </React.Suspense>
+    </>
   );
 }
