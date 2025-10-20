@@ -26,10 +26,16 @@ function getNamesFromChildren(children: any): string[] {
     .slice(0, 2);
 }
 
-// --- Helper: bangun displayName aman (tanpa ' & ' kalau cuma 1 nama)
+// --- Helper: bangun displayName aman (berbeda untuk khitanan vs nikah)
 function buildDisplayName(data: any, rawTitle: string): string {
   const childNames = getNamesFromChildren(data?.content?.children);
   if (childNames.length > 0) {
+    // Untuk khitanan, hanya ambil nama anak pertama (tidak ada " & ")
+    const isKhitanan = data?.category_type?.name === "khitanan";
+    if (isKhitanan) {
+      return childNames[0]; // Hanya nama anak yang dikhitan
+    }
+    // Untuk nikah, gabungkan dengan " & "
     return childNames.join(" & ");
   }
 
