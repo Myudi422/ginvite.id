@@ -82,10 +82,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const displayName = buildDisplayName(data, title);
 
-  // Ambil foto utama: prioritas gallery > profile anak > user.pictures_url > fallback
+  // Ambil foto utama: prioritas gallery > profile pengantin > user.pictures_url > fallback
   let image = null;
   
-  // 1. Prioritas utama: Gallery images (ukuran pasti lebih besar)
+  // 1. Prioritas utama: Gallery images (ukuran pasti lebih besar untuk semua jenis)
   if (data?.content?.gallery?.items?.length) {
     const galleryImage = data.content.gallery.items[0];
     if (galleryImage && galleryImage.startsWith('https://')) {
@@ -94,7 +94,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
   
-  // 2. Untuk khitanan, coba foto profile anak yang dikhitan
+  // 2. Untuk khitanan: prioritaskan foto profile anak yang dikhitan
   if (!image && data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
     const childProfile = data.content.children[0]?.profile;
     if (childProfile && childProfile.startsWith('https://')) {
@@ -102,18 +102,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
   
-  // 3. Fallback: User profile picture (dengan resize jika dari Google)
+  // 3. Untuk nikah: coba foto profile dari pengantin mana pun
+  if (!image && data?.category_type?.name !== "khitanan" && data?.content?.children?.length > 0) {
+    for (const child of data.content.children) {
+      if (child?.profile && child.profile.startsWith('https://')) {
+        image = child.profile;
+        break;
+      }
+    }
+  }
+  
+  // 4. Fallback: User profile picture (dengan resize jika dari Google)
   if (!image && data?.user?.pictures_url) {
     let userImage = data.user.pictures_url;
     // Jika dari Google Photos, ganti parameter size ke yang lebih besar
     if (userImage.includes('googleusercontent.com') && userImage.includes('=s96-c')) {
       userImage = userImage.replace('=s96-c', '=s1200-c');
     }
-    image = userImage;
+    if (userImage.startsWith('https://')) {
+      image = userImage;
+    }
   }
   
-  // 4. Default fallback jika tidak ada gambar yang valid
-  if (!image || !image.startsWith('http')) {
+  // 5. Default fallback jika tidak ada gambar yang valid
+  if (!image) {
     image = "https://via.placeholder.com/1200x630/4a281e/ffffff?text=Undangan+Digital";
   }
 
@@ -205,25 +217,46 @@ export default async function InvitationPage({ params }: Props) {
 
   // Ambil gambar dengan logika yang sama seperti metadata
   let pageImage = null;
+  
+  // 1. Prioritas utama: Gallery images (untuk semua jenis undangan)
   if (data?.content?.gallery?.items?.length) {
     const galleryImage = data.content.gallery.items[0];
     if (galleryImage && galleryImage.startsWith('https://')) {
       pageImage = galleryImage;
     }
   }
+  
+  // 2. Untuk khitanan: prioritaskan foto profile anak yang dikhitan
   if (!pageImage && data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
     const childProfile = data.content.children[0]?.profile;
     if (childProfile && childProfile.startsWith('https://')) {
       pageImage = childProfile;
     }
   }
+  
+  // 3. Untuk nikah: coba foto profile dari pengantin (pria atau wanita)
+  if (!pageImage && data?.category_type?.name !== "khitanan" && data?.content?.children?.length > 0) {
+    // Cari foto profile dari salah satu pengantin
+    for (const child of data.content.children) {
+      if (child?.profile && child.profile.startsWith('https://')) {
+        pageImage = child.profile;
+        break;
+      }
+    }
+  }
+  
+  // 4. Fallback: User profile picture (dengan resize jika dari Google)
   if (!pageImage && data?.user?.pictures_url) {
     let userImage = data.user.pictures_url;
     if (userImage.includes('googleusercontent.com') && userImage.includes('=s96-c')) {
       userImage = userImage.replace('=s96-c', '=s1200-c');
     }
-    pageImage = userImage;
+    if (userImage.startsWith('https://')) {
+      pageImage = userImage;
+    }
   }
+  
+  // 5. Default fallback
   if (!pageImage) {
     pageImage = "https://via.placeholder.com/1200x630/4a281e/ffffff?text=Undangan+Digital";
   }
