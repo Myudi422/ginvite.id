@@ -3,11 +3,48 @@ import type { Metadata } from "next";
 import WeddingLoading from "@/components/WeddingLoading";
 import React from "react";
 
+interface Params {
+  userId: string;
+  title: string;
+}
 interface Props {
-  params: Promise<{
-    userId: string;
-    title: string;
-  }>;
+  params: Promise<Params>;
+}
+
+// --- Helper: ambil maksimal 2 nama yang valid dari content.children
+function getNamesFromChildren(children: any): string[] {
+  if (!Array.isArray(children)) return [];
+  return children
+    .map((c: any) => {
+      if (!c) return "";
+      // beberapa API mungkin menyimpan nama di properti berbeda — pakai 'name' jika ada
+      const raw = (typeof c.name === "string" ? c.name : (c?.nama ?? ""));
+      if (typeof raw !== "string") return "";
+      return raw.trim();
+    })
+    .filter(Boolean) // hapus "", null, undefined, atau string hanya spasi
+    .slice(0, 2);
+}
+
+// --- Helper: bangun displayName aman (tanpa ' & ' kalau cuma 1 nama)
+function buildDisplayName(data: any, rawTitle: string): string {
+  const childNames = getNamesFromChildren(data?.content?.children);
+  if (childNames.length > 0) {
+    return childNames.join(" & ");
+  }
+
+  // fallback: gunakan user.first_name jika tersedia dan bukan empty
+  const fallback = data?.user?.first_name;
+  if (typeof fallback === "string" && fallback.trim()) {
+    return fallback.trim();
+  }
+
+  // terakhir: decode title (ganti '-' jadi spasi)
+  try {
+    return decodeURIComponent(rawTitle).replace(/-/g, " ");
+  } catch {
+    return rawTitle.replace(/-/g, " ");
+  }
 }
 
 // Ambil data undangan terlebih dahulu untuk metadata dinamis
@@ -33,18 +70,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     data = await getInvitationData(Promise.resolve({ userId, title }));
   } catch {
-    // fallback jika gagal fetch
+    // fallback jika gagal fetch -> data tetap null
   }
 
-  // Ambil nama pengantin dari content.children (ambil 2 teratas)
-  let displayName = "";
-  if (data?.content?.children && Array.isArray(data.content.children) && data.content.children.length > 0) {
-    const names = data.content.children.slice(0, 2).map((c: any) => c.name).filter(Boolean);
-    displayName = names.join(" & ");
-  }
-  if (!displayName) {
-    displayName = data?.user?.first_name || decodeURIComponent(title).replace(/-/g, " ");
-  }
+  const displayName = buildDisplayName(data, title);
 
   // Ambil foto utama: user.pictures_url > gallery > fallback
   let image = data?.user?.pictures_url;
@@ -55,8 +84,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     image = "/default-thumbnail.jpg";
   }
 
-  const desc = data?.content?.invitation?.replace(/<[^>]+>/g, "")?.slice(0, 160)
-    || `Undangan pernikahan digital untuk ${displayName}`;
+  const desc =
+    (data?.content?.invitation?.replace(/<[^>]+>/g, "")?.slice(0, 160)) ||
+    `Undangan pernikahan digital untuk ${displayName}`;
   const url = `https://papunda.com/undang/${userId}/${title}`;
 
   return {
@@ -95,38 +125,36 @@ export default async function InvitationPage({ params }: Props) {
     `&title=${encodeURIComponent(title)}`,
   ].join("");
 
-  console.log('API URL:', apiUrl);
-  console.log('Parameters:', { userId, title });
+  console.log("API URL:", apiUrl);
+  console.log("Parameters:", { userId, title });
 
   const res = await fetch(apiUrl, { cache: "no-store" });
   if (!res.ok) {
-    console.error('API Response Status:', res.status);
-    console.error('API Response Headers:', Object.fromEntries(res.headers.entries()));
-    
-    // Try to get response text for more details
+    console.error("API Response Status:", res.status);
     try {
       const errorText = await res.text();
-      console.error('API Error Response:', errorText);
+      console.error("API Error Response:", errorText);
     } catch (e) {
-      console.error('Could not read error response:', e);
+      console.error("Could not read error response:", e);
     }
-    
     throw new Error(`Gagal load data undangan (status ${res.status}). URL: ${apiUrl}`);
   }
   let data;
   try {
     data = await res.json();
-    console.log('API Response Data:', data);
+    console.log("API Response Data:", data);
   } catch (e) {
-    console.error('Failed to parse JSON response:', e);
-    throw new Error('Gagal parsing response data dari server');
+    console.error("Failed to parse JSON response:", e);
+    throw new Error("Gagal parsing response data dari server");
   }
 
-  // Check if data is valid
   if (!data || !data.content) {
-    console.error('Invalid data structure:', data);
-    throw new Error('Data undangan tidak valid atau tidak ditemukan');
+    console.error("Invalid data structure:", data);
+    throw new Error("Data undangan tidak valid atau tidak ditemukan");
   }
+
+  // Ambil displayName dengan helper yang sama supaya konsisten dengan metadata
+  const displayName = buildDisplayName(data, title);
 
   const Loading = () => (
     <div className="flex items-center justify-center h-screen">
@@ -154,6 +182,10 @@ export default async function InvitationPage({ params }: Props) {
       </div>
     );
   }
+
+  // Jika komponen ThemePage butuh displayName sebagai prop, kirim via data (opsional)
+  // e.g., ThemePage dapat memakai data.displayName atau data._displayName
+  data._displayName = displayName;
 
   return (
     <React.Suspense fallback={<Loading />}>
