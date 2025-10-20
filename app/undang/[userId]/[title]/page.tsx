@@ -116,6 +116,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+//
+
 export default async function InvitationPage({ params }: Props) {
   const { userId, title } = await params;
   const apiUrl = [
