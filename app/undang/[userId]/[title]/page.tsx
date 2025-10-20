@@ -81,18 +81,36 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const displayName = buildDisplayName(data, title);
 
-  // Ambil foto utama: user.pictures_url > gallery > fallback
+  // Ambil foto utama: profile anak > gallery > user.pictures_url > fallback
   let image = data?.user?.pictures_url;
-  if (!image && data?.content?.gallery?.items?.length) {
-    image = data.content.gallery.items[0];
+  
+  // Untuk khitanan, prioritaskan foto profile anak yang dikhitan
+  if (data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
+    const childProfile = data.content.children[0]?.profile;
+    if (childProfile && childProfile.startsWith('http')) {
+      image = childProfile;
+    }
   }
-  if (!image) {
-    image = "/default-thumbnail.jpg";
+  
+  // Fallback ke gallery jika tidak ada foto profile
+  if (!image && data?.content?.gallery?.items?.length) {
+    const galleryImage = data.content.gallery.items[0];
+    if (galleryImage && galleryImage.startsWith('http')) {
+      image = galleryImage;
+    }
+  }
+  
+  // Pastikan image adalah URL absolut, bukan relatif
+  if (!image || !image.startsWith('http')) {
+    // Gunakan placeholder image yang pasti tersedia
+    image = "https://via.placeholder.com/1200x630/4a281e/ffffff?text=Undangan+Digital";
   }
 
+  // Buat deskripsi yang sesuai dengan jenis acara
+  const eventType = data?.category_type?.name === "khitanan" ? "khitanan" : "pernikahan";
   const desc =
     (data?.content?.invitation?.replace(/<[^>]+>/g, "")?.slice(0, 160)) ||
-    `Undangan pernikahan digital untuk ${displayName}`;
+    `Undangan ${eventType} digital untuk ${displayName}`;
   const url = `https://papunda.com/undang/${userId}/${title}`;
 
   return {
@@ -102,23 +120,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `Undangan Digital | ${displayName}`,
       description: desc,
       url,
+      siteName: "Papunda - Undangan Digital",
       images: [
         {
           url: image,
           width: 1200,
           height: 630,
           alt: `Undangan Digital ${displayName}`,
+          type: "image/jpeg",
         },
       ],
       type: "website",
+      locale: "id_ID",
     },
     twitter: {
       card: "summary_large_image",
       title: `Undangan Digital | ${displayName}`,
       description: desc,
       images: [image],
+      creator: "@papunda_id",
     },
     metadataBase: new URL("https://papunda.com"),
+    other: {
+      "og:image": image,
+      "og:image:secure_url": image,
+      "og:image:alt": `Undangan Digital ${displayName}`,
+      "og:image:width": "1200",
+      "og:image:height": "630",
+      "og:image:type": "image/jpeg",
+      "article:author": "Papunda",
+      "og:site_name": "Papunda - Undangan Digital",
+    },
   };
 }
 
