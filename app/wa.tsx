@@ -5,14 +5,41 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function WhatsAppButton() {
+
+  const [visible, setVisible] = useState(false);
+  const [minimized, setMinimized] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const pathname = usePathname();
-  
-  // Hide the button immediately if path starts with /undang or is /login
-  if (pathname.startsWith('/undang') || pathname === '/login') {
-    return null;
-  }
 
+  useEffect(() => {
+    if (pathname.startsWith('/undang') || pathname === '/login') {
+      setVisible(false);
+      return;
+    }
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > 100) {
+        setVisible(true);
+        if (currentScrollY > lastScrollY) {
+          setMinimized(false); // show full when scrolling down
+        } else {
+          setMinimized(true); // minimize when scrolling up
+        }
+      } else {
+        setVisible(false);
+        setMinimized(false);
+      }
+      setLastScrollY(currentScrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    // Initial check
+    handleScroll();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [pathname, lastScrollY]);
 
+  if (!visible) return null;
 
   return (
     <a
@@ -29,13 +56,18 @@ export default function WhatsAppButton() {
         background: '#25D366',
         color: '#fff',
         borderRadius: '999px',
-        padding: '10px 18px 10px 12px',
+        padding: minimized ? '10px' : '10px 18px 10px 12px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         textDecoration: 'none',
         fontWeight: 500,
         fontSize: '16px',
-        gap: '10px',
-        transition: 'box-shadow 0.2s',
+        gap: minimized ? '0px' : '10px',
+        transition: 'box-shadow 0.2s, opacity 0.4s, padding 0.3s, gap 0.3s',
+        opacity: visible ? 1 : 0,
+        pointerEvents: visible ? 'auto' : 'none',
+        width: minimized ? '48px' : 'auto',
+        minWidth: minimized ? '48px' : 'unset',
+        justifyContent: 'center',
       }}
       aria-label="Butuh Bantuan via WhatsApp"
     >
@@ -46,7 +78,9 @@ export default function WhatsAppButton() {
         height={28}
         style={{ display: 'block' }}
       />
-      <span style={{ fontWeight: 600, letterSpacing: 0.2 }}>Butuh Bantuan?</span>
+      {!minimized && (
+        <span style={{ fontWeight: 600, letterSpacing: 0.2, transition: 'opacity 0.3s' }}>Butuh Bantuan?</span>
+      )}
     </a>
   );
 }
