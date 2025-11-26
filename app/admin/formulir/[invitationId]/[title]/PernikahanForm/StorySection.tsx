@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useFormContext, useFieldArray, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -63,16 +63,23 @@ export function StorySection({
   }, [getValues, invitationId, onSavedSlug, slug, userId]);
 
   // Add useEffect for auto-save when enabled changes
+  const prevEnabled = useRef(enabled);
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      try {
-        await autoSave();
-      } catch (e) {
-        console.error('Auto-save Story gagal:', (e as Error).message);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [enabled, autoSave]);
+    // Only auto-save when enabled actually changes, not on every render
+    if (prevEnabled.current !== enabled) {
+      const timer = setTimeout(async () => {
+        try {
+          await autoSave();
+        } catch (e) {
+          console.error('Auto-save Story gagal:', (e as Error).message);
+        }
+      }, 500);
+      
+      prevEnabled.current = enabled;
+      return () => clearTimeout(timer);
+    }
+    prevEnabled.current = enabled;
+  }, [enabled]);
 
   // handle upload foto cerita
   const handleFileChange = useCallback(async (file: File, idx: number) => {

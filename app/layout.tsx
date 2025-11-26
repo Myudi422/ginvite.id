@@ -138,8 +138,11 @@ export default function RootLayout({
           `}
         </Script>
 
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1587740600496860"
-     crossorigin="anonymous"></script>
+        <Script 
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1587740600496860"
+          strategy="lazyOnload"
+          crossOrigin="anonymous"
+        />
 
         {/* Ganti Facebook Pixel dengan komponen baru */}
         {/* Google Ads Conversion Event Snippet hanya di halaman / */}

@@ -12,9 +12,15 @@ export default function LivePreview({ previewUrl }: LivePreviewProps) {
   const [hasError, setHasError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const [isClient, setIsClient] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoRefreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Prevent hydration mismatch by only enabling client features after mount
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const maxRetries = 2;
   const loadingTimeout = 8000; // 8 seconds max loading time
@@ -77,8 +83,10 @@ export default function LivePreview({ previewUrl }: LivePreviewProps) {
     };
   }, [isLoading, livePreviewEnabled]);
 
-  // Auto refresh listener
+  // Auto refresh listener - only on client side
   useEffect(() => {
+    if (!isClient) return;
+    
     const handleFormChange = (event: CustomEvent) => {
       if (autoRefreshEnabled && livePreviewEnabled && !isLoading) {
         // Debounce auto refresh
@@ -109,7 +117,7 @@ export default function LivePreview({ previewUrl }: LivePreviewProps) {
         clearTimeout(autoRefreshTimeoutRef.current);
       }
     };
-  }, [autoRefreshEnabled, livePreviewEnabled, isLoading]);
+  }, [autoRefreshEnabled, livePreviewEnabled, isLoading, isClient]);
 
   return (
     <div className="order-first lg:order-last w-full lg:w-1/2 bg-white shadow-md rounded-lg overflow-hidden flex flex-col lg:sticky lg:top-16 lg:flex-1 lg:h-[calc(100vh-64px)]">

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
@@ -59,12 +59,21 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
   }, [getValues, userId, invitationId, slug, onSavedSlug, onStatusChange]);
 
   const giftEnabled = useWatch({ control, name: 'plugin.gift' });
+  const prevGiftEnabled = useRef(giftEnabled);
+  
   useEffect(() => {
-    if (!giftEnabled) {
+    // Only run when giftEnabled actually changes, not on initial mount
+    if (prevGiftEnabled.current !== undefined && prevGiftEnabled.current !== giftEnabled && !giftEnabled) {
       setValue('plugin.youtube_link', '');
-      autoSave();
+      // Debounce the auto save to prevent loops
+      const timeoutId = setTimeout(() => {
+        autoSave();
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [giftEnabled, setValue, autoSave]);
+    prevGiftEnabled.current = giftEnabled;
+  }, [giftEnabled, setValue]);
 
   const whatsappNotifEnabled = useWatch({ control, name: 'plugin.whatsapp_notif' });
   useEffect(() => {
