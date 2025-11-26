@@ -1,0 +1,72 @@
+{
+    "font": {
+        "body": "font-family: 'Montserrat', sans-serif;",
+        "color": {
+            "text_color": "",
+            "accent_color": ""
+        },
+        "heading": "font-family: 'Gloock', serif;",
+        "special": "font-family: 'Great Vibes', cursive;"
+    },
+    "event": {
+        "resepsi": {
+            "date": "2032-12-16",
+            "note": "",
+            "time": "10:08",
+            "location": "Alamat Kamu...",
+            "mapsLink": "https://maps.app.goo.gl/fhoivtmr8Jb1fKZUA"
+        }
+    },
+    "music": {
+        "url": "",
+        "enabled": false
+    },
+    "theme": 1,
+    "jumlah": 40000,
+    "plugin": {
+        "gift": false,
+        "rsvp": false,
+        "whatsapp_notif": false
+    },
+    "dibayar": 0,
+    "gallery": {
+        "items": [
+        ]
+    },
+    "parents": {
+        "bride": {
+            "father": "bpk wanita",
+            "mother": "ibu wanita"
+        },
+        "groom": {
+            "father": "bpk pria",
+            "mother": "bpk wanita"
+        }
+    },
+    "children": [
+        {
+            "name": "nama lengkap pria",
+            "order": "Pengantin Pria",
+            "nickname": "panggilan pria",
+            "instagramUsername": ""
+        },
+        {
+            "name": "nama lengkap wanita",
+            "order": "Pengantin Wanita",
+            "nickname": "panggilan wanita",
+            "instagramUsername": ""
+        }
+    ],
+    "our_story": [],
+    "bank_transfer": {
+        "enabled": false,
+        "bank_name": "",
+        "account_name": "",
+        "account_number": ""
+    },
+    "themeCategory": 1,
+    "showInstagramAll": false,
+    "our_story_enabled": false,
+    "quote_enabled": false,
+    "gallery_enabled": false
+}

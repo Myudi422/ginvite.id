@@ -48,7 +48,22 @@ export function PernikahanForm({
     font: { body: '', heading: '', special: '', color: { text_color: '#000000', accent_color: '#FFFFFF' } },
     gallery: { items: [] },
     parents: { bride: { father: '', mother: '' }, groom: { father: '', mother: '' } },
-    children: [],
+    children: [
+      {
+        name: 'nama lengkap pria',
+        order: 'Pengantin Pria' as const,
+        nickname: 'panggilan pria',
+        profile: '',
+        instagramUsername: ''
+      },
+      {
+        name: 'nama lengkap wanita', 
+        order: 'Pengantin Wanita' as const,
+        nickname: 'panggilan wanita',
+        profile: '',
+        instagramUsername: ''
+      }
+    ],
     our_story: [],
     plugin: { rsvp: false, navbar: false, gift: false,  whatsapp_notif: false },
     bank_transfer: { enabled: false, account_name: '', account_number: '', bank_name: '' },
@@ -59,9 +74,18 @@ export function PernikahanForm({
 
   // initial event data
   const { resepsi: initResepsi, akad: initAkad } = initialEventData || {};
+  
+  // Ensure children has default values if empty or missing
+  const processedContentData = {
+    ...contentData,
+    children: contentData.children && contentData.children.length > 0 
+      ? contentData.children 
+      : defaultValues.children
+  };
+  
   const initialValues: FormValues = {
     ...defaultValues,
-    ...contentData,
+    ...processedContentData,
     event: {
       resepsi: {
         date: initResepsi?.date ?? '',

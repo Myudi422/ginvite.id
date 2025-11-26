@@ -160,14 +160,12 @@ export function ChildrenSection({
           <Controller
             name="children.0.name"
             control={control}
-            defaultValue={getValues('children.0.name')}
             render={({ field }) => <Input {...field} id="anak-name" />}
           />
           <Label htmlFor="anak-nick" className="mt-4">Nickname Anak</Label>
           <Controller
             name="children.0.nickname"
             control={control}
-            defaultValue={getValues('children.0.nickname')}
             render={({ field }) => <Input {...field} id="anak-nick" />}
           />
 

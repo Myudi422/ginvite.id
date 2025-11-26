@@ -162,14 +162,12 @@ export function ChildrenSection({
             <Controller
               name={`children.${i}.name`}
               control={control}
-              defaultValue={getValues(`children.${i}.name`)}
               render={({ field }) => <Input {...field} id={`${who}-name`} />}
             />
             <Label htmlFor={`${who}-nick`} className="mt-4">Nickname {who}</Label>
             <Controller
               name={`children.${i}.nickname`}
               control={control}
-              defaultValue={getValues(`children.${i}.nickname`)}
               render={({ field }) => <Input {...field} id={`${who}-nick`} />}
             />
 

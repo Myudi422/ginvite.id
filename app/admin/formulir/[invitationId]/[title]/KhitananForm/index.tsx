@@ -47,7 +47,15 @@ export function KhitananForm({
     font: { body: '', heading: '', special: '', color: { text_color: '#000000', accent_color: '#FFFFFF' } },
     gallery: { items: [] },
     parents: { bride: { father: '', mother: '' }, groom: { father: '', mother: '' } },
-    children: [],
+    children: [
+      {
+        name: 'nama lengkap anak',
+        order: 'Pengantin Pria' as const, // untuk khitanan, order tetap menggunakan struktur yang sama
+        nickname: 'panggilan anak',
+        profile: '',
+        instagramUsername: ''
+      }
+    ],
     plugin: { rsvp: false, navbar: false, gift: false,  whatsapp_notif: false },
     bank_transfer: { enabled: false, account_name: '', account_number: '', bank_name: '' },
     music: { enabled: false, url: '' },
@@ -60,9 +68,18 @@ export function KhitananForm({
   console.log('initialEventData', initialEventData);
 
   const { khitanan: initKhitanan } = initialEventData || {};
+  
+  // Ensure children has default values if empty or missing
+  const processedContentData = {
+    ...contentData,
+    children: contentData.children && contentData.children.length > 0 
+      ? contentData.children 
+      : defaultValues.children
+  };
+  
   const initialValues: FormValues = {
     ...defaultValues,
-    ...contentData,
+    ...processedContentData,
     event: {
       khitanan: {
         date: initKhitanan?.date ?? '',
