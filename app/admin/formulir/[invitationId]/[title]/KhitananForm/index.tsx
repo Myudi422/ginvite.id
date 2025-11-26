@@ -87,21 +87,35 @@ export function KhitananForm({
     defaultValues: initialValues,
   });
 
+  // Watch form changes for auto refresh
+  const watchedValues = form.watch();
+  
   // Only refresh iframe ONCE on mount, with debug log
   const didReloadRef = useRef(false);
+  const isInitialMount = useRef(true);
   useEffect(() => {
     if (didReloadRef.current) return;
     didReloadRef.current = true;
     console.log('RELOAD IFRAME SEKALI');
-    const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
-    if (iframe) {
-      const param = `?time=${Date.now()}`;
-      const newSrc = `${window.location.origin}/undang/${userId}/${encodeURIComponent(slug)}${param}`;
-      // Always set src, browser will dedup if same
-      iframe.src = newSrc;
-    }
+    // Initial load trigger for LivePreview component
+    setTimeout(() => {
+      refreshPreview();
+    }, 500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto refresh on form changes (excluding initial mount)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    // Trigger auto refresh when form data changes
+    triggerAutoRefresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchedValues]);
+
   useEffect(() => {
     return () => {
       console.log('UNMOUNT KhitananForm');
@@ -147,13 +161,15 @@ export function KhitananForm({
   }
 };
 
-  // refresh preview iframe
+  // refresh preview iframe (now triggers LivePreview component)
   const refreshPreview = () => {
-    const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
-    if (iframe) {
-      const param = `?time=${Date.now()}`;
-      iframe.src = `/undang/${userId}/${encodeURIComponent(slug)}${param}`;
-    }
+    // Trigger refresh event for LivePreview component
+    window.dispatchEvent(new CustomEvent('refreshPreview'));
+  };
+
+  // trigger auto refresh on form changes
+  const triggerAutoRefresh = () => {
+    window.dispatchEvent(new CustomEvent('formDataChanged'));
   };
 
   const onToggle = async () => {

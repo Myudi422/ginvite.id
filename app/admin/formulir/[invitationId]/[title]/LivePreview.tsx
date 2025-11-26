@@ -11,11 +11,14 @@ export default function LivePreview({ previewUrl }: LivePreviewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoRefreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const maxRetries = 2;
   const loadingTimeout = 8000; // 8 seconds max loading time
+  const autoRefreshDelay = 1500; // 1.5 seconds delay for auto refresh
 
   const handleIframeLoad = () => {
     setIsLoading(false);
@@ -73,6 +76,40 @@ export default function LivePreview({ previewUrl }: LivePreviewProps) {
       }
     };
   }, [isLoading, livePreviewEnabled]);
+
+  // Auto refresh listener
+  useEffect(() => {
+    const handleFormChange = (event: CustomEvent) => {
+      if (autoRefreshEnabled && livePreviewEnabled && !isLoading) {
+        // Debounce auto refresh
+        if (autoRefreshTimeoutRef.current) {
+          clearTimeout(autoRefreshTimeoutRef.current);
+        }
+        
+        autoRefreshTimeoutRef.current = setTimeout(() => {
+          refreshPreview();
+        }, autoRefreshDelay);
+      }
+    };
+
+    // Listen for form changes
+    window.addEventListener('formDataChanged', handleFormChange as EventListener);
+    
+    // Listen for manual refresh trigger
+    window.addEventListener('refreshPreview', () => {
+      refreshPreview();
+    });
+
+    return () => {
+      window.removeEventListener('formDataChanged', handleFormChange as EventListener);
+      window.removeEventListener('refreshPreview', () => {
+        refreshPreview();
+      });
+      if (autoRefreshTimeoutRef.current) {
+        clearTimeout(autoRefreshTimeoutRef.current);
+      }
+    };
+  }, [autoRefreshEnabled, livePreviewEnabled, isLoading]);
 
   return (
     <div className="order-first lg:order-last w-full lg:w-1/2 bg-white shadow-md rounded-lg overflow-hidden flex flex-col lg:sticky lg:top-16 lg:flex-1 lg:h-[calc(100vh-64px)]">
@@ -152,25 +189,46 @@ export default function LivePreview({ previewUrl }: LivePreviewProps) {
 
       {/* Control Panel */}
       <div className="p-3 border-t bg-gray-50">
-        <div className="flex items-center justify-between">
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              className="form-checkbox text-pink-500"
-              checked={!livePreviewEnabled}
-              onChange={() => setLivePreviewEnabled(!livePreviewEnabled)}
-            />
-            <span className="ml-2 text-sm">Matikan live preview</span>
-          </label>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex flex-col gap-1">
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="form-checkbox text-pink-500"
+                checked={!livePreviewEnabled}
+                onChange={() => setLivePreviewEnabled(!livePreviewEnabled)}
+              />
+              <span className="ml-2 text-sm">Matikan live preview</span>
+            </label>
+            
+            {livePreviewEnabled && (
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="form-checkbox text-pink-500"
+                  checked={autoRefreshEnabled}
+                  onChange={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+                />
+                <span className="ml-2 text-xs text-gray-600">Auto refresh saat edit form</span>
+              </label>
+            )}
+          </div>
           
           {livePreviewEnabled && (
-            <button
-              onClick={refreshPreview}
-              className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300"
-              title="Refresh preview"
-            >
-              ↻ Refresh
-            </button>
+            <div className="flex gap-2">
+              {autoRefreshEnabled && (
+                <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                  Auto refresh: ON
+                </span>
+              )}
+              <button
+                onClick={refreshPreview}
+                className="px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300"
+                title="Refresh preview manual"
+              >
+                ↻ Refresh
+              </button>
+            </div>
           )}
         </div>
       </div>
