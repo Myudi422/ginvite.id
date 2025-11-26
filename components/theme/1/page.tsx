@@ -186,7 +186,7 @@ export default function Theme1({ data }: Theme1Props) {
     
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 1000);
 
     document.body.style.overflow = isOpen ? "auto" : "hidden";
     return () => {

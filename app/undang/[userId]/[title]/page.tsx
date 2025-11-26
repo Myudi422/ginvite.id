@@ -1,6 +1,5 @@
 // app/undangan/[userId]/[title]/page.tsx
 import type { Metadata } from "next";
-import WeddingLoading from "@/components/WeddingLoading";
 import React from "react";
 import Head from "next/head";
 
@@ -263,7 +262,7 @@ export default async function InvitationPage({ params }: Props) {
 
   const Loading = () => (
     <div className="flex items-center justify-center h-screen">
-      <WeddingLoading />
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
     </div>
   );
 
