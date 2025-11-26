@@ -157,6 +157,9 @@ export function KhitananForm({
 
   try {
     const data = form.getValues();
+    console.log('Form data before save (Khitanan):', data); // Debug log
+    console.log('Children data (Khitanan):', data.children); // Debug children specifically
+    
     const jumlah = (data.plugin.gift || data.plugin.whatsapp_notif) ? 100000 : 40000;
     const payload = {
       user_id: userId,
@@ -166,11 +169,13 @@ export function KhitananForm({
       content: JSON.stringify({ ...data, event: data.event, jumlah }),
     };
 
+    console.log('Payload to save (Khitanan):', payload); // Debug payload
     const result = await saveContentAction(payload);
     setStatus(result.status as 0 | 1);
     setSlug(inputSlug);
     refreshPreview();
-    router.replace(`/admin/formulir/${userId}/${encodeURIComponent(inputSlug)}`);
+    // Temporarily disabled to test if this causes data reset
+    // router.replace(`/admin/formulir/${userId}/${encodeURIComponent(inputSlug)}`);
   } catch (err: any) {
     setError(err.message);
   } finally {
