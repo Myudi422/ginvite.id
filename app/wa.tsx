@@ -7,12 +7,11 @@ import { useEffect, useState } from 'react';
 export default function WhatsAppButton() {
 
   const [visible, setVisible] = useState(false);
-  const [minimized, setMinimized] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname.startsWith('/undang') || pathname === '/login') {
+    if (pathname.startsWith('/undang') || pathname === '/login' || pathname.startsWith('/admin/')) {
       setVisible(false);
       return;
     }
@@ -20,14 +19,8 @@ export default function WhatsAppButton() {
       const currentScrollY = window.scrollY;
       if (currentScrollY > 100) {
         setVisible(true);
-        if (currentScrollY > lastScrollY) {
-          setMinimized(false); // show full when scrolling down
-        } else {
-          setMinimized(true); // minimize when scrolling up
-        }
       } else {
         setVisible(false);
-        setMinimized(false);
       }
       setLastScrollY(currentScrollY);
     };
@@ -56,20 +49,20 @@ export default function WhatsAppButton() {
         background: '#25D366',
         color: '#fff',
         borderRadius: '999px',
-        padding: minimized ? '10px' : '10px 18px 10px 12px',
+        padding: '10px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         textDecoration: 'none',
         fontWeight: 500,
         fontSize: '16px',
-        gap: minimized ? '0px' : '10px',
-        transition: 'box-shadow 0.2s, opacity 0.4s, padding 0.3s, gap 0.3s',
+        gap: '0px',
+        transition: 'box-shadow 0.2s, opacity 0.4s',
         opacity: visible ? 1 : 0,
         pointerEvents: visible ? 'auto' : 'none',
-        width: minimized ? '48px' : 'auto',
-        minWidth: minimized ? '48px' : 'unset',
+        width: '48px',
+        minWidth: '48px',
         justifyContent: 'center',
       }}
-      aria-label="Butuh Bantuan via WhatsApp"
+      aria-label="WhatsApp"
     >
       <img
         src="/wa.svg"
@@ -78,9 +71,6 @@ export default function WhatsAppButton() {
         height={28}
         style={{ display: 'block' }}
       />
-      {!minimized && (
-        <span style={{ fontWeight: 600, letterSpacing: 0.2, transition: 'opacity 0.3s' }}>Butuh Bantuan?</span>
-      )}
     </a>
   );
 }

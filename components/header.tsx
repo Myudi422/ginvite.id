@@ -57,6 +57,16 @@ export function Header() {
       backdrop-blur-lg border-b border-pink-200/30 h-[70px]">
       <div className="flex items-center justify-end h-full px-4 md:px-6">
         {/* Social Media Links */}
+        <a
+          href="https://wa.me/6289654728249"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 bg-pink-500 text-white px-3 py-1 rounded-md hover:bg-pink-600 transition-colors mr-4 text-sm"
+          aria-label="Butuh Bantuan via WhatsApp"
+        >
+          <img src="/wa.svg" alt="WhatsApp" width={16} height={16} />
+          <span>Butuh Bantuan??</span>
+        </a>
 
         {/* Profile Avatar */}
         <div className="relative">
