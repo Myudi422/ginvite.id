@@ -189,8 +189,7 @@ export function PernikahanForm({
     setStatus(result.status as 0 | 1);
     setSlug(inputSlug);
     refreshPreview();
-    // Temporarily disabled to test if this causes data reset
-    // router.replace(`/admin/formulir/${userId}/${encodeURIComponent(inputSlug)}`);
+    router.replace(`/admin/formulir/${userId}/${encodeURIComponent(inputSlug)}`);
   } catch (err: any) {
     setError(err.message);
   } finally {

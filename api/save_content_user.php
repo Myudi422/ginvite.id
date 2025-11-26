@@ -42,10 +42,6 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     error(400, 'Format content JSON tidak valid.');
 }
 
-// Debug: Log received children data
-error_log('Received children data: ' . json_encode($contentArr['children'] ?? 'not set'));
-error_log('Full content received: ' . json_encode($contentArr));
-
 // Validasi jika saved kosong
 if (isset($contentArr['saved']) && is_array($contentArr['saved']) && count($contentArr['saved']) === 0) {
     error(400, 'Field "saved" tidak boleh kosong.');

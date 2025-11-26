@@ -63,6 +63,19 @@ export function ChildrenSection({
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [currentChildIndex, setCurrentChildIndex] = useState<number|null>(null);
 
+  // Debounced auto save for name changes
+  const debouncedAutoSave = useCallback(() => {
+    const timeoutId = setTimeout(async () => {
+      try {
+        await autoSave();
+      } catch (error) {
+        console.error('Auto save failed:', error);
+      }
+    }, 2000); // 2 second delay
+
+    return () => clearTimeout(timeoutId);
+  }, [autoSave]);
+
   const autoSave = useCallback(async () => {
     const data = getValues();
     const payload = {
@@ -162,13 +175,41 @@ export function ChildrenSection({
             <Controller
               name={`children.${i}.name`}
               control={control}
-              render={({ field }) => <Input {...field} id={`${who}-name`} />}
+              render={({ field }) => (
+                <Input 
+                  {...field} 
+                  id={`${who}-name`}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    // Trigger auto refresh when name changes
+                    setTimeout(() => {
+                      window.dispatchEvent(new CustomEvent('formDataChanged'));
+                    }, 500);
+                    // Trigger auto save
+                    debouncedAutoSave();
+                  }}
+                />
+              )}
             />
             <Label htmlFor={`${who}-nick`} className="mt-4">Nickname {who}</Label>
             <Controller
               name={`children.${i}.nickname`}
               control={control}
-              render={({ field }) => <Input {...field} id={`${who}-nick`} />}
+              render={({ field }) => (
+                <Input 
+                  {...field} 
+                  id={`${who}-nick`}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    // Trigger auto refresh when nickname changes
+                    setTimeout(() => {
+                      window.dispatchEvent(new CustomEvent('formDataChanged'));
+                    }, 500);
+                    // Trigger auto save
+                    debouncedAutoSave();
+                  }}
+                />
+              )}
             />
 
             {/* FOTO */}
