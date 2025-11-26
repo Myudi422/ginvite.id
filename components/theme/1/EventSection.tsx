@@ -70,7 +70,7 @@ function EventCard({ event, accentColor }: { event: Event; accentColor: string, 
         <p className="mt-4 text-gray-600 leading-relaxed whitespace-pre-line">
           {event.location}
         </p>
-        <Link href={event.mapsLink} target="_blank">
+        <Link href={event.mapsLink.startsWith('http') ? event.mapsLink : `https://${event.mapsLink}`} target="_blank">
           <Button
             className="mt-4 px-4 py-2 rounded-full"
             style={{ backgroundColor: accentColor, color: '#fff' }}
