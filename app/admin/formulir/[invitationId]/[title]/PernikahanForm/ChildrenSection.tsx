@@ -63,19 +63,6 @@ export function ChildrenSection({
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [currentChildIndex, setCurrentChildIndex] = useState<number|null>(null);
 
-  // Debounced auto save for name changes
-  const debouncedAutoSave = useCallback(() => {
-    const timeoutId = setTimeout(async () => {
-      try {
-        await autoSave();
-      } catch (error) {
-        console.error('Auto save failed:', error);
-      }
-    }, 2000); // 2 second delay
-
-    return () => clearTimeout(timeoutId);
-  }, [autoSave]);
-
   const autoSave = useCallback(async () => {
     const data = getValues();
     const payload = {
@@ -92,6 +79,19 @@ export function ChildrenSection({
     const frm = document.getElementById('previewFrame') as HTMLIFrameElement|null;
     if (frm) frm.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
   }, [getValues, invitationId, onSavedSlug, slug, userId]);
+
+  // Debounced auto save for name changes - defined after autoSave
+  const debouncedAutoSave = useCallback(() => {
+    const timeoutId = setTimeout(async () => {
+      try {
+        await autoSave();
+      } catch (error) {
+        console.error('Auto save failed:', error);
+      }
+    }, 2000); // 2 second delay
+
+    return () => clearTimeout(timeoutId);
+  }, [autoSave]);
 
   const handleImageChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const files = e.target.files;
