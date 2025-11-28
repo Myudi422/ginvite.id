@@ -62,6 +62,22 @@ export function StorySection({
     }
   }, [getValues, invitationId, onSavedSlug, slug, userId]);
 
+  // debounce ref for input changes
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const debouncedAutoSave = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        await autoSave();
+        // also trigger refresh in LivePreview component
+        window.dispatchEvent(new CustomEvent('formDataChanged'));
+      } catch (e) {
+        console.error('Auto-save (debounced) failed:', (e as Error).message);
+      }
+    }, 500);
+  }, [autoSave]);
+
   // Add useEffect for auto-save when enabled changes
   const prevEnabled = useRef(enabled);
   useEffect(() => {
@@ -80,6 +96,16 @@ export function StorySection({
     }
     prevEnabled.current = enabled;
   }, [enabled]);
+
+  // cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+    };
+  }, []);
 
   // handle upload foto cerita
   const handleFileChange = useCallback(async (file: File, idx: number) => {
@@ -173,7 +199,18 @@ export function StorySection({
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <Input {...field} placeholder="Judul Cerita" disabled={!enabled} />
+                <Input
+                  {...field}
+                  placeholder="Judul Cerita"
+                  disabled={!enabled}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    // trigger live preview + debounced autosave
+                    if (enabled) {
+                      debouncedAutoSave();
+                    }
+                  }}
+                />
               )}
             />
 
@@ -182,7 +219,19 @@ export function StorySection({
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <Textarea {...field} placeholder="Deskripsi" disabled={!enabled} className="resize-none" />
+                <Textarea
+                  {...field}
+                  placeholder="Deskripsi"
+                  disabled={!enabled}
+                  className="resize-none"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    // trigger live preview + debounced autosave
+                    if (enabled) {
+                      debouncedAutoSave();
+                    }
+                  }}
+                />
               )}
             />
 

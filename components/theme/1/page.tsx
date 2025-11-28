@@ -300,23 +300,23 @@ export default function Theme1({ data }: Theme1Props) {
     return (
     <main className={`relative min-h-screen text-center overflow-hidden flex md:flex-row ${data.status === "tidak" ? "pt-16 sm:pt-12" : ""}`} style={{ color: theme.textColor }}>
       {data.status === "tidak" && (
-        <div className="fixed top-0 left-0 w-full bg-yellow-300 text-yellow-900 py-3 z-50 text-center font-semibold">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 px-4">
-            <span className="text-sm sm:text-base">Undangan dalam mode ujicoba/gratis.</span>
+        <div className="fixed top-0 left-0 w-full bg-yellow-300 text-yellow-900 py-1 z-50 text-center font-medium">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3">
+            <span className="text-xs sm:text-sm">Undangan dalam mode ujicoba/gratis.</span>
             {isClient && (
               <Button 
                 size="sm"
                 variant="outline"
-                className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap"
+                className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs whitespace-nowrap px-2 py-1"
                 onClick={handlePayment}
                 disabled={paymentLoading}
               >
-                {paymentLoading ? 'Memproses...' : 'Bayar Sekarang'}
+                {paymentLoading ? 'Memproses...' : 'Aktifkan Sekarang'}
               </Button>
             )}
           </div>
           {paymentError && isClient && (
-            <div className="text-red-600 text-xs sm:text-sm mt-1 px-4">
+            <div className="text-red-600 text-xs mt-1 px-3">
               {paymentError}
             </div>
           )}

@@ -26,10 +26,8 @@ export function BankTransferSection({
     name: 'bank_transfer.accounts',
   });
 
-  // watch semua field bank transfer
-  const accountName   = useWatch({ control, name: 'bank_transfer.account_name' });
-  const accountNumber = useWatch({ control, name: 'bank_transfer.account_number' });
-  const bankName      = useWatch({ control, name: 'bank_transfer.bank_name' });
+  // watch semua akun bank agar perubahan pada array accounts memicu autosave
+  const accounts = useWatch({ control, name: 'bank_transfer.accounts', defaultValue: [] });
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -53,7 +51,7 @@ export function BankTransferSection({
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [enabled, accountName, accountNumber, bankName, getValues, invitationId, slug, onSavedSlug, userId]);
+  }, [enabled, accounts, getValues, invitationId, slug, onSavedSlug, userId]);
 
   return (
     <Collapsible title="Informasi Bank Transfer">
