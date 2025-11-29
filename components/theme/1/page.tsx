@@ -278,9 +278,25 @@ export default function Theme1({ data }: Theme1Props) {
       `${ev.title}: ${ev.date} ${ev.time} @ ${ev.location} (${ev.mapsLink})`
     ).join('\n');
 
-    const detailsText = `Kami dari papunda.com bermaksud mengundang Anda di acara ini. Merupakan suatu kehormatan dan kebahagiaan bagi pihak mengundang, apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada hari :\n${eventDetails}`;
+    let titleText = `Undangan Pernikahan - ${nickname}`;
 
-    const titleText = `Undangan Pernikahan - ${nickname}`;
+    let detailsText = `Kami dari papunda.com bermaksud mengundang Anda di acara ini. Merupakan suatu kehormatan dan kebahagiaan bagi pihak mengundang, apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada hari :\n${eventDetails}`;
+
+    // Jika category_type atau event title/details mengindikasikan khitanan, ganti teks undangan untuk kalender
+    const lowerCategory = (category_type || '').toString().toLowerCase();
+    const lowerEventTitle = (eventTitle || '').toString().toLowerCase();
+    const lowerEventDetails = eventDetails.toLowerCase();
+    const anyEventTitleMentionsKhitan = sortedEvents.some(ev => (ev.title || '').toString().toLowerCase().includes('khitan'));
+    const isKhitan = lowerCategory.includes('khitan') || lowerEventTitle.includes('khitan') || lowerEventDetails.includes('khitan') || anyEventTitleMentionsKhitan;
+
+    if (isKhitan) {
+      // Use only the first child's name and strip any '&' suffixes (e.g. "A & B")
+      const rawChild = children?.[0]?.name || children?.[0]?.nickname || nickname || '';
+      const firstChildName = rawChild ? rawChild.split('&')[0].trim() : '';
+      const childName = firstChildName.replace(/\s*\&.*$/g, '').trim();
+      titleText = `Undangan Khitanan${childName ? ' - ' + childName : ''}`;
+      detailsText = `Kami mengundang Anda untuk menghadiri acara khitanan${childName ? ' ' + childName : ''}. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir dan mendoakan. \n${eventDetails}`;
+    }
 
     calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}` +
       `&text=${encodeURIComponent(titleText)}` +
