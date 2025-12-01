@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { useFormContext, Controller, useWatch } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Collapsible } from './Collapsible';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
@@ -45,12 +44,6 @@ export function ChildrenSection({
     control, register, setValue, getValues,
     formState: { errors },
   } = useFormContext();
-
-  const showInstagramAll = useWatch({
-    control,
-    name: 'showInstagramAll',
-    defaultValue: false,
-  });
 
   const [localPreviews, setLocalPreviews] = useState<string[]>([
     getValues('children.0.profile') || '',
@@ -245,40 +238,6 @@ export function ChildrenSection({
           </div>
         ))}
       </div>
-
-      {/* SWITCH INSTAGRAM */}
-      <div className="mt-6 mb-4 flex items-center space-x-2">
-        <Controller
-          name="showInstagramAll"
-          control={control}
-          defaultValue={false}
-          render={({ field }) => (
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-          )}
-        />
-        <Label>Tampilkan Instagram Pengantin</Label>
-      </div>
-
-      {showInstagramAll && (
-        <div className="grid grid-cols-1 gap-4 mt-6 mb-6">
-          {['Pria','Wanita'].map((who, i) => (
-            <div key={i}>
-              <Label htmlFor={`instagram-${who}`}>Username Instagram {who}</Label>
-              <Input
-                id={`instagram-${who}`}
-                {...register(`children.${i}.instagramUsername`, {
-                  required: `Username Instagram ${who} wajib diisi`,
-                })}
-              />
-              {errors.children?.[i]?.instagramUsername && (
-                <p className="text-red-600 text-sm">
-                  {errors.children[i].instagramUsername?.message}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* DIALOG HAPUS */}
       <AlertDialog open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
