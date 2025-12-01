@@ -12,10 +12,10 @@ const categories = [
   { id: "all", name: "Semua" },
   { id: "wedding", name: "Pernikahan" },
   { id: "birthday", name: "Ulang Tahun" },
-  { id: "aqiqah", name: "Aqiqah" },
+  //{ id: "aqiqah", name: "Aqiqah" },
   { id: "khitan", name: "Khitanan" },
-  { id: "graduation", name: "Wisuda" },
-  { id: "seminar", name: "Seminar" },
+  //{ id: "graduation", name: "Wisuda" },
+  //{ id: "seminar", name: "Seminar" },
 ];
 
 // Theme data

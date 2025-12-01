@@ -9,13 +9,13 @@ import { trackCTAClick } from "@/lib/analytics";
 const eventTypes = [
   "Pernikahan",
   "Khitanan",
-  "Aqiqah",
-  "Peresmian",
-  "Launching",
+  //"Aqiqah",
+  //"Peresmian",
+  //"Launching",
   "Ultah",
-  "Semuanya",
-  "Wisuda",
-  "Seminar",
+  //"Semuanya",
+  //"Wisuda",
+  //"Seminar",
   "Semuanya",
 ];
 

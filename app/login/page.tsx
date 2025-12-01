@@ -3,7 +3,7 @@ import Link from "next/link";
 import LoginForm from "@/components/LoginForm";
 
 export const metadata = {
-  title: "Login – ginvite.id",
+  title: "Login – Papunda.com",
 };
 
 export default function Page() {
@@ -13,7 +13,7 @@ export default function Page() {
       <div className="absolute inset-0 md:relative md:w-1/2">
         <Image
           src="cincin.jpg"
-          alt="Wedding rings"
+          alt="Login - Buat Undangan Gratis"
           fill
           className="object-cover"
           priority
