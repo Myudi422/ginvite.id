@@ -74,13 +74,17 @@ export async function GET() {
     <loc>${baseUrl}/undang/${inv.user_id}/${encodeURIComponent(inv.title)}</loc>
     <lastmod>${new Date(inv.updated_at).toISOString()}</lastmod>`;
 
-          // Add image entries
+          // Add image entries with proper XML escaping
           allImages.forEach((imageUrl: string, index: number) => {
+            const escapedImageUrl = imageUrl.replace(/&/g, '&amp;');
+            const escapedTitle = `Foto ${invitationType} ${nameString} - ${index + 1}`.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const escapedCaption = `Dokumentasi ${invitationType} ${nameString}${eventDate ? ` - ${eventDate}` : ''}${location ? ` di ${location}` : ''}`.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
             xml += `
     <image:image>
-      <image:loc>${imageUrl}</image:loc>
-      <image:title>Foto ${invitationType} ${nameString} - ${index + 1}</image:title>
-      <image:caption>Dokumentasi ${invitationType} ${nameString}${eventDate ? ` - ${eventDate}` : ''}${location ? ` di ${location}` : ''}</image:caption>
+      <image:loc>${escapedImageUrl}</image:loc>
+      <image:title>${escapedTitle}</image:title>
+      <image:caption>${escapedCaption}</image:caption>
     </image:image>`;
           });
 
