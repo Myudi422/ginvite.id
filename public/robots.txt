@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and API paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /panel/
+
+# Sitemaps
+Sitemap: https://papunda.com/sitemap.xml
+Sitemap: https://papunda.com/image-sitemap.xml
+
+# Crawl-delay to be respectful
+Crawl-delay: 1

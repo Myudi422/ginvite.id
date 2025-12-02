@@ -7,6 +7,9 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/', '/api/', '/auth/', '/panel/'],
     },
-    sitemap: 'https://papunda.com/sitemap.xml',
+    sitemap: [
+      'https://papunda.com/sitemap.xml',
+      'https://papunda.com/image-sitemap.xml'
+    ],
   }
 }
