@@ -43,7 +43,7 @@ export function QoutesSection({
 
   // load quotes once
   useEffect(() => {
-    getQuotes()
+    getQuotes('khitanan')
       .then(data => setOpts(data))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));

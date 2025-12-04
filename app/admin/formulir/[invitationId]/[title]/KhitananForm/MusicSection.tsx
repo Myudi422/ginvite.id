@@ -31,7 +31,7 @@ export function MusicSection({
 
   // fetch daftar musik
   useEffect(() => {
-    getMusicList()
+    getMusicList('khitanan')
       .then(data => setMusicList(data))
       .catch(console.error);
   }, []);

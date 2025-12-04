@@ -8,7 +8,7 @@ export interface Music {
   kategori: string;
 }
 
-export async function getMusicList(): Promise<Music[]> {
+export async function getMusicList(category?: string): Promise<Music[]> {
   const res = await fetch(`${MUSIC_API_URL}?action=musiclist`, { cache: 'no-store' });
   if (!res.ok) {
     throw new Error(`Failed to fetch music list: ${res.status}`);
@@ -17,6 +17,11 @@ export async function getMusicList(): Promise<Music[]> {
   const json = await res.json();
   if (json.status !== 'success') {
     throw new Error(json.message || 'Failed to fetch music list');
+  }
+
+  // Filter by category if specified
+  if (category) {
+    return json.data.filter((music: Music) => music.kategori === category);
   }
 
   return json.data;

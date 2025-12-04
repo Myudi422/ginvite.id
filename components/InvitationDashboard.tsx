@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import CreateInvitationPopup from '@/components/CreateInvitationPopup';
 
 type User = { userId: number; email: string };
-interface Invitation { id: number; title: string; status: number; event_date: string; avatar_url: string;  preview_url: string}
+interface Invitation { id: number; title: string; status: number; event_date: string; avatar_url: string;  preview_url: string; category_type: string}
 interface Props { user: User; slides: string[]; invitations: Invitation[] }
 
 export default function InvitationDashboard({ user, slides, invitations }: Props) {
@@ -163,27 +163,42 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
               <h2 className="text-lg font-semibold text-pink-800">{inv.title}</h2>
             </div>
 
-            <div className="space-y-2 text-sm text-pink-700 mb-6">
-              <p>
-                Status:{' '}
-                <span className={inv.status === 1
-                  ? 'font-medium text-green-500'
-                  : 'font-medium text-pink-500'
-                }>
-                  {inv.status === 1 ? 'Aktif' : 'Belum Aktif'}
+            <div className="space-y-3 text-sm mb-6">
+              {/* Tipe & Status dalam satu baris */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm ${
+                  inv.category_type === 'pernikahan' 
+                    ? 'bg-pink-200/80 text-pink-700 border border-pink-300/50' 
+                    : inv.category_type === 'khitanan'
+                    ? 'bg-purple-200/80 text-purple-700 border border-purple-300/50'
+                    : 'bg-rose-200/80 text-rose-700 border border-rose-300/50'
+                }`}>
+                  {inv.category_type === 'pernikahan' ? '💒 Pernikahan' : 
+                   inv.category_type === 'khitanan' ? '🎉 Khitanan' : 
+                   `✨ ${inv.category_type}`}
                 </span>
-              </p>
-              <p>
-  <a
-    href={`/${inv.preview_url}`}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-pink-600 hover:text-pink-700 font-medium"
-  >
-    Preview Undangan
-  </a>
-</p>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm ${
+                  inv.status === 1
+                    ? 'bg-green-200/80 text-green-700 border border-green-300/50'
+                    : 'bg-orange-200/80 text-orange-700 border border-orange-300/50'
+                }`}>
+                  {inv.status === 1 ? '✅ Aktif' : '⏳ Draft'}
+                </span>
+              </div>
 
+              {/* Preview Link */}
+              <div>
+                <a
+                  href={`/${inv.preview_url}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-1 bg-white/60 backdrop-blur-sm
+                           text-pink-600 rounded-full text-xs font-medium hover:bg-white/80 
+                           transition-all shadow-sm hover:shadow-md border border-pink-200/50"
+                >
+                  👁️ Preview
+                </a>
+              </div>
             </div>
 
             <div className="flex flex-col md:flex-row gap-3">
