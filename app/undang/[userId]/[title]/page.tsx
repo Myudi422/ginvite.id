@@ -129,20 +129,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   // Buat deskripsi yang sesuai dengan jenis acara
-  const eventType = data?.category_type?.name === "khitanan" ? "khitanan" : "pernikahan";
+  const eventType = data?.category_type?.name === "Khitanan" ? "Khitanan" : "Pernikahan";
   const desc =
     (data?.content?.invitation?.replace(/<[^>]+>/g, "")?.slice(0, 160)) ||
     `Undangan ${eventType} digital untuk ${displayName}`;
   const url = `https://papunda.com/undang/${userId}/${title}`;
 
   return {
-    title: `Undangan Digital | ${displayName}`,
+    title: `Undangan ${eventType} Digital | ${displayName}`,
     description: desc,
     openGraph: {
-      title: `Undangan Digital | ${displayName}`,
+      title: `Undangan ${eventType} Digital | ${displayName}`,
       description: desc,
       url,
-      siteName: "Papunda - Undangan Digital",
+      siteName: "Papunda - Undangan Digital (Pernikahan, Khitanan & Ultah)",
       images: [
         {
           url: image,
