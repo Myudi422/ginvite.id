@@ -2,13 +2,24 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, EllipsisVerticalIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CreateInvitationPopup from '@/components/CreateInvitationPopup';
+import ManageSharesModal from '@/components/ManageSharesModal';
 
 type User = { userId: number; email: string };
-interface Invitation { id: number; title: string; status: number; event_date: string; avatar_url: string;  preview_url: string; category_type: string}
+interface Invitation { 
+  id: number; 
+  user_id: number; // owner's user_id
+  title: string; 
+  status: number; 
+  event_date: string; 
+  avatar_url: string;  
+  preview_url: string; 
+  category_type: string;
+  access_type?: 'owner' | 'shared';
+}
 interface Props { user: User; slides: string[]; invitations: Invitation[] }
 
 export default function InvitationDashboard({ user, slides, invitations }: Props) {
@@ -19,6 +30,21 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
   const [deletePopup, setDeletePopup] = useState<{open: boolean, invitation?: Invitation}>(() => ({open: false}));
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState<number | null>(null);
+  const [sharePopup, setSharePopup] = useState<{open: boolean, invitation?: Invitation}>(() => ({open: false}));
+  const [shareEmail, setShareEmail] = useState('');
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [manageSharesModal, setManageSharesModal] = useState<{open: boolean, invitation?: Invitation}>(() => ({open: false}));
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setMenuOpen(null);
+    if (menuOpen !== null) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [menuOpen]);
 
   const prev = () => setCurrent(i => (i === 0 ? slides.length - 1 : i - 1));
   const next = () => setCurrent(i => (i + 1) % slides.length);
@@ -58,6 +84,48 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
       setDeleteError('Gagal menghapus undangan.');
     }
     setDeleting(false);
+  }
+
+  async function handleShareInvitation(invitation: Invitation) {
+    if (!shareEmail) {
+      setShareError('Email harus diisi');
+      return;
+    }
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shareEmail)) {
+      setShareError('Format email tidak valid');
+      return;
+    }
+
+    setShareLoading(true);
+    setShareError(null);
+    try {
+      const res = await fetch(
+        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=add_invitation_share`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            invitation_id: invitation.id, 
+            owner_user_id: user.userId, 
+            shared_email: shareEmail,
+            can_edit: 1,
+            can_manage: 1
+          }),
+        }
+      );
+      const json = await res.json();
+      if (json.status === 'success') {
+        setSharePopup({open: false});
+        setShareEmail('');
+        alert('Berhasil menambahkan akses!');
+      } else {
+        setShareError(json.message || 'Gagal menambahkan akses.');
+      }
+    } catch (e) {
+      setShareError('Gagal menambahkan akses.');
+    }
+    setShareLoading(false);
   }
 
   return (
@@ -118,6 +186,50 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
         </div>
       )}
 
+      {/* POPUP SHARE BY EMAIL */}
+      {sharePopup.open && sharePopup.invitation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl p-6 shadow-lg max-w-md w-full">
+            <h2 className="text-lg font-bold mb-2 text-pink-700">Tambah Orang</h2>
+            <p className="mb-4 text-pink-600">
+              Tambahkan email orang yang bisa edit & manage undangan <b>{sharePopup.invitation.title}</b>
+            </p>
+            <input
+              type="email"
+              value={shareEmail}
+              onChange={(e) => {
+                setShareEmail(e.target.value);
+                setShareError(null);
+              }}
+              placeholder="contoh@email.com"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300 mb-3"
+              disabled={shareLoading}
+            />
+            {shareError && <div className="text-red-500 mb-2 text-sm">{shareError}</div>}
+            <div className="flex gap-3">
+              <button
+                className="flex-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+                onClick={() => {
+                  setSharePopup({open: false});
+                  setShareEmail('');
+                  setShareError(null);
+                }}
+                disabled={shareLoading}
+              >
+                Batal
+              </button>
+              <button
+                className="flex-1 py-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white font-semibold"
+                onClick={() => handleShareInvitation(sharePopup.invitation!)}
+                disabled={shareLoading}
+              >
+                {shareLoading ? 'Menambahkan...' : 'Tambah'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* SEARCH */}
       <div className="mb-8">
         <input
@@ -141,12 +253,76 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
                        hover:border-pink-200 group"
           >
             <button
-              className="absolute top-4 right-4 text-pink-500 hover:text-pink-600"
-              onClick={() => setDeletePopup({open: true, invitation: inv})}
+              className="absolute top-4 right-4 text-pink-500 hover:text-pink-600 p-1.5 hover:bg-pink-50 rounded-lg transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(menuOpen === inv.id ? null : inv.id);
+              }}
               aria-label="Opsi undangan"
             >
-              <EllipsisVerticalIcon className="h-6 w-6" />
+              <EllipsisVerticalIcon className="h-5 w-5" />
             </button>
+
+            {/* Popup Menu Overlay */}
+            {menuOpen === inv.id && (
+              <div 
+                className="fixed inset-0 z-40"
+                onClick={() => setMenuOpen(null)}
+              />
+            )}
+            {menuOpen === inv.id && (
+              <div 
+                className="absolute right-4 top-12 w-56 bg-white rounded-xl shadow-2xl z-50 border border-gray-200 overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Hanya tampilkan menu share untuk owner */}
+                {inv.access_type !== 'shared' && (
+                  <>
+                    <button
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 transition-colors flex items-center gap-3 border-b border-gray-100"
+                      onClick={() => {
+                        setSharePopup({open: true, invitation: inv});
+                        setMenuOpen(null);
+                      }}
+                    >
+                      <span className="text-base">👥</span>
+                      <div>
+                        <div className="font-medium">Tambah Orang</div>
+                        <div className="text-xs text-gray-500">Share by email</div>
+                      </div>
+                    </button>
+                    <button
+                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 transition-colors flex items-center gap-3 border-b border-gray-100"
+                      onClick={() => {
+                        setManageSharesModal({open: true, invitation: inv});
+                        setMenuOpen(null);
+                      }}
+                    >
+                      <span className="text-base">⚙️</span>
+                      <div>
+                        <div className="font-medium">Manage Akses</div>
+                        <div className="text-xs text-gray-500">Lihat & hapus akses</div>
+                      </div>
+                    </button>
+                  </>
+                )}
+                {/* Hanya owner yang bisa hapus undangan */}
+                {inv.access_type !== 'shared' && (
+                  <button
+                    className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-3"
+                    onClick={() => {
+                      setDeletePopup({open: true, invitation: inv});
+                      setMenuOpen(null);
+                    }}
+                  >
+                    <span className="text-base">🗑️</span>
+                    <div>
+                      <div className="font-medium">Hapus Undangan</div>
+                    </div>
+                  </button>
+                )}
+              </div>
+            )}
 
             <div className="flex items-center space-x-4 mb-4">
               <div className="h-16 w-16 rounded-xl overflow-hidden shadow-md border border-white/30">
@@ -184,6 +360,11 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
                 }`}>
                   {inv.status === 1 ? '✅ Aktif' : '⏳ Draft'}
                 </span>
+                {inv.access_type === 'shared' && (
+                  <span className="px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm bg-blue-200/80 text-blue-700 border border-blue-300/50">
+                    🤝 Shared
+                  </span>
+                )}
               </div>
 
               {/* Preview Link */}
@@ -206,7 +387,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
                 className="w-full py-2 px-4 bg-gradient-to-r from-pink-100 to-pink-50 text-pink-700 
                            rounded-lg border border-pink-200 hover:border-pink-300 hover:from-pink-200 
                            transition-all shadow-sm"
-                onClick={() => router.push(`/admin/formulir/${user.userId}/${inv.title}`)}
+                onClick={() => router.push(`/admin/formulir/${inv.user_id}/${inv.title}`)}
               >
                 Edit
               </button>
@@ -215,7 +396,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
               <button
                 className="w-full py-2 px-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white 
                            rounded-lg hover:from-pink-500 hover:to-pink-600 transition-all shadow-sm"
-                onClick={() => router.push(`/admin/manage/${user.userId}/${inv.title}`)}
+                onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
               >
                 Manage
               </button>
@@ -229,6 +410,16 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
           </div>
         )}
       </div>
+
+      {/* MANAGE SHARES MODAL */}
+      {manageSharesModal.invitation && (
+        <ManageSharesModal
+          isOpen={manageSharesModal.open}
+          onClose={() => setManageSharesModal({open: false})}
+          invitation={manageSharesModal.invitation}
+          userId={user.userId}
+        />
+      )}
     </div>
   );
 }

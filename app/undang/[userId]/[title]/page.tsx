@@ -129,7 +129,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   // Buat deskripsi yang sesuai dengan jenis acara
-  const eventType = data?.category_type?.name === "Khitanan" ? "Khitanan" : "Pernikahan";
+  const eventType = data?.category_type?.name === "khitanan" ? "Khitanan" : "Pernikahan";
   const desc =
     (data?.content?.invitation?.replace(/<[^>]+>/g, "")?.slice(0, 160)) ||
     `Undangan ${eventType} digital untuk ${displayName}`;
