@@ -4,7 +4,9 @@ export async function GET() {
   try {
     // Fetch invitations data
     const apiUrl = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_undangan&limit=10000';
-    const res = await fetch(apiUrl, { cache: 'no-cache' });
+    const res = await fetch(apiUrl, { 
+      next: { revalidate: 3600 } // Cache for 1 hour instead of no-cache
+    });
     
     if (!res.ok) {
       throw new Error('Failed to fetch invitations');

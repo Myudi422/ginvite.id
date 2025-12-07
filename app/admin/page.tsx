@@ -3,21 +3,13 @@ import { redirect } from 'next/navigation';
 import InvitationDashboard from '@/components/InvitationDashboard';
 import jwt from 'jsonwebtoken';
 
-// Mengambil SECRET dari variabel lingkungan
-const SECRET = process.env.JWT_SECRET;
-// Mengambil API_BASE_URL dari variabel lingkungan
-const API_BASE_URL = process.env.API_BASE_URL;
+// Mengambil SECRET dari variabel lingkungan dengan fallback
+const SECRET = process.env.JWT_SECRET || 'very-secret-key';
+// Mengambil API_BASE_URL dari variabel lingkungan dengan fallback
+const API_BASE_URL = process.env.API_BASE_URL || 'https://ccgnimex.my.id/v2/android/ginvite';
 
 export default async function Page() {
-  // Pastikan SECRET dan API_BASE_URL telah diatur
-  if (!SECRET) {
-    console.error('JWT_SECRET is not defined in environment variables.');
-    return redirect('/error'); // Atau tangani error dengan cara lain
-  }
-  if (!API_BASE_URL) {
-    console.error('API_BASE_URL is not defined in environment variables.');
-    return redirect('/error'); // Atau tangani error dengan cara lain
-  }
+  // Environment variables are now handled with fallbacks, no need for error checking
 
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;

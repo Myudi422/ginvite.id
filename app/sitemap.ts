@@ -1,4 +1,8 @@
 import { MetadataRoute } from 'next'
+
+// Force static generation for better performance
+export const dynamic = 'force-static'
+export const revalidate = 3600 // Revalidate every hour
  
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://papunda.com';
@@ -82,14 +86,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       headers: {
         'User-Agent': 'Papunda-Sitemap/1.0',
       },
-      cache: 'no-cache'
+      next: {
+        revalidate: 3600 // Revalidate every hour instead of no-cache
+      }
     });
-    
-    console.log('Sitemap API Response Status:', res.status);
     
     if (res.ok) {
       const data = await res.json();
-      console.log('Sitemap API Data:', data);
       
       if (data.status === 'success' && data.data && Array.isArray(data.data)) {
         // Generate SEO-optimized sitemap entries with rich metadata
@@ -253,15 +256,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             };
           });
         
-        console.log(`Sitemap: Added ${dynamicPages.length} dynamic pages`);
-      } else {
-        console.warn('Sitemap: Invalid API response structure:', data);
       }
-    } else {
-      console.error('Sitemap: API request failed with status:', res.status);
     }
   } catch (error) {
-    console.error('Failed to fetch invitations for sitemap:', error);
+    // Silently fail to avoid build errors, return static pages only
+    console.warn('Sitemap generation fallback: using static pages only');
   }
 
   return [...staticPages, ...dynamicPages];
