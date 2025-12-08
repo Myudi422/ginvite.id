@@ -252,16 +252,19 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
                        border border-white/20 shadow-md hover:shadow-1xl transition-all
                        hover:border-pink-200 group"
           >
-            <button
-              className="absolute top-4 right-4 text-pink-500 hover:text-pink-600 p-1.5 hover:bg-pink-50 rounded-lg transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenuOpen(menuOpen === inv.id ? null : inv.id);
-              }}
-              aria-label="Opsi undangan"
-            >
-              <EllipsisVerticalIcon className="h-5 w-5" />
-            </button>
+            {/* Hanya tampilkan menu untuk owner, bukan untuk shared */}
+            {inv.access_type !== 'shared' && (
+              <button
+                className="absolute top-4 right-4 text-pink-500 hover:text-pink-600 p-1.5 hover:bg-pink-50 rounded-lg transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(menuOpen === inv.id ? null : inv.id);
+                }}
+                aria-label="Opsi undangan"
+              >
+                <EllipsisVerticalIcon className="h-5 w-5" />
+              </button>
+            )}
 
             {/* Popup Menu Overlay */}
             {menuOpen === inv.id && (

@@ -2,6 +2,7 @@
 import React from "react";
 import { SidebarMobile, SidebarDesktop } from "@/components/sidebar";
 import { Header } from "@/components/header";
+import { Toaster } from "@/components/ui/toaster";
 import { cookies } from "next/headers"; // Tetap gunakan import ini
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -36,6 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {children}
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }

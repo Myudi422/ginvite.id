@@ -1,15 +1,19 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { saveBulkDraft, loadBulkDraft } from '@/app/actions/bulkDrafts';
 import {
     ClipboardCopy,
     LinkIcon,
     ChevronLeft,
     CopyCheckIcon,
     MailCheck,
+    Check,
+    Save,
 } from 'lucide-react';
 
 type Item = {
@@ -19,6 +23,7 @@ type Item = {
 
 export default function BulkUndanganPage() {
     const router = useRouter();
+    const { toast } = useToast();
     const { invitationId, title } = useParams() as {
         invitationId: string;
         title: string;
@@ -28,61 +33,169 @@ export default function BulkUndanganPage() {
     const [template, setTemplate] = useState(''); // Initialize as empty string
     const [items, setItems] = useState<Item[]>([]);
     const [page, setPage] = useState(1);
-    const limit = 10;
+    const limit = 50; // Increased from 10 to 50 untuk better UX
     const [loadingTemplate, setLoadingTemplate] = useState(true);
     const [errorLoadingTemplate, setErrorLoadingTemplate] = useState<string | null>(null);
+    const [isDraftSaving, setIsDraftSaving] = useState(false);
+    const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
+    const [invitationChecklist, setInvitationChecklist] = useState<Set<string>>(new Set());
 
+    // Auto-save draft function (optimized untuk high traffic)
+    const saveDraft = useCallback(async (namesText: string, templateText: string) => {
+        if (!namesText.trim() && !templateText.trim()) return;
+        
+        setIsDraftSaving(true);
+        try {
+            const result = await saveBulkDraft({
+                user_id: invitationId,
+                invitation_title: title,
+                names_list: namesText,
+                template_text: templateText,
+                checklist_data: JSON.stringify(Array.from(invitationChecklist)),
+            });
+            
+            if (!result.success) {
+                throw new Error(result.message || 'Save failed');
+            }
+
+            // Hanya tampilkan success toast sesekali untuk mengurangi spam
+            if (Math.random() < 0.2) { // 20% chance
+                toast({
+                    title: "💾 Draft tersimpan",
+                    duration: 1500,
+                });
+            }
+        } catch (error) {
+            console.error('Error saving draft:', error);
+            toast({
+                title: "❌ Error",
+                description: "Gagal menyimpan draft",
+                variant: "destructive",
+                duration: 2000,
+            });
+        } finally {
+            setIsDraftSaving(false);
+        }
+    }, [invitationId, title, toast, invitationChecklist]);
+
+    // Load draft and template on mount
     useEffect(() => {
-  const fetchBulkTemplate = async () => {
-    setLoadingTemplate(true);
-    setErrorLoadingTemplate(null);
+        const fetchData = async () => {
+            setLoadingTemplate(true);
+            setErrorLoadingTemplate(null);
 
-    try {
-      const response = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_bulk&user_id=${invitationId}&title=${encodeURIComponent(
-          title
-        )}`
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData?.message || `Failed to fetch template: ${response.status}`
-        );
-      }
+            try {
+                // Load draft first
+                const draftData = await loadBulkDraft(invitationId, title);
+                
+                if (draftData) {
+                    setNames(draftData.names_list || '');
+                    
+                    // Restore checklist state
+                    if (draftData.checklist_data) {
+                        try {
+                            const checklistArray = JSON.parse(draftData.checklist_data);
+                            setInvitationChecklist(new Set(checklistArray));
+                        } catch (e) {
+                            console.warn('Failed to parse checklist data:', e);
+                        }
+                    }
+                    
+                    if (draftData.template_text) {
+                        setTemplate(draftData.template_text);
+                        setLoadingTemplate(false);
+                        
+                        // Auto-generate if both names and template exist
+                        if (draftData.names_list && draftData.names_list.trim()) {
+                            setTimeout(() => {
+                                autoGenerateFromDraft(draftData.names_list, draftData.template_text);
+                            }, 500); // Small delay to ensure state is set
+                        }
+                        
+                        return; // Use draft template, don't fetch from server
+                    }
+                }
 
-      const data = await response.json();
-      if (
-        data?.status === 'success' &&
-        Array.isArray(data.data) &&
-        data.data.length > 0
-      ) {
-        let raw = data.data[0].text_undangan as string;
+                // If no draft template, fetch from server
+                const templateResponse = await fetch(
+                    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_bulk&user_id=${invitationId}&title=${encodeURIComponent(title)}`
+                );
+                
+                if (!templateResponse.ok) {
+                    const errorData = await templateResponse.json();
+                    throw new Error(errorData?.message || `Failed to fetch template: ${templateResponse.status}`);
+                }
 
-        // 1. Ganti semua <br>, <br/> atau <br /> jadi newline
-        raw = raw.replace(/<br\s*\/?>/gi, '\n');
+                const templateData = await templateResponse.json();
+                if (templateData?.status === 'success' && Array.isArray(templateData.data) && templateData.data.length > 0) {
+                    let raw = templateData.data[0].text_undangan as string;
+                    // Clean HTML
+                    raw = raw.replace(/<br\s*\/?>/gi, '\n');
+                    raw = raw.replace(/<\/?[^>]+(>|$)/g, '');
+                    raw = raw.replace(/\r\n/g, '\n');
+                    setTemplate(raw);
+                } else {
+                    setErrorLoadingTemplate('Template undangan tidak ditemukan.');
+                }
+            } catch (error: any) {
+                setErrorLoadingTemplate(error.message);
+            } finally {
+                setLoadingTemplate(false);
+            }
+        };
 
-        // 2. Strip tag HTML apapun selain teks
-        raw = raw.replace(/<\/?[^>]+(>|$)/g, '');
+        if (invitationId && title) {
+            fetchData();
+        }
+    }, [invitationId, title]);
 
-        // 3. Normalize CRLF (\r\n) ke LF (\n)
-        raw = raw.replace(/\r\n/g, '\n');
+    // Auto-save draft when names or template changes (optimized for high traffic)
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (names || template) {
+                saveDraft(names, template);
+            }
+        }, 5000); // Increased to 5 seconds untuk mengurangi load server
 
-        setTemplate(raw);
-      } else {
-        setErrorLoadingTemplate('Template undangan tidak ditemukan.');
-      }
-    } catch (error: any) {
-      setErrorLoadingTemplate(error.message);
-    } finally {
-      setLoadingTemplate(false);
-    }
-  };
+        return () => clearTimeout(timeoutId);
+    }, [names, template, saveDraft]);
 
-  if (invitationId && title) {
-    fetchBulkTemplate();
-  }
-}, [invitationId, title]);
+    // Auto-save checklist when it changes
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (invitationChecklist.size > 0 || names || template) {
+                saveDraft(names, template);
+            }
+        }, 2000); // Save checklist changes after 2 seconds
 
+        return () => clearTimeout(timeoutId);
+    }, [invitationChecklist, names, template, saveDraft]);
+
+    // Auto-generate from draft data
+    const autoGenerateFromDraft = (namesText: string, templateText: string) => {
+        const nameList = namesText
+            .split('\n')
+            .map((n) => n.trim())
+            .filter((n) => n.length > 0);
+
+        const newItems = nameList.map((n) => {
+            const encoded = encodeURIComponent(n);
+            const link = `${window.location.origin}/undang/${invitationId}/${title}?to=${encoded}`;
+            const invitation = templateText
+                .replace(/{nama}/g, n)
+                .replace(/{link_undangan}/g, link);
+            return { link, invitation };
+        });
+
+        setItems(newItems);
+        setPage(1);
+        
+        toast({
+            title: "🎉 Draft Loaded!",
+            description: `${newItems.length} undangan siap dari draft tersimpan`,
+            duration: 3000,
+        });
+    };
 
     // Generate links + personalized invitation
     const handleGenerate = () => {
@@ -105,16 +218,99 @@ export default function BulkUndanganPage() {
         setPage(1);
     };
 
-    // Copy functions (unchanged)
-    const handleCopyLink = (link: string) => {
-        navigator.clipboard.writeText(link);
+    // Copy functions with feedback
+    const handleCopyLink = async (link: string, index: number) => {
+        try {
+            await navigator.clipboard.writeText(link);
+            const key = `link-${index}`;
+            setCopiedItems(prev => new Set([...prev, key]));
+            
+            toast({
+                title: "✅ Link Disalin!",
+                description: "Link undangan berhasil disalin ke clipboard",
+                duration: 2000,
+            });
+            
+            // Remove checkmark after 3 seconds
+            setTimeout(() => {
+                setCopiedItems(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(key);
+                    return newSet;
+                });
+            }, 3000);
+        } catch (error) {
+            toast({
+                title: "❌ Gagal Menyalin",
+                description: "Gagal menyalin link ke clipboard",
+                variant: "destructive",
+                duration: 2000,
+            });
+        }
     };
-    const handleCopyInvitation = (inv: string) => {
-        navigator.clipboard.writeText(inv);
+
+    const handleCopyInvitation = async (inv: string, index: number) => {
+        try {
+            await navigator.clipboard.writeText(inv);
+            const key = `invitation-${index}`;
+            setCopiedItems(prev => new Set([...prev, key]));
+            
+            toast({
+                title: "✅ Teks Undangan Disalin!",
+                description: "Teks undangan berhasil disalin ke clipboard",
+                duration: 2000,
+            });
+            
+            // Remove checkmark after 3 seconds
+            setTimeout(() => {
+                setCopiedItems(prev => {
+                    const newSet = new Set(prev);
+                    newSet.delete(key);
+                    return newSet;
+                });
+            }, 3000);
+        } catch (error) {
+            toast({
+                title: "❌ Gagal Menyalin",
+                description: "Gagal menyalin teks undangan ke clipboard",
+                variant: "destructive",
+                duration: 2000,
+            });
+        }
     };
-    const handleCopyAllLinks = () => {
-        const pageLinks = currentItems.map((i) => i.link).join('\n');
-        navigator.clipboard.writeText(pageLinks);
+
+    // Toggle invitation checklist
+    const toggleInvitationCheck = (index: number) => {
+        const key = `invitation-${index}`;
+        setInvitationChecklist(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(key)) {
+                newSet.delete(key);
+            } else {
+                newSet.add(key);
+            }
+            return newSet;
+        });
+    };
+
+    const handleCopyAllLinks = async () => {
+        try {
+            const pageLinks = currentItems.map((i) => i.link).join('\n');
+            await navigator.clipboard.writeText(pageLinks);
+            
+            toast({
+                title: "✅ Semua Link Disalin!",
+                description: `${currentItems.length} link berhasil disalin ke clipboard`,
+                duration: 3000,
+            });
+        } catch (error) {
+            toast({
+                title: "❌ Gagal Menyalin",
+                description: "Gagal menyalin semua link ke clipboard",
+                variant: "destructive",
+                duration: 2000,
+            });
+        }
     };
 
     // Pagination (unchanged)
@@ -148,8 +344,14 @@ export default function BulkUndanganPage() {
                 >
                     <ChevronLeft className="h-6 w-6 text-pink-600" />
                 </button>
-                <h1 className="ml-4 text-lg font-semibold text-pink-700">
+                <h1 className="ml-4 text-lg font-semibold text-pink-700 flex items-center gap-2">
                     Bulk Undangan – {decodeURIComponent(title!)}
+                    {isDraftSaving && (
+                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                            <Save className="h-3 w-3 animate-spin" />
+                            Menyimpan...
+                        </span>
+                    )}
                 </h1>
             </div>
 
@@ -245,31 +447,55 @@ export default function BulkUndanganPage() {
                                 </div>
 
                                 <div className="space-y-3">
-                                    {currentItems.map((it, idx) => (
-                                        <div key={idx} className="flex items-center space-x-2">
-                                        
-                                            <input
-                                                type="text"
-                                                readOnly
-                                                value={it.link}
-                                                className="flex-1 p-2 border rounded"
-                                            />
-                                            <Button
-                                                size="sm"
-                                                className="bg-pink-600 hover:bg-pink-700"
-                                                onClick={() => handleCopyLink(it.link)}
-                                            >
-                                                <ClipboardCopy className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => handleCopyInvitation(it.invitation)}
-                                            >
-                                                <MailCheck className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    ))}
+                                    {currentItems.map((it, idx) => {
+                                        const linkKey = `link-${start + idx}`;
+                                        const invitationKey = `invitation-${start + idx}`;
+                                        return (
+                                            <div key={idx} className="flex items-center space-x-2">
+                                                <input
+                                                    type="text"
+                                                    readOnly
+                                                    value={it.link}
+                                                    className="flex-1 p-2 border rounded"
+                                                />
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-pink-600 hover:bg-pink-700"
+                                                    onClick={() => handleCopyLink(it.link, start + idx)}
+                                                >
+                                                    {copiedItems.has(linkKey) ? (
+                                                        <Check className="h-4 w-4 text-green-300" />
+                                                    ) : (
+                                                        <ClipboardCopy className="h-4 w-4" />
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleCopyInvitation(it.invitation, start + idx)}
+                                                >
+                                                    {copiedItems.has(invitationKey) ? (
+                                                        <Check className="h-4 w-4 text-green-600" />
+                                                    ) : (
+                                                        <MailCheck className="h-4 w-4" />
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant={invitationChecklist.has(invitationKey) ? "default" : "outline"}
+                                                    className={invitationChecklist.has(invitationKey) ? "bg-green-600 hover:bg-green-700" : ""}
+                                                    onClick={() => toggleInvitationCheck(start + idx)}
+                                                    title="Tandai sudah dikirim"
+                                                >
+                                                    <Check className={`h-4 w-4 ${
+                                                        invitationChecklist.has(invitationKey) 
+                                                            ? "text-white" 
+                                                            : "text-gray-400"
+                                                    }`} />
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
 
                                 {/* Pagination */}
