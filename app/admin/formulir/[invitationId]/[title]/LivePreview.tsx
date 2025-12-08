@@ -7,7 +7,7 @@ interface LivePreviewProps {
 }
 
 export default function LivePreview({ previewUrl }: LivePreviewProps) {
-  const [livePreviewEnabled, setLivePreviewEnabled] = useState(true);
+  const [livePreviewEnabled, setLivePreviewEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);

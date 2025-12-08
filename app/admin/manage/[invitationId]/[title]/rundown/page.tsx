@@ -1,11 +1,12 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ChevronLeft, ArrowDown, Eye } from 'lucide-react';
+import { ChevronLeft, ArrowDown, Eye, Save, CheckCircle } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { saveRundownDraft, loadRundownDraft, scheduleAutoSaveRundown } from '@/app/actions/rundownDrafts';
 
 // Define type untuk rundown item
 type RundownItem = {
@@ -23,7 +24,7 @@ async function getBackgroundBase64FromJSON(): Promise<string> {
 
 export default function RundownPage() {
   const router = useRouter();
-  const { eventId, title } = useParams() as { eventId: string; title: string };
+  const { invitationId, title } = useParams() as { invitationId: string; title: string };
 
   const [items, setItems] = useState<RundownItem[]>([
     { start: '', end: '', activity: '' },
@@ -32,6 +33,124 @@ export default function RundownPage() {
   // State untuk preview PDF
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [showPreview, setShowPreview] = useState<boolean>(false);
+
+  // State untuk draft management
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // State untuk custom PDF title
+  const [customTitle, setCustomTitle] = useState<string>('');
+
+  // Load draft saat component mount
+  useEffect(() => {
+    const loadDraft = async () => {
+      if (!invitationId || !title) {
+        console.log('Missing params:', { invitationId, title });
+        setIsLoading(false);
+        return;
+      }
+      
+      try {
+        console.log('Loading draft for:', { invitationId, title });
+        setIsLoading(true);
+        const draft = await loadRundownDraft(invitationId, title);
+        
+        if (draft && draft.rundown_data) {
+          const draftData = JSON.parse(draft.rundown_data);
+          if (draftData.items && draftData.items.length > 0) {
+            setItems(draftData.items);
+            console.log('Draft loaded:', draftData.items);
+          }
+          if (draftData.customTitle) {
+            setCustomTitle(draftData.customTitle);
+          }
+        } else {
+          console.log('No draft found');
+        }
+      } catch (error) {
+        console.error('Failed to load rundown draft:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDraft();
+  }, [invitationId, title]);
+
+  // Auto-save dengan debouncing
+  useEffect(() => {
+    if (!invitationId || !title || isLoading) return;
+    
+    // Skip auto-save jika hanya ada satu item kosong
+    const hasContent = items.some(item => 
+      item.start.trim() || item.end.trim() || item.activity.trim()
+    );
+    
+    if (!hasContent) return;
+
+    setSaveStatus('saving');
+    setIsSaving(true);
+    
+    scheduleAutoSaveRundown({
+      user_id: invitationId,
+      invitation_title: title,
+      rundown_data: JSON.stringify({
+        items: items,
+        customTitle: customTitle
+      })
+    }).then((result) => {
+      setIsSaving(false);
+      if (result.success) {
+        setSaveStatus('saved');
+        setLastSaved(new Date());
+        
+        // Clear status setelah 3 detik
+        setTimeout(() => setSaveStatus(null), 3000);
+      } else {
+        setSaveStatus('error');
+        console.error('Auto-save failed:', result.message);
+      }
+    }).catch((error) => {
+      setIsSaving(false);
+      setSaveStatus('error');
+      console.error('Auto-save error:', error);
+    });
+  }, [items, customTitle, invitationId, title, isLoading]);
+
+  // Manual save function
+  const handleManualSave = async () => {
+    if (!invitationId || !title) return;
+    
+    try {
+      setIsSaving(true);
+      setSaveStatus('saving');
+      
+      const result = await saveRundownDraft({
+        user_id: invitationId,
+        invitation_title: title,
+        rundown_data: JSON.stringify({
+          items: items,
+          customTitle: customTitle
+        })
+      });
+      
+      if (result.success) {
+        setSaveStatus('saved');
+        setLastSaved(new Date());
+        setTimeout(() => setSaveStatus(null), 3000);
+      } else {
+        setSaveStatus('error');
+        console.error('Manual save failed:', result.message);
+      }
+    } catch (error) {
+      setSaveStatus('error');
+      console.error('Manual save error:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Tambah baris rundown baru
   const handleAddRow = () => {
@@ -88,7 +207,8 @@ export default function RundownPage() {
 
     // Judul dokumen
     doc.setFontSize(30);
-    const titleText = `Rundown – ${decodedTitle.replace(/-/g, ' ')}`; // Replace hyphens with spaces
+    const defaultTitle = `Rundown – ${decodedTitle.replace(/-/g, ' ')}`;
+    const titleText = customTitle.trim() || defaultTitle;
     const titleWidth = doc.getTextWidth(titleText);
     const titleX = (pageWidth - titleWidth) / 2; // Calculate centered position
     doc.text(titleText, titleX, currentY);
@@ -218,7 +338,10 @@ export default function RundownPage() {
   const handleExportPDF = async () => {
     const doc = await generatePDFDoc();
     const decodedTitle = decodeURIComponent(title || '');
-    doc.save(`${decodedTitle || 'rundown'}.pdf`);
+    const filename = customTitle.trim() ? 
+      customTitle.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-') : 
+      decodedTitle || 'rundown';
+    doc.save(`${filename}.pdf`);
   };
 
   return (
@@ -252,24 +375,95 @@ export default function RundownPage() {
       )}
 
       {/* HEADER */}
-      <div className="flex items-center bg-white shadow p-4">
-        <button
-          onClick={() => router.back()}
-          className="p-2 rounded hover:bg-gray-100"
-        >
-          <ChevronLeft className="h-6 w-6 text-pink-600" />
-        </button>
-        <h1 className="ml-4 text-lg font-semibold text-pink-700">
-          Rundown – {decodeURIComponent(title || '')}
-        </h1>
+      <div className="flex items-center justify-between bg-white shadow p-4">
+        <div className="flex items-center">
+          <button
+            onClick={() => router.back()}
+            className="p-2 rounded hover:bg-gray-100"
+          >
+            <ChevronLeft className="h-6 w-6 text-pink-600" />
+          </button>
+          <h1 className="ml-4 text-lg font-semibold text-pink-700">
+            Rundown – {decodeURIComponent(title || '')}
+          </h1>
+        </div>
+        
+        {/* Save Status & Manual Save */}
+        <div className="flex items-center space-x-4">
+          {/* Save Status Indicator */}
+          {saveStatus && (
+            <div className="flex items-center space-x-2">
+              {saveStatus === 'saving' && (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-600"></div>
+                  <span className="text-sm text-gray-600">Menyimpan...</span>
+                </>
+              )}
+              {saveStatus === 'saved' && (
+                <>
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm text-green-600">Tersimpan</span>
+                </>
+              )}
+              {saveStatus === 'error' && (
+                <span className="text-sm text-red-600">Gagal menyimpan</span>
+              )}
+            </div>
+          )}
+          
+          {/* Last Saved Time */}
+          {lastSaved && !saveStatus && (
+            <span className="text-xs text-gray-500">
+              Terakhir disimpan: {lastSaved.toLocaleTimeString()}
+            </span>
+          )}
+          
+          {/* Manual Save Button */}
+          <Button
+            onClick={handleManualSave}
+            disabled={isSaving || isLoading}
+            variant="outline"
+            size="sm"
+            className="text-pink-600 border-pink-600 hover:bg-pink-50"
+          >
+            <Save className="h-4 w-4 mr-1" />
+            Simpan
+          </Button>
+        </div>
       </div>
 
       <div className="p-4 space-y-4">
-        {/* Section Input Rundown */}
+        {/* Section Custom Title */}
         <div className="bg-white shadow rounded-2xl p-6 space-y-4">
           <h2 className="text-sm font-medium text-gray-700">
-            Daftar Rundown
+            Judul PDF (Opsional)
           </h2>
+          <div className="space-y-2">
+            <Input
+              placeholder={`Default: Rundown – ${decodeURIComponent(title || '').replace(/-/g, ' ')}`}
+              value={customTitle}
+              onChange={(e) => setCustomTitle(e.target.value)}
+              className="w-full"
+            />
+            <p className="text-xs text-gray-500">
+              Kosongkan untuk menggunakan judul default. Judul ini akan muncul di PDF yang diexport.
+            </p>
+          </div>
+        </div>
+
+        {/* Section Input Rundown */}
+        <div className="bg-white shadow rounded-2xl p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-gray-700">
+              Daftar Rundown
+            </h2>
+            {isLoading && (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-600"></div>
+                <span className="text-sm text-gray-600">Memuat draft...</span>
+              </div>
+            )}
+          </div>
           <div className="space-y-4">
             {items.map((item, idx) => (
               <div
