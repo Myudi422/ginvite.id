@@ -83,28 +83,28 @@ export default function TurutSection({ enabled, list, accentColor }: TurutSectio
               </div>
             </div>
 
-            {/* Names Flex Layout */}
-            <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+            {/* Names List Layout */}
+            <div className="space-y-3 sm:space-y-4">
               {list.map((item, index) => (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.05 }}
                   viewport={{ once: true }}
-                  className="text-center p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95 border-2 flex-shrink-0 min-w-0"
+                  className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-lg sm:rounded-xl hover:scale-102 transition-all duration-300 border-l-4"
                   style={{ 
-                    backgroundColor: theme.accentColor + '15',
-                    borderColor: theme.accentColor + '30'
+                    borderColor: theme.accentColor,
+                    backgroundColor: theme.accentColor + '08'
                   }}
                 >
+                  <div 
+                    className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: theme.accentColor }}
+                  />
                   <p 
-                    className="font-bold text-sm sm:text-base md:text-lg"
-                    style={{ 
-                      color: theme.textColor,
-                      textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-                      lineHeight: '1.5'
-                    }}
+                    className="font-medium text-sm sm:text-base md:text-lg flex-1"
+                    style={{ color: theme.textColor }}
                   >
                     {item.name}
                   </p>
