@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { FaUser, FaWhatsapp, FaComment, FaCalendarCheck, FaPaperPlane } from 'react-icons/fa';
-import { FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown, FiLock } from 'react-icons/fi';
 import { useSearchParams } from 'next/navigation';
 import { submitRsvp, getRsvpList } from '@/app/actions/rsvp';
 
@@ -119,13 +119,27 @@ export default function RsmpSection({ theme, specialFontFamily, bodyFontFamily, 
   return (
     <section
       id={id}
-      className="mx-auto p-6 shadow-lg backdrop-blur-sm"
+      className="mx-auto p-6 shadow-lg backdrop-blur-sm relative"
       style={{
         backgroundImage: `url(${theme.background})`,
         color: theme.accentColor,
         fontFamily: bodyFontFamily
       }}
     >
+      {/* Free Mode Overlay */}
+      {status === "tidak" && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
+          <div className="text-center p-6 bg-white bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
+            <FiLock className="mx-auto mb-3 text-4xl" style={{ color: theme.accentColor }} />
+            <h3 className="text-lg font-semibold mb-2" style={{ color: theme.accentColor, fontFamily: specialFontFamily }}>
+              Mode Gratis
+            </h3>
+            <p className="text-sm" style={{ color: theme.accentColor, fontFamily: bodyFontFamily }}>
+              Fitur tidak tersedia.<br />Silahkan klik tombol aktifkan sekarang di header untuk menggunakan fitur ini.
+            </p>
+          </div>
+        </div>
+      )}
       <h2
         className="text-2xl font-semibold mb-6 text-center flex items-center justify-center gap-2"
         style={{ fontFamily: specialFontFamily }}

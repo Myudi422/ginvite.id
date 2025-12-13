@@ -157,7 +157,6 @@ export default function OpeningSection({
             color: theme.textColor 
           }}
         >
-          {opening.title}
         </motion.p>
 
         {/* Action Buttons - Netflix Style */}
