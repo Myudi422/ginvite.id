@@ -126,7 +126,7 @@ export default function BankSection({
     >
       {/* Free Mode Overlay */}
       {status === "tidak" && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
+        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
           <div className="text-center p-6 bg-white bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
             <FiLock className="mx-auto mb-3 text-4xl" style={{ color: theme.accentColor }} />
             <h3 className="text-lg font-semibold mb-2" style={{ color: theme.accentColor, fontFamily: specialFontFamily }}>
