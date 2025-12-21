@@ -167,7 +167,7 @@ export default function ClosingSection({
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.8 }}
             viewport={{ once: true }}
-            className="w-full flex justify-center"
+            className="w-full flex justify-center mb-8"
           >
             <div 
               className="inline-block px-6 sm:px-8 md:px-10 py-4 sm:py-5 rounded-2xl backdrop-blur-md border-2 shadow-xl"
@@ -187,6 +187,32 @@ export default function ClosingSection({
               </p>
             </div>
           </motion.div>
+
+          {/* Brand */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            viewport={{ once: true }}
+            className="mt-4 flex justify-center"
+          >
+            <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
+          </motion.div>
+
+          {/* Footer credit */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.2 }}
+            viewport={{ once: true }}
+            className="text-xs opacity-75 mt-4"
+            style={{ 
+              fontFamily: BodyFontFamily,
+              color: theme.textColor 
+            }}
+          >
+            Copyright © {new Date().getFullYear()} by papunda.com
+          </motion.p>
         </motion.div>
       </div>
     </section>

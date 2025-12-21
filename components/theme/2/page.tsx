@@ -57,7 +57,6 @@ import OurStorySection from "@/components/theme/2/OurStorySection";
 import GallerySection from "@/components/theme/2/GallerySection";
 import LazyHydrate from '@/components/ui/lazy-hydrate';
 import ClosingSection from "@/components/theme/2/ClosingSection";
-import FooterSection from "@/components/theme/2/FooterSection";
 import { recordContentView } from "@/app/actions/view";
 import { midtransAction, toggleStatusAction } from "@/app/actions/indexcontent";
 
@@ -481,8 +480,6 @@ export default function Theme2({ data }: Theme2Props) {
               category_type={category_type}
               theme={netflixTheme}
             />
-            
-            <FooterSection textColor={netflixTheme.textColor} />
           </div>
         )}
 

@@ -67,6 +67,7 @@ export default function RsmpSection({
 }: RsmpSectionProps) {
   
   const [name, setName] = useState('');
+  const [wa, setWa] = useState('');
   const [attendance, setAttendance] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -105,8 +106,13 @@ export default function RsmpSection({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim() || !attendance || !message.trim()) {
+    if (!name.trim() || !wa.trim() || !attendance || !message.trim()) {
       setError('Mohon lengkapi semua field');
+      return;
+    }
+
+    if (wa.trim().length < 10) {
+      setError('Nomor WhatsApp tidak valid (minimal 10 digit)');
       return;
     }
 
@@ -118,7 +124,7 @@ export default function RsmpSection({
       await submitRsvp(
         contentUserId as number,
         name.trim(),
-        '',  // wa number not needed for theme 2
+        wa.trim(),
         message.trim(),
         attendance,
         `/undang/${contentUserId}`
@@ -134,6 +140,7 @@ export default function RsmpSection({
 
       setIsSubmitted(true);
       setName('');
+      setWa('');
       setAttendance('');
       setMessage('');
       setShowComments(true);
@@ -241,6 +248,33 @@ export default function RsmpSection({
                   />
                 </div>
 
+                {/* WhatsApp Input */}
+                <div>
+                  <label 
+                    className="block text-sm font-semibold mb-3"
+                    style={{ color: theme.textColor }}
+                  >
+                    Nomor WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    value={wa}
+                    onChange={(e) => setWa(e.target.value)}
+                    onKeyPress={(e) => {
+                      const charCode = e.which ? e.which : e.keyCode;
+                      if (charCode > 31 && (charCode < 48 || charCode > 57)) e.preventDefault();
+                    }}
+                    className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-lg sm:rounded-xl border-2 focus:outline-none transition-all duration-200"
+                    style={{ 
+                      backgroundColor: theme.accentColor + '08',
+                      borderColor: theme.accentColor + '40',
+                      color: theme.textColor
+                    }}
+                    placeholder="08xxxxxxxxxx"
+                    required
+                  />
+                </div>
+
                 {/* Attendance Radio */}
                 <div>
                   <label 
@@ -275,18 +309,18 @@ export default function RsmpSection({
                     <label className="cursor-pointer">
                       <input
                         type="radio"
-                        value="tidak_hadir"
-                        checked={attendance === 'tidak_hadir'}
+                        value="tidak hadir"
+                        checked={attendance === 'tidak hadir'}
                         onChange={(e) => setAttendance(e.target.value)}
                         className="sr-only"
                       />
                       <div 
                         className={`p-4 sm:p-5 rounded-lg sm:rounded-xl border-2 transition-all duration-200 text-center font-semibold ${
-                          attendance === 'tidak_hadir' ? 'scale-105' : 'hover:scale-105'
+                          attendance === 'tidak hadir' ? 'scale-105' : 'hover:scale-105'
                         }`}
                         style={{
-                          borderColor: attendance === 'tidak_hadir' ? theme.accentColor : theme.accentColor + '30',
-                          backgroundColor: attendance === 'tidak_hadir' ? theme.accentColor + '20' : theme.accentColor + '08',
+                          borderColor: attendance === 'tidak hadir' ? theme.accentColor : theme.accentColor + '30',
+                          backgroundColor: attendance === 'tidak hadir' ? theme.accentColor + '20' : theme.accentColor + '08',
                           color: theme.textColor
                         }}
                       >
