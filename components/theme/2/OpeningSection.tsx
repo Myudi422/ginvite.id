@@ -180,21 +180,23 @@ export default function OpeningSection({
             Buka Undangan
           </Button>
 
-          <Button
-            onClick={onShowQr}
-            variant="outline"
-            size="lg"
-            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 text-lg sm:text-xl font-bold rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md border-2"
-            style={{
-              borderColor: theme.textColor + '60',
-              color: theme.textColor,
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              minWidth: '200px'
-            }}
-          >
-            <QrCode className="w-5 h-5" />
-            QR Code
-          </Button>
+          {toName && toName.trim() !== '' && toName !== 'Bapak/Ibu/Saudara/i' && (
+            <Button
+              onClick={onShowQr}
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 text-lg sm:text-xl font-bold rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-md border-2"
+              style={{
+                borderColor: theme.textColor + '60',
+                color: theme.textColor,
+                backgroundColor: 'rgba(255,255,255,0.15)',
+                minWidth: '200px'
+              }}
+            >
+              <QrCode className="w-5 h-5" />
+              QR Code
+            </Button>
+          )}
         </motion.div>
 
 
