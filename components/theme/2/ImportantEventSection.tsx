@@ -147,11 +147,14 @@ export default function ImportantEventSection({
                             <div className="mt-2">
                               <button
                                 onClick={() => {
-                                  let url = event.mapsLink;
-                                  if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-                                    url = 'https://' + url;
+                                  let url = event.mapsLink?.trim();
+                                  if (url) {
+                                    // Add protocol if missing
+                                    if (!url.match(/^https?:\/\//)) {
+                                      url = 'https://' + url;
+                                    }
+                                    window.open(url, '_blank', 'noopener,noreferrer');
                                   }
-                                  window.open(url, '_blank', 'noopener,noreferrer');
                                 }}
                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
                                 style={{
