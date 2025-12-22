@@ -47,7 +47,7 @@ export default function ClosingSection({
 
   return (
     <section 
-      className="relative py-12 sm:py-16 md:py-20 lg:py-24 min-h-screen flex items-center justify-center"
+      className="relative py-12 sm:py-16 md:py-20 lg:py-24 pb-20 sm:pb-24 md:pb-28 lg:pb-32 min-h-screen flex items-center justify-center"
       style={{ backgroundColor: theme.backgroundColor }}
     >
       {/* Background Image */}
