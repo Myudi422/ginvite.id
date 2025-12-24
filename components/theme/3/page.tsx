@@ -9,6 +9,7 @@ import { recordContentView } from "@/app/actions/view";
 import NetflixContainer, { NetflixSection, NetflixHeader, NetflixText, NetflixBadge } from "./NetflixComponents";
 import NetflixStyleImage from "./NetflixStyleImage";
 import ProfilePopup from "./ProfilePopup";
+import NetflixNavigation, { useNetflixNavigation } from "./NetflixNavigation";
 import { NetflixIcon, DownArrowIcon } from "./icon";
 import { FaUser, FaWhatsapp, FaComment, FaCalendarCheck, FaPaperPlane } from 'react-icons/fa';
 import { FiChevronDown, FiLock, FiCopy } from 'react-icons/fi';
@@ -54,6 +55,9 @@ export default function Theme3({ data }: Theme3Props) {
   const [errorGift, setErrorGift] = useState<string | null>(null);
   const [successGift, setSuccessGift] = useState(false);
   const [selectedAccountIdx, setSelectedAccountIdx] = useState(0);
+
+  // Navigation state
+  const { activeSection, setActiveSection } = useNetflixNavigation();
 
   const searchParams = useSearchParams();
   const params = useParams();
@@ -432,9 +436,9 @@ export default function Theme3({ data }: Theme3Props) {
 
       {/* Main Content */}
       {isOpen && (
-        <div className="bg-black text-white" style={{ minHeight: '100vh', overflowY: 'auto', paddingBottom: '2rem' }}>
+        <div className="bg-black text-white" style={{ minHeight: '100vh', overflowY: 'auto', paddingBottom: '6rem' }}>
           {/* Hero Video Section - Full Width */}
-          <div className="relative aspect-video w-full overflow-hidden">
+          <div id="home" className="relative aspect-video w-full overflow-hidden">
             {hasYoutubeVideo && isValidYouTubeLink(youtubeLink) ? (
               <div className="relative w-full h-full">
                 <ReactPlayer
@@ -657,7 +661,7 @@ export default function Theme3({ data }: Theme3Props) {
 
             {/* Event Timeline */}
             {apiEvents && Object.keys(apiEvents).length > 0 && (
-              <NetflixSection>
+              <NetflixSection id="event">
                 <NetflixHeader>Timeline & Location</NetflixHeader>
                 <div className="space-y-4">
                   {Object.entries(apiEvents).map(([key, evt], idx) => {
@@ -742,7 +746,7 @@ export default function Theme3({ data }: Theme3Props) {
 
             {/* Gallery Section */}
             {Array.isArray(gallery?.items) && gallery.items.length > 0 && (
-              <NetflixSection>
+              <NetflixSection id="gallery">
                 <NetflixHeader>Our Gallery</NetflixHeader>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {Array.from({ length: 6 }, (_, idx) => {
@@ -804,7 +808,7 @@ export default function Theme3({ data }: Theme3Props) {
             {bankTransfer?.enabled && Array.isArray(bankTransfer?.accounts) && bankTransfer.accounts.some(acc => 
               acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
             ) && (
-              <NetflixSection>
+              <NetflixSection id="gift">
                 {/* Free Mode Overlay */}
                 {data.status === "tidak" && (
                   <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
@@ -984,7 +988,7 @@ export default function Theme3({ data }: Theme3Props) {
             )}
 
             {/* Comments/RSVP Section */}
-            <NetflixSection>
+            <NetflixSection id="rsvp">
               {/* Free Mode Overlay */}
               {data.status === "tidak" && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
@@ -1171,6 +1175,19 @@ export default function Theme3({ data }: Theme3Props) {
               </NetflixText>
             </NetflixSection>
           </div>
+          
+          {/* Netflix Navigation */}
+          {isOpen && (
+            <NetflixNavigation
+              activeSection={activeSection}
+              setActiveSection={setActiveSection}
+              showGallery={Array.isArray(gallery?.items) && gallery.items.length > 0}
+              showRsvp={true}
+              showGift={bankTransfer?.enabled && Array.isArray(bankTransfer?.accounts) && bankTransfer.accounts.some(acc => 
+                acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
+              )}
+            />
+          )}
         </div>
       )}
 
