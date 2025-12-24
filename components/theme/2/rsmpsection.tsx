@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { UserCheck, MessageSquare, Send, CheckCircle, MessageCircle } from 'lucide-react';
+import { FiLock } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import { submitRsvp, getRsvpList } from '@/app/actions/rsvp';
 
@@ -67,6 +68,7 @@ export default function RsmpSection({
 }: RsmpSectionProps) {
   
   const [name, setName] = useState('');
+  const [wa, setWa] = useState('');
   const [attendance, setAttendance] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -105,8 +107,13 @@ export default function RsmpSection({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim() || !attendance || !message.trim()) {
+    if (!name.trim() || !wa.trim() || !attendance || !message.trim()) {
       setError('Mohon lengkapi semua field');
+      return;
+    }
+
+    if (wa.trim().length < 10) {
+      setError('Nomor WhatsApp tidak valid (minimal 10 digit)');
       return;
     }
 
@@ -118,7 +125,7 @@ export default function RsmpSection({
       await submitRsvp(
         contentUserId as number,
         name.trim(),
-        '',  // wa number not needed for theme 2
+        wa.trim(),
         message.trim(),
         attendance,
         `/undang/${contentUserId}`
@@ -134,6 +141,7 @@ export default function RsmpSection({
 
       setIsSubmitted(true);
       setName('');
+      setWa('');
       setAttendance('');
       setMessage('');
       setShowComments(true);
@@ -157,6 +165,20 @@ export default function RsmpSection({
       className="py-12 sm:py-16 md:py-20 lg:py-24 relative"
       style={{ backgroundColor: theme.backgroundColor }}
     >
+      {/* Free Mode Overlay */}
+      {status === "tidak" && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
+          <div className="text-center p-6 bg-white bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
+            <FiLock className="mx-auto mb-3 text-4xl" style={{ color: theme.accentColor }} />
+            <h3 className="text-lg font-semibold mb-2" style={{ color: theme.accentColor, fontFamily: specialFontFamily }}>
+              Mode Gratis
+            </h3>
+            <p className="text-sm" style={{ color: theme.accentColor, fontFamily: bodyFontFamily }}>
+              Fitur tidak tersedia.<br />Silahkan klik tombol aktifkan sekarang di header untuk menggunakan fitur ini.
+            </p>
+          </div>
+        </div>
+      )}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -241,6 +263,33 @@ export default function RsmpSection({
                   />
                 </div>
 
+                {/* WhatsApp Input */}
+                <div>
+                  <label 
+                    className="block text-sm font-semibold mb-3"
+                    style={{ color: theme.textColor }}
+                  >
+                    Nomor WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    value={wa}
+                    onChange={(e) => setWa(e.target.value)}
+                    onKeyPress={(e) => {
+                      const charCode = e.which ? e.which : e.keyCode;
+                      if (charCode > 31 && (charCode < 48 || charCode > 57)) e.preventDefault();
+                    }}
+                    className="w-full px-4 sm:px-5 py-3 sm:py-4 rounded-lg sm:rounded-xl border-2 focus:outline-none transition-all duration-200"
+                    style={{ 
+                      backgroundColor: theme.accentColor + '08',
+                      borderColor: theme.accentColor + '40',
+                      color: theme.textColor
+                    }}
+                    placeholder="08xxxxxxxxxx"
+                    required
+                  />
+                </div>
+
                 {/* Attendance Radio */}
                 <div>
                   <label 
@@ -275,18 +324,18 @@ export default function RsmpSection({
                     <label className="cursor-pointer">
                       <input
                         type="radio"
-                        value="tidak_hadir"
-                        checked={attendance === 'tidak_hadir'}
+                        value="tidak hadir"
+                        checked={attendance === 'tidak hadir'}
                         onChange={(e) => setAttendance(e.target.value)}
                         className="sr-only"
                       />
                       <div 
                         className={`p-4 sm:p-5 rounded-lg sm:rounded-xl border-2 transition-all duration-200 text-center font-semibold ${
-                          attendance === 'tidak_hadir' ? 'scale-105' : 'hover:scale-105'
+                          attendance === 'tidak hadir' ? 'scale-105' : 'hover:scale-105'
                         }`}
                         style={{
-                          borderColor: attendance === 'tidak_hadir' ? theme.accentColor : theme.accentColor + '30',
-                          backgroundColor: attendance === 'tidak_hadir' ? theme.accentColor + '20' : theme.accentColor + '08',
+                          borderColor: attendance === 'tidak hadir' ? theme.accentColor : theme.accentColor + '30',
+                          backgroundColor: attendance === 'tidak hadir' ? theme.accentColor + '20' : theme.accentColor + '08',
                           color: theme.textColor
                         }}
                       >

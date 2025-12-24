@@ -141,7 +141,33 @@ export default function ImportantEventSection({
                       {/* Location */}
                       <div className="flex items-start gap-3">
                         <MapPin className="w-5 h-5 mt-0.5" style={{ color: theme.accentColor }} />
-                        <span style={{ color: theme.textColor }}>{event.location}</span>
+                        <div className="flex-1">
+                          <span style={{ color: theme.textColor }}>{event.location}</span>
+                          {event.mapsLink && (
+                            <div className="mt-2">
+                              <button
+                                onClick={() => {
+                                  let url = event.mapsLink?.trim();
+                                  if (url) {
+                                    // Add protocol if missing
+                                    if (!url.match(/^https?:\/\//)) {
+                                      url = 'https://' + url;
+                                    }
+                                    window.open(url, '_blank', 'noopener,noreferrer');
+                                  }
+                                }}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
+                                style={{
+                                  backgroundColor: theme.accentColor,
+                                  color: 'white'
+                                }}
+                              >
+                                <MapPin className="w-4 h-4" />
+                                Buka Maps
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

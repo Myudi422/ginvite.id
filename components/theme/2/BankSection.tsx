@@ -1,8 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CreditCard, Copy, CheckCircle, Gift, Wallet } from 'lucide-react';
-import { useState } from 'react';
+import { CreditCard, Copy, CheckCircle, Gift, Wallet } from 'lucide-react';import { FiLock } from 'react-icons/fi';import { useState } from 'react';
 import { submitBankTransfer } from '@/app/actions/bank';
 
 interface BankAccount {
@@ -132,6 +131,20 @@ export default function BankSection({
       className="py-12 sm:py-16 md:py-20 lg:py-24 relative"
       style={{ backgroundColor: theme.backgroundColor }}
     >
+      {/* Free Mode Overlay */}
+      {status === "tidak" && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
+          <div className="text-center p-6 bg-white bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
+            <FiLock className="mx-auto mb-3 text-4xl" style={{ color: theme.accentColor }} />
+            <h3 className="text-lg font-semibold mb-2" style={{ color: theme.accentColor, fontFamily: specialFontFamily }}>
+              Mode Gratis
+            </h3>
+            <p className="text-sm" style={{ color: theme.accentColor, fontFamily: bodyFontFamily }}>
+              Fitur tidak tersedia.<br />Silahkan klik tombol aktifkan sekarang di header untuk menggunakan fitur ini.
+            </p>
+          </div>
+        </div>
+      )}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
