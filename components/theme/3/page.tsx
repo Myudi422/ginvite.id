@@ -403,23 +403,23 @@ export default function Theme3({ data }: Theme3Props) {
     <NetflixContainer>
       {/* Payment Banner */}
       {data.status === "tidak" && (
-        <div className="fixed top-0 left-0 w-full bg-yellow-300 text-yellow-900 py-1 z-50 text-center font-medium" style={{ maxWidth: '400px', left: '50%', transform: 'translateX(-50%)' }}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3">
-            <span className="text-xs sm:text-sm">Undangan dalam mode ujicoba/gratis.</span>
+        <div className="fixed top-4 left-4 right-4 bg-yellow-500 text-yellow-900 py-2 px-3 z-50 text-center font-medium rounded-lg shadow-lg" style={{ maxWidth: '350px', left: '50%', transform: 'translateX(-50%)' }}>
+          <div className="flex flex-col items-center justify-center gap-1 px-2">
+            <span className="text-xs">Mode gratis - Aktifkan untuk fitur lengkap</span>
             {isClient && (
               <Button 
                 size="sm"
                 variant="outline"
-                className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs whitespace-nowrap px-2 py-1"
+                className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs whitespace-nowrap px-3 py-1 text-center h-auto"
                 onClick={handlePayment}
                 disabled={paymentLoading}
               >
-                {paymentLoading ? 'Memproses...' : 'Aktifkan Sekarang'}
+                {paymentLoading ? 'Loading...' : 'Aktifkan'}
               </Button>
             )}
           </div>
           {paymentError && isClient && (
-            <div className="text-red-600 text-xs mt-1 px-3">
+            <div className="text-red-700 text-xs mt-1 px-2">
               {paymentError}
             </div>
           )}
@@ -750,11 +750,13 @@ export default function Theme3({ data }: Theme3Props) {
               <div className="flex gap-5">
                 {children?.map((child, index) => (
                   <div key={index} className="max-w-40">
-                    <div className="relative w-40 h-40 overflow-hidden rounded bride-groom-image">
-                      <div
-                        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-                        style={{ backgroundImage: `url(${child.image || child.profile || ''})` }}
-                      />
+                    <div className="relative w-40 h-40 overflow-hidden rounded bride-groom-image bg-gray-600">
+                      {(child.image || child.profile) && (
+                        <div
+                          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+                          style={{ backgroundImage: `url(${child.image || child.profile})` }}
+                        />
+                      )}
                     </div>
                     <NetflixText variant="meta" color="white">
                       {child.name}
@@ -894,11 +896,9 @@ export default function Theme3({ data }: Theme3Props) {
                       <div key={idx} className="flex flex-col gap-3">
                         {/* Header: Image + Title */}
                         <div className="flex flex-row items-start gap-4">
-                          <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-800">
-                            {hasImage ? (
-                              <img src={story.pictures[0]} alt={story.title || `Episode ${idx+1}`} className="object-cover w-full h-full" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📖</span>'; }} />
-                            ) : (
-                              <span style={{color: 'white', fontSize: '2rem'}}>📖</span>
+                          <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-600">
+                            {hasImage && (
+                              <img src={story.pictures[0]} alt={story.title || `Episode ${idx+1}`} className="object-cover w-full h-full" />
                             )}
                           </div>
                           <div className="flex-1 flex flex-col justify-start">
@@ -939,13 +939,9 @@ export default function Theme3({ data }: Theme3Props) {
                       'from-rose-900/90 via-rose-600/60 to-transparent'
                     ];
                     return (
-                      <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-800 cursor-pointer" onClick={() => hasImage && setSelectedImage(imgSrc)}>
-                        {hasImage ? (
+                      <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-600 cursor-pointer" onClick={() => hasImage && setSelectedImage(imgSrc)}>
+                        {hasImage && (
                           <img src={imgSrc} alt={`Gallery ${idx + 1}`} className="object-cover w-full h-full" />
-                        ) : (
-                          <div className="flex items-center justify-center w-full h-full">
-                            <span className="text-4xl">📷</span>
-                          </div>
                         )}
                         
                         {/* Gradient shadow overlay - bottom to top */}
@@ -987,21 +983,6 @@ export default function Theme3({ data }: Theme3Props) {
               acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
             ) && (
               <NetflixSection id="gift">
-                {/* Free Mode Overlay */}
-                {data.status === "tidak" && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
-                    <div className="text-center p-6 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
-                      <FiLock className="mx-auto mb-3 text-4xl text-red-500" />
-                      <NetflixHeader size="sm" className="mb-2 text-white">
-                        Mode Gratis
-                      </NetflixHeader>
-                      <NetflixText variant="caption" color="gray">
-                        Fitur tidak tersedia.<br />Silahkan klik tombol aktifkan sekarang di header untuk menggunakan fitur ini.
-                      </NetflixText>
-                    </div>
-                  </div>
-                )}
-                
                 <NetflixHeader size="lg" className="mb-4 text-center">
                   Gift for the couple
                 </NetflixHeader>
@@ -1109,7 +1090,19 @@ export default function Theme3({ data }: Theme3Props) {
                     })()}
 
                     {/* Gift Amount Form */}
-                    <form onSubmit={handleGiftSubmit} className="space-y-4">
+                    <form onSubmit={handleGiftSubmit} className="space-y-4 relative">
+                      {/* Free Mode Overlay - hanya untuk form */}
+                      {data.status === "tidak" && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+                          <div className="text-center p-4 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
+                            <FiLock className="mx-auto mb-2 text-2xl text-red-500" />
+                            <NetflixText variant="meta" className="text-white mb-2">Mode Gratis</NetflixText>
+                            <NetflixText variant="caption" color="gray" className="text-xs mb-2">
+                              Aktifkan untuk fitur ini
+                            </NetflixText>
+                          </div>
+                        </div>
+                      )}
                       {errorGift && (
                         <div className="p-3 rounded-lg bg-red-900/50 flex items-center gap-2 text-red-300 border border-red-500">
                           <FaComment className="flex-shrink-0" />
@@ -1167,28 +1160,25 @@ export default function Theme3({ data }: Theme3Props) {
 
             {/* Comments/RSVP Section */}
             <NetflixSection id="rsvp">
-              {/* Free Mode Overlay */}
-              {data.status === "tidak" && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
-                  <div className="text-center p-6 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
-                    <FiLock className="mx-auto mb-3 text-4xl text-red-500" />
-                    <NetflixHeader size="sm" className="mb-2 text-white">
-                      Mode Gratis
-                    </NetflixHeader>
-                    <NetflixText variant="caption" color="gray">
-                      Fitur tidak tersedia.<br />Silahkan klik tombol aktifkan sekarang di header untuk menggunakan fitur ini.
-                    </NetflixText>
-                  </div>
-                </div>
-              )}
-              
               <NetflixHeader size="lg" className="mb-6 text-center flex items-center justify-center gap-2">
                 <FaComment className="inline-block" />
                 Wish for the couple
               </NetflixHeader>
 
               {/* Form Section */}
-              <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+              <form onSubmit={handleSubmit} className="space-y-4 mb-6 relative">
+                {/* Free Mode Overlay - hanya untuk form */}
+                {data.status === "tidak" && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+                    <div className="text-center p-4 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
+                      <FiLock className="mx-auto mb-2 text-2xl text-red-500" />
+                      <NetflixText variant="meta" className="text-white mb-2">Mode Gratis</NetflixText>
+                      <NetflixText variant="caption" color="gray" className="text-xs mb-2">
+                        Aktifkan untuk fitur ini
+                      </NetflixText>
+                    </div>
+                  </div>
+                )}
                 {error && (
                   <div className="p-3 rounded-lg bg-red-900/50 flex items-center gap-2 text-red-300 border border-red-500">
                     <FaComment className="flex-shrink-0" />
