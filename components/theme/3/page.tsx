@@ -10,6 +10,7 @@ import NetflixContainer, { NetflixSection, NetflixHeader, NetflixText, NetflixBa
 import NetflixStyleImage from "./NetflixStyleImage";
 import ProfilePopup from "./ProfilePopup";
 import NetflixNavigation, { useNetflixNavigation } from "./NetflixNavigation";
+import NetflixProfileModal from "./NetflixProfileModal";
 import { NetflixIcon, DownArrowIcon } from "./icon";
 import { FaUser, FaWhatsapp, FaComment, FaCalendarCheck, FaPaperPlane } from 'react-icons/fa';
 import { FiChevronDown, FiLock, FiCopy } from 'react-icons/fi';
@@ -19,6 +20,11 @@ import dynamic from 'next/dynamic';
 
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
 
+const NetflixMusicPlayer = dynamic(() => import('./NetflixMusicPlayer'), { 
+  ssr: false, 
+  loading: () => null 
+});
+
 interface Theme3Props {
   data: ThemeData;
 }
@@ -27,6 +33,8 @@ export default function Theme3({ data }: Theme3Props) {
   const cuId = data.content_user_id;
   const [isOpen, setIsOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [urlParams, setUrlParams] = useState<{ userId?: string; title?: string; toName?: string }>({});
@@ -55,6 +63,8 @@ export default function Theme3({ data }: Theme3Props) {
   const [errorGift, setErrorGift] = useState<string | null>(null);
   const [successGift, setSuccessGift] = useState(false);
   const [selectedAccountIdx, setSelectedAccountIdx] = useState(0);
+  // Hero carousel state
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   // Navigation state
   const { activeSection, setActiveSection } = useNetflixNavigation();
@@ -133,9 +143,12 @@ export default function Theme3({ data }: Theme3Props) {
     if (typeof window !== 'undefined') {
       const userId = params?.userId as string;
       const title = params?.title as string;
-      const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
+      const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i"; // Default ke Bapak/Ibu
       
       setUrlParams({ userId, title, toName });
+      
+      // Always show profile modal on landing page
+      setShowProfileModal(true);
     }
     
     // Only hide scroll on landing page, allow scroll when content is open
@@ -189,7 +202,20 @@ export default function Theme3({ data }: Theme3Props) {
 
   // Destructure data
   const { theme, content, event: apiEvents, category_type } = data;
-  const { children, gallery, title: eventTitle } = content;
+  const { children, gallery, title: eventTitle, music } = content;
+
+  // Get plugin settings
+  const { plugin } = content;
+
+  // Get music settings
+  const { url: musicUrl = "", enabled: musicEnabled = false } = music || {};
+
+  // Handle profile modal close
+  const handleProfileModalClose = (guestName: string) => {
+    setUrlParams(prev => ({ ...prev, toName: guestName }));
+    setShowProfileModal(false);
+    setShowProfilePopup(true); // Trigger profile popup
+  };
 
   // Get bank transfer data
   const bankTransfer = content?.bank_transfer;
@@ -331,6 +357,21 @@ export default function Theme3({ data }: Theme3Props) {
     year: 'numeric'
   }) : '';
 
+  // Hero photo carousel effect
+  useEffect(() => {
+    // Only start carousel if there's no video and there are gallery items
+    if (hasYoutubeVideo && isValidYouTubeLink(youtubeLink)) return;
+    
+    const galleryItems = gallery?.items || [];
+    if (galleryItems.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCurrentPhotoIndex(prev => (prev + 1) % galleryItems.length);
+    }, 3000); // Change photo every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [hasYoutubeVideo, youtubeLink, gallery?.items, isValidYouTubeLink]);
+
   return (
     <NetflixContainer>
       {/* Payment Banner */}
@@ -377,7 +418,10 @@ export default function Theme3({ data }: Theme3Props) {
               <div className="flex items-center gap-2">
                 <NetflixIcon className="w-16 sm:w-20 h-auto text-red-600" />
               </div>
-              <ProfilePopup toName={urlParams.toName || "Bapak/Ibu/Saudara/i"} />
+              <ProfilePopup 
+                toName={urlParams.toName || "Bapak/Ibu/Saudara/i"} 
+                triggerShow={showProfilePopup}
+              />
             </div>
             
             {/* Spacer to push content to bottom */}
@@ -434,9 +478,22 @@ export default function Theme3({ data }: Theme3Props) {
         </div>
       )}
 
+      {/* Profile Modal - Muncul di landing page */}
+      {!isOpen && showProfileModal && (
+        <NetflixProfileModal 
+          onClose={handleProfileModalClose}
+          selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+        />
+      )}
+
       {/* Main Content */}
       {isOpen && (
         <div className="bg-black text-white" style={{ minHeight: '100vh', overflowY: 'auto', paddingBottom: '6rem' }}>
+          {/* Music Player - hanya ketika tidak ada video */}
+          {musicEnabled && musicUrl && !hasYoutubeVideo && (
+            <NetflixMusicPlayer url={musicUrl} autoPlay />
+          )}
+          
           {/* Hero Video Section - Full Width */}
           <div id="home" className="relative aspect-video w-full overflow-hidden">
             {hasYoutubeVideo && isValidYouTubeLink(youtubeLink) ? (
@@ -489,11 +546,46 @@ export default function Theme3({ data }: Theme3Props) {
               </div>
             ) : (
               <>
-                <div 
-                  className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-                  style={{ backgroundImage: `url(${backgroundImage})` }}
-                />
-                <div className="absolute inset-0 bg-black/30" />
+                {/* Animated carousel when no video */}
+                <style>{`
+                  @keyframes fadeInOut {
+                    0%, 100% { opacity: 0; }
+                    10%, 90% { opacity: 1; }
+                  }
+                  .carousel-image {
+                    opacity: 0;
+                    transition: opacity 0.3s ease-in-out;
+                  }
+                  .carousel-image.active {
+                    opacity: 1;
+                  }
+                `}</style>
+                {gallery?.items && gallery.items.length > 0 ? (
+                  <>
+                    {gallery.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat carousel-image ${
+                          idx === currentPhotoIndex ? 'active' : ''
+                        }`}
+                        style={{ backgroundImage: `url(${item})` }}
+                      />
+                    ))}
+                    <div className="absolute inset-0 bg-black/30" />
+                    {/* Photo counter indicator */}
+                    <div className="absolute top-4 right-4 bg-black/60 rounded-full px-3 py-1 text-white text-sm font-medium">
+                      {currentPhotoIndex + 1} / {gallery.items.length}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div 
+                      className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+                      style={{ backgroundImage: `url(${backgroundImage})` }}
+                    />
+                    <div className="absolute inset-0 bg-black/30" />
+                  </>
+                )}
               </>
             )}
           </div>
@@ -626,7 +718,7 @@ export default function Theme3({ data }: Theme3Props) {
             </NetflixSection>
 
             {/* Bride and Groom / Child Section */}
-            <NetflixSection>
+            <NetflixSection id="event">
               <NetflixHeader>{isKhitan ? 'The Star' : 'Bride and Groom'}</NetflixHeader>
               <div className="flex gap-5">
                 {children?.map((child, index) => (
@@ -661,7 +753,7 @@ export default function Theme3({ data }: Theme3Props) {
 
             {/* Event Timeline */}
             {apiEvents && Object.keys(apiEvents).length > 0 && (
-              <NetflixSection id="event">
+              <NetflixSection>
                 <NetflixHeader>Timeline & Location</NetflixHeader>
                 <div className="space-y-4">
                   {Object.entries(apiEvents).map(([key, evt], idx) => {
@@ -1166,6 +1258,51 @@ export default function Theme3({ data }: Theme3Props) {
               )}
             </NetflixSection>
 
+            {/* Invitation Gallery Section */}
+            <NetflixSection>
+              <div className="relative w-full rounded-lg overflow-hidden bg-black/80 h-96">
+                {/* Small Netflix-style Poster Grid Background */}
+                <div className="absolute inset-0 w-full h-full grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 p-4 opacity-50">
+                  {Array.from({ length: 24 }, (_, idx) => (
+                    <div
+                      key={idx}
+                      className="aspect-[2/3] rounded-sm overflow-hidden"
+                      style={{
+                        backgroundImage: `url(${gallery?.items?.[idx % (gallery?.items?.length || 1)] || backgroundImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        filter: 'blur(2px) brightness(0.6)',
+                        transform: `perspective(1000px) rotateX(${Math.random() * 5 - 2.5}deg) rotateY(${Math.random() * 5 - 2.5}deg)`,
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80" />
+
+                {/* Content overlay */}
+                <div className="relative z-20 h-full flex flex-col justify-center items-center p-8 sm:p-12 text-center space-y-6">
+                  <NetflixText className="text-lg sm:text-xl leading-relaxed text-white">
+                    Suatu kebahagiaan & kehormatan bagi kami,
+                    <br />
+                    <span className="font-semibold">apabila saudara/i {urlParams.toName || "Bapak/Ibu/Saudara/i"}</span>
+                    <br />
+                    berkenan hadir dan memberikan do'a restu kepada kami
+                  </NetflixText>
+
+                  <div className="pt-6 border-t border-gray-500">
+                    <NetflixText className="text-sm sm:text-base text-gray-300 mb-3">
+                      Kami Yang Berbahagia,
+                    </NetflixText>
+                    <NetflixHeader size="lg" className="text-2xl sm:text-3xl">
+                      {isKhitan ? nickname1 : `${nickname1} & ${nickname2}`} 💕
+                    </NetflixHeader>
+                  </div>
+                </div>
+              </div>
+            </NetflixSection>
+
             {/* Footer */}
             <NetflixSection className="text-center py-8">
               <NetflixText>Thank you for checking up all the things up there!</NetflixText>
@@ -1177,7 +1314,7 @@ export default function Theme3({ data }: Theme3Props) {
           </div>
           
           {/* Netflix Navigation */}
-          {isOpen && (
+          {isOpen && plugin?.navbar && (
             <NetflixNavigation
               activeSection={activeSection}
               setActiveSection={setActiveSection}

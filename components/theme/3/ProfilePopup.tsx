@@ -3,20 +3,23 @@ import { ProfileIcon } from './icon';
 
 interface ProfilePopupProps {
   toName: string;
+  triggerShow?: boolean;
 }
 
-export default function ProfilePopup({ toName }: ProfilePopupProps) {
+export default function ProfilePopup({ toName, triggerShow = false }: ProfilePopupProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true); // Langsung muncul
-    const hideTimer = setTimeout(() => {
-      setIsVisible(false);
-    }, 3000); // Hilang setelah 3 detik
-    return () => {
-      clearTimeout(hideTimer);
-    };
-  }, []);
+    if (triggerShow) {
+      setIsVisible(true);
+      const hideTimer = setTimeout(() => {
+        setIsVisible(false);
+      }, 3000); // Hilang setelah 3 detik
+      return () => {
+        clearTimeout(hideTimer);
+      };
+    }
+  }, [triggerShow]);
 
   return (
     <div className="relative">
