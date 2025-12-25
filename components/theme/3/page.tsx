@@ -357,6 +357,33 @@ export default function Theme3({ data }: Theme3Props) {
     year: 'numeric'
   }) : '';
 
+  // Generate calendar URL
+  let calendarUrl = '';
+  if (eventDate && firstEvent) {
+    const start = eventDate.toISOString().replace(/-|:|\.\d+/g, '');
+    const endDate = new Date(eventDate.getTime() + 3600000);
+    const end = endDate.toISOString().replace(/-|:|\.\d+/g, '');
+
+    let titleText = `Undangan ${isKhitan ? 'Khitanan' : 'Pernikahan'} - ${isKhitan ? nickname1 : nickname}`;
+    
+    // Get maps link
+    const mapsLink = firstEvent.location_url || firstEvent.mapsLink || '';
+    
+    let detailsText = isKhitan 
+      ? `Kami mengundang Anda untuk menghadiri acara khitanan ${nickname1}. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir dan mendoakan.`
+      : `Kami mengundang Anda untuk menghadiri acara pernikahan ${nickname}. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.`;
+    
+    // Add maps link to details if available
+    if (mapsLink && mapsLink.trim() !== '') {
+      detailsText += `\n\nMaps: ${mapsLink}`;
+    }
+    
+    calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}` +
+      `&text=${encodeURIComponent(titleText)}` +
+      `&details=${encodeURIComponent(detailsText)}` +
+      `&location=${encodeURIComponent(firstEvent.location)}`;
+  }
+
   // Hero photo carousel effect
   useEffect(() => {
     // Only start carousel if there's no video and there are gallery items
@@ -470,7 +497,7 @@ export default function Theme3({ data }: Theme3Props) {
                   onClick={() => setIsOpen(true)}
                   className="text-base sm:text-lg font-bold text-white hover:text-gray-200 transition-colors px-4 py-2"
                 >
-                  SEE THE DETAIL
+                  BUKA UNDANGAN
                 </button>
               </div>
             </div>
@@ -794,6 +821,65 @@ export default function Theme3({ data }: Theme3Props) {
                     );
                   })}
                 </div>
+
+                {/* Countdown Timer Section - dibawah Timeline & Location */}
+                {eventDate && (
+                  <div className="mt-6 pt-6 border-t border-gray-700">
+                    <div className="flex items-center justify-between gap-4">
+                      {/* Left: Single Icon */}
+                      <div className="flex-shrink-0">
+                        <div className="w-16 h-16 rounded bg-red-600/20 border border-red-600/50 flex items-center justify-center text-5xl">💕</div>
+                      </div>
+
+                      {/* Center: Timer */}
+                      <div className="flex-1 text-center">
+                        <p className="text-gray-400 text-xs mb-2">Menghitung Mundur</p>
+                        <div className="flex justify-center gap-1.5">
+                          {(() => {
+                            const now = new Date().getTime();
+                            const eventTime = eventDate.getTime();
+                            const diff = eventTime - now;
+                            
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                            const timeUnits = [
+                              { label: 'H', value: days },
+                              { label: 'J', value: hours },
+                              { label: 'M', value: minutes },
+                              { label: 'D', value: seconds }
+                            ];
+
+                            return timeUnits.map((unit, idx) => (
+                              <div key={idx} className="flex flex-col items-center">
+                                <div className="w-8 h-8 rounded bg-gray-800 flex items-center justify-center text-xs font-bold text-white border border-gray-700">
+                                  {String(unit.value).padStart(2, '0')}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-0.5">{unit.label}</div>
+                              </div>
+                            ));
+                          })()}
+                        </div>
+                      </div>
+
+                      {/* Right: Save Button */}
+                      {calendarUrl && (
+                        <div className="flex-shrink-0">
+                          <a href={calendarUrl} target="_blank" rel="noopener noreferrer">
+                            <button className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors inline-flex items-center gap-1.5 whitespace-nowrap">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                              </svg>
+                              Simpan
+                            </button>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </NetflixSection>
             )}
 
@@ -1260,26 +1346,15 @@ export default function Theme3({ data }: Theme3Props) {
 
             {/* Invitation Gallery Section */}
             <NetflixSection>
-              <div className="relative w-full rounded-lg overflow-hidden bg-black/80 h-96">
-                {/* Small Netflix-style Poster Grid Background */}
-                <div className="absolute inset-0 w-full h-full grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 p-4 opacity-50">
-                  {Array.from({ length: 24 }, (_, idx) => (
-                    <div
-                      key={idx}
-                      className="aspect-[2/3] rounded-sm overflow-hidden"
-                      style={{
-                        backgroundImage: `url(${gallery?.items?.[idx % (gallery?.items?.length || 1)] || backgroundImage})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        filter: 'blur(2px) brightness(0.6)',
-                        transform: `perspective(1000px) rotateX(${Math.random() * 5 - 2.5}deg) rotateY(${Math.random() * 5 - 2.5}deg)`,
-                      }}
-                    />
-                  ))}
-                </div>
+              <div className="relative w-full rounded-lg overflow-hidden h-96">
+                {/* Background Image */}
+                <div 
+                  className="absolute inset-0 w-full h-full bg-cover bg-center"
+                  style={{ backgroundImage: `url(${gallery?.items?.[0] || backgroundImage})` }}
+                />
 
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80" />
+                {/* Overlay gradient - transparent black */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/80" />
 
                 {/* Content overlay */}
                 <div className="relative z-20 h-full flex flex-col justify-center items-center p-8 sm:p-12 text-center space-y-6">
