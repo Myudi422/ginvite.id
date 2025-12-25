@@ -712,7 +712,7 @@ export default function Theme3({ data }: Theme3Props) {
               <div className="relative aspect-video w-full overflow-hidden rounded">
                 <div 
                   className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-                  style={{ backgroundImage: `url(${gallery?.items?.[1] || backgroundImage})` }}
+                  style={{ backgroundImage: `url(${gallery?.items?.[1] || backgroundImage || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22%3E%3Crect fill=%22%23808080%22 width=%22400%22 height=%22225%22/%3E%3C/svg%3E'})` }}
                 />
               </div>
               <div className="space-y-4">
@@ -750,13 +750,11 @@ export default function Theme3({ data }: Theme3Props) {
               <div className="flex gap-5">
                 {children?.map((child, index) => (
                   <div key={index} className="max-w-40">
-                    <div className="relative w-40 h-40 overflow-hidden rounded bride-groom-image bg-gray-600">
-                      {(child.image || child.profile) && (
-                        <div
-                          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-                          style={{ backgroundImage: `url(${child.image || child.profile})` }}
-                        />
-                      )}
+                    <div className="relative w-40 h-40 overflow-hidden rounded bride-groom-image">
+                      <div
+                        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+                        style={{ backgroundImage: `url(${child.image || child.profile || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22%3E%3Crect fill=%22%23808080%22 width=%22160%22 height=%22160%22/%3E%3C/svg%3E'})` }}
+                      />
                     </div>
                     <NetflixText variant="meta" color="white">
                       {child.name}
@@ -896,9 +894,11 @@ export default function Theme3({ data }: Theme3Props) {
                       <div key={idx} className="flex flex-col gap-3">
                         {/* Header: Image + Title */}
                         <div className="flex flex-row items-start gap-4">
-                          <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-600">
-                            {hasImage && (
-                              <img src={story.pictures[0]} alt={story.title || `Episode ${idx+1}`} className="object-cover w-full h-full" />
+                          <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-800">
+                            {hasImage ? (
+                              <img src={story.pictures[0]} alt={story.title || `Episode ${idx+1}`} className="object-cover w-full h-full" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📖</span>'; }} />
+                            ) : (
+                              <span style={{color: 'white', fontSize: '2rem'}}>📖</span>
                             )}
                           </div>
                           <div className="flex-1 flex flex-col justify-start">
@@ -939,9 +939,13 @@ export default function Theme3({ data }: Theme3Props) {
                       'from-rose-900/90 via-rose-600/60 to-transparent'
                     ];
                     return (
-                      <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-600 cursor-pointer" onClick={() => hasImage && setSelectedImage(imgSrc)}>
-                        {hasImage && (
+                      <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-800 cursor-pointer" onClick={() => hasImage && setSelectedImage(imgSrc)}>
+                        {hasImage ? (
                           <img src={imgSrc} alt={`Gallery ${idx + 1}`} className="object-cover w-full h-full" />
+                        ) : (
+                          <div className="flex items-center justify-center w-full h-full">
+                            <span className="text-4xl">📷</span>
+                          </div>
                         )}
                         
                         {/* Gradient shadow overlay - bottom to top */}
