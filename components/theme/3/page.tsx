@@ -16,6 +16,7 @@ import { FaUser, FaWhatsapp, FaComment, FaCalendarCheck, FaPaperPlane } from 're
 import { FiChevronDown, FiLock, FiCopy } from 'react-icons/fi';
 import { submitRsvp, getRsvpList } from '@/app/actions/rsvp';
 import { submitBankTransfer } from '@/app/actions/bank';
+import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
@@ -35,6 +36,7 @@ export default function Theme3({ data }: Theme3Props) {
   const [isClient, setIsClient] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [showQr, setShowQr] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [urlParams, setUrlParams] = useState<{ userId?: string; title?: string; toName?: string }>({});
@@ -510,8 +512,20 @@ export default function Theme3({ data }: Theme3Props) {
         <NetflixProfileModal 
           onClose={handleProfileModalClose}
           selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          onShowQr={() => setShowQr(true)}
         />
       )}
+
+      {/* QR Modal */}
+      <QRModal 
+        show={showQr} 
+        onClose={() => {
+          setShowQr(false);
+          // Just close QR modal, keep profile modal open
+        }} 
+        qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"} 
+      />
 
       {/* Main Content */}
       {isOpen && (

@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { FaQrcode } from 'react-icons/fa';
 
 interface NetflixProfileModalProps {
   onClose: (guestName: string) => void;
   selectedProfile: string;
+  qrData?: string;
+  onShowQr?: () => void;
 }
 
-export default function NetflixProfileModal({ onClose, selectedProfile }: NetflixProfileModalProps) {
+export default function NetflixProfileModal({ onClose, selectedProfile, qrData, onShowQr }: NetflixProfileModalProps) {
   const [isConfirming, setIsConfirming] = useState(false);
 
   // Profile configuration
@@ -21,10 +24,16 @@ export default function NetflixProfileModal({ onClose, selectedProfile }: Netfli
   const profile = profileConfig[selectedProfile] || profileConfig["Bapak/Ibu/Saudara/i"];
 
   const handleContinue = () => {
+    // Proceed directly with profile selection
     setIsConfirming(true);
     setTimeout(() => {
       onClose(selectedProfile);
     }, 300);
+  };
+
+  const handleShowQr = () => {
+    // Show QR modal overlay on top of profile modal
+    onShowQr?.();
   };
 
   return (
@@ -61,6 +70,17 @@ export default function NetflixProfileModal({ onClose, selectedProfile }: Netfli
         >
           Lanjutkan
         </button>
+
+        {/* QR Link - Show if qrData exists */}
+        {qrData && qrData.trim() !== '' && (
+          <div 
+            onClick={handleShowQr}
+            className="mt-4 flex items-center justify-center gap-2 cursor-pointer text-white hover:text-red-400 transition-colors"
+          >
+            <FaQrcode className="text-xl" />
+            <span className="text-sm font-semibold">Tampilkan QR</span>
+          </div>
+        )}
       </div>
     </div>
   );

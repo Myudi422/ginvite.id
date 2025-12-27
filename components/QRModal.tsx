@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import QRCode from "react-qr-code";
+import { FaQrcode } from 'react-icons/fa';
 
 interface QRModalProps {
   show: boolean;
@@ -29,9 +30,12 @@ export default function QRModal({ show, onClose, qrData }: QRModalProps) {
             <div className="flex justify-center mb-4">
               <QRCode value={qrData} size={200} />
             </div>
-            <p className="text-sm text-gray-600">
-              Harap tunjukkan QR code ini untuk check-in di lokasi acara.
-            </p>
+            <div className="flex flex-col items-center gap-3">
+              <FaQrcode className="text-2xl text-red-600" />
+              <p className="text-sm font-semibold text-gray-700">
+                Scan QR Anda
+              </p>
+            </div>
           </div>
         </motion.div>
       )}
