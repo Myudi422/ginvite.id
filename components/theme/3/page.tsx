@@ -512,7 +512,7 @@ export default function Theme3({ data }: Theme3Props) {
         <NetflixProfileModal 
           onClose={handleProfileModalClose}
           selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
-          qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          qrData={urlParams.toName}
           onShowQr={() => setShowQr(true)}
         />
       )}
