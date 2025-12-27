@@ -145,7 +145,7 @@ export default function Theme3({ data }: Theme3Props) {
     if (typeof window !== 'undefined') {
       const userId = params?.userId as string;
       const title = params?.title as string;
-      const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i"; // Default ke Bapak/Ibu
+      const toName = searchParams?.get("to"); // Only get if provided, no default
       
       setUrlParams({ userId, title, toName });
       
