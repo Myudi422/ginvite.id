@@ -19,12 +19,28 @@ function error($code, $msg) {
     exit;
 }
 
-// Query to select all themes and join with category name
+// Query to get top 4 popular themes first, then random order for the rest
 $sql = "SELECT 
             t.*, 
-            kt.nama AS kategory_theme_nama 
+            kt.nama AS kategory_theme_nama,
+            COALESCE(cu.usage_count, 0) AS usage_count,
+            CASE 
+                WHEN COALESCE(cu.usage_count, 0) >= 5 THEN 1
+                ELSE 0
+            END AS is_top_popular
         FROM theme t
-        LEFT JOIN kategory_theme kt ON t.kategory_theme_id = kt.id"; // LEFT JOIN to handle themes without categories
+        LEFT JOIN kategory_theme kt ON t.kategory_theme_id = kt.id
+        LEFT JOIN (
+            SELECT theme_id, COUNT(*) as usage_count 
+            FROM content_user 
+            WHERE theme_id IS NOT NULL 
+            GROUP BY theme_id
+        ) cu ON t.id = cu.theme_id
+        ORDER BY 
+            is_top_popular DESC,
+            CASE WHEN is_top_popular = 1 THEN cu.usage_count END DESC,
+            CASE WHEN is_top_popular = 0 THEN RAND() END
+        LIMIT 1000"; // Show top popular first, then random
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $themes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -35,7 +51,13 @@ if (!$themes) {
 
 // Strukturkan ulang output agar sesuai dengan kebutuhan (opsional)
 $formattedThemes = [];
+$popularCount = 0;
 foreach ($themes as $theme) {
+    $isPopular = (int)$theme['usage_count'] >= 5 && $popularCount < 4;
+    if ($isPopular) {
+        $popularCount++;
+    }
+    
     $formattedThemes[] = [
         'id' => $theme['id'],
         'name' => $theme['name'],
@@ -50,6 +72,8 @@ foreach ($themes as $theme) {
         'image_theme' => $theme['image_theme'],
         'kategory_theme_id' => $theme['kategory_theme_id'],
         'kategory_theme_nama' => $theme['kategory_theme_nama'] ?? null, // Use null coalescing operator to avoid errors
+        'usage_count' => (int)$theme['usage_count'], // Include usage count for popularity
+        'is_popular' => $isPopular, // Only mark top 4 as popular
     ];
 }
 

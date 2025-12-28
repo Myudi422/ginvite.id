@@ -11,6 +11,8 @@ interface Theme {
   image_theme: string;
   kategory_theme_id: number;
   kategory_theme_nama: string;
+  usage_count: number;
+  is_popular: boolean;
 }
 
 export async function getThemesFromServer(): Promise<{ status: string; data?: Theme[]; message?: string }> {
