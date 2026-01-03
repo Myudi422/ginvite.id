@@ -26,6 +26,11 @@ const NetflixMusicPlayer = dynamic(() => import('./NetflixMusicPlayer'), {
   loading: () => null 
 });
 
+const NetflixTurutSection = dynamic(() => import('./NetflixTurutSection'), {
+  ssr: false,
+  loading: () => null
+});
+
 interface Theme3Props {
   data: ThemeData;
 }
@@ -757,6 +762,12 @@ export default function Theme3({ data }: Theme3Props) {
                 </NetflixText>
               </div>
             </NetflixSection>
+
+            {/* Turut Mengundang Section */}
+            <NetflixTurutSection 
+              enabled={content?.turut?.enabled}
+              list={content?.turut?.list || []}
+            />
 
             {/* Bride and Groom / Child Section */}
             <NetflixSection id="event">
