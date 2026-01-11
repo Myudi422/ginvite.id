@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Head from "next/head";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from 'next/navigation';
 // Menggunakan komponen tema 1 yang sudah ada
@@ -519,5 +520,36 @@ export default function SampleInvitationPage() {
     _displayName: "RAHMA & MARTIN",
   };
 
-  return <SampleTheme1Component data={staticData} />;
+  return (
+    <>
+      <Head>
+        <title>Undangan Pernikahan RAHMA & MARTIN - 16 & 18 Januari 2026</title>
+        <meta name="description" content="Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Anda dalam acara pernikahan RAHMA & MARTIN yang akan diselenggarakan pada 16 & 18 Januari 2026 di Bogor." />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Undangan Pernikahan RAHMA & MARTIN" />
+        <meta property="og:description" content="Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Anda dalam acara pernikahan RAHMA & MARTIN yang akan diselenggarakan pada 16 & 18 Januari 2026 di Bogor." />
+        <meta property="og:image" content="/211/IMG_2506_263.jpg" />
+        <meta property="og:url" content="https://papunda.com/invite/rahma-martin" />
+        <meta property="og:site_name" content="Papunda - Undangan Digital" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Undangan Pernikahan RAHMA & MARTIN" />
+        <meta name="twitter:description" content="Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Anda dalam acara pernikahan RAHMA & MARTIN yang akan diselenggarakan pada 16 & 18 Januari 2026 di Bogor." />
+        <meta name="twitter:image" content="/211/IMG_2506_263.jpg" />
+        
+        {/* WhatsApp */}
+        <meta property="og:locale" content="id_ID" />
+        <meta name="theme-color" content="#d4a574" />
+        
+        {/* Additional meta tags */}
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="RAHMA & MARTIN" />
+        <meta name="keywords" content="undangan pernikahan, wedding invitation, RAHMA MARTIN, pernikahan 2026, undangan digital" />
+      </Head>
+      <SampleTheme1Component data={staticData} />
+    </>
+  );
 }
