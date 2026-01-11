@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Head from "next/head";
 import { Button } from "@/components/ui/button";
@@ -364,12 +364,167 @@ function SampleTheme1Component({ data }: { data: any }) {
   );
 }
 
-export default function SampleInvitationPage() {
+function SampleInvitationContent() {
   const searchParams = useSearchParams();
   const customTo = searchParams.get('to') || 'Bapak/Ibu/Saudara/i';
 
   // Data statis yang kompatibel dengan tema 1
   const staticData = {
+    theme: {
+      textColor: "#ffffff",
+      bgColor: "#fef7ed",
+      accentColor: "#d4a574",
+      background: "linear-gradient(135deg, #fef7ed 0%, #f3e8d8 100%)",
+      defaultBgImage1: "/211/IMG_2506_263.jpg",
+    },
+    decorations: {
+      enabled: true,
+      topLeft: "",
+      topRight: "",
+      bottomLeft: "",
+      bottomRight: "",
+    },
+    content_user_id: 999,
+    status: "ya", // Status aktif untuk menghindari warning banner
+    event: {
+      akad: {
+        title: "AKAD NIKAH",
+        date: "2026-01-16",
+        time: "09:00",
+        location: "Rumah Mempelai Wanita",
+        mapsLink: "https://maps.app.goo.gl/i1jQCniwymKSBRwU9?g_st=aw",
+      },
+      resepsi: {
+        title: "RESEPSI PERNIKAHAN",
+        date: "2026-01-18",
+        time: "11:00",
+        location: "Rumah Mempelai Wanita",
+        mapsLink: "https://maps.app.goo.gl/i1jQCniwymKSBRwU9?g_st=aw",
+      },
+    },
+    content: {
+      themeCategory: "1",
+      opening: {
+        enabled: true,
+        title: "The Wedding of",
+        subtitle: "RAHMA & MARTIN",
+        toLabel: "Kepada Yth",
+        to: customTo,
+        wedding_text: "RAHMA & MARTIN",
+        bride_name: "RAHMA",
+        groom_name: "MARTIN",
+        couple_names: "RAHMA & MARTIN",
+        bride_groom: "RAHMA & MARTIN",
+      },
+      music: {
+        url: "https://f005.backblazeb2.com/file/ccgnimex/papunda/music/RaimLaode-LesungPipivideolirikofficialmp3cutnet_68d4c75405c64.mp3",
+        enabled: true,
+      },
+      plugin: {
+        youtube_link: "",
+      },
+      font: {
+        heading: "font-family: 'Playfair Display', serif;",
+        body: "font-family: 'Inter', sans-serif;",
+      },
+      quotes: {
+        enabled: true,
+        text: "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya diantaramu rasa kasih dan sayang.",
+        source: "QS. Ar-Rum: 21",
+      },
+      quote_enabled: true,
+      gallery_enabled: true,
+      turut: {
+        enabled: false,
+        list: [],
+      },
+      closing: {
+        enabled: true,
+        text: "Terima kasih atas doa dan kehadiran Anda dalam hari bahagia kami.",
+      },
+      children: [
+        {
+          name: "RAHMA",
+          nama: "RAHMA",
+          full_name: "SITI RAHMAWATI AULIAH",
+          ayah: "Rahman",
+          ibu: "Sopi",
+          gender: "wanita",
+          profile: "/211/IMG_2504_263.jpg",
+          child_type: "putri pertama",
+        },
+        {
+          name: "MARTIN",
+          nama: "MARTIN", 
+          full_name: "MARTIN",
+          ayah: "Inan",
+          ibu: "Tini",
+          gender: "pria",
+          profile: "/211/IMG_2504_264.jpg",
+          child_type: "putra bungsu",
+        },
+      ],
+      parents: [
+        {
+          father: "Rahman",
+          mother: "Sopi", 
+          child_name: "RAHMA",
+        },
+        {
+          father: "Inan",
+          mother: "Tini",
+          child_name: "MARTIN",
+        },
+      ],
+      invitation: "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Bapak/Ibu/Saudara/i dalam acara pernikahan kami.",
+      title: "The Wedding of RAHMA & MARTIN",
+      our_story: [
+        {
+          title: "Pertemuan Pertama",
+          date: "2023-05-15",
+          description: "Pertemuan yang tidak terduga menjadi awal dari kisah cinta kami.",
+        },
+        {
+          title: "Tunangan",
+          date: "2025-08-20", 
+          description: "Hari yang indah saat kami memutuskan untuk mengikat janji suci.",
+        },
+      ],
+      gallery: {
+        items: [
+          "/211/IMG_2506_263.jpg",
+          "/211/IMG_2507_263.jpg",
+          "/211/IMG_2507_264.jpg",
+        ],
+      },
+      quote: "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya diantaramu rasa kasih dan sayang.",
+      bank_accounts: [
+        {
+          bank_name: "DANA",
+          account_number: "085813603655",
+          account_name: "SITI RAHMAWATI AULIAH",
+        },
+        {
+          bank_name: "DANA", 
+          account_number: "089673970754",
+          account_name: "MARTIN",
+        },
+      ],
+    },
+    category_type: {
+      name: "pernikahan",
+    },
+    user: {
+      first_name: "RAHMA & MARTIN",
+      pictures_url: "/211/IMG_2504_263.jpg",
+    },
+    _displayName: "RAHMA & MARTIN",
+  };
+
+  return <SampleTheme1Component data={staticData} />;
+}
+
+export default function SampleInvitationPage() {
     theme: {
       textColor: "#ffffff",
       bgColor: "#fef7ed",
@@ -510,16 +665,7 @@ export default function SampleInvitationPage() {
         },
       ],
     },
-    category_type: {
-      name: "pernikahan",
-    },
-    user: {
-      first_name: "RAHMA & MARTIN",
-      pictures_url: "/211/IMG_2504_263.jpg",
-    },
-    _displayName: "RAHMA & MARTIN",
-  };
-
+export default function SampleInvitationPage() {
   return (
     <>
       <Head>
@@ -549,7 +695,18 @@ export default function SampleInvitationPage() {
         <meta name="author" content="RAHMA & MARTIN" />
         <meta name="keywords" content="undangan pernikahan, wedding invitation, RAHMA MARTIN, pernikahan 2026, undangan digital" />
       </Head>
-      <SampleTheme1Component data={staticData} />
+      
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-amber-800 font-medium">Memuat undangan...</p>
+          </div>
+        </div>
+      }>
+        <SampleInvitationContent />
+      </Suspense>
     </>
   );
+}
 }
