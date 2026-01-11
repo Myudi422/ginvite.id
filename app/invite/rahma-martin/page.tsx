@@ -88,7 +88,7 @@ function SampleTheme1Component({ data }: { data: any }) {
   // Transform children data untuk komponen tema 1
   const transformedChildren = children?.map((child: any) => ({
     name: child.name,
-    nickname: child.nama // nama pendek/panggilan
+    nickname: child.nama || child.name // nama pendek/panggilan
   })) || [];
 
   // Event list transformation
@@ -137,6 +137,7 @@ function SampleTheme1Component({ data }: { data: any }) {
 
   // Debug log untuk memastikan data tersedia
   console.log('Children data:', transformedChildren);
+  console.log('Original children:', children);
   console.log('Theme:', theme);
   console.log('isOpen state:', isOpen);
 
@@ -194,6 +195,7 @@ function SampleTheme1Component({ data }: { data: any }) {
             specialFontFamily="'Playfair Display', serif"
             BodyFontFamily="'Inter', sans-serif"
             HeadingFontFamily="'Playfair Display', serif"
+            category_type={data.category_type}
           />
         )}
 
@@ -223,6 +225,55 @@ function SampleTheme1Component({ data }: { data: any }) {
                 isClient={isClient}
               />
             )}
+
+            {/* Bride & Groom Section */}
+            <section className="py-16 px-4" style={{ backgroundColor: theme.bgColor }}>
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-4xl font-bold mb-12 text-center" style={{ fontFamily: "'Playfair Display', serif", color: theme.accentColor }}>
+                  Mempelai
+                </h2>
+                
+                <div className="grid md:grid-cols-2 gap-12">
+                  {/* Mempelai Wanita */}
+                  <div className="text-center">
+                    <div className="relative w-64 h-64 mx-auto mb-6 rounded-full overflow-hidden shadow-xl">
+                      <Image
+                        src={transformedChildren[0]?.profile || "/211/IMG_2504_263.jpg"}
+                        alt={transformedChildren[0]?.name || "Mempelai Wanita"}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <h3 className="text-3xl font-bold mb-4" style={{ fontFamily: "'Playfair Display', serif", color: theme.accentColor }}>
+                      {transformedChildren[0]?.name || "RAHMA"}
+                    </h3>
+                    <div className="text-lg mb-2" style={{ color: "#4a281e" }}>
+                      <p className="mb-1">Putri dari:</p>
+                      <p className="font-semibold">Bapak {content.parents?.[0]?.father || "Rahman"} & Ibu {content.parents?.[0]?.mother || "Sopi"}</p>
+                    </div>
+                  </div>
+
+                  {/* Mempelai Pria */}
+                  <div className="text-center">
+                    <div className="relative w-64 h-64 mx-auto mb-6 rounded-full overflow-hidden shadow-xl">
+                      <Image
+                        src={transformedChildren[1]?.profile || "/211/IMG_2504_264.jpg"}
+                        alt={transformedChildren[1]?.name || "Mempelai Pria"}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <h3 className="text-3xl font-bold mb-4" style={{ fontFamily: "'Playfair Display', serif", color: theme.accentColor }}>
+                      {transformedChildren[1]?.name || "MARTIN"}
+                    </h3>
+                    <div className="text-lg mb-2" style={{ color: "#4a281e" }}>
+                      <p className="mb-1">Putra dari:</p>
+                      <p className="font-semibold">Bapak {content.parents?.[1]?.father || "Inan"} & Ibu {content.parents?.[1]?.mother || "Tini"}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
 
             {/* Countdown Section */}
             <CountdownSection 
@@ -359,6 +410,10 @@ export default function SampleInvitationPage() {
         toLabel: "Kepada Yth",
         to: customTo,
         wedding_text: "RAHMA & MARTIN",
+        bride_name: "RAHMA",
+        groom_name: "MARTIN",
+        couple_names: "RAHMA & MARTIN",
+        bride_groom: "RAHMA & MARTIN",
       },
       music: {
         url: "https://f005.backblazeb2.com/file/ccgnimex/papunda/music/RaimLaode-LesungPipivideolirikofficialmp3cutnet_68d4c75405c64.mp3",
@@ -388,8 +443,9 @@ export default function SampleInvitationPage() {
       },
       children: [
         {
-          name: "RAHMA & MARTIN",
-          nama: "RAHMA & MARTIN",
+          name: "RAHMA",
+          nama: "RAHMA",
+          full_name: "SITI RAHMAWATI AULIAH",
           ayah: "Rahman",
           ibu: "Sopi",
           gender: "wanita",
@@ -399,6 +455,7 @@ export default function SampleInvitationPage() {
         {
           name: "MARTIN",
           nama: "MARTIN", 
+          full_name: "MARTIN",
           ayah: "Inan",
           ibu: "Tini",
           gender: "pria",
@@ -410,7 +467,7 @@ export default function SampleInvitationPage() {
         {
           father: "Rahman",
           mother: "Sopi", 
-          child_name: "SITI RAHMAWATI AULIAH",
+          child_name: "RAHMA",
         },
         {
           father: "Inan",
@@ -436,7 +493,6 @@ export default function SampleInvitationPage() {
         items: [
           "/211/IMG_2506_263.jpg",
           "/211/IMG_2507_263.jpg",
-          "/211/IMG_2507_264.jpg",
         ],
       },
       quote: "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya diantaramu rasa kasih dan sayang.",
