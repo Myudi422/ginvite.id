@@ -206,7 +206,9 @@ function SampleTheme1Component({ data }: { data: any }) {
             {/* Profile Section */}
             <ProfileSection 
               theme={theme}
-              childrenData={transformedChildren}
+              childrenData={[
+                { name: "RAHMA & MARTIN", nickname: "RAHMA & MARTIN" }
+              ]}
               gallery={gallery}
               defaultBgImage1={theme.defaultBgImage1}
               opening={content.opening}
@@ -494,7 +496,6 @@ function SampleInvitationContent() {
         items: [
           "/211/IMG_2506_263.jpg",
           "/211/IMG_2507_263.jpg",
-          "/211/IMG_2507_264.jpg",
         ],
       },
       quote: "Dan di antara tanda-tanda kekuasaan-Nya ialah Dia menciptakan untukmu istri-istri dari jenismu sendiri, supaya kamu cenderung dan merasa tenteram kepadanya, dan dijadikan-Nya diantaramu rasa kasih dan sayang.",
