@@ -1,13 +1,12 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import QRModal from '@/components/QRModal';
-import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 
 interface OpeningSectionProps {
   opening: {
     title: string;
     toLabel: string;
-    // to: string; // Tidak perlu lagi karena kita akan mengambil dari query params
+    to?: string; // Tambahkan prop to opsional
   };
   gallery: { items: string[] };
   decorations: {
@@ -47,8 +46,8 @@ export default function OpeningSection({
   plugin,
   category_type,
 }: OpeningSectionProps) {
-  const searchParams = useSearchParams();
-  const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
+  // Gunakan prop opening.to jika tersedia, fallback ke default
+  const toName = opening.to || "Bapak/Ibu/Saudara/i";
 
   const backgroundImageStyle = {
     backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${
