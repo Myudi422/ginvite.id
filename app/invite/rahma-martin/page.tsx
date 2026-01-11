@@ -73,7 +73,7 @@ const mockActions = {
   toggleStatusAction: () => Promise.resolve(),
 };
 
-function SampleTheme1Component({ data }: { data: any }) {
+function SampleTheme1Component({ data, searchParams }: { data: any, searchParams: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const [showQr, setShowQr] = useState(false);
@@ -185,7 +185,10 @@ function SampleTheme1Component({ data }: { data: any }) {
         {/* Opening Section - hanya tampil jika undangan belum dibuka */}
         {!isOpen && (
           <OpeningSection 
-            opening={content.opening}
+            opening={{
+              ...content.opening,
+              to: searchParams.get('to') || 'Bapak/Ibu/Saudara/i'
+            }}
             theme={theme}
             childrenData={transformedChildren}
             gallery={gallery}
@@ -522,7 +525,7 @@ function SampleInvitationContent() {
     _displayName: "RAHMA & MARTIN",
   };
 
-  return <SampleTheme1Component data={staticData} />;
+  return <SampleTheme1Component data={staticData} searchParams={searchParams} />;
 }
 
 export default function SampleInvitationPage() {
