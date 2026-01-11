@@ -3,19 +3,24 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useSearchParams } from 'next/navigation';
 // Menggunakan komponen tema 1 yang sudah ada
 import OpeningSection from "@/components/theme/1/OpeningSection";
 import ProfileSection from "@/components/theme/1/ProfileSection";
 import QuoteSection from "@/components/theme/1/QuoteSection";
 import CountdownSection from "@/components/theme/1/CountdownSection";
 import EventSection from "@/components/theme/1/EventSection";
-import OurStorySection from "@/components/theme/1/OurStorySection";
 import GallerySection from "@/components/theme/1/GallerySection";
 import ClosingSection from "@/components/theme/1/ClosingSection";
 import FooterSection from "@/components/theme/1/FooterSection";
+import dynamic from 'next/dynamic';
 
-// Simple Audio Player untuk musik background
+// Music Player yang proper
+const MusicPlayer = dynamic(() => import('@/components/MusicPlayer'), { 
+  ssr: false, 
+  loading: () => null 
+});
+
+// Simple Audio Player untuk fallback
 function SimpleAudioPlayer({ src, autoPlay = false }: { src: string; autoPlay?: boolean }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
@@ -65,16 +70,8 @@ function SimpleAudioPlayer({ src, autoPlay = false }: { src: string; autoPlay?: 
   );
 }
 
-// Mock server actions untuk menghindari error
-const mockActions = {
-  recordContentView: () => Promise.resolve(),
-  midtransAction: () => Promise.resolve({ status: 'inactive' }),
-  toggleStatusAction: () => Promise.resolve(),
-};
-
 function SampleTheme1Component({ data }: { data: any }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [showMusic, setShowMusic] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [isLoading, setIsLoading] = useState(false);
@@ -152,15 +149,17 @@ function SampleTheme1Component({ data }: { data: any }) {
   const handleOpenInvitation = () => {
     console.log('Opening invitation...');
     setIsOpen(true);
-    setShowMusic(true);
   };
+
+  // Sample music URL
+  const musicUrl = "https://drive.google.com/uc?export=download&id=1mHkzKKlImGzGJMqxTtJE2JQAg4CJ4Ug0"; // Sample wedding music
 
   return (
     <main className={`relative min-h-screen text-center overflow-hidden flex md:flex-row ${data.status === "tidak" ? "pt-16 sm:pt-12" : ""}`} style={{ color: theme.textColor }}>
-      {/* Background Music Player - SimpleAudioPlayer */}
-      {content.music?.enabled && content.music?.url && showMusic && (
+      {/* Background Music Player - Auto Play setelah user interaction */}
+      {content.music?.enabled && isOpen && (
         <SimpleAudioPlayer 
-          src={content.music.url}
+          src={content.music.url || musicUrl}
           autoPlay={true}
         />
       )}
@@ -209,8 +208,6 @@ function SampleTheme1Component({ data }: { data: any }) {
               opening={content.opening}
               waktu_acara={sortedEvents[0]?.date || "2026-01-16"}
               isWedding={true}
-              activeSection={activeSection}
-              isClient={isClient}
             />
 
             {/* Quote Section */}
@@ -219,8 +216,6 @@ function SampleTheme1Component({ data }: { data: any }) {
                 theme={theme}
                 quote={quotes.text || content.quote}
                 source={quotes.source}
-                activeSection={activeSection}
-                isClient={isClient}
               />
             )}
 
@@ -238,17 +233,6 @@ function SampleTheme1Component({ data }: { data: any }) {
               theme={theme}
               specialFontFamily="'Playfair Display', serif"
             />
-
-            {/* Our Story Section - DISABLED */}
-            {/* {our_story && our_story.length > 0 && (
-              <OurStorySection 
-                ourStory={our_story}
-                theme={theme}
-                specialFontFamily="'Playfair Display', serif"
-                BodyFontFamily="'Inter', sans-serif"
-                HeadingFontFamily="'Playfair Display', serif"
-              />
-            )} */}
 
             {/* Gallery Section */}
             {gallery_enabled && gallery?.items?.length > 0 && (
@@ -305,6 +289,11 @@ function SampleTheme1Component({ data }: { data: any }) {
               defaultBgImage1={theme.defaultBgImage1}
               category_type={{ id: 1, name: "pernikahan" }}
             />
+
+            {/* Footer Section */}
+            <FooterSection 
+              textColor={theme.textColor}
+            />
           </>
         )}
       </div>
@@ -313,9 +302,6 @@ function SampleTheme1Component({ data }: { data: any }) {
 }
 
 export default function SampleInvitationPage() {
-  const searchParams = useSearchParams();
-  const customTo = searchParams.get('to') || 'Bapak/Ibu/Saudara/i';
-
   // Data statis yang kompatibel dengan tema 1
   const staticData = {
     theme: {
@@ -357,11 +343,11 @@ export default function SampleInvitationPage() {
         title: "The Wedding of",
         subtitle: "RAHMA & MARTIN",
         toLabel: "Kepada Yth",
-        to: customTo,
+        to: "Bapak/Ibu/Saudara/i",
         wedding_text: "RAHMA & MARTIN",
       },
       music: {
-        url: "https://f005.backblazeb2.com/file/ccgnimex/papunda/music/RaimLaode-LesungPipivideolirikofficialmp3cutnet_68d4c75405c64.mp3",
+        url: "https://www.bensound.com/bensound-music/bensound-memories.mp3",
         enabled: true,
       },
       plugin: {
@@ -448,7 +434,7 @@ export default function SampleInvitationPage() {
         },
         {
           bank_name: "DANA", 
-          account_number: "089673970754",
+          account_number: "+62 896-7397-0754",
           account_name: "MARTIN",
         },
       ],

@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname.startsWith('/undang') || pathname === '/login' || pathname.startsWith('/admin/')) {
+    if (pathname.startsWith('/undang') || pathname === '/login' || pathname.startsWith('/admin/') || pathname.startsWith('/invite')) {
       setVisible(false);
       return;
     }
