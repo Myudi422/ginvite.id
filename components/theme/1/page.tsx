@@ -371,7 +371,7 @@ export default function Theme1({ data }: Theme1Props) {
 
         {!isOpen && !isLoading && (
       <OpeningSection
-        opening={opening}
+        opening={{ ...opening, to: urlParams.toName }}
         gallery={gallery}
             decorations={decorations}
             theme={theme}
