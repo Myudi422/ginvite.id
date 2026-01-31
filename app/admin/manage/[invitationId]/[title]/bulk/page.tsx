@@ -603,7 +603,7 @@ export default function BulkUndanganPage() {
                                 <ol className="list-decimal list-inside space-y-1">
                                     <li>Buka <span className="font-mono text-blue-600">contacts.google.com</span></li>
                                     <li>Pilih kontak yang ingin diexport</li>
-                                    <li>Klik menu ⋮ → Export → Microsoft Outlook (.csv)</li>
+                                    <li>Klik menu ⋮ → Export → Google CSV (.csv)</li>
                                     <li>Klik tombol "Import Kontak" dan pilih file CSV</li>
                                 </ol>
                             </div>
