@@ -11,14 +11,17 @@ import {
     LinkIcon,
     ChevronLeft,
     CopyCheckIcon,
-    MailCheck,
+    Send,
     Check,
     Save,
+    Upload,
 } from 'lucide-react';
 
 type Item = {
     link: string;
     invitation: string;
+    name: string;
+    phone?: string;
 };
 
 export default function BulkUndanganPage() {
@@ -171,7 +174,148 @@ export default function BulkUndanganPage() {
         return () => clearTimeout(timeoutId);
     }, [invitationChecklist, names, template, saveDraft]);
 
-    // Auto-generate from draft data
+    // Parse nama dan nomor dari format "nama" atau "nama - nomor"
+    const parseNameAndPhone = (text: string) => {
+        const match = text.match(/^(.+?)\s*-\s*([0-9\s\+]+)$/);
+        if (match) {
+            return {
+                name: match[1].trim(),
+                phone: match[2].trim().replace(/\s/g, ''),
+            };
+        }
+        return {
+            name: text.trim(),
+            phone: undefined,
+        };
+    };
+
+    // Format nomor telepon dengan rapi
+    const formatPhoneNumber = (phone: string): string => {
+        if (!phone) return '';
+        
+        // Hapus semua karakter selain angka
+        let cleaned = phone.replace(/[^\d]/g, '');
+        
+        // Jika mulai dengan 62, convert ke 0
+        if (cleaned.startsWith('62')) {
+            cleaned = '0' + cleaned.substring(2);
+        }
+        
+        // Jika belum start dengan 0, tambahkan
+        if (!cleaned.startsWith('0')) {
+            // Assume it's Indonesian number, convert 62 prefix to 0
+            if (cleaned.startsWith('62')) {
+                cleaned = '0' + cleaned.substring(2);
+            } else {
+                cleaned = '0' + cleaned;
+            }
+        }
+        
+        return cleaned;
+    };
+    const parseCSVContacts = (csvText: string) => {
+        const lines = csvText.trim().split('\n');
+        const contacts: string[] = [];
+
+        if (lines.length === 0) return contacts;
+
+        // Parse header untuk menemukan indeks kolom
+        const headers = lines[0].split(',').map(h => h.trim());
+        
+        // Cari indeks First Name atau Name
+        let nameIndex = headers.findIndex(h => 
+            h.toLowerCase() === 'first name' || 
+            h.toLowerCase() === 'name' ||
+            h.toLowerCase() === 'given name'
+        );
+        
+        // Cari indeks Phone - bisa "Phone 1 - Value" atau variasi lainnya
+        let phoneIndex = headers.findIndex(h => 
+            h.toLowerCase().includes('phone') && 
+            h.toLowerCase().includes('value')
+        );
+
+        // Parse setiap baris data
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            // Split dengan hati-hati untuk menangani quotes dan spaces
+            const cells = line.split(',').map(cell => cell.trim().replace(/^"|"$/g, ''));
+            
+            let name = '';
+            let phone = '';
+
+            if (nameIndex >= 0 && cells[nameIndex]) {
+                name = cells[nameIndex];
+            }
+
+            if (phoneIndex >= 0 && cells[phoneIndex]) {
+                phone = cells[phoneIndex].replace(/\s/g, ''); // Remove all spaces from phone
+            }
+
+            if (name) {
+                const formattedPhone = phone ? formatPhoneNumber(phone) : '';
+                const contactLine = formattedPhone ? `${name} - ${formattedPhone}` : name;
+                contacts.push(contactLine);
+            }
+        }
+
+        return contacts;
+    };
+
+    const handleContactFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            const text = await file.text();
+            
+            if (file.name.endsWith('.csv')) {
+                const contacts = parseCSVContacts(text);
+                
+                if (contacts.length === 0) {
+                    toast({
+                        title: "❌ Tidak Ada Kontak",
+                        description: "File CSV tidak memiliki kontak yang valid",
+                        variant: "destructive",
+                        duration: 2000,
+                    });
+                    return;
+                }
+
+                const newNamesText = contacts.join('\n');
+                setNames(prev => prev ? `${prev}\n${newNamesText}` : newNamesText);
+
+                toast({
+                    title: "✅ Kontak Diimport!",
+                    description: `${contacts.length} kontak berhasil diimport`,
+                    duration: 2000,
+                });
+            } else {
+                toast({
+                    title: "❌ Format Tidak Didukung",
+                    description: "Hanya file CSV yang didukung",
+                    variant: "destructive",
+                    duration: 2000,
+                });
+            }
+        } catch (error) {
+            console.error('Error importing contacts:', error);
+            toast({
+                title: "❌ Gagal Import",
+                description: "Terjadi kesalahan saat mengimport kontak",
+                variant: "destructive",
+                duration: 2000,
+            });
+        }
+
+        // Reset input
+        if (event.target) {
+            event.target.value = '';
+        }
+    };
+
     const autoGenerateFromDraft = (namesText: string, templateText: string) => {
         const nameList = namesText
             .split('\n')
@@ -179,12 +323,13 @@ export default function BulkUndanganPage() {
             .filter((n) => n.length > 0);
 
         const newItems = nameList.map((n) => {
-            const encoded = encodeURIComponent(n);
+            const { name, phone } = parseNameAndPhone(n);
+            const encoded = encodeURIComponent(name);
             const link = `${window.location.origin}/undang/${invitationId}/${title}?to=${encoded}`;
             const invitation = templateText
-                .replace(/{nama}/g, n)
+                .replace(/{nama}/g, name)
                 .replace(/{link_undangan}/g, link);
-            return { link, invitation };
+            return { link, invitation, name, phone };
         });
 
         setItems(newItems);
@@ -205,13 +350,14 @@ export default function BulkUndanganPage() {
             .filter((n) => n.length > 0);
 
         const newItems = nameList.map((n) => {
-            const encoded = encodeURIComponent(n);
+            const { name, phone } = parseNameAndPhone(n);
+            const encoded = encodeURIComponent(name);
             const link = `${window.location.origin}/undang/${invitationId}/${title}?to=${encoded}`;
             // replace both {nama} and {link_undangan}
             const invitation = template
-                .replace(/{nama}/g, n)
+                .replace(/{nama}/g, name)
                 .replace(/{link_undangan}/g, link);
-            return { link, invitation };
+            return { link, invitation, name, phone };
         });
 
         setItems(newItems);
@@ -249,15 +395,37 @@ export default function BulkUndanganPage() {
         }
     };
 
-    const handleCopyInvitation = async (inv: string, index: number) => {
+    const handleCopyInvitation = async (inv: string, index: number, phone?: string) => {
         try {
             await navigator.clipboard.writeText(inv);
             const key = `invitation-${index}`;
             setCopiedItems(prev => new Set([...prev, key]));
             
+            // Open WhatsApp with the text
+            const waMessage = encodeURIComponent(inv);
+            let waUrl: string;
+            
+            if (phone) {
+                // Normalize phone number (remove spaces, ensure it starts with country code or 0)
+                let normalizedPhone = phone.replace(/\s/g, '');
+                // If starts with 0, replace with 62
+                if (normalizedPhone.startsWith('0')) {
+                    normalizedPhone = '62' + normalizedPhone.substring(1);
+                }
+                // If doesn't start with +, add it
+                if (!normalizedPhone.startsWith('+')) {
+                    normalizedPhone = '+' + normalizedPhone;
+                }
+                waUrl = `https://wa.me/${normalizedPhone.replace(/\D/g, '')}?text=${waMessage}`;
+            } else {
+                waUrl = `https://wa.me/?text=${waMessage}`;
+            }
+            
+            window.open(waUrl, '_blank');
+            
             toast({
                 title: "✅ Teks Undangan Disalin!",
-                description: "Teks undangan berhasil disalin ke clipboard",
+                description: phone ? `Dikirim ke ${phone}` : "Teks undangan disalin & dibuka di WhatsApp",
                 duration: 2000,
             });
             
@@ -271,8 +439,8 @@ export default function BulkUndanganPage() {
             }, 3000);
         } catch (error) {
             toast({
-                title: "❌ Gagal Menyalin",
-                description: "Gagal menyalin teks undangan ke clipboard",
+                title: "❌ Gagal",
+                description: "Gagal menyalin dan membuka WhatsApp",
                 variant: "destructive",
                 duration: 2000,
             });
@@ -376,36 +544,69 @@ export default function BulkUndanganPage() {
                                 <label className="text-sm font-medium text-gray-700">
                                     Masukkan daftar nama (satu per baris)
                                 </label>
-                                <div className="flex space-x-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleCaseChange('capital')}
-                                    >
-                                        Az
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleCaseChange('upper')}
-                                    >
-                                        AZ
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleCaseChange('lower')}
-                                    >
-                                        az
-                                    </Button>
+                                <div className="text-xs text-gray-500 italic">
+                                    Format: nama atau nama - nomor telepon
                                 </div>
+                            </div>
+                            <div className="flex space-x-2 mb-4">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleCaseChange('capital')}
+                                >
+                                    Az
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleCaseChange('upper')}
+                                >
+                                    AZ
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleCaseChange('lower')}
+                                >
+                                    az
+                                </Button>
+                                <div className="flex-1"></div>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="file"
+                                        accept=".csv"
+                                        onChange={handleContactFileImport}
+                                        className="hidden"
+                                    />
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        type="button"
+                                        onClick={(e) => {
+                                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                            input?.click();
+                                        }}
+                                    >
+                                        <Upload className="h-4 w-4 mr-2" />
+                                        Import Kontak
+                                    </Button>
+                                </label>
                             </div>
                             <Textarea
                                 rows={6}
-                                placeholder="Contoh:\nBudi\nSiti\nAndi"
+                                placeholder="Contoh:&#10;Budi&#10;Yudi - 082125182347&#10;Siti - +62 812 3456 7890"
                                 value={names}
                                 onChange={(e) => setNames(e.target.value)}
                             />
+                            <div className="text-xs text-gray-500 bg-blue-50 p-3 rounded">
+                                <p className="font-semibold mb-2">💡 Cara import dari Google Contacts:</p>
+                                <ol className="list-decimal list-inside space-y-1">
+                                    <li>Buka <span className="font-mono text-blue-600">contacts.google.com</span></li>
+                                    <li>Pilih kontak yang ingin diexport</li>
+                                    <li>Klik menu ⋮ → Export → Microsoft Outlook (.csv)</li>
+                                    <li>Klik tombol "Import Kontak" dan pilih file CSV</li>
+                                </ol>
+                            </div>
                         </div>
 
                         {/* Template Undangan */}
@@ -472,12 +673,13 @@ export default function BulkUndanganPage() {
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
-                                                    onClick={() => handleCopyInvitation(it.invitation, start + idx)}
+                                                    onClick={() => handleCopyInvitation(it.invitation, start + idx, it.phone)}
+                                                    title="Salin dan kirim ke WhatsApp"
                                                 >
                                                     {copiedItems.has(invitationKey) ? (
                                                         <Check className="h-4 w-4 text-green-600" />
                                                     ) : (
-                                                        <MailCheck className="h-4 w-4" />
+                                                        <Send className="h-4 w-4" />
                                                     )}
                                                 </Button>
                                                 <Button
