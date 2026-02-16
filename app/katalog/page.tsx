@@ -192,7 +192,7 @@ export default function CatalogPage() {
                                 transition={{ delay: 0.1 * index + 0.3 }}
                             >
                                 <Card className="overflow-hidden border-0 shadow-sm md:shadow-lg hover:shadow-xl transition-all duration-300 group rounded-xl md:rounded-2xl bg-white h-full flex flex-col">
-                                    <div className="relative aspect-[9/16] overflow-hidden bg-slate-100">
+                                    <div className="relative aspect-square overflow-hidden bg-slate-100">
                                         <Image
                                             src={theme.image}
                                             alt={theme.name}
