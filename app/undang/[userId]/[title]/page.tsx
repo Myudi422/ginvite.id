@@ -9,6 +9,7 @@ interface Params {
 }
 interface Props {
   params: Promise<Params>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 // --- Helper: ambil maksimal 2 nama yang valid dari content.children
@@ -83,7 +84,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Ambil foto utama: prioritas gallery > profile pengantin > user.pictures_url > fallback
   let image = null;
-  
+
   // 1. Prioritas utama: Gallery images (ukuran pasti lebih besar untuk semua jenis)
   if (data?.content?.gallery?.items?.length) {
     const galleryImage = data.content.gallery.items[0];
@@ -92,7 +93,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       image = galleryImage;
     }
   }
-  
+
   // 2. Untuk khitanan: prioritaskan foto profile anak yang dikhitan
   if (!image && data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
     const childProfile = data.content.children[0]?.profile;
@@ -100,7 +101,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       image = childProfile;
     }
   }
-  
+
   // 3. Untuk nikah: coba foto profile dari pengantin mana pun
   if (!image && data?.category_type?.name !== "khitanan" && data?.content?.children?.length > 0) {
     for (const child of data.content.children) {
@@ -110,7 +111,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       }
     }
   }
-  
+
   // 4. Fallback: User profile picture (dengan resize jika dari Google)
   if (!image && data?.user?.pictures_url) {
     let userImage = data.user.pictures_url;
@@ -122,7 +123,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       image = userImage;
     }
   }
-  
+
   // 5. Default fallback jika tidak ada gambar yang valid
   if (!image) {
     image = "https://via.placeholder.com/1200x630/4a281e/ffffff?text=Undangan+Digital";
@@ -174,7 +175,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 //
 
-export default async function InvitationPage({ params }: Props) {
+export default async function InvitationPage({ params, searchParams }: Props) {
   const { userId, title } = await params;
   const apiUrl = [
     "https://ccgnimex.my.id/v2/android/ginvite/index.php",
@@ -211,12 +212,18 @@ export default async function InvitationPage({ params }: Props) {
     throw new Error("Data undangan tidak valid atau tidak ditemukan");
   }
 
+  // Inject "to" parameter into opening data if available
+  const { to } = await searchParams;
+  if (data.content.opening && typeof to === 'string' && to.trim()) {
+    data.content.opening.to = to.trim();
+  }
+
   // Ambil displayName dengan helper yang sama supaya konsisten dengan metadata
   const displayName = buildDisplayName(data, title);
 
   // Ambil gambar dengan logika yang sama seperti metadata
   let pageImage = null;
-  
+
   // 1. Prioritas utama: Gallery images (untuk semua jenis undangan)
   if (data?.content?.gallery?.items?.length) {
     const galleryImage = data.content.gallery.items[0];
@@ -224,7 +231,7 @@ export default async function InvitationPage({ params }: Props) {
       pageImage = galleryImage;
     }
   }
-  
+
   // 2. Untuk khitanan: prioritaskan foto profile anak yang dikhitan
   if (!pageImage && data?.category_type?.name === "khitanan" && data?.content?.children?.length > 0) {
     const childProfile = data.content.children[0]?.profile;
@@ -232,7 +239,7 @@ export default async function InvitationPage({ params }: Props) {
       pageImage = childProfile;
     }
   }
-  
+
   // 3. Untuk nikah: coba foto profile dari pengantin (pria atau wanita)
   if (!pageImage && data?.category_type?.name !== "khitanan" && data?.content?.children?.length > 0) {
     // Cari foto profile dari salah satu pengantin
@@ -243,7 +250,7 @@ export default async function InvitationPage({ params }: Props) {
       }
     }
   }
-  
+
   // 4. Fallback: User profile picture (dengan resize jika dari Google)
   if (!pageImage && data?.user?.pictures_url) {
     let userImage = data.user.pictures_url;
@@ -254,7 +261,7 @@ export default async function InvitationPage({ params }: Props) {
       pageImage = userImage;
     }
   }
-  
+
   // 5. Default fallback
   if (!pageImage) {
     pageImage = "https://via.placeholder.com/1200x630/4a281e/ffffff?text=Undangan+Digital";
