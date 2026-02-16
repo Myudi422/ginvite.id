@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { BadgeCheck, Phone, Eye, Search, ArrowRight } from "lucide-react";
+import { BadgeCheck, Phone, Eye, Search, ArrowRight, LogIn } from "lucide-react";
 import FooterSection from "@/components/sections/FooterSection";
 import { motion } from "framer-motion";
 
@@ -76,32 +76,60 @@ export default function CatalogPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-100 font-sans text-slate-800">
 
-            {/* Header (Simplified Version) */}
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-pink-100 shadow-sm">
+            {/* Header (Simplified Version - Matched with Home) */}
+            <motion.header
+                className="sticky top-0 z-50 shadow-sm"
+                style={{
+                    background: 'rgba(255, 246, 247, 0.8)', // Warna pink dengan sedikit transparansi
+                    backdropFilter: 'blur(10px)', // Efek blur
+                }}
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+            >
                 <div className="container mx-auto px-4 py-3 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2">
                         <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} className="h-10 w-auto" />
                     </Link>
 
+                    {/* Desktop Menu */}
                     <div className="hidden md:flex items-center space-x-4">
                         <Link
                             href="https://wa.me/6289654728249"
                             target="_blank"
-                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-pink-200 text-pink-600 hover:bg-pink-50 transition-colors font-medium text-sm"
+                            className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50 text-sm"
                         >
-                            <Phone size={16} />
+                            <Phone className="w-4 h-4 mr-2" />
                             <span>Hubungi Admin</span>
                         </Link>
                         <Link
                             href="/admin"
-                            className="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-600 text-white hover:bg-pink-700 transition-colors font-medium text-sm shadow-md hover:shadow-lg"
+                            className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center text-sm"
                         >
-                            <BadgeCheck size={16} />
+                            <BadgeCheck className="w-4 h-4 mr-2" />
                             <span>Buat Undangan</span>
                         </Link>
                     </div>
+
+                    {/* Mobile Menu Button - Matched Home */}
+                    <div className="md:hidden flex items-center space-x-2">
+                        <Link
+                            href="https://wa.me/6289654728249"
+                            className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50"
+                            aria-label="Hubungi Admin"
+                        >
+                            <Phone className="w-5 h-5" />
+                        </Link>
+                        <Link
+                            href="/admin"
+                            className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center"
+                            aria-label="Coba Gratis"
+                        >
+                            <LogIn className="w-5 h-5" />
+                        </Link>
+                    </div>
                 </div>
-            </header>
+            </motion.header>
 
             <main className="container mx-auto px-4 py-6 md:py-12">
                 {/* Hero Section */}
@@ -202,15 +230,15 @@ export default function CatalogPage() {
                     )}
                 </div>
 
-                {/* CTA Section */}
-                <div className="text-center bg-white rounded-3xl p-12 shadow-xl border border-pink-100">
-                    <h2 className="text-3xl font-bold text-slate-800 mb-4">Suka dengan tema di atas?</h2>
-                    <p className="text-slate-600 mb-8 max-w-2xl mx-auto">
+                {/* CTA Section - Fixed Mobile Layout */}
+                <div className="text-center bg-white rounded-xl md:rounded-3xl p-6 md:p-12 shadow-xl border border-pink-100 mx-auto w-full max-w-4xl">
+                    <h2 className="text-xl md:text-3xl font-bold text-slate-800 mb-2 md:mb-4">Suka dengan tema di atas?</h2>
+                    <p className="text-sm md:text-base text-slate-600 mb-6 md:mb-8 max-w-2xl mx-auto">
                         Buat undangan digitalmu sendiri sekarang juga. Gratis uji coba, bayar jika sudah puas dengan hasilnya.
                     </p>
                     <Link href="/admin">
-                        <Button size="lg" className="bg-pink-600 hover:bg-pink-700 text-white px-10 py-6 rounded-full text-lg shadow-lg shadow-pink-200">
-                            <BadgeCheck className="mr-2 h-6 w-6" />
+                        <Button size="lg" className="bg-pink-600 hover:bg-pink-700 text-white px-6 md:px-10 py-4 md:py-6 rounded-full text-base md:text-lg shadow-lg shadow-pink-200 w-full md:w-auto">
+                            <BadgeCheck className="mr-2 h-5 w-5 md:h-6 md:w-6" />
                             Buat Undangan Sekarang
                         </Button>
                     </Link>
