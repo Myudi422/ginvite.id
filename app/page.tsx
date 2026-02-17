@@ -164,14 +164,14 @@ function Header() {
 }
 
 export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
 
   return (
     <main className="min-h-screen bg-background">
       <Header />
       <HeroSection />
       <FeaturesSection />
-      <TestimonialsSection/>
+      <ThemesSection />
+      <TestimonialsSection />
       <InstructionsSection />
       <PricingSection />
       <SectionCTA />

@@ -73,6 +73,13 @@ export default function CatalogPage() {
         return baseUrl;
     };
 
+    // Function to generate WhatsApp URL
+    const getWhatsAppUrl = (themeName: string) => {
+        const phone = "6289654728249";
+        const message = `Halo admin, saya tertarik dengan tema undangan *${themeName}* ini. Saya ingin memesan undangan digital.`;
+        return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-100 font-sans text-slate-800">
 
@@ -221,6 +228,15 @@ export default function CatalogPage() {
                                             <Button className="w-full bg-pink-50 hover:bg-pink-100 text-pink-600 border-pink-200 group-hover:bg-pink-600 group-hover:text-white transition-all duration-300 rounded-lg md:rounded-xl text-xs md:text-sm h-8 md:h-10 px-2" size="sm">
                                                 Lihat
                                                 <ArrowRight className="hidden md:ml-2 md:inline h-3 w-3 md:h-4 md:w-4" />
+                                            </Button>
+                                        </Link>
+                                        <Link href={getWhatsAppUrl(theme.name)} target="_blank" className="block mt-2">
+                                            <Button
+                                                className="w-full bg-green-500 hover:bg-green-600 text-white border-green-200 transition-all duration-300 rounded-lg md:rounded-xl text-xs md:text-sm h-8 md:h-10 px-2"
+                                                size="sm"
+                                            >
+                                                <Phone className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+                                                Pesan Via WA
                                             </Button>
                                         </Link>
                                     </CardContent>
