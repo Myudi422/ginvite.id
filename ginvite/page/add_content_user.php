@@ -14,7 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require __DIR__ . '/../db.php';
 require __DIR__ . '/wa_notification_helper.php';
 
-function error($code, $msg) {
+function error($code, $msg)
+{
     http_response_code($code);
     echo json_encode(['status' => 'error', 'message' => $msg], JSON_UNESCAPED_UNICODE);
     exit;
@@ -26,9 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 
-$user_id     = isset($input['user_id'])     ? (int)$input['user_id']     : 0;
+$user_id = isset($input['user_id']) ? (int)$input['user_id'] : 0;
 $category_id = isset($input['category_id']) ? (int)$input['category_id'] : 0;
-$title       = isset($input['title'])       ? trim($input['title'])      : '';
+$title = isset($input['title']) ? trim($input['title']) : '';
 
 // Load default JSON content
 $defaultJson = file_get_contents(__DIR__ . '/default.json');
@@ -40,16 +41,19 @@ if ($defaultJson === false) {
 $userContent = $input['content'] ?? null;
 if (is_null($userContent)) {
     $content = $defaultJson;
-} elseif (is_array($userContent)) {
+}
+elseif (is_array($userContent)) {
     $content = count($userContent) > 0
-             ? json_encode($userContent, JSON_UNESCAPED_UNICODE)
-             : $defaultJson;
-} elseif (is_string($userContent)) {
+        ? json_encode($userContent, JSON_UNESCAPED_UNICODE)
+        : $defaultJson;
+}
+elseif (is_string($userContent)) {
     $trimmed = trim($userContent);
     $content = ($trimmed === '' || $trimmed === '{}' || $trimmed === '[]')
-             ? $defaultJson
-             : $userContent;
-} else {
+        ? $defaultJson
+        : $userContent;
+}
+else {
     $content = $defaultJson;
 }
 
@@ -65,16 +69,20 @@ if ($checkStmt->fetchColumn() > 0) {
     error(409, 'Title sudah ada untuk user ini.');
 }
 
+// Calculate expiration date (3 days from now)
+$expired_date = date('Y-m-d H:i:s', strtotime('+3 days'));
+
 // Insert with default theme_id = 1 and category_theme_id = 1
 $sql = "INSERT INTO content_user 
-    (user_id, category_id, content, title, status, theme_id, view, kategory_theme_id) 
-    VALUES (?, ?, ?, ?, 0, 1, 1, 1)";
+    (user_id, category_id, content, title, status, theme_id, view, kategory_theme_id, expired) 
+    VALUES (?, ?, ?, ?, 0, 1, 1, 1, ?)";
 $stmt = $pdo->prepare($sql);
 $ok = $stmt->execute([
     $user_id,
     $category_id,
     $content,
-    $title
+    $title,
+    $expired_date
 ]);
 
 if (!$ok) {
@@ -87,10 +95,10 @@ $invitation_id = $pdo->lastInsertId();
 $waNotificationResult = sendInvitationNotification($pdo, $user_id, $title, $category_id);
 
 echo json_encode([
-    'status'  => 'success',
+    'status' => 'success',
     'message' => 'Undangan berhasil dibuat.',
-    'id'      => $invitation_id,
-    'title'   => $title,
+    'id' => $invitation_id,
+    'title' => $title,
     'wa_notification' => $waNotificationResult
 ], JSON_UNESCAPED_UNICODE);
 ?>

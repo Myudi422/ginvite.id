@@ -171,6 +171,10 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
           </div>
         )}
 
+        <div className="mb-4 p-3 bg-blue-100/50 rounded-md border border-blue-200/50 text-blue-700 text-sm">
+          <strong className="font-semibold">Info:</strong> Masa percobaan gratis selama 3 hari. Undangan akan dihapus otomatis setelah itu, jika belum diaktifkan.
+        </div>
+
         <div className="mb-4 p-3 bg-yellow-100/50 rounded-md border border-yellow-200/50 text-yellow-700 text-sm">
           <strong className="font-semibold">Penting:</strong> Judul (Slug) tidak bisa diubah setelah dibuat. Hapus formulir untuk mengganti judul.
         </div>

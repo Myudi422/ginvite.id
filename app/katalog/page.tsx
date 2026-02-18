@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { BadgeCheck, Phone, Eye, Search, ArrowRight, LogIn } from "lucide-react";
 import FooterSection from "@/components/sections/FooterSection";
 import { motion } from "framer-motion";
+import { FaSms } from "react-icons/fa";
 
 // Theme Data Interface
 
@@ -235,8 +236,8 @@ export default function CatalogPage() {
                                                 className="w-full bg-green-500 hover:bg-green-600 text-white border-green-200 transition-all duration-300 rounded-lg md:rounded-xl text-xs md:text-sm h-8 md:h-10 px-2"
                                                 size="sm"
                                             >
-                                                <Phone className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
-                                                Pesan Via WA
+                                                <FaSms className="h-3 w-3 md:h-4 md:w-4" />
+                                                Order via Wa
                                             </Button>
                                         </Link>
                                     </CardContent>

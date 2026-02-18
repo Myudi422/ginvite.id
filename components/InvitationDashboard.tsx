@@ -9,15 +9,16 @@ import CreateInvitationPopup from '@/components/CreateInvitationPopup';
 import ManageSharesModal from '@/components/ManageSharesModal';
 
 type User = { userId: number; email: string };
-interface Invitation { 
-  id: number; 
+interface Invitation {
+  id: number;
   user_id: number; // owner's user_id
-  title: string; 
-  status: number; 
-  event_date: string; 
-  avatar_url: string;  
-  preview_url: string; 
+  title: string;
+  status: number;
+  event_date: string;
+  avatar_url: string;
+  preview_url: string;
   category_type: string;
+  expired: string;
   access_type?: 'owner' | 'shared';
 }
 interface Props { user: User; slides: string[]; invitations: Invitation[] }
@@ -27,15 +28,15 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
   const [current, setCurrent] = useState(0);
   const [search, setSearch] = useState('');
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
-  const [deletePopup, setDeletePopup] = useState<{open: boolean, invitation?: Invitation}>(() => ({open: false}));
+  const [deletePopup, setDeletePopup] = useState<{ open: boolean, invitation?: Invitation }>(() => ({ open: false }));
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<number | null>(null);
-  const [sharePopup, setSharePopup] = useState<{open: boolean, invitation?: Invitation}>(() => ({open: false}));
+  const [sharePopup, setSharePopup] = useState<{ open: boolean, invitation?: Invitation }>(() => ({ open: false }));
   const [shareEmail, setShareEmail] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
-  const [manageSharesModal, setManageSharesModal] = useState<{open: boolean, invitation?: Invitation}>(() => ({open: false}));
+  const [manageSharesModal, setManageSharesModal] = useState<{ open: boolean, invitation?: Invitation }>(() => ({ open: false }));
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -74,7 +75,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
       );
       const json = await res.json();
       if (json.status === 'success') {
-        setDeletePopup({open: false});
+        setDeletePopup({ open: false });
         router.refresh?.(); // Next.js 13+ (app dir) - reload data
         window.location.reload(); // fallback
       } else {
@@ -91,7 +92,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
       setShareError('Email harus diisi');
       return;
     }
-    
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shareEmail)) {
       setShareError('Format email tidak valid');
       return;
@@ -105,9 +106,9 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            invitation_id: invitation.id, 
-            owner_user_id: user.userId, 
+          body: JSON.stringify({
+            invitation_id: invitation.id,
+            owner_user_id: user.userId,
             shared_email: shareEmail,
             can_edit: 1,
             can_manage: 1
@@ -116,7 +117,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
       );
       const json = await res.json();
       if (json.status === 'success') {
-        setSharePopup({open: false});
+        setSharePopup({ open: false });
         setShareEmail('');
         alert('Berhasil menambahkan akses!');
       } else {
@@ -127,6 +128,26 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
     }
     setShareLoading(false);
   }
+
+
+  // Hitung durasi expired
+  const getExpiredText = (expiredDate: string | null) => {
+    if (!expiredDate || expiredDate === '0000-00-00 00:00:00' || expiredDate.startsWith('0000-00-00')) return null;
+
+    const now = new Date();
+    const exp = new Date(expiredDate);
+    const diffMs = exp.getTime() - now.getTime();
+
+    if (diffMs <= 0) return { text: 'Expired', color: 'text-red-500 bg-red-100 border-red-200' };
+
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays > 30) return null; // Jika masih lama sekali, mungkin tidak perlu ditampilkan (opsional)
+
+    return {
+      text: `${diffDays} hari lagi`,
+      color: diffDays <= 3 ? 'text-red-600 bg-red-50 border-red-100' : 'text-orange-600 bg-orange-50 border-orange-100'
+    };
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-100 to-white p-6 md:p-8">
@@ -169,7 +190,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
             <div className="flex gap-3">
               <button
                 className="flex-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
-                onClick={() => setDeletePopup({open: false})}
+                onClick={() => setDeletePopup({ open: false })}
                 disabled={deleting}
               >
                 Batal
@@ -210,7 +231,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
               <button
                 className="flex-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
                 onClick={() => {
-                  setSharePopup({open: false});
+                  setSharePopup({ open: false });
                   setShareEmail('');
                   setShareError(null);
                 }}
@@ -245,167 +266,177 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
 
       {/* GRID UNDANGAN */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map(inv => (
-          <div
-            key={inv.id}
-            className="bg-white/30 backdrop-blur-md rounded-2xl p-6 relative 
-                       border border-white/20 shadow-md hover:shadow-1xl transition-all
-                       hover:border-pink-200 group"
-          >
-            {/* Hanya tampilkan menu untuk owner, bukan untuk shared */}
-            {inv.access_type !== 'shared' && (
-              <button
-                className="absolute top-4 right-4 text-pink-500 hover:text-pink-600 p-1.5 hover:bg-pink-50 rounded-lg transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(menuOpen === inv.id ? null : inv.id);
-                }}
-                aria-label="Opsi undangan"
-              >
-                <EllipsisVerticalIcon className="h-5 w-5" />
-              </button>
-            )}
+        {filtered.map(inv => {
+          const expiredInfo = getExpiredText(inv.expired);
+          return (
+            <div
+              key={inv.id}
+              className="bg-white/30 backdrop-blur-md rounded-2xl p-6 relative 
+                        border border-white/20 shadow-md hover:shadow-1xl transition-all
+                        hover:border-pink-200 group"
+            >
+              {/* Hanya tampilkan menu untuk owner, bukan untuk shared */}
+              {inv.access_type !== 'shared' && (
+                <button
+                  className="absolute top-4 right-4 text-pink-500 hover:text-pink-600 p-1.5 hover:bg-pink-50 rounded-lg transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(menuOpen === inv.id ? null : inv.id);
+                  }}
+                  aria-label="Opsi undangan"
+                >
+                  <EllipsisVerticalIcon className="h-5 w-5" />
+                </button>
+              )}
 
-            {/* Popup Menu Overlay */}
-            {menuOpen === inv.id && (
-              <div 
-                className="fixed inset-0 z-40"
-                onClick={() => setMenuOpen(null)}
-              />
-            )}
-            {menuOpen === inv.id && (
-              <div 
-                className="absolute right-4 top-12 w-56 bg-white rounded-xl shadow-2xl z-50 border border-gray-200 overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Hanya tampilkan menu share untuk owner */}
-                {inv.access_type !== 'shared' && (
-                  <>
+              {/* Popup Menu Overlay */}
+              {menuOpen === inv.id && (
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setMenuOpen(null)}
+                />
+              )}
+              {menuOpen === inv.id && (
+                <div
+                  className="absolute right-4 top-12 w-56 bg-white rounded-xl shadow-2xl z-50 border border-gray-200 overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Hanya tampilkan menu share untuk owner */}
+                  {inv.access_type !== 'shared' && (
+                    <>
+                      <button
+                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 transition-colors flex items-center gap-3 border-b border-gray-100"
+                        onClick={() => {
+                          setSharePopup({ open: true, invitation: inv });
+                          setMenuOpen(null);
+                        }}
+                      >
+                        <span className="text-base">👥</span>
+                        <div>
+                          <div className="font-medium">Tambah Orang</div>
+                          <div className="text-xs text-gray-500">Share by email</div>
+                        </div>
+                      </button>
+                      <button
+                        className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 transition-colors flex items-center gap-3 border-b border-gray-100"
+                        onClick={() => {
+                          setManageSharesModal({ open: true, invitation: inv });
+                          setMenuOpen(null);
+                        }}
+                      >
+                        <span className="text-base">⚙️</span>
+                        <div>
+                          <div className="font-medium">Manage Akses</div>
+                          <div className="text-xs text-gray-500">Lihat & hapus akses</div>
+                        </div>
+                      </button>
+                    </>
+                  )}
+                  {/* Hanya owner yang bisa hapus undangan */}
+                  {inv.access_type !== 'shared' && (
                     <button
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 transition-colors flex items-center gap-3 border-b border-gray-100"
+                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-3"
                       onClick={() => {
-                        setSharePopup({open: true, invitation: inv});
+                        setDeletePopup({ open: true, invitation: inv });
                         setMenuOpen(null);
                       }}
                     >
-                      <span className="text-base">👥</span>
+                      <span className="text-base">🗑️</span>
                       <div>
-                        <div className="font-medium">Tambah Orang</div>
-                        <div className="text-xs text-gray-500">Share by email</div>
+                        <div className="font-medium">Hapus Undangan</div>
                       </div>
                     </button>
-                    <button
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-pink-50 transition-colors flex items-center gap-3 border-b border-gray-100"
-                      onClick={() => {
-                        setManageSharesModal({open: true, invitation: inv});
-                        setMenuOpen(null);
-                      }}
+                  )}
+                </div>
+              )}
+
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="h-16 w-16 rounded-xl overflow-hidden shadow-md border border-white/30">
+                  {inv.avatar_url && (
+                    <Image
+                      src={inv.avatar_url}
+                      alt={inv.title}
+                      width={64}
+                      height={64}
+                      className="object-cover h-full w-full"
+                    />
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-pink-800">{inv.title}</h2>
+                  {expiredInfo && (
+                    <span
+                      className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium border ${expiredInfo.color}`}
                     >
-                      <span className="text-base">⚙️</span>
-                      <div>
-                        <div className="font-medium">Manage Akses</div>
-                        <div className="text-xs text-gray-500">Lihat & hapus akses</div>
-                      </div>
-                    </button>
-                  </>
-                )}
-                {/* Hanya owner yang bisa hapus undangan */}
-                {inv.access_type !== 'shared' && (
-                  <button
-                    className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-3"
-                    onClick={() => {
-                      setDeletePopup({open: true, invitation: inv});
-                      setMenuOpen(null);
-                    }}
-                  >
-                    <span className="text-base">🗑️</span>
-                    <div>
-                      <div className="font-medium">Hapus Undangan</div>
-                    </div>
-                  </button>
-                )}
+                      ⏳ {expiredInfo.text}
+                    </span>
+                  )}
+                </div>
               </div>
-            )}
 
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="h-16 w-16 rounded-xl overflow-hidden shadow-md border border-white/30">
-                {inv.avatar_url && (
-                  <Image
-                    src={inv.avatar_url}
-                    alt={inv.title}
-                    width={64}
-                    height={64}
-                    className="object-cover h-full w-full"
-                  />
-                )}
-              </div>
-              <h2 className="text-lg font-semibold text-pink-800">{inv.title}</h2>
-            </div>
-
-            <div className="space-y-3 text-sm mb-6">
-              {/* Tipe & Status dalam satu baris */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm ${
-                  inv.category_type === 'pernikahan' 
-                    ? 'bg-pink-200/80 text-pink-700 border border-pink-300/50' 
+              <div className="space-y-3 text-sm mb-6">
+                {/* Tipe & Status dalam satu baris */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm ${inv.category_type === 'pernikahan'
+                    ? 'bg-pink-200/80 text-pink-700 border border-pink-300/50'
                     : inv.category_type === 'khitanan'
-                    ? 'bg-purple-200/80 text-purple-700 border border-purple-300/50'
-                    : 'bg-rose-200/80 text-rose-700 border border-rose-300/50'
-                }`}>
-                  {inv.category_type === 'pernikahan' ? '💒 Pernikahan' : 
-                   inv.category_type === 'khitanan' ? '🎉 Khitanan' : 
-                   `✨ ${inv.category_type}`}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm ${
-                  inv.status === 1
+                      ? 'bg-purple-200/80 text-purple-700 border border-purple-300/50'
+                      : 'bg-rose-200/80 text-rose-700 border border-rose-300/50'
+                    }`}>
+                    {inv.category_type === 'pernikahan' ? '💒 Pernikahan' :
+                      inv.category_type === 'khitanan' ? '🎉 Khitanan' :
+                        `✨ ${inv.category_type}`}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm ${inv.status === 1
                     ? 'bg-green-200/80 text-green-700 border border-green-300/50'
                     : 'bg-orange-200/80 text-orange-700 border border-orange-300/50'
-                }`}>
-                  {inv.status === 1 ? '✅ Aktif' : '⏳ Draft'}
-                </span>
-                {inv.access_type === 'shared' && (
-                  <span className="px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm bg-blue-200/80 text-blue-700 border border-blue-300/50">
-                    🤝 Shared
+                    }`}>
+                    {inv.status === 1 ? '✅ Aktif' : '⏳ Draft'}
                   </span>
-                )}
+                  {inv.access_type === 'shared' && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-sm bg-blue-200/80 text-blue-700 border border-blue-300/50">
+                      🤝 Shared
+                    </span>
+                  )}
+                </div>
+
+                {/* Preview Link */}
+                <div>
+                  <a
+                    href={`/${inv.preview_url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-1 bg-white/60 backdrop-blur-sm
+                            text-pink-600 rounded-full text-xs font-medium hover:bg-white/80 
+                            transition-all shadow-sm hover:shadow-md border border-pink-200/50"
+                  >
+                    👁️ Preview
+                  </a>
+                </div>
               </div>
 
-              {/* Preview Link */}
-              <div>
-                <a
-                  href={`/${inv.preview_url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-1 bg-white/60 backdrop-blur-sm
-                           text-pink-600 rounded-full text-xs font-medium hover:bg-white/80 
-                           transition-all shadow-sm hover:shadow-md border border-pink-200/50"
+              <div className="flex flex-col md:flex-row gap-3">
+                <button
+                  className="w-full py-2 px-4 bg-gradient-to-r from-pink-100 to-pink-50 text-pink-700 
+                            rounded-lg border border-pink-200 hover:border-pink-300 hover:from-pink-200 
+                            transition-all shadow-sm"
+                  onClick={() => router.push(`/admin/formulir/${inv.user_id}/${inv.title}`)}
                 >
-                  👁️ Preview
-                </a>
+                  Edit
+                </button>
+
+                {/* NEW: Manage Button */}
+                <button
+                  className="w-full py-2 px-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white 
+                            rounded-lg hover:from-pink-500 hover:to-pink-600 transition-all shadow-sm"
+                  onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
+                >
+                  Manage
+                </button>
               </div>
             </div>
-
-            <div className="flex flex-col md:flex-row gap-3">
-              <button
-                className="w-full py-2 px-4 bg-gradient-to-r from-pink-100 to-pink-50 text-pink-700 
-                           rounded-lg border border-pink-200 hover:border-pink-300 hover:from-pink-200 
-                           transition-all shadow-sm"
-                onClick={() => router.push(`/admin/formulir/${inv.user_id}/${inv.title}`)}
-              >
-                Edit
-              </button>
-
-              {/* NEW: Manage Button */}
-              <button
-                className="w-full py-2 px-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white 
-                           rounded-lg hover:from-pink-500 hover:to-pink-600 transition-all shadow-sm"
-                onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
-              >
-                Manage
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {filtered.length === 0 && (
           <div className="col-span-full text-center py-12">
@@ -418,7 +449,7 @@ export default function InvitationDashboard({ user, slides, invitations }: Props
       {manageSharesModal.invitation && (
         <ManageSharesModal
           isOpen={manageSharesModal.open}
-          onClose={() => setManageSharesModal({open: false})}
+          onClose={() => setManageSharesModal({ open: false })}
           invitation={manageSharesModal.invitation}
           userId={user.userId}
         />

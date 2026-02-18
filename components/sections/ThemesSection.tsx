@@ -7,6 +7,7 @@ import { Eye, ArrowRight, Phone, Loader2 } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from "framer-motion";
+import { FaSms } from "react-icons/fa";
 
 interface Theme {
   id: number;
@@ -124,8 +125,8 @@ export default function ThemesSection() {
                       </Link>
                       <Link href={getWhatsAppUrl(theme.name)} target="_blank" className="block">
                         <Button size="sm" className="w-full bg-green-500 hover:bg-green-600 text-white border-green-200">
-                          <Phone className="mr-2 h-3 w-3" />
-                          Pesan via WA
+                          <FaSms className="h-3 w-3" />
+                          Order via Wa
                         </Button>
                       </Link>
                     </div>

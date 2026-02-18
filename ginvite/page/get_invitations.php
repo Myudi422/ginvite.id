@@ -16,18 +16,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Ambil & validasi user_id dari query string (GET) atau JSON body (POST)
 $user_id = null;
 if (isset($_GET['user_id']) && is_numeric($_GET['user_id'])) {
-    $user_id = (int) $_GET['user_id'];
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = (int)$_GET['user_id'];
+}
+elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $body = json_decode(file_get_contents('php://input'), true);
     if (isset($body['user_id']) && is_numeric($body['user_id'])) {
-        $user_id = (int) $body['user_id'];
+        $user_id = (int)$body['user_id'];
     }
 }
 
 if (!$user_id || $user_id <= 0) {
     http_response_code(400);
     echo json_encode([
-        'status'  => 'error',
+        'status' => 'error',
         'message' => 'Parameter user_id tidak valid',
     ], JSON_UNESCAPED_UNICODE);
     exit;
@@ -37,21 +38,21 @@ if (!$user_id || $user_id <= 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $body = json_decode(file_get_contents('php://input'), true);
 
-    $inv_id     = isset($body['id'])        && is_numeric($body['id'])        ? (int)$body['id']        : null;
-    $title      = isset($body['title'])     && is_string($body['title']) && trim($body['title']) !== ''
-                    ? trim($body['title'])
-                    : null;
-    $status     = isset($body['status'])    && in_array($body['status'], [0,1], true)
-                    ? (int)$body['status']
-                    : null;
+    $inv_id = isset($body['id']) && is_numeric($body['id']) ? (int)$body['id'] : null;
+    $title = isset($body['title']) && is_string($body['title']) && trim($body['title']) !== ''
+        ? trim($body['title'])
+        : null;
+    $status = isset($body['status']) && in_array($body['status'], [0, 1], true)
+        ? (int)$body['status']
+        : null;
     $event_date = isset($body['event_date']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $body['event_date'])
-                    ? $body['event_date']
-                    : null;
+        ? $body['event_date']
+        : null;
 
     if (!$inv_id || $title === null || $status === null || $event_date === null) {
         http_response_code(400);
         echo json_encode([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => 'Parameter wajib: user_id, id, title, status, event_date (YYYY-MM-DD)',
         ], JSON_UNESCAPED_UNICODE);
         exit;
@@ -63,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$check->fetch()) {
         http_response_code(404);
         echo json_encode([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => 'Undangan tidak ditemukan atau bukan milik user ini',
         ], JSON_UNESCAPED_UNICODE);
         exit;
@@ -80,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($upd->rowCount() === 0) {
         http_response_code(500);
         echo json_encode([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => 'Gagal mengubah data undangan.',
         ], JSON_UNESCAPED_UNICODE);
         exit;
@@ -93,6 +94,7 @@ SELECT
     c.title,
     c.status,
     c.waktu_acara AS event_date,
+    c.expired,
     t.image_theme AS avatar_url,
     ct.name AS category_type
 FROM content_user AS c
@@ -106,7 +108,7 @@ SQL;
 
     echo json_encode([
         'status' => 'success',
-        'data'    => $row,
+        'data' => $row,
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -126,6 +128,7 @@ SELECT DISTINCT
     c.title,
     c.status,
     c.waktu_acara AS event_date,
+    c.expired,
     t.image_theme AS avatar_url,
     ct.name AS category_type,
     CASE 
@@ -154,9 +157,10 @@ try {
 
     echo json_encode([
         'status' => 'success',
-        'data'    => $rows,
+        'data' => $rows,
     ], JSON_UNESCAPED_UNICODE);
-} catch (PDOException $e) {
+}
+catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
