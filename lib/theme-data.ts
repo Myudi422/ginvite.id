@@ -27,6 +27,8 @@ export interface ThemeData {
     children: Array<{
       name: string;
       nickname?: string;
+      image?: string;
+      profile?: string;
     }>;
     parents: {
       groom?: any;
@@ -135,13 +137,13 @@ export const getFirstEvent = (events: { [key: string]: EventData }): ThemeEvent 
 };
 
 export const createCalendarUrl = (
-  firstEvent: ThemeEvent, 
-  sortedEvents: ThemeEvent[], 
+  firstEvent: ThemeEvent,
+  sortedEvents: ThemeEvent[],
   nickname: string,
   category_type?: { name: string }
 ): string => {
   if (!firstEvent) return '';
-  
+
   try {
     const eventDate = new Date(`${firstEvent.date}T${firstEvent.time}`);
     const start = eventDate.toISOString().replace(/-|:|\.\d+/g, '');

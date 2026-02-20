@@ -11,7 +11,7 @@ import NetflixStyleImage from "./NetflixStyleImage";
 import ProfilePopup from "./ProfilePopup";
 import NetflixNavigation, { useNetflixNavigation } from "./NetflixNavigation";
 import NetflixProfileModal from "./NetflixProfileModal";
-import { NetflixIcon, DownArrowIcon } from "./icon";
+import { NetflixIcon, DownArrowIcon, MaleIcon, FemaleIcon } from "./icon";
 import { FaUser, FaWhatsapp, FaComment, FaCalendarCheck, FaPaperPlane } from 'react-icons/fa';
 import { FiChevronDown, FiLock, FiCopy } from 'react-icons/fi';
 import { submitRsvp, getRsvpList } from '@/app/actions/rsvp';
@@ -21,9 +21,9 @@ import dynamic from 'next/dynamic';
 
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
 
-const NetflixMusicPlayer = dynamic(() => import('./NetflixMusicPlayer'), { 
-  ssr: false, 
-  loading: () => null 
+const NetflixMusicPlayer = dynamic(() => import('./NetflixMusicPlayer'), {
+  ssr: false,
+  loading: () => null
 });
 
 const NetflixTurutSection = dynamic(() => import('./NetflixTurutSection'), {
@@ -87,7 +87,7 @@ export default function Theme3({ data }: Theme3Props) {
     }
 
     const { userId, title } = urlParams;
-    
+
     if (!cuId || !userId || !title) {
       console.error('Payment data missing:', { cuId, userId, title });
       setPaymentError('Data undangan tidak lengkap');
@@ -146,25 +146,25 @@ export default function Theme3({ data }: Theme3Props) {
 
   useEffect(() => {
     setIsClient(true);
-    
+
     if (typeof window !== 'undefined') {
       const userId = params?.userId as string;
       const title = params?.title as string;
       const toName = searchParams?.get("to"); // Only get if provided, no default
-      
+
       setUrlParams({ userId, title, toName });
-      
+
       // Always show profile modal on landing page
       setShowProfileModal(true);
     }
-    
+
     // Only hide scroll on landing page, allow scroll when content is open
     if (!isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
     }
-    
+
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -173,7 +173,7 @@ export default function Theme3({ data }: Theme3Props) {
   // Load RSVP list
   useEffect(() => {
     if (!cuId) return;
-    
+
     (async () => {
       setLoadingRsvp(true);
       try {
@@ -360,7 +360,7 @@ export default function Theme3({ data }: Theme3Props) {
   const eventDate = firstEvent ? new Date(`${firstEvent.date}T${firstEvent.time}`) : null;
   const formattedDate = eventDate ? eventDate.toLocaleDateString('id-ID', {
     day: 'numeric',
-    month: 'long', 
+    month: 'long',
     year: 'numeric'
   }) : '';
 
@@ -372,19 +372,19 @@ export default function Theme3({ data }: Theme3Props) {
     const end = endDate.toISOString().replace(/-|:|\.\d+/g, '');
 
     let titleText = `Undangan ${isKhitan ? 'Khitanan' : 'Pernikahan'} - ${isKhitan ? nickname1 : nickname}`;
-    
+
     // Get maps link
     const mapsLink = firstEvent.location_url || firstEvent.mapsLink || '';
-    
-    let detailsText = isKhitan 
+
+    let detailsText = isKhitan
       ? `Kami mengundang Anda untuk menghadiri acara khitanan ${nickname1}. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir dan mendoakan.`
       : `Kami mengundang Anda untuk menghadiri acara pernikahan ${nickname}. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.`;
-    
+
     // Add maps link to details if available
     if (mapsLink && mapsLink.trim() !== '') {
       detailsText += `\n\nMaps: ${mapsLink}`;
     }
-    
+
     calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}` +
       `&text=${encodeURIComponent(titleText)}` +
       `&details=${encodeURIComponent(detailsText)}` +
@@ -395,7 +395,7 @@ export default function Theme3({ data }: Theme3Props) {
   useEffect(() => {
     // Only start carousel if there's no video and there are gallery items
     if (hasYoutubeVideo && isValidYouTubeLink(youtubeLink)) return;
-    
+
     const galleryItems = gallery?.items || [];
     if (galleryItems.length === 0) return;
 
@@ -414,7 +414,7 @@ export default function Theme3({ data }: Theme3Props) {
           <div className="flex flex-col items-center justify-center gap-1 px-2">
             <span className="text-xs">Mode gratis - Aktifkan untuk fitur lengkap</span>
             {isClient && (
-              <Button 
+              <Button
                 size="sm"
                 variant="outline"
                 className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs whitespace-nowrap px-3 py-1 text-center h-auto"
@@ -437,14 +437,14 @@ export default function Theme3({ data }: Theme3Props) {
       {!isOpen && (
         <div className="relative min-h-screen w-full overflow-hidden">
           {/* Background Image - Full Screen */}
-          <div 
+          <div
             className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url(${backgroundImage})` }}
           />
-          
+
           {/* Gradient Overlay - More solid at bottom */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-          
+
           {/* Content */}
           <div className="relative z-10 min-h-screen flex flex-col">
             {/* Top Header with Netflix Logo and Profile */}
@@ -452,15 +452,15 @@ export default function Theme3({ data }: Theme3Props) {
               <div className="flex items-center gap-2">
                 <NetflixIcon className="w-16 sm:w-20 h-auto text-red-600" />
               </div>
-              <ProfilePopup 
-                toName={urlParams.toName || "Bapak/Ibu/Saudara/i"} 
+              <ProfilePopup
+                toName={urlParams.toName || "Bapak/Ibu/Saudara/i"}
                 triggerShow={showProfilePopup}
               />
             </div>
-            
+
             {/* Spacer to push content to bottom */}
             <div className="flex-1" />
-            
+
             {/* Main Content - Bottom Left */}
             <div className="p-4 sm:p-6 pb-20 sm:pb-24 space-y-3 sm:space-y-4 flex-shrink-0">
               <div className="text-left">
@@ -478,13 +478,13 @@ export default function Theme3({ data }: Theme3Props) {
                   </>
                 )}
               </div>
-              
+
               {/* Tags */}
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                 <NetflixBadge variant="primary">Coming soon</NetflixBadge>
                 <NetflixText variant="meta">{formattedDate}</NetflixText>
               </div>
-              
+
               {/* Genre Tags */}
               <div className="flex gap-2 flex-wrap mb-4 sm:mb-6">
                 <NetflixBadge>{isKhitan ? '#khitanan' : '#romantic'}</NetflixBadge>
@@ -492,14 +492,14 @@ export default function Theme3({ data }: Theme3Props) {
                 <NetflixBadge>#family</NetflixBadge>
                 <NetflixBadge>#documenter</NetflixBadge>
               </div>
-              
+
               {/* CTA Button */}
               <div className="flex flex-col items-center space-y-3 sm:space-y-4 pt-2 sm:pt-4">
                 {/* Down Arrow */}
                 <div className="animate-bounce">
                   <DownArrowIcon className="w-5 sm:w-6 h-5 sm:h-6 text-gray-300" />
                 </div>
-                
+
                 <button
                   onClick={() => setIsOpen(true)}
                   className="text-base sm:text-lg font-bold text-white hover:text-gray-200 transition-colors px-4 py-2"
@@ -514,7 +514,7 @@ export default function Theme3({ data }: Theme3Props) {
 
       {/* Profile Modal - Muncul di landing page */}
       {!isOpen && showProfileModal && (
-        <NetflixProfileModal 
+        <NetflixProfileModal
           onClose={handleProfileModalClose}
           selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
           qrData={urlParams.toName}
@@ -523,13 +523,13 @@ export default function Theme3({ data }: Theme3Props) {
       )}
 
       {/* QR Modal */}
-      <QRModal 
-        show={showQr} 
+      <QRModal
+        show={showQr}
         onClose={() => {
           setShowQr(false);
           // Just close QR modal, keep profile modal open
-        }} 
-        qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"} 
+        }}
+        qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
       />
 
       {/* Main Content */}
@@ -539,7 +539,7 @@ export default function Theme3({ data }: Theme3Props) {
           {musicEnabled && musicUrl && !hasYoutubeVideo && (
             <NetflixMusicPlayer url={musicUrl} autoPlay />
           )}
-          
+
           {/* Hero Video Section - Full Width */}
           <div id="home" className="relative aspect-video w-full overflow-hidden">
             {hasYoutubeVideo && isValidYouTubeLink(youtubeLink) ? (
@@ -554,7 +554,7 @@ export default function Theme3({ data }: Theme3Props) {
                   loop={true}
                   style={{ position: 'absolute', top: 0, left: 0 }}
                 />
-                
+
                 {/* Custom Video Controls */}
                 <div className="absolute bottom-4 left-4 flex gap-2">
                   {/* Play/Pause Button */}
@@ -564,15 +564,15 @@ export default function Theme3({ data }: Theme3Props) {
                   >
                     {isVideoPlaying ? (
                       <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                       </svg>
                     ) : (
                       <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
+                        <path d="M8 5v14l11-7z" />
                       </svg>
                     )}
                   </button>
-                  
+
                   {/* Mute/Unmute Button */}
                   <button
                     onClick={() => setIsVideoMuted(!isVideoMuted)}
@@ -580,11 +580,11 @@ export default function Theme3({ data }: Theme3Props) {
                   >
                     {isVideoMuted ? (
                       <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
                       </svg>
                     ) : (
                       <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                       </svg>
                     )}
                   </button>
@@ -611,9 +611,8 @@ export default function Theme3({ data }: Theme3Props) {
                     {gallery.items.map((item, idx) => (
                       <div
                         key={idx}
-                        className={`absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat carousel-image ${
-                          idx === currentPhotoIndex ? 'active' : ''
-                        }`}
+                        className={`absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat carousel-image ${idx === currentPhotoIndex ? 'active' : ''
+                          }`}
                         style={{ backgroundImage: `url(${item})` }}
                       />
                     ))}
@@ -625,7 +624,7 @@ export default function Theme3({ data }: Theme3Props) {
                   </>
                 ) : (
                   <>
-                    <div 
+                    <div
                       className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
                       style={{ backgroundImage: `url(${backgroundImage})` }}
                     />
@@ -706,50 +705,50 @@ export default function Theme3({ data }: Theme3Props) {
             </NetflixBadge>
 
             {/* Description */}
-<NetflixSection>
-  <NetflixText>
-    {isKhitan ? 
-      `Setelah perjalanan panjang, kami dengan bangga mengundang Anda untuk menghadiri acara khitanan ${nickname1}. Sebuah momen sakral yang menandai babak baru dalam kehidupan spiritual.` :
-      `Penantian panjang itu akhirnya berujung pada waktu yang tepat. Saat kedewasaan telah menyatukan hati, ${nickname1} dan ${nickname2} kini bersiap mengawali perjalanan indah mereka menuju ${isWedding ? 'pernikahan' : 'kebahagiaan'}.`
-    }
-  </NetflixText>
-  <NetflixText variant="caption" color="gray">
-    {data.content.quote
-      ? (typeof data.content.quote === 'string'
-          ? data.content.quote
-          : (data.content.quote.text || data.content.quote.quote || ''))
-      : (isKhitan
-          ? '"Dan bahwasannya kepada Tuhanmu adalah kesudahan (segala sesuatu)" (Q.S An-Najm: 42)'
-          : '"Segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah)" (Q.S Az-Zariyah: 49)')
-    }
-  </NetflixText>
-</NetflixSection>
+            <NetflixSection>
+              <NetflixText>
+                {isKhitan ?
+                  `Setelah perjalanan panjang, kami dengan bangga mengundang Anda untuk menghadiri acara khitanan ${nickname1}. Sebuah momen sakral yang menandai babak baru dalam kehidupan spiritual.` :
+                  `Penantian panjang itu akhirnya berujung pada waktu yang tepat. Saat kedewasaan telah menyatukan hati, ${nickname1} dan ${nickname2} kini bersiap mengawali perjalanan indah mereka menuju ${isWedding ? 'pernikahan' : 'kebahagiaan'}.`
+                }
+              </NetflixText>
+              <NetflixText variant="caption" color="gray">
+                {data.content.quote
+                  ? (typeof data.content.quote === 'string'
+                    ? data.content.quote
+                    : (data.content.quote.text || data.content.quote.quote || ''))
+                  : (isKhitan
+                    ? '"Dan bahwasannya kepada Tuhanmu adalah kesudahan (segala sesuatu)" (Q.S An-Najm: 42)'
+                    : '"Segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah)" (Q.S Az-Zariyah: 49)')
+                }
+              </NetflixText>
+            </NetflixSection>
 
             {/* Breaking News Section */}
             <NetflixSection>
               <NetflixHeader>Breaking News</NetflixHeader>
               <div className="relative aspect-video w-full overflow-hidden rounded">
-                <div 
+                <div
                   className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
                   style={{ backgroundImage: `url(${gallery?.items?.[1] || backgroundImage || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22%3E%3Crect fill=%22%23808080%22 width=%22400%22 height=%22225%22/%3E%3C/svg%3E'})` }}
                 />
               </div>
               <div className="space-y-4">
-  <NetflixText variant="body" color="gray">
-    {isKhitan ?
-      `Dengan penuh syukur, kami mengumumkan bahwa ${nickname1} akan menjalani proses khitanan sebagai bagian dari perjalanan menuju kedewasaan. 🌟` :
-      `Setelah melalui perjalanan panjang penuh cerita, kini kami tiba di babak paling berharga dalam hidup. 🌸 Seseorang yang telah mengisi hari dengan makna, kini menjadi sosok yang terpilih untuk saling mendampingi dalam ikatan janji seumur hidup.`
-    }
-  </NetflixText>
-  <NetflixText variant="body" color="gray">
-    {isKhitan ?
-      `Acara ini merupakan momen sakral yang menandai kedewasaan dan komitmen keluarga dalam menjaga nilai-nilai kebaikan. 🤲` :
-      'Dengan hati yang penuh rasa bahagia, kami ingin berbagi kabar indah ini — kami akan segera menyatukan langkah dalam ikatan pernikahan! 💖'
-    }
-  </NetflixText>
                 <NetflixText variant="body" color="gray">
-  Hari istimewa kami akan diselenggarakan di {firstEvent?.location || 'tempat yang telah ditentukan'}.
-</NetflixText>
+                  {isKhitan ?
+                    `Dengan penuh syukur, kami mengumumkan bahwa ${nickname1} akan menjalani proses khitanan sebagai bagian dari perjalanan menuju kedewasaan. 🌟` :
+                    `Setelah melalui perjalanan panjang penuh cerita, kini kami tiba di babak paling berharga dalam hidup. 🌸 Seseorang yang telah mengisi hari dengan makna, kini menjadi sosok yang terpilih untuk saling mendampingi dalam ikatan janji seumur hidup.`
+                  }
+                </NetflixText>
+                <NetflixText variant="body" color="gray">
+                  {isKhitan ?
+                    `Acara ini merupakan momen sakral yang menandai kedewasaan dan komitmen keluarga dalam menjaga nilai-nilai kebaikan. 🤲` :
+                    'Dengan hati yang penuh rasa bahagia, kami ingin berbagi kabar indah ini — kami akan segera menyatukan langkah dalam ikatan pernikahan! 💖'
+                  }
+                </NetflixText>
+                <NetflixText variant="body" color="gray">
+                  Hari istimewa kami akan diselenggarakan di {firstEvent?.location || 'tempat yang telah ditentukan'}.
+                </NetflixText>
                 <NetflixText variant="body" color="gray">
                   Kami mohon doa terbaik dari kalian yang selama ini menjadi bagian berharga dalam hidup kami, agar setiap langkah menuju hari itu, dan hari-hari setelahnya, senantiasa dipenuhi cinta, berkah, dan kebahagiaan.
                 </NetflixText>
@@ -764,7 +763,7 @@ export default function Theme3({ data }: Theme3Props) {
             </NetflixSection>
 
             {/* Turut Mengundang Section */}
-            <NetflixTurutSection 
+            <NetflixTurutSection
               enabled={content?.turut?.enabled}
               list={content?.turut?.list || []}
             />
@@ -773,33 +772,47 @@ export default function Theme3({ data }: Theme3Props) {
             <NetflixSection id="event">
               <NetflixHeader>{isKhitan ? 'The Star' : 'Bride and Groom'}</NetflixHeader>
               <div className="flex gap-5">
-                {children?.map((child, index) => (
-                  <div key={index} className="max-w-40">
-                    <div className="relative w-40 h-40 overflow-hidden rounded bride-groom-image">
-                      <div
-                        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-                        style={{ backgroundImage: `url(${child.image || child.profile || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22%3E%3Crect fill=%22%23808080%22 width=%22160%22 height=%22160%22/%3E%3C/svg%3E'})` }}
-                      />
+                {children?.map((child, index) => {
+                  const hasImage = child.image || child.profile;
+
+                  return (
+                    <div key={index} className="max-w-40">
+                      <div className="relative w-40 h-40 overflow-hidden rounded bride-groom-image bg-gray-800 flex items-center justify-center">
+                        {hasImage ? (
+                          <div
+                            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+                            style={{ backgroundImage: `url(${child.image || child.profile})` }}
+                          />
+                        ) : (
+                          <div className="text-gray-500">
+                            {isKhitan ? (
+                              <MaleIcon className="w-20 h-20" />
+                            ) : (
+                              index === 0 ? <MaleIcon className="w-20 h-20" /> : <FemaleIcon className="w-20 h-20" />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <NetflixText variant="meta" color="white">
+                        {child.name}
+                      </NetflixText>
+                      <NetflixText variant="caption" color="gray">
+                        {isKhitan ?
+                          `Putra dari keluarga yang penuh berkah` :
+                          (() => {
+                            // Groom = index 0, Bride = index 1
+                            const isGroom = index === 0;
+                            const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                            if (parents && parents.father && parents.mother) {
+                              return `${isGroom ? 'Putra' : 'Putri'} dari ${parents.father} & ${parents.mother}`;
+                            }
+                            return `${isGroom ? 'Putra' : 'Putri'} dari Bapak & Ibu`;
+                          })()
+                        }
+                      </NetflixText>
                     </div>
-                    <NetflixText variant="meta" color="white">
-                      {child.name}
-                    </NetflixText>
-                    <NetflixText variant="caption" color="gray">
-                      {isKhitan ? 
-                        `Putra dari keluarga yang penuh berkah` :
-                        (() => {
-                          // Groom = index 0, Bride = index 1
-                          const isGroom = index === 0;
-                          const parents = isGroom ? content.parents?.groom : content.parents?.bride;
-                          if (parents && parents.father && parents.mother) {
-                            return `${isGroom ? 'Putra' : 'Putri'} dari ${parents.father} & ${parents.mother}`;
-                          }
-                          return `${isGroom ? 'Putra' : 'Putri'} dari Bapak & Ibu`;
-                        })()
-                      }
-                    </NetflixText>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </NetflixSection>
 
@@ -864,7 +877,7 @@ export default function Theme3({ data }: Theme3Props) {
                             const now = new Date().getTime();
                             const eventTime = eventDate.getTime();
                             const diff = eventTime - now;
-                            
+
                             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -895,7 +908,7 @@ export default function Theme3({ data }: Theme3Props) {
                           <a href={calendarUrl} target="_blank" rel="noopener noreferrer">
                             <button className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors inline-flex items-center gap-1.5 whitespace-nowrap">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z" />
                               </svg>
                               Simpan
                             </button>
@@ -921,13 +934,13 @@ export default function Theme3({ data }: Theme3Props) {
                         <div className="flex flex-row items-start gap-4">
                           <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-800">
                             {hasImage ? (
-                              <img src={story.pictures[0]} alt={story.title || `Episode ${idx+1}`} className="object-cover w-full h-full" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📖</span>'; }} />
+                              <img src={story.pictures[0]} alt={story.title || `Episode ${idx + 1}`} className="object-cover w-full h-full" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📖</span>'; }} />
                             ) : (
-                              <span style={{color: 'white', fontSize: '2rem'}}>📖</span>
+                              <span style={{ color: 'white', fontSize: '2rem' }}>📖</span>
                             )}
                           </div>
                           <div className="flex-1 flex flex-col justify-start">
-                            <div className="font-bold text-base md:text-lg text-white mb-1">Episode {idx+1}: {story.title}</div>
+                            <div className="font-bold text-base md:text-lg text-white mb-1">Episode {idx + 1}: {story.title}</div>
                             {story.date && (
                               <div className="text-xs text-gray-400 mb-1">{story.date}</div>
                             )}
@@ -937,7 +950,7 @@ export default function Theme3({ data }: Theme3Props) {
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Content: Full width description */}
                         <div className="text-sm text-gray-200 whitespace-pre-line leading-relaxed">{story.description}</div>
                       </div>
@@ -957,7 +970,7 @@ export default function Theme3({ data }: Theme3Props) {
                     const hasImage = imgSrc && imgSrc.trim() !== '';
                     const gradientColors = [
                       'from-purple-900/90 via-purple-600/60 to-transparent',
-                      'from-pink-900/90 via-pink-600/60 to-transparent', 
+                      'from-pink-900/90 via-pink-600/60 to-transparent',
                       'from-yellow-900/90 via-yellow-600/60 to-transparent',
                       'from-green-900/90 via-green-600/60 to-transparent',
                       'from-indigo-900/90 via-indigo-600/60 to-transparent',
@@ -972,31 +985,31 @@ export default function Theme3({ data }: Theme3Props) {
                             <span className="text-4xl">📷</span>
                           </div>
                         )}
-                        
+
                         {/* Gradient shadow overlay - bottom to top */}
                         <div className={`absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t ${gradientColors[idx]}`} />
-                        
+
                         {/* Top number badge */}
                         <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
                           {idx + 1}
                         </div>
-                        
+
                         {/* Top right favorite badges */}
                         {(idx === 1 || idx === 4) && (
                           <div className="absolute top-2 right-2 bg-red-600 text-white text-[9px] px-1 py-0.5 rounded max-w-[60px]">
-                            {idx === 1 && 'Our Favorite'} 
+                            {idx === 1 && 'Our Favorite'}
                             {idx === 4 && "Groom's Fav"}
                           </div>
                         )}
-                        
+
                         {/* Bottom overlay with title */}
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                           <div className="text-white text-xs font-semibold">
-                            {idx === 0 && 'Perfect Date'} 
-                            {idx === 1 && 'Nanti Kita Cerita Tentang Hari Ini'} 
-                            {idx === 2 && 'Jatuh Cinta Seperti Di Film-Film'} 
-                            {idx === 3 && 'Tune Infor Love'} 
-                            {idx === 4 && 'Teman Tapi Menikah'} 
+                            {idx === 0 && 'Perfect Date'}
+                            {idx === 1 && 'Nanti Kita Cerita Tentang Hari Ini'}
+                            {idx === 2 && 'Jatuh Cinta Seperti Di Film-Film'}
+                            {idx === 3 && 'Tune Infor Love'}
+                            {idx === 4 && 'Teman Tapi Menikah'}
                             {idx === 5 && 'Architecture of Love'}
                           </div>
                         </div>
@@ -1008,184 +1021,183 @@ export default function Theme3({ data }: Theme3Props) {
             )}
 
             {/* Gift for Couple Section */}
-            {bankTransfer?.enabled && Array.isArray(bankTransfer?.accounts) && bankTransfer.accounts.some(acc => 
+            {bankTransfer?.enabled && Array.isArray(bankTransfer?.accounts) && bankTransfer.accounts.some(acc =>
               acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
             ) && (
-              <NetflixSection id="gift">
-                <NetflixHeader size="lg" className="mb-4 text-center">
-                  Gift for the couple
-                </NetflixHeader>
-                
-                <NetflixText variant="body" color="gray" className="text-center mb-6">
-                  Bagi tamu undangan yang ingin memberikan tanda kasih untuk calon pengantin, dapat diberikan melalui:
-                </NetflixText>
+                <NetflixSection id="gift">
+                  <NetflixHeader size="lg" className="mb-4 text-center">
+                    Gift for the couple
+                  </NetflixHeader>
 
-                <Button
-                  onClick={() => setShowGiftForm(prev => !prev)}
-                  className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] mb-4 bg-red-600 hover:bg-red-700 text-white"
-                  disabled={data.status === "tidak"}
-                >
-                  {showGiftForm ? 'Hide Account Details' : 'Show Account Details'}
-                </Button>
+                  <NetflixText variant="body" color="gray" className="text-center mb-6">
+                    Bagi tamu undangan yang ingin memberikan tanda kasih untuk calon pengantin, dapat diberikan melalui:
+                  </NetflixText>
 
-                {showGiftForm && (
-                  <div className="space-y-6">
-                    {/* Bank Account Selection */}
-                    {bankTransfer.accounts.filter(acc => 
-                      acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
-                    ).length > 1 && (
-                      <div className="flex gap-2 mb-4 overflow-x-auto">
-                        {bankTransfer.accounts.filter(acc => 
-                          acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
-                        ).map((acc, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            className={`px-4 py-2 rounded-lg border whitespace-nowrap ${
-                              selectedAccountIdx === idx 
-                                ? 'bg-red-600 border-red-500 text-white' 
-                                : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
-                            }`}
-                            onClick={() => setSelectedAccountIdx(idx)}
-                            disabled={data.status === "tidak"}
-                          >
-                            {acc.bank_name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                  <Button
+                    onClick={() => setShowGiftForm(prev => !prev)}
+                    className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] mb-4 bg-red-600 hover:bg-red-700 text-white"
+                    disabled={data.status === "tidak"}
+                  >
+                    {showGiftForm ? 'Hide Account Details' : 'Show Account Details'}
+                  </Button>
 
-                    {/* Bank Account Details */}
-                    {(() => {
-                      const validAccounts = bankTransfer.accounts.filter(acc => 
+                  {showGiftForm && (
+                    <div className="space-y-6">
+                      {/* Bank Account Selection */}
+                      {bankTransfer.accounts.filter(acc =>
                         acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
-                      );
-                      const selectedAccount = validAccounts[selectedAccountIdx];
-                      
-                      return selectedAccount && (
-                        <div className="bg-gray-900 border border-gray-600 rounded-lg p-4">
-                          <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 relative overflow-hidden">
-                            <div 
-                              className="absolute inset-0 bg-cover bg-center opacity-30"
-                              style={{ backgroundImage: `url(${gallery?.items?.[0] || backgroundImage})` }}
-                            />
-                            <div className="absolute inset-0 bg-black/50" />
-                            <div className="relative z-10 p-6 h-full flex flex-col justify-center items-center text-center">
-                              <NetflixText className="text-3xl font-bold mb-2">
-                                {nickname1} & {nickname2}
-                              </NetflixText>
-                              <NetflixText variant="caption" color="gray">
-                                {formattedDate}
-                              </NetflixText>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            <div className="text-center">
-                              <NetflixText className="font-semibold text-lg text-white">
-                                {selectedAccount.bank_name}
-                              </NetflixText>
-                            </div>
-                            
-                            <div className="flex items-center justify-between bg-gray-800 border border-gray-600 rounded-lg p-3">
-                              <div className="flex-1">
-                                <NetflixText variant="caption" color="gray" className="text-xs mb-1">
-                                  Account Number
-                                </NetflixText>
-                                <NetflixText className="font-mono text-lg text-white">
-                                  {selectedAccount.account_number}
-                                </NetflixText>
-                              </div>
+                      ).length > 1 && (
+                          <div className="flex gap-2 mb-4 overflow-x-auto">
+                            {bankTransfer.accounts.filter(acc =>
+                              acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
+                            ).map((acc, idx) => (
                               <button
-                                onClick={() => handleCopyAccountNumber(selectedAccount.account_number)}
-                                className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                key={idx}
+                                type="button"
+                                className={`px-4 py-2 rounded-lg border whitespace-nowrap ${selectedAccountIdx === idx
+                                  ? 'bg-red-600 border-red-500 text-white'
+                                  : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
+                                  }`}
+                                onClick={() => setSelectedAccountIdx(idx)}
                                 disabled={data.status === "tidak"}
                               >
-                                <FiCopy className="w-4 h-4 text-white" />
+                                {acc.bank_name}
                               </button>
+                            ))}
+                          </div>
+                        )}
+
+                      {/* Bank Account Details */}
+                      {(() => {
+                        const validAccounts = bankTransfer.accounts.filter(acc =>
+                          acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
+                        );
+                        const selectedAccount = validAccounts[selectedAccountIdx];
+
+                        return selectedAccount && (
+                          <div className="bg-gray-900 border border-gray-600 rounded-lg p-4">
+                            <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 relative overflow-hidden">
+                              <div
+                                className="absolute inset-0 bg-cover bg-center opacity-30"
+                                style={{ backgroundImage: `url(${gallery?.items?.[0] || backgroundImage})` }}
+                              />
+                              <div className="absolute inset-0 bg-black/50" />
+                              <div className="relative z-10 p-6 h-full flex flex-col justify-center items-center text-center">
+                                <NetflixText className="text-3xl font-bold mb-2">
+                                  {nickname1} & {nickname2}
+                                </NetflixText>
+                                <NetflixText variant="caption" color="gray">
+                                  {formattedDate}
+                                </NetflixText>
+                              </div>
                             </div>
-                            
-                            <div className="text-center">
-                              <NetflixText variant="caption" color="gray" className="text-xs">
-                                Account Holder
-                              </NetflixText>
-                              <NetflixText className="font-semibold text-white">
-                                {selectedAccount.account_name}
+
+                            <div className="space-y-3">
+                              <div className="text-center">
+                                <NetflixText className="font-semibold text-lg text-white">
+                                  {selectedAccount.bank_name}
+                                </NetflixText>
+                              </div>
+
+                              <div className="flex items-center justify-between bg-gray-800 border border-gray-600 rounded-lg p-3">
+                                <div className="flex-1">
+                                  <NetflixText variant="caption" color="gray" className="text-xs mb-1">
+                                    Account Number
+                                  </NetflixText>
+                                  <NetflixText className="font-mono text-lg text-white">
+                                    {selectedAccount.account_number}
+                                  </NetflixText>
+                                </div>
+                                <button
+                                  onClick={() => handleCopyAccountNumber(selectedAccount.account_number)}
+                                  className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                  disabled={data.status === "tidak"}
+                                >
+                                  <FiCopy className="w-4 h-4 text-white" />
+                                </button>
+                              </div>
+
+                              <div className="text-center">
+                                <NetflixText variant="caption" color="gray" className="text-xs">
+                                  Account Holder
+                                </NetflixText>
+                                <NetflixText className="font-semibold text-white">
+                                  {selectedAccount.account_name}
+                                </NetflixText>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Gift Amount Form */}
+                      <form onSubmit={handleGiftSubmit} className="space-y-4 relative">
+                        {/* Free Mode Overlay - hanya untuk form */}
+                        {data.status === "tidak" && (
+                          <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+                            <div className="text-center p-4 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
+                              <FiLock className="mx-auto mb-2 text-2xl text-red-500" />
+                              <NetflixText variant="meta" className="text-white mb-2">Mode Gratis</NetflixText>
+                              <NetflixText variant="caption" color="gray" className="text-xs mb-2">
+                                Aktifkan untuk fitur ini
                               </NetflixText>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Gift Amount Form */}
-                    <form onSubmit={handleGiftSubmit} className="space-y-4 relative">
-                      {/* Free Mode Overlay - hanya untuk form */}
-                      {data.status === "tidak" && (
-                        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
-                          <div className="text-center p-4 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
-                            <FiLock className="mx-auto mb-2 text-2xl text-red-500" />
-                            <NetflixText variant="meta" className="text-white mb-2">Mode Gratis</NetflixText>
-                            <NetflixText variant="caption" color="gray" className="text-xs mb-2">
-                              Aktifkan untuk fitur ini
-                            </NetflixText>
+                        )}
+                        {errorGift && (
+                          <div className="p-3 rounded-lg bg-red-900/50 flex items-center gap-2 text-red-300 border border-red-500">
+                            <FaComment className="flex-shrink-0" />
+                            <span>{errorGift}</span>
                           </div>
+                        )}
+
+                        {successGift && (
+                          <div className="p-3 rounded-lg bg-green-900/50 flex items-center gap-2 text-green-300 border border-green-500">
+                            <FaComment className="flex-shrink-0" />
+                            <span>Terima kasih! Konfirmasi transfer telah terkirim.</span>
+                          </div>
+                        )}
+
+                        <div className="relative">
+                          <FaUser className="absolute top-3 left-3 text-gray-400" />
+                          <input
+                            type="text"
+                            value={namaGift}
+                            onChange={(e) => setNamaGift(e.target.value)}
+                            placeholder="Nama Pengirim"
+                            className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                            disabled={data.status === "tidak"}
+                          />
                         </div>
-                      )}
-                      {errorGift && (
-                        <div className="p-3 rounded-lg bg-red-900/50 flex items-center gap-2 text-red-300 border border-red-500">
-                          <FaComment className="flex-shrink-0" />
-                          <span>{errorGift}</span>
+
+                        <div className="relative">
+                          <span className="absolute top-3 left-3 text-gray-400 text-sm">IDR</span>
+                          <input
+                            type="text"
+                            value={formattedJumlahGift}
+                            onChange={handleJumlahGiftChange}
+                            placeholder="Jumlah Transfer"
+                            className="w-full pl-12 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                            disabled={data.status === "tidak"}
+                          />
                         </div>
-                      )}
 
-                      {successGift && (
-                        <div className="p-3 rounded-lg bg-green-900/50 flex items-center gap-2 text-green-300 border border-green-500">
-                          <FaComment className="flex-shrink-0" />
-                          <span>Terima kasih! Konfirmasi transfer telah terkirim.</span>
-                        </div>
-                      )}
-
-                      <div className="relative">
-                        <FaUser className="absolute top-3 left-3 text-gray-400" />
-                        <input
-                          type="text"
-                          value={namaGift}
-                          onChange={(e) => setNamaGift(e.target.value)}
-                          placeholder="Nama Pengirim"
-                          className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          disabled={data.status === "tidak"}
-                        />
-                      </div>
-
-                      <div className="relative">
-                        <span className="absolute top-3 left-3 text-gray-400 text-sm">IDR</span>
-                        <input
-                          type="text"
-                          value={formattedJumlahGift}
-                          onChange={handleJumlahGiftChange}
-                          placeholder="Jumlah Transfer"
-                          className="w-full pl-12 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          disabled={data.status === "tidak"}
-                        />
-                      </div>
-
-                      <Button
-                        type="submit"
-                        disabled={loadingGift || data.status === "tidak"}
-                        className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] bg-red-600 hover:bg-red-700 text-white"
-                        style={{
-                          opacity: loadingGift || data.status === "tidak" ? 0.7 : 1
-                        }}
-                      >
-                        <FaPaperPlane className="mr-2" />
-                        {data.status === "tidak" ? "Free Mode - Not Available" : loadingGift ? "Sending..." : "Send Confirmation"}
-                      </Button>
-                    </form>
-                  </div>
-                )}
-              </NetflixSection>
-            )}
+                        <Button
+                          type="submit"
+                          disabled={loadingGift || data.status === "tidak"}
+                          className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] bg-red-600 hover:bg-red-700 text-white"
+                          style={{
+                            opacity: loadingGift || data.status === "tidak" ? 0.7 : 1
+                          }}
+                        >
+                          <FaPaperPlane className="mr-2" />
+                          {data.status === "tidak" ? "Free Mode - Not Available" : loadingGift ? "Sending..." : "Send Confirmation"}
+                        </Button>
+                      </form>
+                    </div>
+                  )}
+                </NetflixSection>
+              )}
 
             {/* Comments/RSVP Section */}
             <NetflixSection id="rsvp">
@@ -1309,17 +1321,17 @@ export default function Theme3({ data }: Theme3Props) {
                         // Generate random colors for avatar background
                         const colors = ['#dc2626', '#ea580c', '#d97706', '#ca8a04', '#65a30d', '#16a34a', '#059669', '#0d9488', '#0891b2', '#0284c7', '#2563eb', '#4f46e5', '#7c3aed', '#a21caf', '#be185d'];
                         const bgColor = colors[index % colors.length];
-                        
+
                         return (
                           <div key={index} className="flex gap-3 items-start">
                             {/* Avatar with FACE.webp */}
-                            <div 
+                            <div
                               className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden"
                               style={{ backgroundColor: bgColor }}
                             >
-                              <img 
-                                src="/FACE.webp" 
-                                alt="Face" 
+                              <img
+                                src="/FACE.webp"
+                                alt="Face"
                                 className="w-6 h-6 object-contain"
                               />
                             </div>
@@ -1344,7 +1356,7 @@ export default function Theme3({ data }: Theme3Props) {
                           </div>
                         );
                       })}
-                      
+
                       {visibleComments < rsvpList.length && (
                         <div className="text-center pt-4">
                           <Button
@@ -1367,7 +1379,7 @@ export default function Theme3({ data }: Theme3Props) {
             <NetflixSection>
               <div className="relative w-full rounded-lg overflow-hidden h-96">
                 {/* Background Image */}
-                <div 
+                <div
                   className="absolute inset-0 w-full h-full bg-cover bg-center"
                   style={{ backgroundImage: `url(${gallery?.items?.[0] || backgroundImage})` }}
                 />
@@ -1406,7 +1418,7 @@ export default function Theme3({ data }: Theme3Props) {
               </NetflixText>
             </NetflixSection>
           </div>
-          
+
           {/* Netflix Navigation */}
           {isOpen && plugin?.navbar && (
             <NetflixNavigation
@@ -1414,7 +1426,7 @@ export default function Theme3({ data }: Theme3Props) {
               setActiveSection={setActiveSection}
               showGallery={Array.isArray(gallery?.items) && gallery.items.length > 0}
               showRsvp={true}
-              showGift={bankTransfer?.enabled && Array.isArray(bankTransfer?.accounts) && bankTransfer.accounts.some(acc => 
+              showGift={bankTransfer?.enabled && Array.isArray(bankTransfer?.accounts) && bankTransfer.accounts.some(acc =>
                 acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
               )}
             />
