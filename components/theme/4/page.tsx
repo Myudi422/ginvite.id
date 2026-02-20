@@ -260,16 +260,7 @@ export default function Theme4({ data }: Theme4Props) {
         <MusicPlayer url={musicUrl} autoPlay={isOpen} />
       )}
 
-      {/* Navigation */}
-      {isOpen && (
-        <Navigation
-          activeSection={activeSection}
-          setActiveSection={setActiveSection}
-          showGallery={!!gallery?.items?.length}
-          showGift={!!content?.bank_transfer?.enabled}
-          showRsvp={!!content.plugin?.rsvp}
-        />
-      )}
+
 
       {/* Main Content */}
       <div className={`transition-opacity duration-1000 ${isOpen ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
@@ -342,19 +333,46 @@ export default function Theme4({ data }: Theme4Props) {
               // Alternate layout logic if 2 people
               const isReverse = index % 2 !== 0;
 
+              if (!hasImage) {
+                return (
+                  <div key={index} className="flex flex-col items-center gap-3 w-full text-center py-6 animate-fade-in-up">
+                    <ThemeText variant="caption" color="gold" className="tracking-[0.3em] opacity-80 mb-2">
+                      {isKhitan ? 'THE STAR' : (index === 0 ? 'THE GROOM' : 'THE BRIDE')}
+                    </ThemeText>
+
+                    <h3 className="text-4xl md:text-5xl font-serif font-bold text-amber-100 break-words drop-shadow-2xl">
+                      {child.name}
+                    </h3>
+
+                    <div className="flex items-center gap-4 opacity-50 my-2">
+                      <div className="w-12 h-px bg-gradient-to-r from-transparent to-amber-200"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-200"></div>
+                      <div className="w-12 h-px bg-gradient-to-l from-transparent to-amber-200"></div>
+                    </div>
+
+                    <ThemeText variant="body" color="gray" className="max-w-md mx-auto">
+                      {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra Pertama dari pasangan' : 'Putri Pertama dari pasangan')}
+                    </ThemeText>
+
+                    <ThemeText variant="meta" color="white" className="italic max-w-md mx-auto text-lg">
+                      {(() => {
+                        const isGroom = index === 0;
+                        const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                        if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
+                        return "Bapak & Ibu";
+                      })()}
+                    </ThemeText>
+                  </div>
+                );
+              }
+
               return (
                 <div key={index} className={`flex flex-col ${children.length > 1 ? (isReverse ? 'md:flex-row-reverse' : 'md:flex-row') : ''} items-center gap-6 md:gap-12 w-full`}>
                   {/* Image Frame */}
                   <div className="relative group w-full max-w-[16rem] mx-auto">
                     <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/30 transition-all" />
                     <div className="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden border-2 border-amber-500/20 shadow-2xl">
-                      {hasImage ? (
-                        <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                      ) : (
-                        <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-zinc-700">
-                          {isKhitan ? <MaleIcon className="w-24 h-24" /> : (index === 0 ? <MaleIcon className="w-24 h-24" /> : <FemaleIcon className="w-24 h-24" />)}
-                        </div>
-                      )}
+                      <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     </div>
                   </div>
 
@@ -598,6 +616,17 @@ export default function Theme4({ data }: Theme4Props) {
           </ThemeText>
         </div>
       </div>
+
+      {/* Navigation */}
+      {isOpen && (
+        <Navigation
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          showGallery={!!gallery?.items?.length}
+          showGift={!!content?.bank_transfer?.enabled}
+          showRsvp={!!content.plugin?.rsvp}
+        />
+      )}
     </ThemeContainer>
   );
 }
