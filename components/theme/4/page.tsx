@@ -148,6 +148,56 @@ export default function Theme4({ data }: Theme4Props) {
     return url.includes("youtube.com") || url.includes("youtu.be");
   };
 
+  const handlePayment = async () => {
+    setPaymentLoading(true);
+    setPaymentError(null);
+    try {
+      const midtransResult = await midtransAction({
+        user_id: parseInt(urlParams.userId || '0'),
+        id_content: cuId,
+        title: decodeURIComponent(urlParams.title || ''),
+      });
+
+      if (midtransResult.status === 'paid') {
+        await toggleStatusAction({
+          user_id: parseInt(urlParams.userId || '0'),
+          id: cuId,
+          title: decodeURIComponent(urlParams.title || ''),
+          status: 1,
+        });
+        window.location.reload();
+      } else {
+        // @ts-ignore
+        if (typeof window.snap !== 'undefined') {
+          // @ts-ignore
+          window.snap.pay(midtransResult.snap_token, {
+            onSuccess: async () => {
+              await toggleStatusAction({
+                user_id: parseInt(urlParams.userId || '0'),
+                id: cuId,
+                title: decodeURIComponent(urlParams.title || ''),
+                status: 1,
+              });
+              window.location.reload();
+            },
+            onError: (e: any) => {
+              setPaymentError('Pembayaran gagal: ' + (e?.message || 'Terjadi kesalahan'));
+            },
+            onClose: () => {
+              setPaymentLoading(false);
+            }
+          });
+        } else {
+          setPaymentError('Sistem pembayaran belum siap. Silakan refresh halaman.');
+          setPaymentLoading(false);
+        }
+      }
+    } catch (err: any) {
+      setPaymentError('Gagal memproses pembayaran: ' + err.message);
+      setPaymentLoading(false);
+    }
+  };
+
   const handleKeyPressWa = (event: React.KeyboardEvent<HTMLInputElement>) => {
     const charCode = event.which ? event.which : event.keyCode;
     if (charCode > 31 && (charCode < 48 || charCode > 57)) event.preventDefault();
@@ -159,11 +209,7 @@ export default function Theme4({ data }: Theme4Props) {
     setIsOpen(true); // Auto open when profile selected
   };
 
-  const handlePayment = async () => {
-    // Payment logic same as Theme 3
-    // Simplified for brevity, assume implemented if needed or copied
-    alert("Fitur pembayaran belum diimplementasikan di tema 4 (demo).");
-  };
+
 
   // RSVP Handlers
   const handleSubmit = async (e: React.FormEvent) => {
@@ -239,6 +285,30 @@ export default function Theme4({ data }: Theme4Props) {
 
   return (
     <ThemeContainer>
+      {/* Payment Banner */}
+      {data.status === "tidak" && (
+        <div className="fixed top-20 left-4 right-4 z-50 flex flex-col items-center justify-center gap-2 pointer-events-none">
+          <div className="bg-amber-600/90 backdrop-blur-md text-white py-3 px-4 rounded-xl shadow-2xl pointer-events-auto flex items-center gap-4 max-w-sm w-full border border-amber-400/30">
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-amber-100 mb-0.5">Trial Mode</p>
+              <p className="text-[10px] text-amber-50/80 leading-tight">Aktifkan untuk fitur lengkap & hilangkan watermark.</p>
+            </div>
+            <ThemeButton
+              variant="primary"
+              className="py-1.5 px-4 text-[10px] h-auto min-w-[80px]"
+              onClick={handlePayment}
+              disabled={paymentLoading}
+            >
+              {paymentLoading ? 'Loading...' : 'Aktifkan'}
+            </ThemeButton>
+          </div>
+          {paymentError && (
+            <div className="bg-red-900/90 text-white text-[10px] py-1 px-3 rounded-full pointer-events-auto">
+              {paymentError}
+            </div>
+          )}
+        </div>
+      )}
       {/* Opening / Profile Modal */}
       {showProfileModal && (
         <OpeningModal
@@ -321,312 +391,362 @@ export default function Theme4({ data }: Theme4Props) {
           </ThemeText>
         </ThemeSection>
 
-        {/* Bride & Groom / Childs */}
-        <ThemeSection id="event" className="py-12 px-4 overflow-hidden">
-          <ThemeHeader size="lg" className="mb-12 text-center uppercase tracking-widest text-amber-500">
-            {isKhitan ? 'The Star' : 'The Couple'}
-          </ThemeHeader>
+        {/* Our Love Story */}
+        {Array.isArray(content.our_story) && content.our_story.length > 0 && (
+          <ThemeSection id="story" className="py-12 px-4">
+            <ThemeHeader size="lg" className="mb-12 text-center uppercase tracking-widest text-amber-500">
+              Our Love Story
+            </ThemeHeader>
 
-          <div className="flex flex-col gap-12 w-full">
-            {children?.map((child, index) => {
-              const hasImage = child.image || child.profile;
-              // Alternate layout logic if 2 people
-              const isReverse = index % 2 !== 0;
-
-              if (!hasImage) {
+            <div className="relative space-y-10">
+              {content.our_story.map((item, index) => {
+                const hasImage = item.pictures && item.pictures[0] && item.pictures[0].trim() !== '';
                 return (
-                  <div key={index} className="flex flex-col items-center gap-3 w-full text-center py-6 animate-fade-in-up">
-                    <ThemeText variant="caption" color="gold" className="tracking-[0.3em] opacity-80 mb-2">
-                      {isKhitan ? 'THE STAR' : (index === 0 ? 'THE GROOM' : 'THE BRIDE')}
-                    </ThemeText>
-
-                    <h3 className="text-4xl md:text-5xl font-serif font-bold text-amber-100 break-words drop-shadow-2xl">
-                      {child.name}
-                    </h3>
-
-                    <div className="flex items-center gap-4 opacity-50 my-2">
-                      <div className="w-12 h-px bg-gradient-to-r from-transparent to-amber-200"></div>
-                      <div className="w-1.5 h-1.5 rounded-full bg-amber-200"></div>
-                      <div className="w-12 h-px bg-gradient-to-l from-transparent to-amber-200"></div>
+                  <div key={index} className="flex flex-col gap-3 bg-zinc-900/50 border border-white/5 rounded-2xl p-5 shadow-xl hover:border-amber-500/30 transition-all duration-300">
+                    {/* Header: Image + Title */}
+                    <div className="flex flex-row items-start gap-4">
+                      <div className="relative w-28 h-20 flex items-center justify-center overflow-hidden rounded-lg bg-zinc-800 shrink-0">
+                        {hasImage ? (
+                          <img
+                            src={item.pictures[0]}
+                            alt={item.title || `Episode ${index + 1}`}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <span className="text-3xl">📖</span>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-amber-500 text-[10px] font-bold uppercase tracking-widest">Episode {index + 1}</span>
+                        <h4 className="text-base font-serif font-bold text-white mt-0.5">{item.title}</h4>
+                        {item.date && (
+                          <span className="text-xs text-zinc-400">{item.date}</span>
+                        )}
+                      </div>
                     </div>
-
-                    <ThemeText variant="body" color="gray" className="max-w-md mx-auto">
-                      {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra Pertama dari pasangan' : 'Putri Pertama dari pasangan')}
-                    </ThemeText>
-
-                    <ThemeText variant="meta" color="white" className="italic max-w-md mx-auto text-lg">
-                      {(() => {
-                        const isGroom = index === 0;
-                        const parents = isGroom ? content.parents?.groom : content.parents?.bride;
-                        if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
-                        return "Bapak & Ibu";
-                      })()}
+                    {/* Description */}
+                    <ThemeText variant="body" color="gray" className="text-sm leading-relaxed">
+                      {item.description}
                     </ThemeText>
                   </div>
                 );
-              }
+              })}
+            </div>
+          </ThemeSection>
+        )}
 
-              return (
-                <div key={index} className={`flex flex-col ${children.length > 1 ? (isReverse ? 'md:flex-row-reverse' : 'md:flex-row') : ''} items-center gap-6 md:gap-12 w-full`}>
-                  {/* Image Frame */}
-                  <div className="relative group w-full max-w-[16rem] mx-auto">
-                    <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/30 transition-all" />
-                    <div className="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden border-2 border-amber-500/20 shadow-2xl">
-                      <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    </div>
-                  </div>
+{/* Bride & Groom / Childs */ }
+<ThemeSection id="event" className="py-12 px-4 overflow-hidden">
+  <ThemeHeader size="lg" className="mb-12 text-center uppercase tracking-widest text-amber-500">
+    {isKhitan ? 'The Star' : 'The Couple'}
+  </ThemeHeader>
 
-                  {/* Text */}
-                  <div className="text-center md:text-left space-y-4 w-full">
-                    <h3 className="text-3xl font-serif font-bold text-amber-100 break-words">{child.name}</h3>
-                    <ThemeText variant="body" color="gray" className="max-w-xs mx-auto md:mx-0">
-                      {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra dari' : 'Putri dari')}
-                    </ThemeText>
-                    <ThemeText variant="meta" color="white" className="italic max-w-xs mx-auto md:mx-0">
-                      {(() => {
-                        const isGroom = index === 0;
-                        const parents = isGroom ? content.parents?.groom : content.parents?.bride;
-                        if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
-                        return "Bapak & Ibu";
-                      })()}
-                    </ThemeText>
-                  </div>
-                </div>
-              );
-            })}
+  <div className="flex flex-col gap-12 w-full">
+    {children?.map((child, index) => {
+      const hasImage = child.image || child.profile;
+      // Alternate layout logic if 2 people
+      const isReverse = index % 2 !== 0;
+
+      if (!hasImage) {
+        return (
+          <div key={index} className="flex flex-col items-center gap-3 w-full text-center py-6 animate-fade-in-up">
+            <ThemeText variant="caption" color="gold" className="tracking-[0.3em] opacity-80 mb-2">
+              {isKhitan ? 'THE STAR' : (index === 0 ? 'THE GROOM' : 'THE BRIDE')}
+            </ThemeText>
+
+            <h3 className="text-4xl md:text-5xl font-serif font-bold text-amber-100 break-words drop-shadow-2xl">
+              {child.name}
+            </h3>
+
+            <div className="flex items-center gap-4 opacity-50 my-2">
+              <div className="w-12 h-px bg-gradient-to-r from-transparent to-amber-200"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-200"></div>
+              <div className="w-12 h-px bg-gradient-to-l from-transparent to-amber-200"></div>
+            </div>
+
+            <ThemeText variant="body" color="gray" className="max-w-md mx-auto">
+              {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra Pertama dari pasangan' : 'Putri Pertama dari pasangan')}
+            </ThemeText>
+
+            <ThemeText variant="meta" color="white" className="italic max-w-md mx-auto text-lg">
+              {(() => {
+                const isGroom = index === 0;
+                const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
+                return "Bapak & Ibu";
+              })()}
+            </ThemeText>
           </div>
-        </ThemeSection>
+        );
+      }
 
-        {/* Event Details */}
-        {apiEvents && (
-          <ThemeSection className="bg-zinc-900/30 py-16">
-            <ThemeHeader size="lg" className="mb-8 text-center uppercase tracking-widest text-amber-500">
-              Save The Date
-            </ThemeHeader>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.entries(apiEvents).map(([key, evt], idx) => (
-                <div key={key} className="bg-zinc-950/50 p-8 rounded-2xl border border-white/5 text-center space-y-4 hover:border-amber-500/20 transition-all">
-                  <ThemeText variant="caption" color="gold" className="text-lg">
-                    {evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
-                  </ThemeText>
-
-                  <div className="py-4 border-y border-white/10">
-                    <h4 className="text-2xl font-serif text-white mb-1">
-                      {(() => {
-                        try {
-                          const d = new Date(evt.date);
-                          return d.toLocaleDateString('id-ID', { weekday: 'long' });
-                        } catch { return ''; }
-                      })()}
-                    </h4>
-                    <p className="text-4xl font-bold text-amber-100 my-2">
-                      {(() => {
-                        try {
-                          const d = new Date(evt.date);
-                          return d.getDate();
-                        } catch { return ''; }
-                      })()}
-                    </p>
-                    <p className="text-lg text-zinc-400">
-                      {(() => {
-                        try {
-                          const d = new Date(evt.date);
-                          return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-                        } catch { return evt.date; }
-                      })()}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1">
-                    <ThemeText color="gray">{evt.time}</ThemeText>
-                    <ThemeText color="white" className="font-medium">{evt.location}</ThemeText>
-                  </div>
-
-                  {(evt.mapsLink) && (
-                    <ThemeButton variant="outline" className="mt-4 w-full" onClick={() => window.open(evt.mapsLink, '_blank')}>
-                      Open Maps
-                    </ThemeButton>
-                  )}
-                </div>
-              ))}
+      return (
+        <div key={index} className={`flex flex-col ${children.length > 1 ? (isReverse ? 'md:flex-row-reverse' : 'md:flex-row') : ''} items-center gap-6 md:gap-12 w-full`}>
+          {/* Image Frame */}
+          <div className="relative group w-full max-w-[16rem] mx-auto">
+            <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/30 transition-all" />
+            <div className="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden border-2 border-amber-500/20 shadow-2xl">
+              <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             </div>
-          </ThemeSection>
-        )}
+          </div>
 
-        {/* Turut Mengundang */}
-        <TurutSection enabled={content?.turut?.enabled} list={content?.turut?.list} />
-
-        {/* Gallery */}
-        {gallery?.items && gallery.items.length > 0 && (
-          <ThemeSection id="gallery">
-            <ThemeHeader size="lg" className="mb-8 text-center uppercase tracking-widest text-amber-500">
-              Our Moments
-            </ThemeHeader>
-            <div className="columns-2 gap-3 space-y-3">
-              {gallery.items.map((item, idx) => (
-                <div key={idx} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg border border-white/5 group">
-                  <img
-                    src={item}
-                    alt="Gallery"
-                    className="w-full h-auto transform transition-transform duration-700 group-hover:scale-105"
-                  />
-                </div>
-              ))}
-            </div>
-          </ThemeSection>
-        )}
-
-        {/* Gift & RSVP */}
-        <ThemeSection id="gift" className="mb-24">
-          {content?.bank_transfer?.enabled && (
-            <div className="mb-12">
-              <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-amber-500">
-                Wedding Gift
-              </ThemeHeader>
-              <div className="text-center mb-6">
-                <ThemeText color="gray">
-                  Your blessing is enough for us. <br /> However, if you wish to give a gift, we provide a digital wallet.
-                </ThemeText>
-              </div>
-
-              <div className="flex justify-center mb-6">
-                <ThemeButton onClick={() => setShowGiftForm(!showGiftForm)}>
-                  {showGiftForm ? "Hide Account" : "Show Account"}
-                </ThemeButton>
-              </div>
-
-              {showGiftForm && (
-                <div className="max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-2xl p-6 transition-all animate-in fade-in slide-in-from-bottom-4">
-                  {/* Bank Accounts */}
-                  {content.bank_transfer?.accounts?.map((acc: any, idx: number) => (
-                    <div key={idx} className="bg-gradient-to-r from-zinc-800 to-zinc-900 p-4 rounded-xl border border-white/5 mb-4 relative overflow-hidden">
-                      <div className="relative z-10 flex justify-between items-center">
-                        <div>
-                          <p className="text-xs uppercase text-amber-500 font-bold mb-1">{acc.bank_name}</p>
-                          <p className="text-xl font-mono text-white tracking-wider">{acc.account_number}</p>
-                          <p className="text-sm text-zinc-400 mt-1">{acc.account_name}</p>
-                        </div>
-                        <button onClick={() => handleCopyAccountNumber(acc.account_number)} className="p-2 bg-zinc-700/50 rounded-lg hover:bg-zinc-700 transition-colors text-white">
-                          <FiCopy />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Confirmation Form */}
-                  <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10">
-                    <ThemeText variant="caption" color="gold" className="text-center mb-4">Confirmation Form</ThemeText>
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={namaGift}
-                      onChange={e => setNamaGift(e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Amount"
-                      value={formattedJumlahGift}
-                      onChange={handleJumlahGiftChange}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
-                    />
-                    <ThemeButton variant="outline" className="w-full" disabled={loadingGift}>
-                      {loadingGift ? "Sending..." : "Confirm Transfer"}
-                    </ThemeButton>
-                    {successGift && <p className="text-green-500 text-center text-sm">Thank you!</p>}
-                  </form>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* RSVP Section */}
-          {content.plugin?.rsvp && (
-            <div id="rsvp" className="max-w-md mx-auto">
-              <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-amber-500">
-                RSVP
-              </ThemeHeader>
-
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    value={nama}
-                    onChange={e => setNama(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
-                  />
-                  <input
-                    type="text"
-                    placeholder="WhatsApp Number"
-                    value={wa}
-                    onChange={e => setWa(e.target.value)}
-                    onKeyPress={handleKeyPressWa}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
-                  />
-                  <select
-                    value={konfirmasi}
-                    onChange={e => setKonfirmasi(e.target.value as any)}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
-                  >
-                    <option value="">Confirmation</option>
-                    <option value="hadir">Hadir</option>
-                    <option value="tidak hadir">Tidak Hadir</option>
-                  </select>
-                  <textarea
-                    placeholder="Wishes"
-                    value={ucapan}
-                    onChange={e => setUcapan(e.target.value)}
-                    rows={3}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
-                  />
-                  <ThemeButton className="w-full" disabled={loading}>
-                    {loading ? "Sending..." : "Send RSVP"}
-                  </ThemeButton>
-                  {success && <p className="text-green-500 text-center text-sm">RSVP Sent successfully!</p>}
-                  {error && <p className="text-red-500 text-center text-sm">{error}</p>}
-                </form>
-
-                {/* Comments List */}
-                <div className="mt-8 pt-8 border-t border-white/10 space-y-4">
-                  <ThemeText variant="caption" className="mb-4">Recent Wishes</ThemeText>
-                  {rsvpList.slice(0, visibleComments).map((rsvp, idx) => (
-                    <div key={idx} className="bg-zinc-950/50 p-3 rounded-lg border border-white/5">
-                      <div className="flex justify-between items-start mb-1">
-                        <p className="font-bold text-amber-200 text-sm">{rsvp.nama}</p>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${rsvp.konfirmasi === 'hadir' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
-                          {rsvp.konfirmasi}
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-400 italic">"{rsvp.ucapan}"</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-        </ThemeSection>
-
-        {/* Footer */}
-        <div className="py-8 text-center border-t border-white/5 bg-zinc-950">
-          <ThemeText variant="meta" color="gray" className="opacity-50">
-            Created with Papunda
-          </ThemeText>
+          {/* Text */}
+          <div className="text-center md:text-left space-y-4 w-full">
+            <h3 className="text-3xl font-serif font-bold text-amber-100 break-words">{child.name}</h3>
+            <ThemeText variant="body" color="gray" className="max-w-xs mx-auto md:mx-0">
+              {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra dari' : 'Putri dari')}
+            </ThemeText>
+            <ThemeText variant="meta" color="white" className="italic max-w-xs mx-auto md:mx-0">
+              {(() => {
+                const isGroom = index === 0;
+                const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
+                return "Bapak & Ibu";
+              })()}
+            </ThemeText>
+          </div>
         </div>
+      );
+    })}
+  </div>
+</ThemeSection>
+
+{/* Event Details */ }
+{
+  apiEvents && (
+    <ThemeSection className="bg-zinc-900/30 py-16">
+      <ThemeHeader size="lg" className="mb-8 text-center uppercase tracking-widest text-amber-500">
+        Save The Date
+      </ThemeHeader>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {Object.entries(apiEvents).map(([key, evt], idx) => (
+          <div key={key} className="bg-zinc-950/50 p-8 rounded-2xl border border-white/5 text-center space-y-4 hover:border-amber-500/20 transition-all">
+            <ThemeText variant="caption" color="gold" className="text-lg">
+              {evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
+            </ThemeText>
+
+            <div className="py-4 border-y border-white/10">
+              <h4 className="text-2xl font-serif text-white mb-1">
+                {(() => {
+                  try {
+                    const d = new Date(evt.date);
+                    return d.toLocaleDateString('id-ID', { weekday: 'long' });
+                  } catch { return ''; }
+                })()}
+              </h4>
+              <p className="text-4xl font-bold text-amber-100 my-2">
+                {(() => {
+                  try {
+                    const d = new Date(evt.date);
+                    return d.getDate();
+                  } catch { return ''; }
+                })()}
+              </p>
+              <p className="text-lg text-zinc-400">
+                {(() => {
+                  try {
+                    const d = new Date(evt.date);
+                    return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                  } catch { return evt.date; }
+                })()}
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <ThemeText color="gray">{evt.time}</ThemeText>
+              <ThemeText color="white" className="font-medium">{evt.location}</ThemeText>
+            </div>
+
+            {(evt.mapsLink) && (
+              <ThemeButton variant="outline" className="mt-4 w-full" onClick={() => window.open(evt.mapsLink, '_blank')}>
+                Open Maps
+              </ThemeButton>
+            )}
+          </div>
+        ))}
+      </div>
+    </ThemeSection>
+  )
+}
+
+{/* Turut Mengundang */ }
+<TurutSection enabled={content?.turut?.enabled} list={content?.turut?.list} />
+
+{/* Gallery */ }
+{
+  gallery?.items && gallery.items.length > 0 && (
+    <ThemeSection id="gallery">
+      <ThemeHeader size="lg" className="mb-8 text-center uppercase tracking-widest text-amber-500">
+        Our Moments
+      </ThemeHeader>
+      <div className="columns-2 gap-3 space-y-3">
+        {gallery.items.map((item, idx) => (
+          <div key={idx} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg border border-white/5 group">
+            <img
+              src={item}
+              alt="Gallery"
+              className="w-full h-auto transform transition-transform duration-700 group-hover:scale-105"
+            />
+          </div>
+        ))}
+      </div>
+    </ThemeSection>
+  )
+}
+
+{/* Gift & RSVP */ }
+<ThemeSection id="gift" className="mb-24">
+  {content?.bank_transfer?.enabled && (
+    <div className="mb-12">
+      <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-amber-500">
+        Wedding Gift
+      </ThemeHeader>
+      <div className="text-center mb-6">
+        <ThemeText color="gray">
+          Your blessing is enough for us. <br /> However, if you wish to give a gift, we provide a digital wallet.
+        </ThemeText>
       </div>
 
-      {/* Navigation */}
-      {isOpen && (
-        <Navigation
-          activeSection={activeSection}
-          setActiveSection={setActiveSection}
-          showGallery={!!gallery?.items?.length}
-          showGift={!!content?.bank_transfer?.enabled}
-          showRsvp={!!content.plugin?.rsvp}
-        />
+      <div className="flex justify-center mb-6">
+        <ThemeButton onClick={() => setShowGiftForm(!showGiftForm)}>
+          {showGiftForm ? "Hide Account" : "Show Account"}
+        </ThemeButton>
+      </div>
+
+      {showGiftForm && (
+        <div className="max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-2xl p-6 transition-all animate-in fade-in slide-in-from-bottom-4">
+          {/* Bank Accounts */}
+          {content.bank_transfer?.accounts?.map((acc: any, idx: number) => (
+            <div key={idx} className="bg-gradient-to-r from-zinc-800 to-zinc-900 p-4 rounded-xl border border-white/5 mb-4 relative overflow-hidden">
+              <div className="relative z-10 flex justify-between items-center">
+                <div>
+                  <p className="text-xs uppercase text-amber-500 font-bold mb-1">{acc.bank_name}</p>
+                  <p className="text-xl font-mono text-white tracking-wider">{acc.account_number}</p>
+                  <p className="text-sm text-zinc-400 mt-1">{acc.account_name}</p>
+                </div>
+                <button onClick={() => handleCopyAccountNumber(acc.account_number)} className="p-2 bg-zinc-700/50 rounded-lg hover:bg-zinc-700 transition-colors text-white">
+                  <FiCopy />
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {/* Confirmation Form */}
+          <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10">
+            <ThemeText variant="caption" color="gold" className="text-center mb-4">Confirmation Form</ThemeText>
+            <input
+              type="text"
+              placeholder="Name"
+              value={namaGift}
+              onChange={e => setNamaGift(e.target.value)}
+              className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+            />
+            <input
+              type="text"
+              placeholder="Amount"
+              value={formattedJumlahGift}
+              onChange={handleJumlahGiftChange}
+              className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+            />
+            <ThemeButton variant="outline" className="w-full" disabled={loadingGift}>
+              {loadingGift ? "Sending..." : "Confirm Transfer"}
+            </ThemeButton>
+            {successGift && <p className="text-green-500 text-center text-sm">Thank you!</p>}
+          </form>
+        </div>
       )}
-    </ThemeContainer>
+    </div>
+  )}
+
+  {/* RSVP Section */}
+  {content.plugin?.rsvp && (
+    <div id="rsvp" className="max-w-md mx-auto">
+      <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-amber-500">
+        RSVP
+      </ThemeHeader>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Name"
+            value={nama}
+            onChange={e => setNama(e.target.value)}
+            className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+          />
+          <input
+            type="text"
+            placeholder="WhatsApp Number"
+            value={wa}
+            onChange={e => setWa(e.target.value)}
+            onKeyPress={handleKeyPressWa}
+            className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+          />
+          <select
+            value={konfirmasi}
+            onChange={e => setKonfirmasi(e.target.value as any)}
+            className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+          >
+            <option value="">Confirmation</option>
+            <option value="hadir">Hadir</option>
+            <option value="tidak hadir">Tidak Hadir</option>
+          </select>
+          <textarea
+            placeholder="Wishes"
+            value={ucapan}
+            onChange={e => setUcapan(e.target.value)}
+            rows={3}
+            className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+          />
+          <ThemeButton className="w-full" disabled={loading}>
+            {loading ? "Sending..." : "Send RSVP"}
+          </ThemeButton>
+          {success && <p className="text-green-500 text-center text-sm">RSVP Sent successfully!</p>}
+          {error && <p className="text-red-500 text-center text-sm">{error}</p>}
+        </form>
+
+        {/* Comments List */}
+        <div className="mt-8 pt-8 border-t border-white/10 space-y-4">
+          <ThemeText variant="caption" className="mb-4">Recent Wishes</ThemeText>
+          {rsvpList.slice(0, visibleComments).map((rsvp, idx) => (
+            <div key={idx} className="bg-zinc-950/50 p-3 rounded-lg border border-white/5">
+              <div className="flex justify-between items-start mb-1">
+                <p className="font-bold text-amber-200 text-sm">{rsvp.nama}</p>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full ${rsvp.konfirmasi === 'hadir' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
+                  {rsvp.konfirmasi}
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 italic">"{rsvp.ucapan}"</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )}
+
+</ThemeSection>
+
+{/* Footer */ }
+<div className="py-8 text-center border-t border-white/5 bg-zinc-950">
+  <ThemeText variant="meta" color="gray" className="opacity-50">
+    Created with Papunda
+  </ThemeText>
+</div>
+      </div >
+
+  {/* Navigation */ }
+{
+  isOpen && (
+    <Navigation
+      activeSection={activeSection}
+      setActiveSection={setActiveSection}
+      showGallery={!!gallery?.items?.length}
+      showGift={!!content?.bank_transfer?.enabled}
+      showRsvp={!!content.plugin?.rsvp}
+    />
+  )
+}
+    </ThemeContainer >
   );
 }
