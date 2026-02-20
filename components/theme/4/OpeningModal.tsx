@@ -75,7 +75,7 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
               </ThemeText>
 
               <div className="py-2 border-b border-amber-500/30 w-3/4 mx-auto">
-                <p className="text-2xl font-serif text-amber-100 leading-tight">
+                <p className="text-2xl font-serif text-amber-100 leading-tight text-center break-words">
                   {selectedProfile}
                 </p>
               </div>
@@ -114,7 +114,7 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
             onClick={() => setShowContent(true)}
             className="absolute bottom-8 right-4 text-white/50 text-xs uppercase tracking-widest hover:text-white border border-white/20 px-3 py-1 rounded-full z-20"
           >
-            Skip Intro
+            Skip
           </button>
         )}
 
