@@ -15,7 +15,7 @@ import { submitBankTransfer } from '@/app/actions/bank';
 import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 import { FaUser, FaWhatsapp, FaComment } from 'react-icons/fa';
-import { FiCopy } from 'react-icons/fi';
+import { FiCopy, FiLock } from 'react-icons/fi';
 
 // Dynamic imports
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
@@ -99,7 +99,7 @@ export default function Theme4({ data }: Theme4Props) {
       const userId = params?.userId as string;
       const title = params?.title as string;
       const toName = searchParams?.get("to");
-      setUrlParams({ userId, title, toName });
+      setUrlParams({ userId, title, toName: toName || undefined });
       setShowProfileModal(true);
 
       // Delay showing text in opening
@@ -283,11 +283,36 @@ export default function Theme4({ data }: Theme4Props) {
     day: 'numeric', month: 'long', year: 'numeric'
   }) : '';
 
+  // Generate calendar URL
+  let calendarUrl = '';
+  if (eventDate && firstEvent) {
+    const start = eventDate.toISOString().replace(/-|:|\.\d+/g, '');
+    const endDate = new Date(eventDate.getTime() + 3600000);
+    const end = endDate.toISOString().replace(/-|:|\.\d+/g, '');
+
+    let titleText = `Undangan ${isKhitan ? 'Khitanan' : 'Pernikahan'} - ${isKhitan ? nickname1 : nickname}`;
+
+    const mapsLink = (firstEvent as any).location_url || firstEvent.mapsLink || '';
+
+    let detailsText = isKhitan
+      ? `Kami mengundang Anda untuk menghadiri acara khitanan ${nickname1}. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir dan mendoakan.`
+      : `Kami mengundang Anda untuk menghadiri acara pernikahan ${nickname}. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.`;
+
+    if (mapsLink && mapsLink.trim() !== '') {
+      detailsText += `\n\nMaps: ${mapsLink}`;
+    }
+
+    calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}` +
+      `&text=${encodeURIComponent(titleText)}` +
+      `&details=${encodeURIComponent(detailsText)}` +
+      `&location=${encodeURIComponent(firstEvent.location)}`;
+  }
+
   return (
     <ThemeContainer>
       {/* Payment Banner */}
-      {data.status === "tidak" && (
-        <div className="fixed top-20 left-4 right-4 z-50 flex flex-col items-center justify-center gap-2 pointer-events-none">
+      {data.status === "tidak" && isOpen && (
+        <div className="fixed top-20 left-4 right-4 z-[60] flex flex-col items-center justify-center gap-2 pointer-events-none">
           <div className="bg-amber-600/90 backdrop-blur-md text-white py-3 px-4 rounded-xl shadow-2xl pointer-events-auto flex items-center gap-4 max-w-sm w-full border border-amber-400/30">
             <div className="flex-1">
               <p className="text-xs font-semibold uppercase tracking-wider text-amber-100 mb-0.5">Trial Mode</p>
@@ -333,7 +358,7 @@ export default function Theme4({ data }: Theme4Props) {
 
 
       {/* Main Content */}
-      <div className={`transition-opacity duration-1000 ${isOpen ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
+      <div className={`transition-opacity duration-1000 ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible h-0 overflow-hidden'}`}>
 
         {/* Full Screen Video Hero */}
         <div id="home" className="relative h-screen w-full overflow-hidden">
@@ -568,6 +593,76 @@ export default function Theme4({ data }: Theme4Props) {
                   </div>
                 ))}
               </div>
+
+              {/* Countdown Timer Section */}
+              {eventDate && (
+                <div className="mt-6 w-full max-w-sm mx-auto rounded-3xl p-6 bg-zinc-950/50 border border-amber-500/20 shadow-xl transition-all">
+                  <div className="flex flex-col items-center justify-between gap-6">
+                    {/* Center: Timer */}
+                    <div className="flex-1 w-full text-center space-y-4">
+                      <ThemeText variant="caption" color="gold" className="tracking-widest uppercase text-xs md:text-sm">
+                        Counting Down
+                      </ThemeText>
+                      <div className="flex justify-center gap-3">
+                        {(() => {
+                          const now = new Date().getTime();
+                          const eventTime = eventDate.getTime();
+                          const diff = eventTime - now;
+
+                          // Return early with zeros if event has passed
+                          if (diff <= 0) {
+                            return ['Days', 'Hours', 'Mins', 'Secs'].map((label, idx) => (
+                              <div key={idx} className="flex flex-col items-center">
+                                <div className="md:w-16 md:h-16 w-12 h-12 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center text-xl md:text-2xl font-serif text-amber-100 shadow-inner">
+                                  00
+                                </div>
+                                <div className="text-[10px] md:text-xs text-zinc-500 mt-2 uppercase tracking-widest">{label}</div>
+                              </div>
+                            ));
+                          }
+
+                          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                          const timeUnits = [
+                            { label: 'Days', value: days },
+                            { label: 'Hours', value: hours },
+                            { label: 'Mins', value: minutes },
+                            { label: 'Secs', value: seconds }
+                          ];
+
+                          return timeUnits.map((unit, idx) => (
+                            <div key={idx} className="flex flex-col items-center">
+                              <div className="md:w-16 md:h-16 w-12 h-12 rounded-2xl bg-zinc-900 border border-amber-500/10 flex items-center justify-center text-xl md:text-3xl font-serif text-amber-100 shadow-lg relative overflow-hidden">
+                                <span className="relative z-10">{String(unit.value).padStart(2, '0')}</span>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                              </div>
+                              <div className="text-[10px] md:text-xs text-zinc-500 mt-2 uppercase tracking-widest font-medium">
+                                {unit.label}
+                              </div>
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Right: Save Button */}
+                    {calendarUrl && (
+                      <div className="flex-shrink-0 flex w-full justify-center pt-2">
+                        <ThemeButton
+                          variant="primary"
+                          onClick={() => window.open(calendarUrl, '_blank', 'noopener,noreferrer')}
+                          className="w-full shadow-lg shadow-amber-900/20 px-8 py-3 text-sm"
+                        >
+                          Save to Calendar
+                        </ThemeButton>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </ThemeSection>
           )
         }
@@ -635,26 +730,44 @@ export default function Theme4({ data }: Theme4Props) {
                   ))}
 
                   {/* Confirmation Form */}
-                  <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10">
+                  <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10 relative">
                     <ThemeText variant="caption" color="gold" className="text-center mb-4">Confirmation Form</ThemeText>
+
+                    {/* Free Mode Overlay */}
+                    {data.status === "tidak" && (
+                      <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-xl border border-amber-500/20">
+                        <div className="text-center p-4">
+                          <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <FiLock className="text-2xl text-amber-500" />
+                          </div>
+                          <ThemeText variant="meta" color="white" className="mb-1 text-sm">Mode Trial</ThemeText>
+                          <ThemeText variant="caption" color="gray" className="text-xs">
+                            Aktifkan undangan untuk fitur ini
+                          </ThemeText>
+                        </div>
+                      </div>
+                    )}
+
                     <input
                       type="text"
                       placeholder="Name"
                       value={namaGift}
                       onChange={e => setNamaGift(e.target.value)}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+                      disabled={data.status === "tidak"}
+                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
                     />
                     <input
                       type="text"
                       placeholder="Amount"
                       value={formattedJumlahGift}
                       onChange={handleJumlahGiftChange}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+                      disabled={data.status === "tidak"}
+                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
                     />
-                    <ThemeButton variant="outline" className="w-full" disabled={loadingGift}>
-                      {loadingGift ? "Sending..." : "Confirm Transfer"}
+                    <ThemeButton variant="outline" className="w-full" disabled={loadingGift || data.status === "tidak"}>
+                      {data.status === "tidak" ? "Free Mode" : loadingGift ? "Sending..." : "Confirm Transfer"}
                     </ThemeButton>
-                    {successGift && <p className="text-green-500 text-center text-sm">Thank you!</p>}
+                    {successGift && <p className="text-green-500 text-center text-sm z-20 relative">Thank you!</p>}
                   </form>
                 </div>
               )}
@@ -668,14 +781,31 @@ export default function Theme4({ data }: Theme4Props) {
                 RSVP
               </ThemeHeader>
 
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 relative">
+
+                {/* Free Mode Overlay for RSVP */}
+                {data.status === "tidak" && (
+                  <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl border border-amber-500/20">
+                    <div className="text-center p-4">
+                      <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <FiLock className="text-2xl text-amber-500" />
+                      </div>
+                      <ThemeText variant="meta" color="white" className="mb-1 text-sm">Mode Trial</ThemeText>
+                      <ThemeText variant="caption" color="gray" className="text-xs">
+                        Aktifkan undangan untuk fitur ini
+                      </ThemeText>
+                    </div>
+                  </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <input
                     type="text"
                     placeholder="Name"
                     value={nama}
                     onChange={e => setNama(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+                    disabled={data.status === "tidak"}
+                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
                   />
                   <input
                     type="text"
@@ -683,12 +813,14 @@ export default function Theme4({ data }: Theme4Props) {
                     value={wa}
                     onChange={e => setWa(e.target.value)}
                     onKeyPress={handleKeyPressWa}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+                    disabled={data.status === "tidak"}
+                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
                   />
                   <select
                     value={konfirmasi}
                     onChange={e => setKonfirmasi(e.target.value as any)}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+                    disabled={data.status === "tidak"}
+                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
                   >
                     <option value="">Confirmation</option>
                     <option value="hadir">Hadir</option>
@@ -699,13 +831,14 @@ export default function Theme4({ data }: Theme4Props) {
                     value={ucapan}
                     onChange={e => setUcapan(e.target.value)}
                     rows={3}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none"
+                    disabled={data.status === "tidak"}
+                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
                   />
-                  <ThemeButton className="w-full" disabled={loading}>
-                    {loading ? "Sending..." : "Send RSVP"}
+                  <ThemeButton className="w-full" disabled={loading || data.status === "tidak"}>
+                    {data.status === "tidak" ? "Free Mode" : loading ? "Sending..." : "Send RSVP"}
                   </ThemeButton>
-                  {success && <p className="text-green-500 text-center text-sm">RSVP Sent successfully!</p>}
-                  {error && <p className="text-red-500 text-center text-sm">{error}</p>}
+                  {success && <p className="text-green-500 text-center text-sm relative z-20">RSVP Sent successfully!</p>}
+                  {error && <p className="text-red-500 text-center text-sm relative z-20">{error}</p>}
                 </form>
 
                 {/* Comments List */}
