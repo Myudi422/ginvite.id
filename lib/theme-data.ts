@@ -60,6 +60,11 @@ export interface ThemeData {
     };
     bank_transfer?: {
       enabled?: boolean;
+      accounts?: Array<{
+        bank_name: string;
+        account_number: string;
+        account_name: string;
+      }>;
     };
   };
   decorations: {
