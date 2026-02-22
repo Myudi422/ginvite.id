@@ -18,10 +18,10 @@ const DotLottieReact = dynamic(
   () => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact).catch(() => {
     console.warn('Failed to load DotLottieReact, using fallback');
     return () => <div className="flex items-center justify-center p-8">Loading…</div>;
-  }), 
-  { 
-    ssr: false, 
-    loading: () => <div className="flex items-center justify-center p-8">Loading…</div> 
+  }),
+  {
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center p-8">Loading…</div>
   }
 );
 
@@ -29,7 +29,7 @@ const MusicPlayer = dynamic(
   () => import('@/components/MusicPlayer').catch(() => {
     console.warn('Failed to load MusicPlayer');
     return { default: () => null };
-  }), 
+  }),
   { ssr: false, loading: () => null }
 );
 
@@ -37,7 +37,7 @@ const VideoSection = dynamic(
   () => import('@/components/theme/2/videosection').catch(() => {
     console.warn('Failed to load VideoSection');
     return { default: () => null };
-  }), 
+  }),
   { ssr: false, loading: () => null }
 );
 
@@ -106,7 +106,7 @@ export default function Theme2({ data }: Theme2Props) {
 
     // Get URL params from state (set in useEffect)
     const { userId, title } = urlParams;
-    
+
     if (!cuId || !userId || !title) {
       console.error('Payment data missing:', { cuId, userId, title });
       setPaymentError('Data undangan tidak lengkap');
@@ -172,16 +172,16 @@ export default function Theme2({ data }: Theme2Props) {
   useEffect(() => {
     // Set client flag and URL params after mount
     setIsClient(true);
-    
+
     // Safely get URL params on client side only
     if (typeof window !== 'undefined') {
       const userId = params?.userId as string;
       const title = params?.title as string;
       const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
-      
+
       setUrlParams({ userId, title, toName });
     }
-    
+
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -217,7 +217,7 @@ export default function Theme2({ data }: Theme2Props) {
   // Destructure API data
   const { theme, content, decorations, event: apiEvents, category_type } = data;
   const { plugin } = content;
-  const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote, 
+  const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote,
     quote_enabled, gallery_enabled = false } = content;
 
   const { url: musicUrl = "", enabled: musicEnabled = false } = music || {};
@@ -235,7 +235,7 @@ export default function Theme2({ data }: Theme2Props) {
         mapsLink: eventData.mapsLink || '',
       } : null;
     })
-  .filter(Boolean) as ThemeEvent[];
+    .filter(Boolean) as ThemeEvent[];
 
   const sortedEvents = [...eventsList].sort((a, b) => {
     try {
@@ -260,6 +260,7 @@ export default function Theme2({ data }: Theme2Props) {
   }
 
   const isWedding = !!parents?.groom;
+  const isKhitan = (category_type?.name || '').toString().toLowerCase().includes('khitan');
 
   const nickname1 = children?.[0]?.nickname || '';
   const nickname2 = children?.[1]?.nickname || '';
@@ -284,9 +285,9 @@ export default function Theme2({ data }: Theme2Props) {
     const lowerEventTitle = (eventTitle || '').toString().toLowerCase();
     const lowerEventDetails = eventDetails.toLowerCase();
     const anyEventTitleMentionsKhitan = sortedEvents.some(ev => (ev.title || '').toString().toLowerCase().includes('khitan'));
-    const isKhitan = lowerCategory.includes('khitan') || lowerEventTitle.includes('khitan') || lowerEventDetails.includes('khitan') || anyEventTitleMentionsKhitan;
+    const isKhitanTemp = lowerCategory.includes('khitan') || lowerEventTitle.includes('khitan') || lowerEventDetails.includes('khitan') || anyEventTitleMentionsKhitan;
 
-    if (isKhitan) {
+    if (isKhitanTemp) {
       // Use only the first child's name and strip any '&' suffixes (e.g. "A & B")
       const rawChild = children?.[0]?.name || children?.[0]?.nickname || nickname || '';
       const firstChildName = rawChild ? rawChild.split('&')[0].trim() : '';
@@ -326,7 +327,7 @@ export default function Theme2({ data }: Theme2Props) {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 px-4">
             <span className="text-sm">Undangan dalam mode ujicoba/gratis.</span>
             {isClient && (
-              <Button 
+              <Button
                 size="sm"
                 className="bg-white text-red-600 hover:bg-gray-100 disabled:opacity-50 text-sm px-4 py-1"
                 onClick={handlePayment}
@@ -364,7 +365,16 @@ export default function Theme2({ data }: Theme2Props) {
       {/* Full Screen Layout - Netflix Style */}
       <div className="w-full min-h-screen">
         {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay accentColor={netflixTheme.accentColor} />}
-        <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"} />
+        <QRModal
+          show={showQr}
+          onClose={() => setShowQr(false)}
+          qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          guestName={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          eventName={isKhitan ? nickname1 : nickname}
+          eventDate={firstEvent?.date ? new Date(`${firstEvent.date}T${firstEvent.time}`).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+          eventTime={firstEvent?.time || "Pukul 09.00 WIB - Selesai"}
+          coverImage={gallery?.items?.[0] || netflixTheme.defaultBgImage1 || '/images/default-wedding.jpg'}
+        />
 
         {!isOpen && !isLoading && (
           <OpeningSection
@@ -412,9 +422,9 @@ export default function Theme2({ data }: Theme2Props) {
                 HeadingFontFamily={processedHeadingFontFamily}
               />
             )}
-            
+
             <InvitationTextSection invitation={invitation} theme={netflixTheme} />
-            
+
             <FamilySection
               childrenData={children}
               parents={parents}
@@ -434,19 +444,19 @@ export default function Theme2({ data }: Theme2Props) {
                 <OurStorySection ourStory={our_story} theme={netflixTheme} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
               </LazyHydrate>
             )}
-            
+
             {gallery_enabled && gallery?.items?.length > 0 && (
               <LazyHydrate>
                 <GallerySection gallery={gallery} theme={netflixTheme} />
               </LazyHydrate>
             )}
-            
+
             {content?.plugin?.gift && content?.plugin?.youtube_link && (
               <LazyHydrate>
                 <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={netflixTheme.defaultBgImage1} />
               </LazyHydrate>
             )}
-            
+
             {content.bank_transfer?.enabled && (
               <BankSection
                 theme={netflixTheme}
@@ -457,7 +467,7 @@ export default function Theme2({ data }: Theme2Props) {
                 status={data.status}
               />
             )}
-            
+
             {content?.plugin?.rsvp && (
               <RsmpSection
                 theme={netflixTheme}
@@ -469,7 +479,7 @@ export default function Theme2({ data }: Theme2Props) {
                 status={data.status}
               />
             )}
-            
+
             <ClosingSection
               gallery={gallery}
               childrenData={children}

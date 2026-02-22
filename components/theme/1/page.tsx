@@ -19,10 +19,10 @@ const DotLottieReact = dynamic(
   () => import('@lottiefiles/dotlottie-react').then(mod => mod.DotLottieReact).catch(() => {
     console.warn('Failed to load DotLottieReact, using fallback');
     return () => <div className="flex items-center justify-center p-8">Loading…</div>;
-  }), 
-  { 
-    ssr: false, 
-    loading: () => <div className="flex items-center justify-center p-8">Loading…</div> 
+  }),
+  {
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center p-8">Loading…</div>
   }
 );
 
@@ -30,7 +30,7 @@ const MusicPlayer = dynamic(
   () => import('@/components/MusicPlayer').catch(() => {
     console.warn('Failed to load MusicPlayer');
     return { default: () => null };
-  }), 
+  }),
   { ssr: false, loading: () => null }
 );
 
@@ -38,7 +38,7 @@ const VideoSection = dynamic(
   () => import('@/components/theme/1/videosection').catch(() => {
     console.warn('Failed to load VideoSection');
     return { default: () => null };
-  }), 
+  }),
   { ssr: false, loading: () => null }
 );
 
@@ -108,7 +108,7 @@ export default function Theme1({ data }: Theme1Props) {
 
     // Get URL params from state (set in useEffect)
     const { userId, title } = urlParams;
-    
+
     if (!cuId || !userId || !title) {
       console.error('Payment data missing:', { cuId, userId, title });
       setPaymentError('Data undangan tidak lengkap');
@@ -174,16 +174,16 @@ export default function Theme1({ data }: Theme1Props) {
   useEffect(() => {
     // Set client flag and URL params after mount
     setIsClient(true);
-    
+
     // Safely get URL params on client side only
     if (typeof window !== 'undefined') {
       const userId = params?.userId as string;
       const title = params?.title as string;
       const toName = searchParams?.get("to") || "Bapak/Ibu/Saudara/i";
-      
+
       setUrlParams({ userId, title, toName });
     }
-    
+
     const loadingTimeout = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -219,7 +219,7 @@ export default function Theme1({ data }: Theme1Props) {
   // Destructure API data
   const { theme, content, decorations, event: apiEvents, category_type } = data;
   const { plugin } = content;
-  const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote, 
+  const { opening, quotes, invitation, children, parents, gallery, our_story, music, closing, title: eventTitle, quote,
     quote_enabled, gallery_enabled = false } = content;
 
   const { url: musicUrl = "", enabled: musicEnabled = false } = music || {};
@@ -238,7 +238,7 @@ export default function Theme1({ data }: Theme1Props) {
         mapsLink: eventData.mapsLink || '',
       } : null;
     })
-  .filter(Boolean) as ThemeEvent[];
+    .filter(Boolean) as ThemeEvent[];
 
   const sortedEvents = [...eventsList].sort((a, b) => {
     try {
@@ -263,6 +263,7 @@ export default function Theme1({ data }: Theme1Props) {
   }
 
   const isWedding = !!parents?.groom;
+  const isKhitan = (category_type?.name || '').toString().toLowerCase().includes('khitan');
 
   const nickname1 = children?.[0]?.nickname || '';
   const nickname2 = children?.[1]?.nickname || '';
@@ -287,9 +288,9 @@ export default function Theme1({ data }: Theme1Props) {
     const lowerEventTitle = (eventTitle || '').toString().toLowerCase();
     const lowerEventDetails = eventDetails.toLowerCase();
     const anyEventTitleMentionsKhitan = sortedEvents.some(ev => (ev.title || '').toString().toLowerCase().includes('khitan'));
-    const isKhitan = lowerCategory.includes('khitan') || lowerEventTitle.includes('khitan') || lowerEventDetails.includes('khitan') || anyEventTitleMentionsKhitan;
+    const isKhitanTemp = lowerCategory.includes('khitan') || lowerEventTitle.includes('khitan') || lowerEventDetails.includes('khitan') || anyEventTitleMentionsKhitan;
 
-    if (isKhitan) {
+    if (isKhitanTemp) {
       // Use only the first child's name and strip any '&' suffixes (e.g. "A & B")
       const rawChild = children?.[0]?.name || children?.[0]?.nickname || nickname || '';
       const firstChildName = rawChild ? rawChild.split('&')[0].trim() : '';
@@ -309,18 +310,18 @@ export default function Theme1({ data }: Theme1Props) {
   const processedBodyFontFamily = content?.font?.body?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
   const processedHeadingFontFamily = content?.font?.heading?.replace('font-family:', '').trim().replace(';', '') || 'sans-serif';
 
-    // setelah destructure content
-    const turutList = content?.turut?.list || [];
-    const turutEnabled = content?.turut?.enabled;
+  // setelah destructure content
+  const turutList = content?.turut?.list || [];
+  const turutEnabled = content?.turut?.enabled;
 
-    return (
+  return (
     <main className={`relative min-h-screen text-center overflow-hidden flex md:flex-row ${data.status === "tidak" ? "pt-16 sm:pt-12" : ""}`} style={{ color: theme.textColor }}>
       {data.status === "tidak" && (
         <div className="fixed top-0 left-0 w-full bg-yellow-300 text-yellow-900 py-1 z-50 text-center font-medium">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-3">
             <span className="text-xs sm:text-sm">Undangan dalam mode ujicoba/gratis.</span>
             {isClient && (
-              <Button 
+              <Button
                 size="sm"
                 variant="outline"
                 className="bg-white text-yellow-900 border-yellow-600 hover:bg-yellow-50 disabled:opacity-50 text-xs whitespace-nowrap px-2 py-1"
@@ -338,7 +339,7 @@ export default function Theme1({ data }: Theme1Props) {
           )}
         </div>
       )}
-        {isLoading && (
+      {isLoading && (
         <motion.div
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
@@ -366,13 +367,22 @@ export default function Theme1({ data }: Theme1Props) {
 
       {/* Right Content */}
       <div className="w-full md:w-[30%] overflow-y-auto h-screen">
-  {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay accentColor={theme.accentColor} />}
-        <QRModal show={showQr} onClose={() => setShowQr(false)} qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"} />
+        {isOpen && musicEnabled && <MusicPlayer url={musicUrl} autoPlay accentColor={theme.accentColor} />}
+        <QRModal
+          show={showQr}
+          onClose={() => setShowQr(false)}
+          qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          guestName={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          eventName={isKhitan ? nickname1 : nickname}
+          eventDate={firstEvent?.date ? new Date(`${firstEvent.date}T${firstEvent.time}`).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}
+          eventTime={firstEvent?.time || "Pukul 09.00 WIB - Selesai"}
+          coverImage={gallery?.items?.[0] || theme.defaultBgImage1 || '/images/default-wedding.jpg'}
+        />
 
         {!isOpen && !isLoading && (
-      <OpeningSection
-        opening={{ ...opening, to: urlParams.toName }}
-        gallery={gallery}
+          <OpeningSection
+            opening={{ ...opening, to: urlParams.toName }}
+            gallery={gallery}
             decorations={decorations}
             theme={theme}
             isWedding={isWedding}
@@ -438,41 +448,41 @@ export default function Theme1({ data }: Theme1Props) {
             <EventSection events={sortedEvents} theme={theme} sectionTitle={eventTitle} specialFontFamily={processedSpecialFontFamily} />
 
             {content.our_story?.length > 0 && content.our_story_enabled && (
-      <LazyHydrate>
-        <OurStorySection ourStory={our_story} theme={theme} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
-      </LazyHydrate>
-    )}
+              <LazyHydrate>
+                <OurStorySection ourStory={our_story} theme={theme} specialFontFamily={processedSpecialFontFamily} BodyFontFamily={processedBodyFontFamily} HeadingFontFamily={processedHeadingFontFamily} />
+              </LazyHydrate>
+            )}
             {gallery_enabled && gallery?.items?.length > 0 && (
-      <LazyHydrate>
-        <GallerySection gallery={gallery} theme={theme} />
-      </LazyHydrate>
-    )}
+              <LazyHydrate>
+                <GallerySection gallery={gallery} theme={theme} />
+              </LazyHydrate>
+            )}
             {content?.plugin?.gift && content?.plugin?.youtube_link && (
-  <LazyHydrate>
-    <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={theme.defaultBgImage1} />
-  </LazyHydrate>
-)}
+              <LazyHydrate>
+                <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={theme.defaultBgImage1} />
+              </LazyHydrate>
+            )}
             {content.bank_transfer?.enabled && (
-  <BankSection
-    theme={theme}
-    specialFontFamily={processedSpecialFontFamily}
-    bodyFontFamily={processedBodyFontFamily}
-    bankTransfer={content.bank_transfer}
-    contentUserId={data.content_user_id}
-    status={data.status} // Pass status here
-  />
-)}
-           {content?.plugin?.rsvp && (
-      <RsmpSection
-        theme={theme}
-        specialFontFamily={processedSpecialFontFamily}
-        bodyFontFamily={processedBodyFontFamily}
-        contentUserId={data.content_user_id}
-        id="rsvp"
-        plugin={plugin}
-        status={data.status} // Pass status here
-      />
-    )}
+              <BankSection
+                theme={theme}
+                specialFontFamily={processedSpecialFontFamily}
+                bodyFontFamily={processedBodyFontFamily}
+                bankTransfer={content.bank_transfer}
+                contentUserId={data.content_user_id}
+                status={data.status} // Pass status here
+              />
+            )}
+            {content?.plugin?.rsvp && (
+              <RsmpSection
+                theme={theme}
+                specialFontFamily={processedSpecialFontFamily}
+                bodyFontFamily={processedBodyFontFamily}
+                contentUserId={data.content_user_id}
+                id="rsvp"
+                plugin={plugin}
+                status={data.status} // Pass status here
+              />
+            )}
             <ClosingSection
               gallery={gallery}
               childrenData={children}
@@ -486,14 +496,14 @@ export default function Theme1({ data }: Theme1Props) {
         )}
 
         {isOpen && !isLoading && plugin?.navbar && (
-  <Navigation
-    activeSection={activeSection}
-    setActiveSection={setActiveSection}
-    accentColor={theme.accentColor}
-    showGallery={!!gallery_enabled}
-    showRsvp={!!plugin?.rsvp}
-  />
-)}
+          <Navigation
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            accentColor={theme.accentColor}
+            showGallery={!!gallery_enabled}
+            showRsvp={!!plugin?.rsvp}
+          />
+        )}
       </div>
     </main>
   );

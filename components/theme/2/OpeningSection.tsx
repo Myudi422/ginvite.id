@@ -62,7 +62,7 @@ export default function OpeningSection({
   const eventType = isKhitan ? 'Khitanan' : (isWedding ? 'Pernikahan' : 'Acara');
 
   return (
-    <div 
+    <div
       className="relative w-full min-h-screen flex items-center justify-center overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.5)), url(${bgImage})`,
@@ -75,9 +75,9 @@ export default function OpeningSection({
       {/* Netflix-style gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/40" />
-      
+
       {/* Main Content */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -90,10 +90,10 @@ export default function OpeningSection({
           transition={{ delay: 0.2, duration: 0.6 }}
           className="inline-block mb-6 sm:mb-8"
         >
-          <span 
+          <span
             className="px-6 py-3 rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase bg-opacity-90 backdrop-blur-sm border-2"
-            style={{ 
-              backgroundColor: theme.accentColor + '15', 
+            style={{
+              backgroundColor: theme.accentColor + '15',
               color: theme.accentColor,
               borderColor: theme.accentColor + '60'
             }}
@@ -103,12 +103,12 @@ export default function OpeningSection({
         </motion.div>
 
         {/* Couple Names - Netflix Style Large Text */}
-        <motion.h1 
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
           className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-8 leading-tight"
-          style={{ 
+          style={{
             fontFamily: specialFontFamily || HeadingFontFamily || 'serif',
             color: theme.textColor,
             textShadow: '3px 3px 6px rgba(0,0,0,0.9)',
@@ -125,18 +125,18 @@ export default function OpeningSection({
           transition={{ delay: 0.6, duration: 0.8 }}
           className="mb-8 sm:mb-10"
         >
-          <p 
+          <p
             className="text-base sm:text-lg md:text-xl mb-3 opacity-90 font-medium"
-            style={{ 
+            style={{
               fontFamily: BodyFontFamily || 'sans-serif',
-              color: theme.textColor 
+              color: theme.textColor
             }}
           >
             {opening.toLabel || 'Kepada Yth.'}
           </p>
-          <p 
+          <p
             className="text-xl sm:text-2xl md:text-3xl font-bold"
-            style={{ 
+            style={{
               fontFamily: BodyFontFamily || 'sans-serif',
               color: theme.accentColor,
               textShadow: '2px 2px 4px rgba(0,0,0,0.7)'
@@ -147,20 +147,20 @@ export default function OpeningSection({
         </motion.div>
 
         {/* Title/Subtitle */}
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.8 }}
           className="text-sm sm:text-base md:text-lg lg:text-xl mb-10 sm:mb-12 opacity-85 max-w-3xl mx-auto leading-relaxed px-4"
-          style={{ 
+          style={{
             fontFamily: BodyFontFamily || 'sans-serif',
-            color: theme.textColor 
+            color: theme.textColor
           }}
         >
         </motion.p>
 
         {/* Action Buttons - Netflix Style */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.8 }}
@@ -180,7 +180,7 @@ export default function OpeningSection({
             Buka Undangan
           </Button>
 
-          {toName && toName.trim() !== '' && toName !== 'Bapak/Ibu/Saudara/i' && (
+          {plugin?.qrcode && toName && toName.trim() !== '' && toName !== 'Bapak/Ibu/Saudara/i' && (
             <Button
               onClick={onShowQr}
               variant="outline"

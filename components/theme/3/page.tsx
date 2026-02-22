@@ -519,6 +519,7 @@ export default function Theme3({ data }: Theme3Props) {
           selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
           qrData={urlParams.toName}
           onShowQr={() => setShowQr(true)}
+          showQrButton={!!plugin?.qrcode && urlParams.toName !== "Bapak/Ibu/Saudara/i"}
         />
       )}
 
@@ -530,6 +531,11 @@ export default function Theme3({ data }: Theme3Props) {
           // Just close QR modal, keep profile modal open
         }}
         qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+        guestName={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+        eventName={isKhitan ? nickname1 : nickname}
+        eventDate={formattedDate}
+        eventTime={firstEvent?.time || "Pukul 09.00 WIB - Selesai"}
+        coverImage={gallery?.items?.[0] || backgroundImage}
       />
 
       {/* Main Content */}

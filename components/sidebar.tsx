@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette, LayoutDashboardIcon, MessageSquareWarning, Clapperboard, BookOpenIcon   } from "lucide-react" // Import MusicIcon
+import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette, LayoutDashboardIcon, MessageSquareWarning, Clapperboard, BookOpenIcon } from "lucide-react" // Import MusicIcon
 import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -24,24 +24,19 @@ interface NestedRoute extends Route {
 const routes: NestedRoute[] = [
   { href: "/admin", label: "Dashboard", icon: HomeIcon },
   {
-    href: "/manage",
-    label: "Browse",
-    icon: LayoutDashboardIcon,
-    items: [
-      { href: "/tutorial", label: "Tutorial", icon: Clapperboard  },
-      { href: "https://wa.me/6289654728249", label: "Report", icon: MessageSquareWarning  },
-       //
-    ],
+    href: "/katalog",
+    label: "Katalog",
+    icon: LayoutTemplateIcon,
   },
   {
     href: "/panel",
     label: "Admin",
     icon: FolderOpenDot,
     items: [
-       { href: "/panel", label: "Statistik", icon: ChartArea },
+      { href: "/panel", label: "Statistik", icon: ChartArea },
       { href: "/panel/music", label: "Music", icon: MusicIcon },
       { href: "/panel/blog-admin", label: "Blog", icon: BookOpenIcon },
-      { href: "/panel/theme", label: "Theme", icon: Palette  },
+      { href: "/panel/theme", label: "Theme", icon: Palette },
     ],
   },
 ];

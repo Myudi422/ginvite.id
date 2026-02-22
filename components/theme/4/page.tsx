@@ -341,6 +341,7 @@ export default function Theme4({ data }: Theme4Props) {
           selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
           qrData={urlParams.toName}
           onShowQr={() => setShowQr(true)}
+          showQrButton={!!plugin?.qrcode && urlParams.toName !== "Bapak/Ibu/Saudara/i"}
         />
       )}
 
@@ -348,6 +349,11 @@ export default function Theme4({ data }: Theme4Props) {
         show={showQr}
         onClose={() => setShowQr(false)}
         qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+        guestName={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+        eventName={isKhitan ? nickname1 : nickname}
+        eventDate={formattedDate}
+        eventTime={firstEvent?.time || "Pukul 09.00 WIB - Selesai"}
+        coverImage={gallery?.items?.[0] || backgroundImage}
       />
 
       {/* Music Player */}
@@ -541,14 +547,14 @@ export default function Theme4({ data }: Theme4Props) {
         {/* Event Details */}
         {
           apiEvents && (
-            <ThemeSection className="bg-zinc-900/30 py-16">
-              <ThemeHeader size="lg" className="mb-8 text-center uppercase tracking-widest text-amber-500">
+            <ThemeSection className="relative py-20 bg-gradient-to-b from-zinc-950 via-amber-950/10 to-zinc-950">
+              <ThemeHeader size="lg" className="mb-10 text-center uppercase tracking-widest text-amber-500">
                 Save The Date
               </ThemeHeader>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
                 {Object.entries(apiEvents).map(([key, evt], idx) => (
-                  <div key={key} className="bg-zinc-950/50 p-8 rounded-2xl border border-white/5 text-center space-y-4 hover:border-amber-500/20 transition-all">
+                  <div key={key} className="bg-gradient-to-br from-zinc-900/80 to-amber-950/30 p-8 rounded-3xl border border-amber-500/20 text-center space-y-4 hover:border-amber-400/40 transition-all shadow-xl backdrop-blur-sm shadow-amber-900/10">
                     <ThemeText variant="caption" color="gold" className="text-lg">
                       {evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
                     </ThemeText>

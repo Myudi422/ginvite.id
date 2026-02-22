@@ -50,9 +50,8 @@ export default function OpeningSection({
   const toName = opening.to || "Bapak/Ibu/Saudara/i";
 
   const backgroundImageStyle = {
-    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${
-      gallery?.items?.length > 0 ? gallery.items[0] : theme.defaultBgImage1
-    })`,
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${gallery?.items?.length > 0 ? gallery.items[0] : theme.defaultBgImage1
+      })`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   };
@@ -63,7 +62,7 @@ export default function OpeningSection({
     displayNames = (
       <h2
         className="text-2xl md:text-4xl font-extrabold"
-        style={{ color: theme.textColor, fontFamily: specialFontFamily}}
+        style={{ color: theme.textColor, fontFamily: specialFontFamily }}
       >
         {childrenData[0]?.nickname} &amp; {childrenData[1]?.nickname}
       </h2>
@@ -72,7 +71,7 @@ export default function OpeningSection({
     displayNames = (
       <h2
         className="text-2xl md:text-4xl font-extrabold"
-        style={{ color: theme.textColor, fontFamily: specialFontFamily}}
+        style={{ color: theme.textColor, fontFamily: specialFontFamily }}
       >
         {childrenData[0]?.name}
       </h2>
@@ -85,45 +84,44 @@ export default function OpeningSection({
       style={backgroundImageStyle}
     >
       {/* Decoration Elements */}
-  {[
-    decorations.topLeft,
-    decorations.topRight,
-    decorations.bottomLeft,
-    decorations.bottomRight,
-  ]
-    .filter(src => src) // Filter out null, undefined, and empty strings
-    .map((src, i) => (
-      <img
-        key={i}
-        src={src}
-        className={`absolute ${
-          [
-            'top-0 left-0',
-            'top-0 right-0',
-            'bottom-0 left-0',
-            'bottom-0 right-0',
-          ][i % 4] // Gunakan modulo untuk index yang benar setelah filter
-        } w-24 h-24 md:w-48 md:h-48 animate-pulse pointer-events-none z-0`}
-        alt=""
-      />
-    ))}
+      {[
+        decorations.topLeft,
+        decorations.topRight,
+        decorations.bottomLeft,
+        decorations.bottomRight,
+      ]
+        .filter(src => src) // Filter out null, undefined, and empty strings
+        .map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            className={`absolute ${[
+                'top-0 left-0',
+                'top-0 right-0',
+                'bottom-0 left-0',
+                'bottom-0 right-0',
+              ][i % 4] // Gunakan modulo untuk index yang benar setelah filter
+              } w-24 h-24 md:w-48 md:h-48 animate-pulse pointer-events-none z-0`}
+            alt=""
+          />
+        ))}
 
       {/* Main Content */}
       <div className="text-center space-y-6 relative z-10 max-w-2xl mx-auto">
         {/* Titles */}
-        <h1 className="text-2xl font-bold" style={{ color: theme.textColor,  fontFamily: HeadingFontFamily }}>{opening.title}</h1>
+        <h1 className="text-2xl font-bold" style={{ color: theme.textColor, fontFamily: HeadingFontFamily }}>{opening.title}</h1>
 
         <div className="mt-2 space-y-1">
           {displayNames}
         </div>
 
         {/* Invitation Text */}
-        <p className="text-sm"style={{ color: theme.textColor,  fontFamily: BodyFontFamily }}>
+        <p className="text-sm" style={{ color: theme.textColor, fontFamily: BodyFontFamily }}>
           Tanpa Mengurangi Rasa Hormat, Kami Mengundang
         </p>
 
         {/* Recipient Section */}
-        <div className="my-8 py-4 border-t border-b border-white/30" style={{ color: theme.textColor,  fontFamily: BodyFontFamily }}>
+        <div className="my-8 py-4 border-t border-b border-white/30" style={{ color: theme.textColor, fontFamily: BodyFontFamily }}>
           <h2 className="text-lg mb-2">{opening.toLabel}</h2>
           <p className="text-xl font-semibold">{toName}</p> {/* Menggunakan toName dari query params */}
         </div>

@@ -8,9 +8,10 @@ interface NetflixProfileModalProps {
   selectedProfile: string;
   qrData?: string;
   onShowQr?: () => void;
+  showQrButton?: boolean;
 }
 
-export default function NetflixProfileModal({ onClose, selectedProfile, qrData, onShowQr }: NetflixProfileModalProps) {
+export default function NetflixProfileModal({ onClose, selectedProfile, qrData, onShowQr, showQrButton }: NetflixProfileModalProps) {
   const [isConfirming, setIsConfirming] = useState(false);
 
   // Profile configuration
@@ -50,9 +51,9 @@ export default function NetflixProfileModal({ onClose, selectedProfile, qrData, 
           <div
             className={`w-32 h-32 rounded-3xl bg-gradient-to-br ${profile.color} shadow-2xl flex items-center justify-center overflow-hidden`}
           >
-            <img 
-              src="/GuestIcon.webp" 
-              alt="Profile" 
+            <img
+              src="/GuestIcon.webp"
+              alt="Profile"
               className="w-full h-full object-cover"
             />
           </div>
@@ -72,8 +73,8 @@ export default function NetflixProfileModal({ onClose, selectedProfile, qrData, 
         </button>
 
         {/* QR Link - Show if qrData exists */}
-        {qrData && qrData.trim() !== '' && (
-          <div 
+        {showQrButton && qrData && qrData.trim() !== '' && (
+          <div
             onClick={handleShowQr}
             className="mt-4 flex items-center justify-center gap-2 cursor-pointer text-white hover:text-red-400 transition-colors"
           >

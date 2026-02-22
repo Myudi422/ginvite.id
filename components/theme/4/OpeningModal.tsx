@@ -9,9 +9,10 @@ interface OpeningModalProps {
   selectedProfile: string;
   qrData?: string;
   onShowQr?: () => void;
+  showQrButton?: boolean;
 }
 
-export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQr }: OpeningModalProps) {
+export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQr, showQrButton }: OpeningModalProps) {
   const [showContent, setShowContent] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -96,7 +97,7 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
             </div>
 
             {/* QR Link */}
-            {qrData && qrData.trim() !== '' && (
+            {showQrButton && qrData && qrData.trim() !== '' && (
               <div
                 onClick={handleShowQr}
                 className="inline-flex items-center gap-2 cursor-pointer text-zinc-300 hover:text-amber-400 transition-colors group"
