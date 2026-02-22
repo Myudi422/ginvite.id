@@ -4,9 +4,10 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 require __DIR__ . '/../db.php';
 
-function error($code, $msg) {
+function error($code, $msg)
+{
     http_response_code($code);
-    echo json_encode(['status'=>'error','message'=>$msg], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['status' => 'error', 'message' => $msg], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -14,7 +15,8 @@ function error($code, $msg) {
 $userId = null;
 if (isset($_GET['user_id']) && is_numeric($_GET['user_id'])) {
     $userId = (int)$_GET['user_id'];
-} elseif (isset($_GET['user']) && is_numeric($_GET['user'])) {
+}
+elseif (isset($_GET['user']) && is_numeric($_GET['user'])) {
     $userId = (int)$_GET['user'];
 }
 $title = isset($_GET['title']) && trim($_GET['title']) !== ''
@@ -66,16 +68,16 @@ $templateRow = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$templateRow) {
     error(404, "Kategori template ID={$templateCategoryId} tidak ditemukan");
 }
-$templateJson    = $templateRow['content_template'];
+$templateJson = $templateRow['content_template'];
 $categoryTypeName = $templateRow['category_type_name'];
-$template        = json_decode($templateJson, true);
+$template = json_decode($templateJson, true);
 
 // 6) Merge template + userContent, sisipkan ID untuk frontend
 $content = array_merge($template, $userContent);
-$content['our_story']             = $content['our_story'] ?? [];
+$content['our_story'] = $content['our_story'] ?? [];
 $content['themeCategoryTemplate'] = $templateCategoryId;
-$content['themeCategory']         = (int)$cu['kategory_theme_id'];
-$content['theme']                 = (int)$cu['theme_id'];
+$content['themeCategory'] = (int)$cu['kategory_theme_id'];
+$content['theme'] = (int)$cu['theme_id'];
 
 // 7) Ambil data theme berdasarkan theme_id
 $themeId = (int)$cu['theme_id'];
@@ -87,38 +89,39 @@ if (!$theme) {
 }
 // Ambil override warna dari content_user.font
 $fontColor = $content['font']['color'] ?? [];
-$textColor   = (!empty($fontColor['text_color']) ? $fontColor['text_color'] : $theme['text_color']);
+$textColor = (!empty($fontColor['text_color']) ? $fontColor['text_color'] : $theme['text_color']);
 $accentColor = (!empty($fontColor['accent_color']) ? $fontColor['accent_color'] : $theme['accent_color']);
 
 // 8) Bangun response JSON\ n
 $result = [
-    'user'           => [
-        'id'           => $user['uid'],
-        'first_name'   => $user['first_name'],
+    'user' => [
+        'id' => $user['uid'],
+        'first_name' => $user['first_name'],
         'pictures_url' => $user['pictures_url'],
     ],
-    'category_type'  => [
-        'id'   => $templateCategoryId,
+    'category_type' => [
+        'id' => $templateCategoryId,
         'name' => $categoryTypeName,
     ],
-    'theme'          => [
-        'idtheme'        => $theme['id'],
-        'textColor'      => $textColor,
-        'accentColor'    => $accentColor,
+    'theme' => [
+        'idtheme' => $theme['id'],
+        'textColor' => $textColor,
+        'accentColor' => $accentColor,
         'defaultBgImage' => $theme['default_bg_image'],
-        'background'     => $theme['background'] ?? '',
-        'defaultBgImage1'=> $theme['default_bg_image1'],
+        'background' => $theme['background'] ?? '',
+        'defaultBgImage1' => $theme['default_bg_image1'],
+        'custom' => $theme['custom'] ?? null,
     ],
-    'decorations'    => [
-        'topLeft'    => $theme['decorations_top_left'],
-        'topRight'   => $theme['decorations_top_right'],
+    'decorations' => [
+        'topLeft' => $theme['decorations_top_left'],
+        'topRight' => $theme['decorations_top_right'],
         'bottomLeft' => $theme['decorations_bottom_left'],
-        'bottomRight'=> $theme['decorations_bottom_right'],
+        'bottomRight' => $theme['decorations_bottom_right'],
     ],
-    'content_user_id'=> (int)$cu['id'],
-    'content'        => $content,
-    'event'          => $eventData,
-    'status'         => $cu['status_teks'],
+    'content_user_id' => (int)$cu['id'],
+    'content' => $content,
+    'event' => $eventData,
+    'status' => $cu['status_teks'],
 ];
 
 echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);

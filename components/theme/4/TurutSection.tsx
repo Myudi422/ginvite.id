@@ -12,10 +12,10 @@ export default function TurutSection({ enabled, list }: TurutSectionProps) {
   return (
     <ThemeSection className="bg-zinc-900/50 backdrop-blur-sm mx-4 rounded-xl border border-zinc-800">
       <div className="flex flex-col items-center gap-2 mb-6 text-center">
-        <div className="w-12 h-12 rounded-full bg-amber-900/20 border border-amber-500/30 flex items-center justify-center mb-2">
-          <span className="text-amber-500 text-xl">✨</span>
+        <div className="w-12 h-12 rounded-full border flex items-center justify-center mb-2" style={{ backgroundColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.2))', borderColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.3))' }}>
+          <span className="text-xl" style={{ color: 'var(--t4-text-accent, #f59e0b)' }}>✨</span>
         </div>
-        <ThemeHeader size="lg" className="text-amber-100">Turut Mengundang</ThemeHeader>
+        <ThemeHeader size="lg" className="text-amber-100" style={{ color: 'var(--t4-text-accent, #fef3c7)' }}>Turut Mengundang</ThemeHeader>
         <ThemeText variant="caption" color="gray">
           Keluarga Besar yang Berbahagia
         </ThemeText>
@@ -25,10 +25,10 @@ export default function TurutSection({ enabled, list }: TurutSectionProps) {
         {list.map((item, idx) => (
           <div
             key={idx}
-            className="flex items-center gap-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50 hover:border-amber-900/50 transition-colors"
+            className="flex items-center gap-3 p-3 bg-zinc-950/50 rounded-lg border border-zinc-800/50 hover:border-white/20 transition-colors"
           >
             {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center text-white text-xs font-serif font-bold shadow-lg">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-serif font-bold shadow-lg" style={{ background: 'var(--t4-grad-button, linear-gradient(to bottom right, #d97706, #92400e))' }}>
               {item.name.charAt(0).toUpperCase()}
             </div>
 

@@ -56,7 +56,7 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
         <div className={`absolute inset-0 flex flex-col items-center justify-center p-6 text-center transition-all duration-1000 ${showContent ? 'opacity-100 translate-y-0 visible pointer-events-auto' : 'opacity-0 translate-y-10 invisible pointer-events-none'}`}>
 
           {/* Decorative elements */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ backgroundColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.1))' }} />
 
           <div className="relative z-10 space-y-8 w-full max-w-sm">
             {/* Header */}
@@ -75,8 +75,8 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
                 Dear Mr/Mrs/Ms
               </ThemeText>
 
-              <div className="py-2 border-b border-amber-500/30 w-3/4 mx-auto">
-                <p className="text-2xl font-serif text-amber-100 leading-tight text-center break-words">
+              <div className="py-2 border-b w-3/4 mx-auto" style={{ borderColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.3))' }}>
+                <p className="text-2xl font-serif leading-tight text-center break-words" style={{ color: 'var(--t4-text-primary, #fef3c7)' }}>
                   {selectedProfile}
                 </p>
               </div>
@@ -90,7 +90,7 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
             <div className="pt-4">
               <ThemeButton
                 onClick={handleContinue}
-                className="w-full shadow-lg shadow-amber-900/20"
+                className="w-full shadow-lg"
               >
                 Open Invitation
               </ThemeButton>

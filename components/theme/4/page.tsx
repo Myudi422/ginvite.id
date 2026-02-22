@@ -107,6 +107,22 @@ export default function Theme4({ data }: Theme4Props) {
     }
   }, [params, searchParams]);
 
+  // Custom Theme Colors (from JSON in DB)
+  const customColors = typeof theme?.custom === 'string' && theme.custom.trim().startsWith('{')
+    ? (() => { try { return JSON.parse(theme.custom).theme4 || null; } catch (e) { return null; } })()
+    : null;
+
+  const customStyle = customColors ? {
+    '--t4-bg-main': customColors.background?.main,
+    '--t4-text-primary': customColors.text?.primary,
+    '--t4-text-secondary': customColors.text?.secondary,
+    '--t4-text-accent': customColors.text?.accent,
+    '--t4-grad-button': customColors.gradients?.button,
+    '--t4-grad-section': customColors.gradients?.section_bg,
+    '--t4-grad-card': customColors.gradients?.card_bg,
+    '--t4-border-glass': customColors.borders?.glass,
+  } as React.CSSProperties : {};
+
   useEffect(() => {
     if (!cuId) return;
     (async () => {
@@ -309,481 +325,497 @@ export default function Theme4({ data }: Theme4Props) {
   }
 
   return (
-    <ThemeContainer>
-      {/* Payment Banner */}
-      {data.status === "tidak" && isOpen && (
-        <div className="fixed top-20 left-4 right-4 z-[60] flex flex-col items-center justify-center gap-2 pointer-events-none">
-          <div className="bg-amber-600/90 backdrop-blur-md text-white py-3 px-4 rounded-xl shadow-2xl pointer-events-auto flex items-center gap-4 max-w-sm w-full border border-amber-400/30">
-            <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-amber-100 mb-0.5">Trial Mode</p>
-              <p className="text-[10px] text-amber-50/80 leading-tight">Aktifkan untuk fitur lengkap & hilangkan watermark.</p>
+    <div style={customStyle} className="w-full h-full">
+      <ThemeContainer>
+        {/* Payment Banner */}
+        {data.status === "tidak" && isOpen && (
+          <div className="fixed top-20 left-4 right-4 z-[60] flex flex-col items-center justify-center gap-2 pointer-events-none">
+            <div className="bg-amber-600/90 backdrop-blur-md text-white py-3 px-4 rounded-xl shadow-2xl pointer-events-auto flex items-center gap-4 max-w-sm w-full border border-amber-400/30">
+              <div className="flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber-100 mb-0.5">Trial Mode</p>
+                <p className="text-[10px] text-amber-50/80 leading-tight">Aktifkan untuk fitur lengkap & hilangkan watermark.</p>
+              </div>
+              <ThemeButton
+                variant="primary"
+                className="py-1.5 px-4 text-[10px] h-auto min-w-[80px]"
+                onClick={handlePayment}
+                disabled={paymentLoading}
+              >
+                {paymentLoading ? 'Loading...' : 'Aktifkan'}
+              </ThemeButton>
             </div>
-            <ThemeButton
-              variant="primary"
-              className="py-1.5 px-4 text-[10px] h-auto min-w-[80px]"
-              onClick={handlePayment}
-              disabled={paymentLoading}
-            >
-              {paymentLoading ? 'Loading...' : 'Aktifkan'}
-            </ThemeButton>
+            {paymentError && (
+              <div className="bg-red-900/90 text-white text-[10px] py-1 px-3 rounded-full pointer-events-auto">
+                {paymentError}
+              </div>
+            )}
           </div>
-          {paymentError && (
-            <div className="bg-red-900/90 text-white text-[10px] py-1 px-3 rounded-full pointer-events-auto">
-              {paymentError}
-            </div>
-          )}
-        </div>
-      )}
-      {/* Opening / Profile Modal */}
-      {showProfileModal && (
-        <OpeningModal
-          onClose={handleProfileModalClose}
-          selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
-          qrData={urlParams.toName}
-          onShowQr={() => setShowQr(true)}
-          showQrButton={!!plugin?.qrcode && urlParams.toName !== "Bapak/Ibu/Saudara/i"}
+        )}
+        {/* Opening / Profile Modal */}
+        {showProfileModal && (
+          <OpeningModal
+            onClose={handleProfileModalClose}
+            selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+            qrData={urlParams.toName}
+            onShowQr={() => setShowQr(true)}
+            showQrButton={!!plugin?.qrcode && urlParams.toName !== "Bapak/Ibu/Saudara/i"}
+          />
+        )}
+
+        <QRModal
+          show={showQr}
+          onClose={() => setShowQr(false)}
+          qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          guestName={urlParams.toName || "Bapak/Ibu/Saudara/i"}
+          eventName={isKhitan ? nickname1 : nickname}
+          eventDate={formattedDate}
+          eventTime={firstEvent?.time || "Pukul 09.00 WIB - Selesai"}
+          coverImage={gallery?.items?.[0] || backgroundImage}
         />
-      )}
 
-      <QRModal
-        show={showQr}
-        onClose={() => setShowQr(false)}
-        qrData={urlParams.toName || "Bapak/Ibu/Saudara/i"}
-        guestName={urlParams.toName || "Bapak/Ibu/Saudara/i"}
-        eventName={isKhitan ? nickname1 : nickname}
-        eventDate={formattedDate}
-        eventTime={firstEvent?.time || "Pukul 09.00 WIB - Selesai"}
-        coverImage={gallery?.items?.[0] || backgroundImage}
-      />
-
-      {/* Music Player */}
-      {musicEnabled && musicUrl && isClient && (
-        <MusicPlayer url={musicUrl} autoPlay={isOpen} />
-      )}
+        {/* Music Player */}
+        {musicEnabled && musicUrl && isClient && (
+          <MusicPlayer url={musicUrl} autoPlay={isOpen} />
+        )}
 
 
 
-      {/* Main Content */}
-      <div className={`transition-opacity duration-1000 ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible h-0 overflow-hidden'}`}>
+        {/* Main Content */}
+        <div className={`transition-opacity duration-1000 ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible h-0 overflow-hidden'}`}>
 
-        {/* Full Screen Video Hero */}
-        <div id="home" className="relative h-screen w-full overflow-hidden">
-          {isDirectVideo ? (
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-            >
-              <source src={openingVideoUrl} type="video/mp4" />
-            </video>
-          ) : (
-            <div
-              className="absolute inset-0 w-full h-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${backgroundImage})` }}
-            />
-          )}
+          {/* Full Screen Video Hero */}
+          <div id="home" className="relative h-screen w-full overflow-hidden">
+            {isDirectVideo ? (
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              >
+                <source src={openingVideoUrl} type="video/mp4" />
+              </video>
+            ) : (
+              <div
+                className="absolute inset-0 w-full h-full bg-cover bg-center"
+                style={{ backgroundImage: `url(${backgroundImage})` }}
+              />
+            )}
 
-          <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/30" />
+            <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/30" />
 
-          {/* Opening Content Overlay */}
-          <div className={`absolute inset-0 flex flex-col items-center justify-end pb-32 text-center px-4 space-y-4 transition-all duration-1000 ${showOpeningText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <ThemeText variant="caption" color="gold" className="tracking-[0.5em]">
-              THE WEDDING OF
-            </ThemeText>
-            <h1 className="text-5xl md:text-6xl font-serif text-white font-bold tracking-wide">
-              {isKhitan ? nickname1 : nickname}
-            </h1>
-            <ThemeText variant="body" color="white" className="italic text-lg opacity-90">
-              {formattedDate}
-            </ThemeText>
+            {/* Opening Content Overlay */}
+            <div className={`absolute inset-0 flex flex-col items-center justify-end pb-32 text-center px-4 space-y-4 transition-all duration-1000 ${showOpeningText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+              <ThemeText variant="caption" color="gold" className="tracking-[0.5em]">
+                THE WEDDING OF
+              </ThemeText>
+              <h1 className="text-5xl md:text-6xl font-serif text-white font-bold tracking-wide">
+                {isKhitan ? nickname1 : nickname}
+              </h1>
+              <ThemeText variant="body" color="white" className="italic text-lg opacity-90">
+                {formattedDate}
+              </ThemeText>
 
-            <div className="animate-bounce pt-8 opacity-70">
-              <DownArrowIcon className="w-8 h-8 text-amber-200" />
+              <div className="animate-bounce pt-8 opacity-70">
+                <DownArrowIcon className="w-8 h-8" style={{ color: 'var(--t4-text-accent, #fde68a)' } as any} />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Quote Section */}
-        <ThemeSection className="text-center relative py-20">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-16 bg-gradient-to-b from-transparent to-amber-500/50" />
-          <ThemeText variant="quote" color="gold" className="max-w-xs mx-auto mb-6">
-            {data.content.quote
-              ? (typeof data.content.quote === 'string' ? data.content.quote : (data.content.quote.text || data.content.quote.quote))
-              : (isKhitan
-                ? '"Dan bahwasannya kepada Tuhanmu adalah kesudahan (segala sesuatu)"'
-                : '"Segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah)"'
-              )
-            }
-          </ThemeText>
-          {!data.content.quote && (
-            <ThemeText variant="meta" color="gray">
-              {isKhitan ? "(Q.S An-Najm: 42)" : "(Q.S Az-Zariyah: 49)"}
+          {/* Quote Section */}
+          <ThemeSection className="text-center relative py-20">
+            <div
+              className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-16 bg-gradient-to-b from-transparent"
+              style={{ backgroundImage: 'linear-gradient(to bottom, transparent, var(--t4-border-button, rgba(245, 158, 11, 0.5)))' }}
+            />
+            <ThemeText variant="quote" color="gold" className="max-w-xs mx-auto mb-6">
+              {data.content.quote
+                ? (typeof data.content.quote === 'string' ? data.content.quote : (data.content.quote.text || data.content.quote.quote))
+                : (isKhitan
+                  ? '"Dan bahwasannya kepada Tuhanmu adalah kesudahan (segala sesuatu)"'
+                  : '"Segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah)"'
+                )
+              }
             </ThemeText>
-          )}
-        </ThemeSection>
+            {!data.content.quote && (
+              <ThemeText variant="meta" color="gray">
+                {isKhitan ? "(Q.S An-Najm: 42)" : "(Q.S Az-Zariyah: 49)"}
+              </ThemeText>
+            )}
+          </ThemeSection>
 
-        {/* Our Love Story */}
-        {Array.isArray(content.our_story) && content.our_story.length > 0 && (
-          <ThemeSection id="story" className="py-12 px-4">
-            <ThemeHeader size="lg" className="mb-12 text-center uppercase tracking-widest text-amber-500">
-              Our Love Story
+          {/* Our Love Story */}
+          {Array.isArray(content.our_story) && content.our_story.length > 0 && (
+            <ThemeSection id="story" className="py-12 px-4">
+              <ThemeHeader size="lg" className="mb-12 text-center uppercase tracking-widest" style={{ color: 'var(--t4-text-accent, #f59e0b)' }}>
+                Our Love Story
+              </ThemeHeader>
+
+              <div className="relative space-y-10">
+                {content.our_story.map((item, index) => {
+                  const hasImage = item.pictures && item.pictures[0] && item.pictures[0].trim() !== '';
+                  return (
+                    <div key={index} className="flex flex-col gap-3 bg-zinc-900/50 border border-white/5 rounded-2xl p-5 shadow-xl hover:border-white/20 transition-all duration-300">
+                      {/* Header: Image + Title */}
+                      <div className="flex flex-row items-start gap-4">
+                        <div className="relative w-28 h-20 flex items-center justify-center overflow-hidden rounded-lg bg-zinc-800 shrink-0">
+                          {hasImage ? (
+                            <img
+                              src={item.pictures[0]}
+                              alt={item.title || `Episode ${index + 1}`}
+                              className="object-cover w-full h-full"
+                            />
+                          ) : (
+                            <span className="text-3xl">📖</span>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--t4-text-accent, #f59e0b)' }}>Episode {index + 1}</span>
+                          <h4 className="text-base font-serif font-bold text-white mt-0.5">{item.title}</h4>
+                          {item.date && (
+                            <span className="text-xs text-zinc-400">{item.date}</span>
+                          )}
+                        </div>
+                      </div>
+                      {/* Description */}
+                      <ThemeText variant="body" color="gray" align="left" className="text-sm leading-relaxed">
+                        {item.description}
+                      </ThemeText>
+                    </div>
+                  );
+                })}
+              </div>
+            </ThemeSection>
+          )}
+
+          {/* Bride & Groom / Childs */}
+          <ThemeSection id="profile" className="py-12 px-4 overflow-hidden">
+            <ThemeHeader size="lg" className="mb-12 text-center uppercase tracking-widest" style={{ color: 'var(--t4-text-accent, #f59e0b)' }}>
+              {isKhitan ? 'The Star' : 'The Couple'}
             </ThemeHeader>
 
-            <div className="relative space-y-10">
-              {content.our_story.map((item, index) => {
-                const hasImage = item.pictures && item.pictures[0] && item.pictures[0].trim() !== '';
-                return (
-                  <div key={index} className="flex flex-col gap-3 bg-zinc-900/50 border border-white/5 rounded-2xl p-5 shadow-xl hover:border-amber-500/30 transition-all duration-300">
-                    {/* Header: Image + Title */}
-                    <div className="flex flex-row items-start gap-4">
-                      <div className="relative w-28 h-20 flex items-center justify-center overflow-hidden rounded-lg bg-zinc-800 shrink-0">
-                        {hasImage ? (
-                          <img
-                            src={item.pictures[0]}
-                            alt={item.title || `Episode ${index + 1}`}
-                            className="object-cover w-full h-full"
-                          />
-                        ) : (
-                          <span className="text-3xl">📖</span>
-                        )}
+            <div className="flex flex-col gap-12 w-full">
+              {children?.map((child, index) => {
+                const hasImage = child.image || child.profile;
+                // Alternate layout logic if 2 people
+                const isReverse = index % 2 !== 0;
+
+                if (!hasImage) {
+                  return (
+                    <div key={index} className="flex flex-col items-center gap-3 w-full text-center py-6 animate-fade-in-up">
+                      <ThemeText variant="caption" color="gold" className="tracking-[0.3em] opacity-80 mb-2">
+                        {isKhitan ? 'THE STAR' : (index === 0 ? 'THE GROOM' : 'THE BRIDE')}
+                      </ThemeText>
+
+                      <h3 className="text-4xl md:text-5xl font-serif font-bold text-amber-100 break-words drop-shadow-2xl">
+                        {child.name}
+                      </h3>
+
+                      <div className="flex items-center gap-4 opacity-50 my-2">
+                        <div className="w-12 h-px bg-gradient-to-r from-transparent to-amber-200"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-200"></div>
+                        <div className="w-12 h-px bg-gradient-to-l from-transparent to-amber-200"></div>
                       </div>
-                      <div className="flex-1">
-                        <span className="text-amber-500 text-[10px] font-bold uppercase tracking-widest">Episode {index + 1}</span>
-                        <h4 className="text-base font-serif font-bold text-white mt-0.5">{item.title}</h4>
-                        {item.date && (
-                          <span className="text-xs text-zinc-400">{item.date}</span>
-                        )}
+
+                      <ThemeText variant="body" color="gray" className="max-w-md mx-auto">
+                        {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra Pertama dari pasangan' : 'Putri Pertama dari pasangan')}
+                      </ThemeText>
+
+                      <ThemeText variant="meta" color="white" className="italic max-w-md mx-auto text-lg">
+                        {(() => {
+                          const isGroom = index === 0;
+                          const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                          if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
+                          return "Bapak & Ibu";
+                        })()}
+                      </ThemeText>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div key={index} className={`flex flex-col ${children.length > 1 ? (isReverse ? 'md:flex-row-reverse' : 'md:flex-row') : ''} items-center gap-6 md:gap-12 w-full`}>
+                    {/* Image Frame */}
+                    <div className="relative group w-full max-w-[16rem] mx-auto">
+                      <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/30 transition-all" />
+                      <div className="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden border-2 border-amber-500/20 shadow-2xl">
+                        <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       </div>
                     </div>
-                    {/* Description */}
-                    <ThemeText variant="body" color="gray" align="left" className="text-sm leading-relaxed">
-                      {item.description}
-                    </ThemeText>
+
+                    {/* Text */}
+                    <div className="text-center md:text-left space-y-4 w-full">
+                      <h3 className="text-3xl font-serif font-bold text-amber-100 break-words">{child.name}</h3>
+                      <ThemeText variant="body" color="gray" className="max-w-xs mx-auto md:mx-0">
+                        {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra dari' : 'Putri dari')}
+                      </ThemeText>
+                      <ThemeText variant="meta" color="white" className="italic max-w-xs mx-auto md:mx-0">
+                        {(() => {
+                          const isGroom = index === 0;
+                          const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                          if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
+                          return "Bapak & Ibu";
+                        })()}
+                      </ThemeText>
+                    </div>
                   </div>
                 );
               })}
             </div>
           </ThemeSection>
-        )}
 
-        {/* Bride & Groom / Childs */}
-        <ThemeSection id="event" className="py-12 px-4 overflow-hidden">
-          <ThemeHeader size="lg" className="mb-12 text-center uppercase tracking-widest text-amber-500">
-            {isKhitan ? 'The Star' : 'The Couple'}
-          </ThemeHeader>
+          {/* Event Details */}
+          {
+            apiEvents && (
+              <ThemeSection
+                id="event"
+                className="relative py-20"
+                style={{ background: 'var(--t4-grad-section, linear-gradient(to bottom, #09090b, rgba(69, 26, 3, 0.1), #09090b))' }}
+              >
+                <ThemeHeader size="lg" className="mb-10 text-center uppercase tracking-widest" style={{ color: 'var(--t4-text-accent, #f59e0b)' }}>
+                  Save The Date
+                </ThemeHeader>
 
-          <div className="flex flex-col gap-12 w-full">
-            {children?.map((child, index) => {
-              const hasImage = child.image || child.profile;
-              // Alternate layout logic if 2 people
-              const isReverse = index % 2 !== 0;
-
-              if (!hasImage) {
-                return (
-                  <div key={index} className="flex flex-col items-center gap-3 w-full text-center py-6 animate-fade-in-up">
-                    <ThemeText variant="caption" color="gold" className="tracking-[0.3em] opacity-80 mb-2">
-                      {isKhitan ? 'THE STAR' : (index === 0 ? 'THE GROOM' : 'THE BRIDE')}
-                    </ThemeText>
-
-                    <h3 className="text-4xl md:text-5xl font-serif font-bold text-amber-100 break-words drop-shadow-2xl">
-                      {child.name}
-                    </h3>
-
-                    <div className="flex items-center gap-4 opacity-50 my-2">
-                      <div className="w-12 h-px bg-gradient-to-r from-transparent to-amber-200"></div>
-                      <div className="w-1.5 h-1.5 rounded-full bg-amber-200"></div>
-                      <div className="w-12 h-px bg-gradient-to-l from-transparent to-amber-200"></div>
-                    </div>
-
-                    <ThemeText variant="body" color="gray" className="max-w-md mx-auto">
-                      {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra Pertama dari pasangan' : 'Putri Pertama dari pasangan')}
-                    </ThemeText>
-
-                    <ThemeText variant="meta" color="white" className="italic max-w-md mx-auto text-lg">
-                      {(() => {
-                        const isGroom = index === 0;
-                        const parents = isGroom ? content.parents?.groom : content.parents?.bride;
-                        if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
-                        return "Bapak & Ibu";
-                      })()}
-                    </ThemeText>
-                  </div>
-                );
-              }
-
-              return (
-                <div key={index} className={`flex flex-col ${children.length > 1 ? (isReverse ? 'md:flex-row-reverse' : 'md:flex-row') : ''} items-center gap-6 md:gap-12 w-full`}>
-                  {/* Image Frame */}
-                  <div className="relative group w-full max-w-[16rem] mx-auto">
-                    <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/30 transition-all" />
-                    <div className="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden border-2 border-amber-500/20 shadow-2xl">
-                      <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    </div>
-                  </div>
-
-                  {/* Text */}
-                  <div className="text-center md:text-left space-y-4 w-full">
-                    <h3 className="text-3xl font-serif font-bold text-amber-100 break-words">{child.name}</h3>
-                    <ThemeText variant="body" color="gray" className="max-w-xs mx-auto md:mx-0">
-                      {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra dari' : 'Putri dari')}
-                    </ThemeText>
-                    <ThemeText variant="meta" color="white" className="italic max-w-xs mx-auto md:mx-0">
-                      {(() => {
-                        const isGroom = index === 0;
-                        const parents = isGroom ? content.parents?.groom : content.parents?.bride;
-                        if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
-                        return "Bapak & Ibu";
-                      })()}
-                    </ThemeText>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </ThemeSection>
-
-        {/* Event Details */}
-        {
-          apiEvents && (
-            <ThemeSection className="relative py-20 bg-gradient-to-b from-zinc-950 via-amber-950/10 to-zinc-950">
-              <ThemeHeader size="lg" className="mb-10 text-center uppercase tracking-widest text-amber-500">
-                Save The Date
-              </ThemeHeader>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
-                {Object.entries(apiEvents).map(([key, evt], idx) => (
-                  <div key={key} className="bg-gradient-to-br from-zinc-900/80 to-amber-950/30 p-8 rounded-3xl border border-amber-500/20 text-center space-y-4 hover:border-amber-400/40 transition-all shadow-xl backdrop-blur-sm shadow-amber-900/10">
-                    <ThemeText variant="caption" color="gold" className="text-lg">
-                      {evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
-                    </ThemeText>
-
-                    <div className="py-4 border-y border-white/10">
-                      <h4 className="text-2xl font-serif text-white mb-1">
-                        {(() => {
-                          try {
-                            const d = new Date(evt.date);
-                            return d.toLocaleDateString('id-ID', { weekday: 'long' });
-                          } catch { return ''; }
-                        })()}
-                      </h4>
-                      <p className="text-4xl font-bold text-amber-100 my-2">
-                        {(() => {
-                          try {
-                            const d = new Date(evt.date);
-                            return d.getDate();
-                          } catch { return ''; }
-                        })()}
-                      </p>
-                      <p className="text-lg text-zinc-400">
-                        {(() => {
-                          try {
-                            const d = new Date(evt.date);
-                            return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-                          } catch { return evt.date; }
-                        })()}
-                      </p>
-                    </div>
-
-                    <div className="space-y-1">
-                      <ThemeText color="gray">{evt.time}</ThemeText>
-                      <ThemeText color="white" className="font-medium">{evt.location}</ThemeText>
-                    </div>
-
-                    {(evt.mapsLink) && (
-                      <ThemeButton variant="outline" className="mt-4 w-full" onClick={() => window.open(evt.mapsLink, '_blank')}>
-                        Open Maps
-                      </ThemeButton>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Countdown Timer Section */}
-              {eventDate && (
-                <div className="mt-6 w-full max-w-sm mx-auto rounded-3xl p-6 bg-zinc-950/50 border border-amber-500/20 shadow-xl transition-all">
-                  <div className="flex flex-col items-center justify-between gap-6">
-                    {/* Center: Timer */}
-                    <div className="flex-1 w-full text-center space-y-4">
-                      <ThemeText variant="caption" color="gold" className="tracking-widest uppercase text-xs md:text-sm">
-                        Counting Down
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                  {Object.entries(apiEvents).map(([key, evt], idx) => (
+                    <div
+                      key={key}
+                      className="p-8 rounded-3xl border text-center space-y-4 hover:border-white/30 transition-all shadow-xl backdrop-blur-sm"
+                      style={{
+                        background: 'var(--t4-grad-card, linear-gradient(to bottom right, rgba(24, 24, 27, 0.8), rgba(69, 26, 3, 0.3)))',
+                        borderColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.2))'
+                      }}
+                    >
+                      <ThemeText variant="caption" color="gold" className="text-lg">
+                        {evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
                       </ThemeText>
-                      <div className="flex justify-center gap-3">
-                        {(() => {
-                          const now = new Date().getTime();
-                          const eventTime = eventDate.getTime();
-                          const diff = eventTime - now;
 
-                          // Return early with zeros if event has passed
-                          if (diff <= 0) {
-                            return ['Days', 'Hours', 'Mins', 'Secs'].map((label, idx) => (
-                              <div key={idx} className="flex flex-col items-center">
-                                <div className="md:w-16 md:h-16 w-12 h-12 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center text-xl md:text-2xl font-serif text-amber-100 shadow-inner">
-                                  00
-                                </div>
-                                <div className="text-[10px] md:text-xs text-zinc-500 mt-2 uppercase tracking-widest">{label}</div>
-                              </div>
-                            ));
-                          }
-
-                          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-                          const timeUnits = [
-                            { label: 'Days', value: days },
-                            { label: 'Hours', value: hours },
-                            { label: 'Mins', value: minutes },
-                            { label: 'Secs', value: seconds }
-                          ];
-
-                          return timeUnits.map((unit, idx) => (
-                            <div key={idx} className="flex flex-col items-center">
-                              <div className="md:w-16 md:h-16 w-12 h-12 rounded-2xl bg-zinc-900 border border-amber-500/10 flex items-center justify-center text-xl md:text-3xl font-serif text-amber-100 shadow-lg relative overflow-hidden">
-                                <span className="relative z-10">{String(unit.value).padStart(2, '0')}</span>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                              </div>
-                              <div className="text-[10px] md:text-xs text-zinc-500 mt-2 uppercase tracking-widest font-medium">
-                                {unit.label}
-                              </div>
-                            </div>
-                          ));
-                        })()}
+                      <div className="py-4 border-y border-white/10">
+                        <h4 className="text-2xl font-serif text-white mb-1">
+                          {(() => {
+                            try {
+                              const d = new Date(evt.date);
+                              return d.toLocaleDateString('id-ID', { weekday: 'long' });
+                            } catch { return ''; }
+                          })()}
+                        </h4>
+                        <p className="text-4xl font-bold text-amber-100 my-2">
+                          {(() => {
+                            try {
+                              const d = new Date(evt.date);
+                              return d.getDate();
+                            } catch { return ''; }
+                          })()}
+                        </p>
+                        <p className="text-lg text-zinc-400">
+                          {(() => {
+                            try {
+                              const d = new Date(evt.date);
+                              return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+                            } catch { return evt.date; }
+                          })()}
+                        </p>
                       </div>
-                    </div>
 
-                    {/* Right: Save Button */}
-                    {calendarUrl && (
-                      <div className="flex-shrink-0 flex w-full justify-center pt-2">
-                        <ThemeButton
-                          variant="primary"
-                          onClick={() => window.open(calendarUrl, '_blank', 'noopener,noreferrer')}
-                          className="w-full shadow-lg shadow-amber-900/20 px-8 py-3 text-sm"
-                        >
-                          Save to Calendar
+                      <div className="space-y-1">
+                        <ThemeText color="gray">{evt.time}</ThemeText>
+                        <ThemeText color="white" className="font-medium">{evt.location}</ThemeText>
+                      </div>
+
+                      {(evt.mapsLink) && (
+                        <ThemeButton variant="outline" className="mt-4 w-full" onClick={() => window.open(evt.mapsLink, '_blank')}>
+                          Open Maps
                         </ThemeButton>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </ThemeSection>
-          )
-        }
-
-        {/* Turut Mengundang */}
-        <TurutSection enabled={content?.turut?.enabled} list={content?.turut?.list} />
-
-        {/* Gallery */}
-        {
-          gallery?.items && gallery.items.length > 0 && (
-            <ThemeSection id="gallery">
-              <ThemeHeader size="lg" className="mb-8 text-center uppercase tracking-widest text-amber-500">
-                Our Moments
-              </ThemeHeader>
-              <div className="columns-2 gap-3 space-y-3">
-                {gallery.items.map((item, idx) => (
-                  <div key={idx} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg border border-white/5 group">
-                    <img
-                      src={item}
-                      alt="Gallery"
-                      className="w-full h-auto transform transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                ))}
-              </div>
-            </ThemeSection>
-          )
-        }
-
-        {/* Gift & RSVP */}
-        <ThemeSection id="gift" className="mb-24">
-          {content?.bank_transfer?.enabled && (
-            <div className="mb-12">
-              <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-amber-500">
-                Wedding Gift
-              </ThemeHeader>
-              <div className="text-center mb-6">
-                <ThemeText color="gray">
-                  Your blessing is enough for us. <br /> However, if you wish to give a gift, we provide a digital wallet.
-                </ThemeText>
-              </div>
-
-              <div className="flex justify-center mb-6">
-                <ThemeButton onClick={() => setShowGiftForm(!showGiftForm)}>
-                  {showGiftForm ? "Hide Account" : "Show Account"}
-                </ThemeButton>
-              </div>
-
-              {showGiftForm && (
-                <div className="max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-2xl p-6 transition-all animate-in fade-in slide-in-from-bottom-4">
-                  {/* Bank Accounts */}
-                  {content.bank_transfer?.accounts?.map((acc: any, idx: number) => (
-                    <div key={idx} className="bg-gradient-to-r from-zinc-800 to-zinc-900 p-4 rounded-xl border border-white/5 mb-4 relative overflow-hidden">
-                      <div className="relative z-10 flex justify-between items-center">
-                        <div>
-                          <p className="text-xs uppercase text-amber-500 font-bold mb-1">{acc.bank_name}</p>
-                          <p className="text-xl font-mono text-white tracking-wider">{acc.account_number}</p>
-                          <p className="text-sm text-zinc-400 mt-1">{acc.account_name}</p>
-                        </div>
-                        <button onClick={() => handleCopyAccountNumber(acc.account_number)} className="p-2 bg-zinc-700/50 rounded-lg hover:bg-zinc-700 transition-colors text-white">
-                          <FiCopy />
-                        </button>
-                      </div>
+                      )}
                     </div>
                   ))}
+                </div>
 
-                  {/* Confirmation Form */}
-                  <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10 relative">
-                    <ThemeText variant="caption" color="gold" className="text-center mb-4">Confirmation Form</ThemeText>
+                {/* Countdown Timer Section */}
+                {eventDate && (
+                  <div className="mt-6 w-full max-w-sm mx-auto rounded-3xl p-6 bg-zinc-950/50 border shadow-xl transition-all" style={{ borderColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.2))' }}>
+                    <div className="flex flex-col items-center justify-between gap-6">
+                      {/* Center: Timer */}
+                      <div className="flex-1 w-full text-center space-y-4">
+                        <ThemeText variant="caption" color="gold" className="tracking-widest uppercase text-xs md:text-sm">
+                          Counting Down
+                        </ThemeText>
+                        <div className="flex justify-center gap-3">
+                          {(() => {
+                            const now = new Date().getTime();
+                            const eventTime = eventDate.getTime();
+                            const diff = eventTime - now;
 
-                    {/* Free Mode Overlay */}
-                    {data.status === "tidak" && (
-                      <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-xl border border-amber-500/20">
-                        <div className="text-center p-4">
-                          <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <FiLock className="text-2xl text-amber-500" />
-                          </div>
-                          <ThemeText variant="meta" color="white" className="mb-1 text-sm">Mode Trial</ThemeText>
-                          <ThemeText variant="caption" color="gray" className="text-xs">
-                            Aktifkan undangan untuk fitur ini
-                          </ThemeText>
+                            // Return early with zeros if event has passed
+                            if (diff <= 0) {
+                              return ['Days', 'Hours', 'Mins', 'Secs'].map((label, idx) => (
+                                <div key={idx} className="flex flex-col items-center">
+                                  <div className="md:w-16 md:h-16 w-12 h-12 rounded-2xl bg-zinc-900 border border-white/5 flex items-center justify-center text-xl md:text-2xl font-serif shadow-inner" style={{ color: 'var(--t4-text-primary, #fef3c7)' }}>
+                                    00
+                                  </div>
+                                  <div className="text-[10px] md:text-xs text-zinc-500 mt-2 uppercase tracking-widest">{label}</div>
+                                </div>
+                              ));
+                            }
+
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                            const timeUnits = [
+                              { label: 'Days', value: days },
+                              { label: 'Hours', value: hours },
+                              { label: 'Mins', value: minutes },
+                              { label: 'Secs', value: seconds }
+                            ];
+
+                            return timeUnits.map((unit, idx) => (
+                              <div key={idx} className="flex flex-col items-center">
+                                <div className="md:w-16 md:h-16 w-12 h-12 rounded-2xl bg-zinc-900 border flex items-center justify-center text-xl md:text-3xl font-serif shadow-lg relative overflow-hidden" style={{ borderColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.1))', color: 'var(--t4-text-primary, #fef3c7)' }}>
+                                  <span className="relative z-10">{String(unit.value).padStart(2, '0')}</span>
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                </div>
+                                <div className="text-[10px] md:text-xs text-zinc-500 mt-2 uppercase tracking-widest font-medium">
+                                  {unit.label}
+                                </div>
+                              </div>
+                            ));
+                          })()}
                         </div>
                       </div>
-                    )}
 
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={namaGift}
-                      onChange={e => setNamaGift(e.target.value)}
-                      disabled={data.status === "tidak"}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Amount"
-                      value={formattedJumlahGift}
-                      onChange={handleJumlahGiftChange}
-                      disabled={data.status === "tidak"}
-                      className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
-                    />
-                    <ThemeButton variant="outline" className="w-full" disabled={loadingGift || data.status === "tidak"}>
-                      {data.status === "tidak" ? "Free Mode" : loadingGift ? "Sending..." : "Confirm Transfer"}
-                    </ThemeButton>
-                    {successGift && <p className="text-green-500 text-center text-sm z-20 relative">Thank you!</p>}
-                  </form>
+                      {/* Right: Save Button */}
+                      {calendarUrl && (
+                        <div className="flex-shrink-0 flex w-full justify-center pt-2">
+                          <ThemeButton
+                            variant="primary"
+                            onClick={() => window.open(calendarUrl, '_blank', 'noopener,noreferrer')}
+                            className="w-full shadow-lg shadow-amber-900/20 px-8 py-3 text-sm"
+                          >
+                            Save to Calendar
+                          </ThemeButton>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </ThemeSection>
+            )
+          }
+
+          {/* Turut Mengundang */}
+          <TurutSection enabled={content?.turut?.enabled} list={content?.turut?.list} />
+
+          {/* Gallery */}
+          {
+            gallery?.items && gallery.items.length > 0 && (
+              <ThemeSection id="gallery">
+                <ThemeHeader size="lg" className="mb-8 text-center uppercase tracking-widest text-amber-500">
+                  Our Moments
+                </ThemeHeader>
+                <div className="columns-2 gap-3 space-y-3">
+                  {gallery.items.map((item, idx) => (
+                    <div key={idx} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg border border-white/5 group">
+                      <img
+                        src={item}
+                        alt="Gallery"
+                        className="w-full h-auto transform transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
-          )}
+              </ThemeSection>
+            )
+          }
+
+          {/* Gift & RSVP */}
+          <ThemeSection id="gift" className="mb-24">
+            {content?.bank_transfer?.enabled && (
+              <div className="mb-12">
+                <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-amber-500">
+                  Wedding Gift
+                </ThemeHeader>
+                <div className="text-center mb-6">
+                  <ThemeText color="gray">
+                    Your blessing is enough for us. <br /> However, if you wish to give a gift, we provide a digital wallet.
+                  </ThemeText>
+                </div>
+
+                <div className="flex justify-center mb-6">
+                  <ThemeButton onClick={() => setShowGiftForm(!showGiftForm)}>
+                    {showGiftForm ? "Hide Account" : "Show Account"}
+                  </ThemeButton>
+                </div>
+
+                {showGiftForm && (
+                  <div className="max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-2xl p-6 transition-all animate-in fade-in slide-in-from-bottom-4">
+                    {/* Bank Accounts */}
+                    {content.bank_transfer?.accounts?.map((acc: any, idx: number) => (
+                      <div key={idx} className="bg-gradient-to-r from-zinc-800 to-zinc-900 p-4 rounded-xl border border-white/5 mb-4 relative overflow-hidden">
+                        <div className="relative z-10 flex justify-between items-center">
+                          <div>
+                            <p className="text-xs uppercase text-amber-500 font-bold mb-1">{acc.bank_name}</p>
+                            <p className="text-xl font-mono text-white tracking-wider">{acc.account_number}</p>
+                            <p className="text-sm text-zinc-400 mt-1">{acc.account_name}</p>
+                          </div>
+                          <button onClick={() => handleCopyAccountNumber(acc.account_number)} className="p-2 bg-zinc-700/50 rounded-lg hover:bg-zinc-700 transition-colors text-white">
+                            <FiCopy />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Confirmation Form */}
+                    <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10 relative">
+                      <ThemeText variant="caption" color="gold" className="text-center mb-4">Confirmation Form</ThemeText>
+
+                      {/* Free Mode Overlay */}
+                      {data.status === "tidak" && (
+                        <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-xl border border-amber-500/20">
+                          <div className="text-center p-4">
+                            <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                              <FiLock className="text-2xl text-amber-500" />
+                            </div>
+                            <ThemeText variant="meta" color="white" className="mb-1 text-sm">Mode Trial</ThemeText>
+                            <ThemeText variant="caption" color="gray" className="text-xs">
+                              Aktifkan undangan untuk fitur ini
+                            </ThemeText>
+                          </div>
+                        </div>
+                      )}
+
+                      <input
+                        type="text"
+                        placeholder="Name"
+                        value={namaGift}
+                        onChange={e => setNamaGift(e.target.value)}
+                        disabled={data.status === "tidak"}
+                        className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Amount"
+                        value={formattedJumlahGift}
+                        onChange={handleJumlahGiftChange}
+                        disabled={data.status === "tidak"}
+                        className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
+                      />
+                      <ThemeButton variant="outline" className="w-full" disabled={loadingGift || data.status === "tidak"}>
+                        {data.status === "tidak" ? "Free Mode" : loadingGift ? "Sending..." : "Confirm Transfer"}
+                      </ThemeButton>
+                      {successGift && <p className="text-green-500 text-center text-sm z-20 relative">Thank you!</p>}
+                    </form>
+                  </div>
+                )}
+              </div>
+            )}
+          </ThemeSection>
 
           {/* RSVP Section */}
           {content.plugin?.rsvp && (
-            <div id="rsvp" className="max-w-md mx-auto">
-              <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-amber-500">
+            <ThemeSection id="rsvp" className="max-w-md mx-auto mb-24">
+              <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest" style={{ color: 'var(--t4-text-accent, #f59e0b)' }}>
                 RSVP
               </ThemeHeader>
 
@@ -791,10 +823,10 @@ export default function Theme4({ data }: Theme4Props) {
 
                 {/* Free Mode Overlay for RSVP */}
                 {data.status === "tidak" && (
-                  <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl border border-amber-500/20">
+                  <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl border" style={{ borderColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.2))' }}>
                     <div className="text-center p-4">
-                      <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <FiLock className="text-2xl text-amber-500" />
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: 'var(--t4-border-glass, rgba(245, 158, 11, 0.2))' }}>
+                        <FiLock className="text-2xl" style={{ color: 'var(--t4-text-accent, #f59e0b)' }} />
                       </div>
                       <ThemeText variant="meta" color="white" className="mb-1 text-sm">Mode Trial</ThemeText>
                       <ThemeText variant="caption" color="gray" className="text-xs">
@@ -811,7 +843,7 @@ export default function Theme4({ data }: Theme4Props) {
                     value={nama}
                     onChange={e => setNama(e.target.value)}
                     disabled={data.status === "tidak"}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
+                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
                   />
                   <input
                     type="text"
@@ -820,13 +852,13 @@ export default function Theme4({ data }: Theme4Props) {
                     onChange={e => setWa(e.target.value)}
                     onKeyPress={handleKeyPressWa}
                     disabled={data.status === "tidak"}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
+                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
                   />
                   <select
                     value={konfirmasi}
                     onChange={e => setKonfirmasi(e.target.value as any)}
                     disabled={data.status === "tidak"}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
+                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
                   >
                     <option value="">Confirmation</option>
                     <option value="hadir">Hadir</option>
@@ -838,7 +870,7 @@ export default function Theme4({ data }: Theme4Props) {
                     onChange={e => setUcapan(e.target.value)}
                     rows={3}
                     disabled={data.status === "tidak"}
-                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-amber-500 outline-none disabled:opacity-50"
+                    className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
                   />
                   <ThemeButton className="w-full" disabled={loading || data.status === "tidak"}>
                     {data.status === "tidak" ? "Free Mode" : loading ? "Sending..." : "Send RSVP"}
@@ -853,7 +885,7 @@ export default function Theme4({ data }: Theme4Props) {
                   {rsvpList.slice(0, visibleComments).map((rsvp, idx) => (
                     <div key={idx} className="bg-zinc-950/50 p-3 rounded-lg border border-white/5">
                       <div className="flex justify-between items-start mb-1">
-                        <p className="font-bold text-amber-200 text-sm">{rsvp.nama}</p>
+                        <p className="font-bold text-sm" style={{ color: 'var(--t4-text-accent, #fde68a)' }}>{rsvp.nama}</p>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full ${rsvp.konfirmasi === 'hadir' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
                           {rsvp.konfirmasi}
                         </span>
@@ -863,31 +895,30 @@ export default function Theme4({ data }: Theme4Props) {
                   ))}
                 </div>
               </div>
-            </div>
+            </ThemeSection>
           )}
 
-        </ThemeSection>
+          {/* Footer */}
+          <div className="py-8 text-center border-t border-white/5 bg-zinc-950">
+            <ThemeText variant="meta" color="gray" className="opacity-50">
+              Created with Papunda
+            </ThemeText>
+          </div>
+        </div >
 
-        {/* Footer */}
-        <div className="py-8 text-center border-t border-white/5 bg-zinc-950">
-          <ThemeText variant="meta" color="gray" className="opacity-50">
-            Created with Papunda
-          </ThemeText>
-        </div>
-      </div >
-
-      {/* Navigation */}
-      {
-        isOpen && (
-          <Navigation
-            activeSection={activeSection}
-            setActiveSection={setActiveSection}
-            showGallery={!!gallery?.items?.length}
-            showGift={!!content?.bank_transfer?.enabled}
-            showRsvp={!!content.plugin?.rsvp}
-          />
-        )
-      }
-    </ThemeContainer >
+        {/* Navigation */}
+        {
+          isOpen && (
+            <Navigation
+              activeSection={activeSection}
+              setActiveSection={setActiveSection}
+              showGallery={!!gallery?.items?.length}
+              showGift={!!content?.bank_transfer?.enabled}
+              showRsvp={!!content.plugin?.rsvp}
+            />
+          )
+        }
+      </ThemeContainer>
+    </div>
   );
 }

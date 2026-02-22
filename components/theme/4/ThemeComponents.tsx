@@ -9,10 +9,11 @@ interface ThemeContainerProps {
 export default function ThemeContainer({ children, maxWidth = '480px', className = '' }: ThemeContainerProps) {
   return (
     <div
-      className={`bg-zinc-950 text-white mx-auto relative min-h-screen shadow-2xl ${className}`}
+      className={`text-white mx-auto relative min-h-screen shadow-2xl ${className}`}
       style={{
         maxWidth,
-        overflow: 'visible'
+        overflow: 'visible',
+        backgroundColor: 'var(--t4-bg-main, #09090b)'
       }}
     >
       <div className="relative w-full h-full">
@@ -28,9 +29,10 @@ interface SectionProps {
   children: ReactNode;
   className?: string;
   id?: string;
+  style?: React.CSSProperties;
 }
 
-export function ThemeSection({ children, className = '', id }: SectionProps) {
+export function ThemeSection({ children, className = '', id, style }: SectionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -65,6 +67,7 @@ export function ThemeSection({ children, className = '', id }: SectionProps) {
       id={id}
       className={`py-8 px-6 space-y-6 transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         } ${className}`}
+      style={style}
     >
       {children}
     </section>
@@ -76,9 +79,10 @@ interface ThemeHeaderProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
   align?: 'left' | 'center' | 'right';
+  style?: React.CSSProperties;
 }
 
-export function ThemeHeader({ children, size = 'xl', className = '', align = 'center' }: ThemeHeaderProps) {
+export function ThemeHeader({ children, size = 'xl', className = '', align = 'center', style }: ThemeHeaderProps) {
   const sizeClasses = {
     sm: 'text-sm',
     md: 'text-base',
@@ -94,7 +98,10 @@ export function ThemeHeader({ children, size = 'xl', className = '', align = 'ce
   };
 
   return (
-    <h2 className={`${sizeClasses[size]} ${alignClasses[align]} font-serif font-bold text-amber-100 tracking-wide leading-tight ${className}`}>
+    <h2
+      className={`${sizeClasses[size]} ${alignClasses[align]} font-serif font-bold tracking-wide leading-tight ${className}`}
+      style={{ color: 'var(--t4-text-primary, #fef3c7)', ...style }}
+    >
       {children}
     </h2>
   );
@@ -116,11 +123,11 @@ export function ThemeText({ children, variant = 'body', color = 'white', align =
     quote: 'text-lg font-serif italic leading-relaxed'
   };
 
-  const colorClasses = {
-    white: 'text-zinc-100',
-    gray: 'text-zinc-400',
-    gold: 'text-amber-200',
-    black: 'text-zinc-900'
+  const colorThemeMap = {
+    white: 'var(--t4-text-white, #f4f4f5)', // zinc-100
+    gray: 'var(--t4-text-secondary, #a1a1aa)', // zinc-400
+    gold: 'var(--t4-text-accent, #fde68a)', // amber-200
+    black: 'var(--t4-text-black, #18181b)' // zinc-900
   };
 
   const alignClasses = {
@@ -130,7 +137,10 @@ export function ThemeText({ children, variant = 'body', color = 'white', align =
   };
 
   return (
-    <p className={`${variantClasses[variant]} ${colorClasses[color]} ${alignClasses[align]} ${className}`}>
+    <p
+      className={`${variantClasses[variant]} ${alignClasses[align]} ${className}`}
+      style={{ color: colorThemeMap[color] }}
+    >
       {children}
     </p>
   );
@@ -148,9 +158,31 @@ export function ThemeButton({ children, onClick, variant = 'primary', className 
   const baseClasses = "py-3 px-6 rounded-full text-sm font-medium transition-all duration-300 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest";
 
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-amber-200 to-amber-400 text-zinc-900 hover:shadow-lg hover:shadow-amber-500/20 border border-amber-300',
-    outline: 'border border-amber-200/30 text-amber-100 hover:bg-amber-900/20 backdrop-blur-sm',
-    ghost: 'text-amber-200 hover:text-amber-100'
+    primary: 'text-zinc-900 hover:shadow-lg border',
+    outline: 'border backdrop-blur-sm hover:bg-black/20',
+    ghost: 'hover:opacity-80'
+  };
+
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'primary':
+        return {
+          background: 'var(--t4-grad-button, linear-gradient(to right, #fde68a, #fbbf24))',
+          borderColor: 'var(--t4-border-button, #fcd34d)',
+          boxShadow: '0 0 15px var(--t4-shadow-button, rgba(245, 158, 11, 0.2))'
+        };
+      case 'outline':
+        return {
+          borderColor: 'var(--t4-border-glass, rgba(253, 230, 138, 0.3))',
+          color: 'var(--t4-text-primary, #fef3c7)'
+        };
+      case 'ghost':
+        return {
+          color: 'var(--t4-text-accent, #fde68a)'
+        };
+      default:
+        return {};
+    }
   };
 
   return (
@@ -158,6 +190,7 @@ export function ThemeButton({ children, onClick, variant = 'primary', className 
       onClick={onClick}
       disabled={disabled}
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
+      style={getVariantStyles()}
     >
       {children}
     </button>
@@ -170,14 +203,33 @@ interface ThemeBadgeProps {
 }
 
 export function ThemeBadge({ children, variant = 'secondary' }: ThemeBadgeProps) {
-  const variantClasses = {
-    primary: 'bg-amber-600 text-white',
-    secondary: 'bg-zinc-800 text-zinc-300',
-    outline: 'border border-amber-500/50 text-amber-200'
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'primary':
+        return {
+          backgroundColor: 'var(--t4-text-accent, #d97706)',
+          color: 'var(--t4-bg-main, #ffffff)'
+        };
+      case 'secondary':
+        return {
+          backgroundColor: 'var(--t4-border-glass, #27272a)',
+          color: 'var(--t4-text-primary, #d4d4d8)'
+        };
+      case 'outline':
+        return {
+          border: '1px solid var(--t4-border-glass, rgba(245, 158, 11, 0.5))',
+          color: 'var(--t4-text-accent, #fde68a)'
+        };
+      default:
+        return {};
+    }
   };
 
   return (
-    <span className={`py-1 px-3 rounded-full text-[10px] uppercase tracking-wider font-medium inline-block ${variantClasses[variant]}`}>
+    <span
+      className={`py-1 px-3 rounded-full text-[10px] uppercase tracking-wider font-medium inline-block`}
+      style={getVariantStyles()}
+    >
       {children}
     </span>
   );

@@ -123,20 +123,31 @@ export function useNavigation() {
   const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = ["home", "event", "gallery", "gift", "rsvp"];
-      const scrollPosition = window.scrollY + 300;
+    let timeoutId: NodeJS.Timeout;
 
-      for (const sectionId of sections.reverse()) {
-        const element = document.getElementById(sectionId);
-        if (element && element.offsetTop <= scrollPosition) {
-          setActiveSection(sectionId);
-          break;
+    const handleScroll = () => {
+      // Throttle scroll for performance
+      if (timeoutId) return;
+
+      timeoutId = setTimeout(() => {
+        const sections = ["home", "event", "gallery", "gift", "rsvp"];
+
+        for (const sectionId of sections.reverse()) {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            // If the element's top crosses the upper third of the screen, it's active
+            if (rect.top <= window.innerHeight / 3) {
+              setActiveSection(sectionId);
+              break;
+            }
+          }
         }
-      }
+        timeoutId = undefined as any;
+      }, 50);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
