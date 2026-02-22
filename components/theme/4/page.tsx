@@ -452,7 +452,7 @@ export default function Theme4({ data }: Theme4Props) {
                       </div>
                     </div>
                     {/* Description */}
-                    <ThemeText variant="body" color="gray" className="text-sm leading-relaxed">
+                    <ThemeText variant="body" color="gray" align="left" className="text-sm leading-relaxed">
                       {item.description}
                     </ThemeText>
                   </div>
