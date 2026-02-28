@@ -838,7 +838,7 @@ export default function Theme3({ data }: Theme3Props) {
                         </div>
                         <div className="flex-1">
                           <NetflixText variant="meta" color="white">
-                            {isKhitan ? 'Khitanan' : evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
+                            {isKhitan ? 'Khitanan' : evt.title || (key === 'pemberkatan' ? 'Pemberkatan' : key === 'resepsi' ? 'Resepsi' : key === 'akad' ? 'Akad Nikah' : (idx === 0 ? 'Akad Nikah' : 'Resepsi'))}
                           </NetflixText>
                           <NetflixText variant="caption" color="gray">
                             {(() => {
