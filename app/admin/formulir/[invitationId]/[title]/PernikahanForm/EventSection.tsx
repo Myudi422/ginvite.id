@@ -23,7 +23,13 @@ export function EventSection({
 }: EventSectionProps) {
   const { control, getValues, setValue } = useFormContext<any>();
   const resepsi = useWatch({ control, name: 'event.resepsi' });
-  const akad    = useWatch({ control, name: 'event.akad' });
+  const akad = useWatch({ control, name: 'event.akad' });
+  const quoteCategory = useWatch({ control, name: 'quoteCategory' }) as string | undefined;
+
+  // Hanya tampilkan "Pemberkatan" kalau kategori mengandung kata "kristen"
+  // Kategori lain (Islam, Global, kosong) tetap tampilkan "Akad"
+  const isKristen = quoteCategory?.toLowerCase().includes('kristen') ?? false;
+  const secondEventLabel = isKristen ? 'Pemberkatan' : 'Akad';
 
   // auto-save kapanpun resepsi atau akad berubah
   useEffect(() => {
@@ -52,7 +58,7 @@ export function EventSection({
     return () => clearTimeout(timer);
   }, [resepsi, akad, getValues, invitationId, slug, onSavedSlug, userId]);
 
-  const showAkad = Boolean(useWatch({ control, name: 'event.akad' }));
+  const showAkad = Boolean(akad);
 
   return (
     <Collapsible title="Detail Acara">
@@ -62,34 +68,34 @@ export function EventSection({
         <FormItem>
           <FormLabel>Tanggal</FormLabel>
           <FormControl><Input type="date" {...field} /></FormControl>
-          <FormMessage/>
+          <FormMessage />
         </FormItem>
-      )}/>
+      )} />
       <FormField name="event.resepsi.time" control={control} render={({ field }) => (
         <FormItem>
           <FormLabel>Waktu</FormLabel>
           <FormControl><Input type="time" {...field} /></FormControl>
-          <FormMessage/>
+          <FormMessage />
         </FormItem>
-      )}/>
+      )} />
       <FormField name="event.resepsi.location" control={control} render={({ field }) => (
         <FormItem>
           <FormLabel>Lokasi</FormLabel>
           <FormControl><Input {...field} /></FormControl>
-          <FormMessage/>
+          <FormMessage />
         </FormItem>
-      )}/>
+      )} />
       <FormField name="event.resepsi.mapsLink" control={control} render={({ field }) => (
         <FormItem>
           <FormLabel>Link Maps</FormLabel>
           <FormControl><Input {...field} /></FormControl>
-          <FormMessage/>
+          <FormMessage />
         </FormItem>
-      )}/>
+      )} />
 
-      {/* Toggle Akad */}
+      {/* Toggle Akad / Pemberkatan */}
       <div className="mt-4 flex items-center">
-        <label className="mr-2">Tampilkan Akad?</label>
+        <label className="mr-2">Tampilkan {secondEventLabel}?</label>
         <input
           type="checkbox"
           checked={showAkad}
@@ -111,35 +117,35 @@ export function EventSection({
       {/* Akad */}
       {showAkad && (
         <>
-          <h4 className="font-semibold mt-4">Akad</h4>
+          <h4 className="font-semibold mt-4">{secondEventLabel}</h4>
           <FormField name="event.akad.date" control={control} render={({ field }) => (
             <FormItem>
               <FormLabel>Tanggal</FormLabel>
               <FormControl><Input type="date" {...field} /></FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
           <FormField name="event.akad.time" control={control} render={({ field }) => (
             <FormItem>
               <FormLabel>Waktu</FormLabel>
               <FormControl><Input type="time" {...field} /></FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
           <FormField name="event.akad.location" control={control} render={({ field }) => (
             <FormItem>
               <FormLabel>Lokasi</FormLabel>
               <FormControl><Input {...field} /></FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
           <FormField name="event.akad.mapsLink" control={control} render={({ field }) => (
             <FormItem>
               <FormLabel>Link Maps</FormLabel>
               <FormControl><Input {...field} /></FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
-          )}/>
+          )} />
         </>
       )}
     </Collapsible>
