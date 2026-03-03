@@ -1,10 +1,9 @@
 // app/panel/blog-admin/UploadBlogForm.tsx
 'use client';
 
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectTrigger,
@@ -15,10 +14,30 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import RichTextEditor from '@/components/QuillRichTextEditor';
+import {
+  ImagePlus,
+  X,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  RefreshCw,
+  Send,
+} from 'lucide-react';
 
 interface UploadBlogFormProps {
   onUploadSuccess: () => void;
 }
+
+const API_BASE = 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php';
+
+const CATEGORIES = [
+  { value: 'tutorial', label: 'Tutorial' },
+  { value: 'tips', label: 'Tips & Trik' },
+  { value: 'inspiration', label: 'Inspirasi' },
+  { value: 'news', label: 'Berita' },
+  { value: 'wedding', label: 'Pernikahan' },
+  { value: 'event', label: 'Event' },
+];
 
 export default function UploadBlogForm({ onUploadSuccess }: UploadBlogFormProps) {
   const [title, setTitle] = useState('');
@@ -27,70 +46,72 @@ export default function UploadBlogForm({ onUploadSuccess }: UploadBlogFormProps)
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<string>('draft');
   const [fileImage, setFileImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [progress, setProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Function to generate slug from title
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .trim();
-  };
+  const generateSlug = (t: string) =>
+    t.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').trim();
 
-  // Function to sync blog images with database
-  const syncBlogImages = async (blogId: string | number, content: string) => {
+  const syncBlogImages = async (id: string | number, c: string) => {
     try {
       const formData = new FormData();
-      formData.append('blog_id', blogId.toString());
-      formData.append('content', content);
-
-      // Use local API endpoint for development
-      const apiUrl = window.location.hostname === 'localhost' 
-        ? '/api/page/blog_images.php?action=mark_unused'
-        : 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_images.php?action=mark_unused';
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await response.json();
-      if (data.status === 'success') {
-        console.log('Images synced successfully:', data);
-      }
-    } catch (error) {
-      console.error('Error syncing images:', error);
-      // Fail silently for now
+      formData.append('blog_id', id.toString());
+      formData.append('content', c);
+      const apiUrl =
+        window.location.hostname === 'localhost'
+          ? '/api/page/blog_images.php?action=mark_unused'
+          : 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_images.php?action=mark_unused';
+      await fetch(apiUrl, { method: 'POST', body: formData });
+    } catch {
+      // fail silently
     }
   };
 
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const titleValue = e.target.value;
-    setTitle(titleValue);
-    // Auto-generate slug from title
-    if (titleValue) {
-      setSlug(generateSlug(titleValue));
-    } else {
-      setSlug('');
+  const handleFile = useCallback((file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: 'File harus berupa gambar (JPG, PNG, GIF).' });
+      return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Ukuran file maksimal 5MB.' });
+      return;
+    }
+    setFileImage(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setMessage(null);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    },
+    [handleFile]
+  );
+
+  const resetForm = () => {
+    setTitle('');
+    setSlug('');
+    setContent('');
+    setCategory(undefined);
+    setStatus('draft');
+    setFileImage(null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFileImage(file);
-    }
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
 
     if (!title.trim() || !slug.trim() || !content.trim() || !category) {
-      setMessage('Judul, slug, konten, dan kategori wajib diisi.');
+      setMessage({ type: 'error', text: 'Judul, slug, konten, dan kategori wajib diisi.' });
       return;
     }
 
@@ -103,205 +124,287 @@ export default function UploadBlogForm({ onUploadSuccess }: UploadBlogFormProps)
     formData.append('content', content);
     formData.append('category', category);
     formData.append('status', status);
-    if (fileImage) {
-      formData.append('image', fileImage);
-    }
+    if (fileImage) formData.append('image', fileImage);
 
     try {
-      const response = await axios.post(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=create',
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (ev) => {
-            if (ev.total) {
-              const percent = Math.round((ev.loaded * 100) / ev.total);
-              setProgress(percent);
-            }
-          },
-        }
-      );
-
-      console.log('Response dari PHP:', response.data);
+      const response = await axios.post(`${API_BASE}?action=create`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (ev) => {
+          if (ev.total) {
+            setProgress(Math.round((ev.loaded * 100) / ev.total));
+          }
+        },
+      });
 
       const data = response.data;
       if (data.status === 'success') {
-        // Sync images after successful blog creation
         if (data.blog_id && content) {
           await syncBlogImages(data.blog_id, content);
         }
-        
-        setMessage('Artikel berhasil disimpan 🎉');
-        setTitle('');
-        setSlug('');
-        setContent('');
-        setCategory(undefined);
-        setStatus('draft');
-        setFileImage(null);
-        // Reset file input
-        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
-        
+        setMessage({ type: 'success', text: 'Artikel berhasil ditambahkan! 🎉' });
+        resetForm();
         setTimeout(() => {
           setProgress(0);
           onUploadSuccess();
-        }, 500);
+        }, 800);
       } else {
-        setMessage(`Error: ${data.message || 'Gagal menyimpan artikel.'}`);
+        setMessage({ type: 'error', text: `Error: ${data.message || 'Gagal menyimpan artikel.'}` });
       }
-    } catch (err) {
-      console.error('Error saat menyimpan:', err);
-      setMessage('Gagal menghubungi server.');
+    } catch {
+      setMessage({ type: 'error', text: 'Gagal menghubungi server.' });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white/50 backdrop-blur-md rounded-2xl p-6 border border-pink-200 shadow-sm mb-8">
-      <h2 className="text-2xl font-semibold text-pink-800 mb-4">Buat Artikel Baru</h2>
-
+    <div className="max-w-5xl mx-auto">
+      {/* Alert Message */}
       {message && (
-        <div className={`mb-4 p-3 rounded-lg text-white ${
-          message.includes('berhasil') ? 'bg-green-500' : 'bg-red-500'
-        }`}>
-          {message}
+        <div
+          className={`mb-6 p-4 rounded-xl flex items-center gap-3 text-sm font-medium shadow-sm
+            ${message.type === 'success'
+              ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+              : 'bg-red-50 border border-red-200 text-red-700'
+            }`}
+        >
+          {message.type === 'success' ? (
+            <CheckCircle className="w-5 h-5 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+          )}
+          {message.text}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Judul */}
-        <div>
-          <label className="block text-pink-700 font-medium mb-1">
-            Judul Artikel <span className="text-red-500">*</span>
-          </label>
-          <Input
-            type="text"
-            value={title}
-            onChange={handleTitleChange}
-            placeholder="Masukkan judul artikel"
-            className="w-full"
-            required
-          />
-        </div>
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* ── LEFT COLUMN ── */}
+          <div className="lg:col-span-2 space-y-5">
+            {/* Card: Info Dasar */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
+              <h2 className="text-base font-bold text-slate-700 border-b border-slate-100 pb-3">
+                Informasi Artikel
+              </h2>
 
-        {/* Slug */}
-        <div>
-          <label className="block text-pink-700 font-medium mb-1">
-            Slug <span className="text-red-500">*</span>
-          </label>
-          <Input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder="slug-akan-dibuat-otomatis"
-            className="w-full"
-            required
-          />
-          <p className="text-sm text-pink-500 mt-1">
-            Slug akan dibuat otomatis dari judul, tetapi Anda bisa mengeditnya.
-          </p>
-        </div>
+              {/* Judul */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  Judul Artikel <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  type="text"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    setSlug(generateSlug(e.target.value));
+                  }}
+                  placeholder="Masukkan judul artikel yang menarik..."
+                  className="w-full text-slate-800 border-slate-200 focus:border-pink-400 focus:ring-pink-300"
+                  required
+                />
+              </div>
 
-        {/* Kategori */}
-        <div>
-          <label className="block text-pink-700 font-medium mb-1">
-            Kategori <span className="text-red-500">*</span>
-          </label>
-          <Select
-            onValueChange={(value) => setCategory(value)}
-            value={category}
-            defaultValue=""
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Pilih kategori…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="tutorial">Tutorial</SelectItem>
-              <SelectItem value="tips">Tips & Trik</SelectItem>
-              <SelectItem value="inspiration">Inspirasi</SelectItem>
-              <SelectItem value="news">Berita</SelectItem>
-              <SelectItem value="wedding">Pernikahan</SelectItem>
-              <SelectItem value="event">Event</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+              {/* Slug */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  Slug URL <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-400 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 whitespace-nowrap">
+                    /blog/
+                  </span>
+                  <Input
+                    type="text"
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="url-artikel-anda"
+                    className="flex-1 text-slate-800 border-slate-200 focus:border-pink-400 font-mono text-sm"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSlug(generateSlug(title))}
+                    className="p-2 text-slate-400 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors"
+                    title="Generate ulang dari judul"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">
+                  URL publik: papunda.com/blog/{slug || '...'}
+                </p>
+              </div>
+            </div>
 
-        {/* Status */}
-        <div>
-          <label className="block text-pink-700 font-medium mb-1">
-            Status
-          </label>
-          <Select
-            onValueChange={(value) => setStatus(value)}
-            value={status}
-            defaultValue="draft"
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Pilih status…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Konten Artikel */}
-        <div>
-          <label className="block text-pink-700 font-medium mb-1">
-            Konten Artikel <span className="text-red-500">*</span>
-          </label>
-          <RichTextEditor
-            value={content}
-            onChange={setContent}
-            placeholder="Tulis konten artikel di sini..."
-            height={400}
-          />
-          <p className="text-sm text-pink-500 mt-1">
-            Anda dapat menyisipkan gambar langsung ke dalam konten dengan cara:
-            <br />• Klik tombol gambar di toolbar
-            <br />• Seret dan lepas (drag & drop) gambar
-            <br />• Copy paste gambar dari clipboard
-          </p>
-        </div>
-
-        {/* File Gambar */}
-        <div>
-          <label className="block text-pink-700 font-medium mb-1">
-            Gambar Artikel
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full text-pink-600 file:mr-4 file:py-2 file:px-4
-                       file:rounded-lg file:border-0 file:text-sm file:font-semibold
-                       file:bg-pink-200 file:text-pink-700 hover:file:bg-pink-300"
-          />
-          <p className="text-sm text-pink-500 mt-1">
-            Format yang didukung: JPG, PNG, GIF. Maksimal 5MB.
-          </p>
-        </div>
-
-        {/* Progress Bar */}
-        {loading && (
-          <div>
-            <label className="block text-pink-700 font-medium mb-1">
-              Progres Upload: {progress}%
-            </label>
-            <Progress value={progress} className="h-2 rounded-xl" />
+            {/* Card: Konten */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h2 className="text-base font-bold text-slate-700 border-b border-slate-100 pb-3 mb-4">
+                Konten Artikel <span className="text-red-500">*</span>
+              </h2>
+              <RichTextEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Tulis konten artikel di sini..."
+                height={480}
+              />
+              <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-400">
+                <div className="flex items-center gap-1.5 bg-slate-50 rounded-lg p-2">
+                  <ImagePlus className="w-3.5 h-3.5 text-pink-400" />
+                  Klik ikon gambar di toolbar
+                </div>
+                <div className="flex items-center gap-1.5 bg-slate-50 rounded-lg p-2">
+                  <span>🖱️</span> Drag & drop gambar
+                </div>
+                <div className="flex items-center gap-1.5 bg-slate-50 rounded-lg p-2">
+                  <span>📋</span> Paste dari clipboard
+                </div>
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Tombol Submit */}
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-pink-400 to-pink-500 text-white"
-        >
-          {loading ? 'Menyimpan...' : 'Simpan Artikel'}
-        </Button>
+          {/* ── RIGHT COLUMN ── */}
+          <div className="space-y-5">
+            {/* Card: Publikasi */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+              <h2 className="text-base font-bold text-slate-700 border-b border-slate-100 pb-3">
+                Pengaturan Publikasi
+              </h2>
+
+              {/* Status */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Status</label>
+                <Select onValueChange={(v) => setStatus(v)} value={status} defaultValue="draft">
+                  <SelectTrigger className="w-full border-slate-200">
+                    <SelectValue placeholder="Pilih status…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+                        Draft
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="published">
+                      <span className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                        Published
+                      </span>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Kategori */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  Kategori <span className="text-red-500">*</span>
+                </label>
+                <Select onValueChange={(v) => setCategory(v)} value={category} defaultValue="">
+                  <SelectTrigger className="w-full border-slate-200">
+                    <SelectValue placeholder="Pilih kategori…" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Progress */}
+              {loading && (
+                <div>
+                  <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <span>Mengupload artikel...</span>
+                    <span>{progress}%</span>
+                  </div>
+                  <Progress value={progress} className="h-2 rounded-full" />
+                </div>
+              )}
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-xl font-semibold py-2.5 flex items-center justify-center gap-2 shadow-md hover:shadow-pink-200 transition-all"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+                {loading ? 'Menyimpan...' : 'Terbitkan Artikel'}
+              </Button>
+            </div>
+
+            {/* Card: Gambar */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+              <h2 className="text-base font-bold text-slate-700 border-b border-slate-100 pb-3">
+                Gambar Artikel
+              </h2>
+
+              {/* Preview */}
+              {previewUrl && (
+                <div className="relative">
+                  <div className="relative rounded-xl overflow-hidden aspect-[16/9] bg-slate-50">
+                    <img
+                      src={previewUrl}
+                      alt="Preview gambar"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 right-2">
+                      <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        Preview
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreviewUrl(null);
+                      setFileImage(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className="mt-2 text-xs text-red-500 hover:text-red-600 flex items-center gap-1"
+                  >
+                    <X className="w-3 h-3" /> Hapus gambar
+                  </button>
+                </div>
+              )}
+
+              {/* Drop Zone */}
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all
+                  ${isDragging
+                    ? 'border-pink-400 bg-pink-50'
+                    : 'border-slate-200 hover:border-pink-300 hover:bg-pink-50/50'
+                  }`}
+              >
+                <ImagePlus className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm font-medium text-slate-500">Upload gambar thumbnail</p>
+                <p className="text-xs text-slate-400 mt-1">Drag & drop atau klik untuk pilih</p>
+                <p className="text-xs text-slate-300 mt-1">JPG, PNG, GIF · Maks 5MB</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFile(file);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </form>
     </div>
   );

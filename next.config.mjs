@@ -13,7 +13,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  swcMinify: true,
   compress: true,
   experimental: {
     serverActions: {

@@ -18,7 +18,8 @@ $password = 'aaaaaaac';
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
+}
+catch (PDOException $e) {
     die(json_encode(['status' => 'error', 'message' => 'Database connection failed: ' . $e->getMessage()]));
 }
 
@@ -41,40 +42,46 @@ switch ($action) {
     case 'get':
         getBlog($pdo);
         break;
+    case 'toggle_status':
+        toggleBlogStatus($pdo);
+        break;
     default:
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
         break;
 }
 
-function listBlogs($pdo) {
+function listBlogs($pdo)
+{
     try {
         $stmt = $pdo->prepare("SELECT * FROM blogs ORDER BY created_at DESC");
         $stmt->execute();
         $blogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+
         echo json_encode([
             'status' => 'success',
             'data' => $blogs
         ]);
-    } catch (PDOException $e) {
+    }
+    catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to fetch blogs: ' . $e->getMessage()]);
     }
 }
 
-function createBlog($pdo) {
+function createBlog($pdo)
+{
     try {
         $title = $_POST['title'] ?? '';
         $slug = $_POST['slug'] ?? '';
         $content = $_POST['content'] ?? '';
         $category = $_POST['category'] ?? '';
         $status = $_POST['status'] ?? 'draft';
-        
+
         // Validate required fields
         if (empty($title) || empty($slug) || empty($content) || empty($category)) {
             echo json_encode(['status' => 'error', 'message' => 'All required fields must be filled']);
             return;
         }
-        
+
         // Check if slug already exists
         $stmt = $pdo->prepare("SELECT id FROM blogs WHERE slug = ?");
         $stmt->execute([$slug]);
@@ -82,67 +89,75 @@ function createBlog($pdo) {
             echo json_encode(['status' => 'error', 'message' => 'Slug already exists']);
             return;
         }
-        
+
         $image_url = '';
-        
+
         // Handle file upload
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $upload_dir = 'uploads/blog/';
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
             }
-            
+
             $file_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $filename = uniqid() . '_' . time() . '.' . $file_extension;
             $file_path = $upload_dir . $filename;
-            
+
             // Validate file type
             $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
             if (!in_array(strtolower($file_extension), $allowed_types)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file type. Only JPG, PNG, and GIF are allowed.']);
                 return;
             }
-            
+
             // Validate file size (5MB max)
             if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
                 echo json_encode(['status' => 'error', 'message' => 'File size too large. Maximum 5MB allowed.']);
                 return;
             }
-            
+
             if (move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
                 $image_url = 'https://ccgnimex.my.id/v2/android/ginvite/' . $file_path;
             }
         }
-        
+
+        // Generate ID manually (in case table id column has no AUTO_INCREMENT)
+        $id_stmt = $pdo->prepare("SELECT COALESCE(MAX(id), 0) + 1 as next_id FROM blogs");
+        $id_stmt->execute();
+        $next_id = (int)$id_stmt->fetchColumn();
+
         // Insert blog into database
         $stmt = $pdo->prepare("
-            INSERT INTO blogs (title, slug, content, image_url, category, status, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
+            INSERT INTO blogs (id, title, slug, content, image_url, category, status, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
-        
-        $stmt->execute([$title, $slug, $content, $image_url, $category, $status]);
-        
-        $blog_id = $pdo->lastInsertId();
-        
+
+        $stmt->execute([$next_id, $title, $slug, $content, $image_url, $category, $status]);
+
+        $blog_id = $next_id;
+
         // Update blog_id for images that might be in the content
         updateContentImagesBlogId($pdo, $blog_id, $content);
-        
+
         echo json_encode([
             'status' => 'success',
             'message' => 'Blog created successfully',
+            'blog_id' => $blog_id,
             'data' => [
                 'id' => $blog_id,
                 'title' => $title,
                 'slug' => $slug
             ]
         ]);
-        
-    } catch (PDOException $e) {
+
+    }
+    catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to create blog: ' . $e->getMessage()]);
     }
 }
 
-function updateBlog($pdo) {
+function updateBlog($pdo)
+{
     try {
         $id = $_POST['id'] ?? '';
         $title = $_POST['title'] ?? '';
@@ -150,12 +165,12 @@ function updateBlog($pdo) {
         $content = $_POST['content'] ?? '';
         $category = $_POST['category'] ?? '';
         $status = $_POST['status'] ?? 'draft';
-        
+
         if (empty($id) || empty($title) || empty($slug) || empty($content) || empty($category)) {
             echo json_encode(['status' => 'error', 'message' => 'All required fields must be filled']);
             return;
         }
-        
+
         // Check if slug already exists for other blogs
         $stmt = $pdo->prepare("SELECT id FROM blogs WHERE slug = ? AND id != ?");
         $stmt->execute([$slug, $id]);
@@ -163,35 +178,35 @@ function updateBlog($pdo) {
             echo json_encode(['status' => 'error', 'message' => 'Slug already exists']);
             return;
         }
-        
+
         $image_url = '';
-        
+
         // Handle file upload if new image is provided
         if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
             $upload_dir = 'uploads/blog/';
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
             }
-            
+
             $file_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $filename = uniqid() . '_' . time() . '.' . $file_extension;
             $file_path = $upload_dir . $filename;
-            
+
             $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
             if (!in_array(strtolower($file_extension), $allowed_types)) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid file type']);
                 return;
             }
-            
+
             if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
                 echo json_encode(['status' => 'error', 'message' => 'File size too large']);
                 return;
             }
-            
+
             if (move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
                 // Perbaikan: Menambahkan '/page/' ke dalam URL
                 $image_url = 'https://ccgnimex.my.id/v2/android/ginvite/page/' . $file_path;
-                
+
                 // Update with new image
                 $stmt = $pdo->prepare("
                     UPDATE blogs 
@@ -200,7 +215,8 @@ function updateBlog($pdo) {
                 ");
                 $stmt->execute([$title, $slug, $content, $image_url, $category, $status, $id]);
             }
-        } else {
+        }
+        else {
             // Update without changing image
             $stmt = $pdo->prepare("
                 UPDATE blogs 
@@ -209,43 +225,45 @@ function updateBlog($pdo) {
             ");
             $stmt->execute([$title, $slug, $content, $category, $status, $id]);
         }
-        
+
         // Update blog_id for images that might be in the content
         updateContentImagesBlogId($pdo, $id, $content);
-        
+
         echo json_encode([
             'status' => 'success',
             'message' => 'Blog updated successfully'
         ]);
-        
-    } catch (PDOException $e) {
+
+    }
+    catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to update blog: ' . $e->getMessage()]);
     }
 }
 
-function deleteBlog($pdo) {
+function deleteBlog($pdo)
+{
     try {
         $id = $_GET['id'] ?? '';
-        
+
         if (empty($id)) {
             echo json_encode(['status' => 'error', 'message' => 'Blog ID is required']);
             return;
         }
-        
+
         // Get blog data first to delete associated image file
         $stmt = $pdo->prepare("SELECT image_url FROM blogs WHERE id = ?");
         $stmt->execute([$id]);
         $blog = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$blog) {
             echo json_encode(['status' => 'error', 'message' => 'Blog not found']);
             return;
         }
-        
+
         // Delete blog from database
         $stmt = $pdo->prepare("DELETE FROM blogs WHERE id = ?");
         $stmt->execute([$id]);
-        
+
         // Delete associated image file if exists
         if (!empty($blog['image_url'])) {
             $file_path = str_replace('https://ccgnimex.my.id/v2/android/ginvite/', '', $blog['image_url']);
@@ -253,58 +271,93 @@ function deleteBlog($pdo) {
                 unlink($file_path);
             }
         }
-        
+
         echo json_encode([
             'status' => 'success',
             'message' => 'Blog deleted successfully'
         ]);
-        
-    } catch (PDOException $e) {
+
+    }
+    catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to delete blog: ' . $e->getMessage()]);
     }
 }
 
-function getBlog($pdo) {
+function getBlog($pdo)
+{
     try {
         $id = $_GET['id'] ?? '';
         $slug = $_GET['slug'] ?? '';
-        
+
         if (empty($id) && empty($slug)) {
             echo json_encode(['status' => 'error', 'message' => 'Blog ID or slug is required']);
             return;
         }
-        
+
         if (!empty($id)) {
             $stmt = $pdo->prepare("SELECT * FROM blogs WHERE id = ?");
             $stmt->execute([$id]);
-        } else {
+        }
+        else {
             $stmt = $pdo->prepare("SELECT * FROM blogs WHERE slug = ?");
             $stmt->execute([$slug]);
         }
-        
+
         $blog = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$blog) {
             echo json_encode(['status' => 'error', 'message' => 'Blog not found']);
             return;
         }
-        
+
         echo json_encode([
             'status' => 'success',
             'data' => $blog
         ]);
-        
-    } catch (PDOException $e) {
+
+    }
+    catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to fetch blog: ' . $e->getMessage()]);
     }
 }
 
+function toggleBlogStatus($pdo)
+{
+    try {
+        $id = $_POST['id'] ?? '';
+        $status = $_POST['status'] ?? '';
+
+        if (empty($id) || !in_array($status, ['published', 'draft'])) {
+            echo json_encode(['status' => 'error', 'message' => 'ID dan status yang valid diperlukan']);
+            return;
+        }
+
+        $stmt = $pdo->prepare("UPDATE blogs SET status = ?, updated_at = NOW() WHERE id = ?");
+        $stmt->execute([$status, $id]);
+
+        if ($stmt->rowCount() === 0) {
+            echo json_encode(['status' => 'error', 'message' => 'Artikel tidak ditemukan']);
+            return;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Status artikel berhasil diperbarui',
+            'new_status' => $status
+        ]);
+    }
+    catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Gagal memperbarui status: ' . $e->getMessage()]);
+    }
+}
+
 // Helper function to update blog_id for images in content
-function updateContentImagesBlogId($pdo, $blog_id, $content) {
+function updateContentImagesBlogId($pdo, $blog_id, $content)
+{
     try {
         // Extract image URLs from content using regex
         preg_match_all('/https:\/\/ccgnimex\.my\.id\/v2\/android\/ginvite\/page\/uploads\/editor\/([^"\'>\s]+)/', $content, $matches);
-        
+
         if (!empty($matches[1])) {
             foreach ($matches[1] as $filename) {
                 // Update blog_id for this image
@@ -312,7 +365,8 @@ function updateContentImagesBlogId($pdo, $blog_id, $content) {
                 $stmt->execute([$blog_id, $filename]);
             }
         }
-    } catch (PDOException $e) {
+    }
+    catch (PDOException $e) {
         // Log error but don't fail the blog creation
         error_log('Failed to update image blog_id: ' . $e->getMessage());
     }

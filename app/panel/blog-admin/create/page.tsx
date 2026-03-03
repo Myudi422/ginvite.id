@@ -4,49 +4,39 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import UploadBlogForm from '../UploadBlogForm';
 
 export default function CreateBlogPage() {
   const router = useRouter();
 
-  const handleBack = () => {
-    router.back();
-  };
-
   const handleUploadSuccess = () => {
-    // Redirect back to blog list after successful creation
     router.push('/panel/blog-admin');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-100 to-white p-6 md:p-8">
-      {/* HEADER */}
-      <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Button
-            onClick={handleBack}
-            variant="outline"
-            className="border-pink-300 text-pink-600 hover:bg-pink-50"
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-100 sticky top-0 z-30 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center gap-4">
+          <button
+            onClick={() => router.back()}
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+            aria-label="Kembali"
           >
-            <ArrowLeftIcon className="h-4 w-4 mr-2" />
-            Kembali
-          </Button>
+            <ArrowLeftIcon className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
+              Buat Artikel Baru
+            </h1>
+            <p className="text-xs text-slate-400">Tambahkan artikel blog baru</p>
+          </div>
         </div>
-        
-        <h1
-          className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 
-                     bg-clip-text text-transparent mb-2"
-        >
-          Buat Artikel Baru
-        </h1>
-        <p className="text-sm text-pink-600">
-          Tambahkan artikel blog baru dengan lengkap
-        </p>
       </div>
 
-      {/* FORM UPLOAD */}
-      <UploadBlogForm onUploadSuccess={handleUploadSuccess} />
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        <UploadBlogForm onUploadSuccess={handleUploadSuccess} />
+      </div>
     </div>
   );
 }
