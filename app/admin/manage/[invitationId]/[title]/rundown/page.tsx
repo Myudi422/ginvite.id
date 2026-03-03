@@ -2,540 +2,395 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ChevronLeft, ArrowDown, Eye, Save, CheckCircle } from 'lucide-react';
+import {
+  ChevronLeft,
+  ArrowDown,
+  Eye,
+  Save,
+  CheckCircle,
+  Plus,
+  Trash2,
+  Clock,
+  FileText,
+  Loader2,
+} from 'lucide-react';
 import jsPDF from 'jspdf';
 import { saveRundownDraft, loadRundownDraft, scheduleAutoSaveRundown } from '@/app/actions/rundownDrafts';
 
-// Define type untuk rundown item
 type RundownItem = {
   start: string;
   end: string;
   activity: string;
 };
 
-// Fungsi untuk mendapatkan data Base64 dari file JSON secara asinkron
 async function getBackgroundBase64FromJSON(): Promise<string> {
   const response = await fetch('/base64.json');
   const data = await response.json();
-  return data.pdfBackground; // Pastikan key di file JSON adalah "pdfBackground"
+  return data.pdfBackground;
 }
 
 export default function RundownPage() {
   const router = useRouter();
   const { invitationId, title } = useParams() as { invitationId: string; title: string };
 
-  const [items, setItems] = useState<RundownItem[]>([
-    { start: '', end: '', activity: '' },
-  ]);
-
-  // State untuk preview PDF
-  const [previewUrl, setPreviewUrl] = useState<string>('');
-  const [showPreview, setShowPreview] = useState<boolean>(false);
-
-  // State untuk draft management
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [items, setItems] = useState<RundownItem[]>([{ start: '', end: '', activity: '' }]);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [customTitle, setCustomTitle] = useState('');
 
-  // State untuk custom PDF title
-  const [customTitle, setCustomTitle] = useState<string>('');
-
-  // Load draft saat component mount
   useEffect(() => {
     const loadDraft = async () => {
-      if (!invitationId || !title) {
-        console.log('Missing params:', { invitationId, title });
-        setIsLoading(false);
-        return;
-      }
-      
+      if (!invitationId || !title) { setIsLoading(false); return; }
       try {
-        console.log('Loading draft for:', { invitationId, title });
         setIsLoading(true);
         const draft = await loadRundownDraft(invitationId, title);
-        
-        if (draft && draft.rundown_data) {
-          const draftData = JSON.parse(draft.rundown_data);
-          if (draftData.items && draftData.items.length > 0) {
-            setItems(draftData.items);
-            console.log('Draft loaded:', draftData.items);
-          }
-          if (draftData.customTitle) {
-            setCustomTitle(draftData.customTitle);
-          }
-        } else {
-          console.log('No draft found');
+        if (draft?.rundown_data) {
+          const d = JSON.parse(draft.rundown_data);
+          if (d.items?.length > 0) setItems(d.items);
+          if (d.customTitle) setCustomTitle(d.customTitle);
         }
-      } catch (error) {
-        console.error('Failed to load rundown draft:', error);
+      } catch (e) {
+        console.error('Failed to load rundown draft:', e);
       } finally {
         setIsLoading(false);
       }
     };
-
     loadDraft();
   }, [invitationId, title]);
 
-  // Auto-save dengan debouncing
   useEffect(() => {
     if (!invitationId || !title || isLoading) return;
-    
-    // Skip auto-save jika hanya ada satu item kosong
-    const hasContent = items.some(item => 
-      item.start.trim() || item.end.trim() || item.activity.trim()
-    );
-    
+    const hasContent = items.some(i => i.start || i.end || i.activity);
     if (!hasContent) return;
-
     setSaveStatus('saving');
     setIsSaving(true);
-    
     scheduleAutoSaveRundown({
       user_id: invitationId,
       invitation_title: title,
-      rundown_data: JSON.stringify({
-        items: items,
-        customTitle: customTitle
-      })
-    }).then((result) => {
+      rundown_data: JSON.stringify({ items, customTitle }),
+    }).then(result => {
       setIsSaving(false);
       if (result.success) {
         setSaveStatus('saved');
         setLastSaved(new Date());
-        
-        // Clear status setelah 3 detik
         setTimeout(() => setSaveStatus(null), 3000);
       } else {
         setSaveStatus('error');
-        console.error('Auto-save failed:', result.message);
       }
-    }).catch((error) => {
-      setIsSaving(false);
-      setSaveStatus('error');
-      console.error('Auto-save error:', error);
-    });
+    }).catch(() => { setIsSaving(false); setSaveStatus('error'); });
   }, [items, customTitle, invitationId, title, isLoading]);
 
-  // Manual save function
   const handleManualSave = async () => {
     if (!invitationId || !title) return;
-    
     try {
-      setIsSaving(true);
-      setSaveStatus('saving');
-      
+      setIsSaving(true); setSaveStatus('saving');
       const result = await saveRundownDraft({
         user_id: invitationId,
         invitation_title: title,
-        rundown_data: JSON.stringify({
-          items: items,
-          customTitle: customTitle
-        })
+        rundown_data: JSON.stringify({ items, customTitle }),
       });
-      
       if (result.success) {
         setSaveStatus('saved');
         setLastSaved(new Date());
         setTimeout(() => setSaveStatus(null), 3000);
       } else {
         setSaveStatus('error');
-        console.error('Manual save failed:', result.message);
       }
-    } catch (error) {
-      setSaveStatus('error');
-      console.error('Manual save error:', error);
-    } finally {
-      setIsSaving(false);
-    }
+    } catch { setSaveStatus('error'); }
+    finally { setIsSaving(false); }
   };
 
-  // Tambah baris rundown baru
-  const handleAddRow = () => {
-    setItems((prev) => [...prev, { start: '', end: '', activity: '' }]);
-  };
+  const handleAddRow = () => setItems(prev => [...prev, { start: '', end: '', activity: '' }]);
+  const handleRemoveRow = (i: number) => setItems(prev => prev.filter((_, idx) => idx !== i));
+  const handleChange = (index: number, field: keyof RundownItem, value: string) =>
+    setItems(prev => prev.map((item, i) => i === index ? { ...item, [field]: value } : item));
 
-  // Hapus baris berdasarkan index
-  const handleRemoveRow = (index: number) => {
-    setItems((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // Update field dari rundown item
-  const handleChange = (
-    index: number,
-    field: 'start' | 'end' | 'activity',
-    value: string
-  ) => {
-    setItems((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
-    );
-  };
-
-  // Fungsi untuk generate PDF dengan background, header/footer padding, dan page break otomatis
   const generatePDFDoc = async () => {
-    // Buat dokumen PDF baru dengan jsPDF
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-
-    // Dapatkan string Base64 dari JSON (bukan dengan getBase64FromUrl)
     const backgroundBase64 = await getBackgroundBase64FromJSON();
-
-    // Margin dan padding untuk header & footer
-    const margin = 40;
-    const paddingTop = 80; // Ruangan atas untuk header/logo
-    const paddingBottom = 130; // Ruangan bawah untuk footer
-    const tableWidth = 450;
-    const colStartWidth = 70;
-    const colEndWidth = 70;
+    const margin = 40, paddingTop = 80, paddingBottom = 130;
+    const tableWidth = 450, colStartWidth = 70, colEndWidth = 70;
     const colActivityWidth = tableWidth - (colStartWidth + colEndWidth);
-    const headerHeight = 24;
-    const cellPadding = 5;
-    const lineHeight = 12;
+    const headerHeight = 24, cellPadding = 5, lineHeight = 12;
     const decodedTitle = decodeURIComponent(title || '');
-    const dynamicMargin = (pageWidth - tableWidth) / 2; // Dynamically calculate margin to center the table
+    const dynamicMargin = (pageWidth - tableWidth) / 2;
 
-    // Tambahkan background pada halaman pertama
     doc.addImage(backgroundBase64, 'PNG', 0, 0, pageWidth, pageHeight);
-
-    // Mulai konten dari posisi margin + paddingTop
     let currentY = margin + paddingTop;
 
-    // Judul dokumen
     doc.setFontSize(30);
-    const defaultTitle = `Rundown – ${decodedTitle.replace(/-/g, ' ')}`;
-    const titleText = customTitle.trim() || defaultTitle;
+    const titleText = customTitle.trim() || `Rundown – ${decodedTitle.replace(/-/g, ' ')}`;
     const titleWidth = doc.getTextWidth(titleText);
-    const titleX = (pageWidth - titleWidth) / 2; // Calculate centered position
-    doc.text(titleText, titleX, currentY);
+    doc.text(titleText, (pageWidth - titleWidth) / 2, currentY);
     currentY += headerHeight + 10;
 
-    // Header tabel
-    doc.setFillColor(249, 207, 217); // light pink
-    doc.rect(dynamicMargin, currentY, colStartWidth, headerHeight, 'F');
-    doc.rect(dynamicMargin + colStartWidth, currentY, colEndWidth, headerHeight, 'F');
-    doc.rect(
-      dynamicMargin + colStartWidth + colEndWidth,
-      currentY,
-      colActivityWidth,
-      headerHeight,
-      'F'
-    );
-    doc.setFontSize(12);
-    doc.setTextColor(127, 17, 65); // dark pink
-    const headerTextY = currentY + headerHeight / 2 + 4;
-    doc.text('Mulai', dynamicMargin + cellPadding, headerTextY);
-    doc.text('Berakhir', dynamicMargin + colStartWidth + cellPadding, headerTextY);
-    doc.text(
-      'Kegiatan',
-      dynamicMargin + colStartWidth + colEndWidth + cellPadding,
-      headerTextY
-    );
-    currentY += headerHeight;
-    doc.setDrawColor(200);
-    doc.line(dynamicMargin, currentY, dynamicMargin + tableWidth, currentY);
+    const drawHeader = (y: number) => {
+      doc.setFillColor(249, 207, 217);
+      doc.rect(dynamicMargin, y, colStartWidth, headerHeight, 'F');
+      doc.rect(dynamicMargin + colStartWidth, y, colEndWidth, headerHeight, 'F');
+      doc.rect(dynamicMargin + colStartWidth + colEndWidth, y, colActivityWidth, headerHeight, 'F');
+      doc.setFontSize(12); doc.setTextColor(127, 17, 65);
+      const hY = y + headerHeight / 2 + 4;
+      doc.text('Mulai', dynamicMargin + cellPadding, hY);
+      doc.text('Berakhir', dynamicMargin + colStartWidth + cellPadding, hY);
+      doc.text('Kegiatan', dynamicMargin + colStartWidth + colEndWidth + cellPadding, hY);
+      doc.setDrawColor(200);
+      doc.line(dynamicMargin, y + headerHeight, dynamicMargin + tableWidth, y + headerHeight);
+      return y + headerHeight;
+    };
 
-    // Loop tiap item rundown
-    items.forEach((item) => {
-      // Pecah teks "Kegiatan" jika panjang agar membungkus
-      const activityLines = doc.splitTextToSize(
-        item.activity,
-        colActivityWidth - 2 * cellPadding
-      );
-      const textHeight = activityLines.length * lineHeight;
-      const cellHeight = Math.max(headerHeight, textHeight + 2 * cellPadding);
+    currentY = drawHeader(currentY);
 
-      // Jika ruang tidak cukup (dengan padding bawah), pindah ke halaman baru
+    items.forEach(item => {
+      const activityLines = doc.splitTextToSize(item.activity, colActivityWidth - 2 * cellPadding);
+      const cellHeight = Math.max(headerHeight, activityLines.length * lineHeight + 2 * cellPadding);
       if (currentY + cellHeight + paddingBottom > pageHeight) {
         doc.addPage();
-        // Tambahkan background di halaman baru
         doc.addImage(backgroundBase64, 'PNG', 0, 0, pageWidth, pageHeight);
-        currentY = margin + paddingTop;
-        // Gambar ulang header tabel di halaman baru
-        doc.setFillColor(249, 207, 217);
-        doc.rect(dynamicMargin, currentY, colStartWidth, headerHeight, 'F');
-        doc.rect(dynamicMargin + colStartWidth, currentY, colEndWidth, headerHeight, 'F');
-        doc.rect(
-          dynamicMargin + colStartWidth + colEndWidth,
-          currentY,
-          colActivityWidth,
-          headerHeight,
-          'F'
-        );
-        doc.setTextColor(127, 17, 65);
-        const newHeaderY = currentY + headerHeight / 2 + 4;
-        doc.text('Mulai', dynamicMargin + cellPadding, newHeaderY); // Use consistent text
-        doc.text('Berakhir', dynamicMargin + colStartWidth + cellPadding, newHeaderY); // Use consistent text
-        doc.text(
-          'Kegiatan',
-          dynamicMargin + colStartWidth + colEndWidth + cellPadding,
-          newHeaderY
-        );
-        currentY += headerHeight;
-        doc.setDrawColor(200);
-        doc.line(dynamicMargin, currentY, dynamicMargin + tableWidth, currentY);
+        currentY = drawHeader(margin + paddingTop);
       }
-
-      // Gambar border baris sebagai satu rectangle dan garis vertikal pembagi
       doc.rect(dynamicMargin, currentY, tableWidth, cellHeight);
-      doc.line(
-        dynamicMargin + colStartWidth,
-        currentY,
-        dynamicMargin + colStartWidth,
-        currentY + cellHeight
-      );
-      doc.line(
-        dynamicMargin + colStartWidth + colEndWidth,
-        currentY,
-        dynamicMargin + colStartWidth + colEndWidth,
-        currentY + cellHeight
-      );
-
-      // Isi tiap sel dengan teks, memastikan teks tetap berada dalam batas sel
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.text(
-        item.start,
-        dynamicMargin + cellPadding,
-        currentY + cellPadding + lineHeight
-      );
-      doc.text(
-        item.end,
-        dynamicMargin + colStartWidth + cellPadding,
-        currentY + cellPadding + lineHeight
-      );
-      activityLines.forEach((line, index) => {
-        doc.text(
-          line,
-          dynamicMargin + colStartWidth + colEndWidth + cellPadding,
-          currentY + cellPadding + lineHeight * (index + 1)
-        );
+      doc.line(dynamicMargin + colStartWidth, currentY, dynamicMargin + colStartWidth, currentY + cellHeight);
+      doc.line(dynamicMargin + colStartWidth + colEndWidth, currentY, dynamicMargin + colStartWidth + colEndWidth, currentY + cellHeight);
+      doc.setTextColor(0, 0, 0); doc.setFontSize(12);
+      doc.text(item.start, dynamicMargin + cellPadding, currentY + cellPadding + lineHeight);
+      doc.text(item.end, dynamicMargin + colStartWidth + cellPadding, currentY + cellPadding + lineHeight);
+      activityLines.forEach((line: string, i: number) => {
+        doc.text(line, dynamicMargin + colStartWidth + colEndWidth + cellPadding, currentY + cellPadding + lineHeight * (i + 1));
       });
-
       currentY += cellHeight;
     });
-
-    // Footer (jika diperlukan) bisa ditambahkan di halaman terakhir, misalnya:
-    // doc.setFontSize(10);
-    // doc.text('Footer text here', margin, pageHeight - paddingBottom / 2);
-
     return doc;
   };
 
-  // Fungsi preview PDF: generate PDF, konversi ke Data URI, dan tampilkan di modal
   const handlePreviewPDF = async () => {
     const doc = await generatePDFDoc();
-    const dataUrl = doc.output('datauristring');
-    setPreviewUrl(dataUrl);
+    setPreviewUrl(doc.output('datauristring'));
     setShowPreview(true);
   };
 
-  // Fungsi export PDF: generate dan simpan file PDF ke perangkat pengguna
   const handleExportPDF = async () => {
     const doc = await generatePDFDoc();
-    const decodedTitle = decodeURIComponent(title || '');
-    const filename = customTitle.trim() ? 
-      customTitle.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-') : 
-      decodedTitle || 'rundown';
+    const decoded = decodeURIComponent(title || '');
+    const filename = customTitle.trim()
+      ? customTitle.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-')
+      : decoded || 'rundown';
     doc.save(`${filename}.pdf`);
   };
 
+  const filledCount = items.filter(i => i.activity.trim()).length;
+
   return (
-    <div className="min-h-screen bg-pink-50">
-      {/* Modal untuk preview PDF */}
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
+
+      {/* ── Preview Modal ── */}
       {showPreview && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setShowPreview(false)}
         >
           <div
-            className="bg-white rounded-lg p-4 max-w-3xl w-full"
-            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden"
+            onClick={e => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold">Preview PDF</h2>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-pink-500" />
+                <h2 className="font-bold text-gray-800">Preview PDF Rundown</h2>
+              </div>
               <button
                 onClick={() => setShowPreview(false)}
-                className="text-red-500 font-bold"
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 font-bold transition-colors"
               >
-                X
+                ✕
               </button>
             </div>
-            <iframe
-              src={previewUrl}
-              title="PDF Preview"
-              className="w-full h-[500px]"
-            />
+            <iframe src={previewUrl} title="PDF Preview" className="w-full h-[500px]" />
           </div>
         </div>
       )}
 
-      {/* HEADER */}
-      <div className="flex items-center justify-between bg-white shadow p-4">
-        <div className="flex items-center">
-          <button
-            onClick={() => router.back()}
-            className="p-2 rounded hover:bg-gray-100"
-          >
-            <ChevronLeft className="h-6 w-6 text-pink-600" />
+      {/* ── Header ── */}
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-pink-100 shadow-sm">
+        <div className="flex items-center gap-3 p-4 max-w-5xl mx-auto">
+          <button onClick={() => router.back()} className="p-2 rounded-xl hover:bg-pink-50 transition-colors">
+            <ChevronLeft className="h-5 w-5 text-pink-600" />
           </button>
-          <h1 className="ml-4 text-lg font-semibold text-pink-700">
-            Rundown – {decodeURIComponent(title || '')}
-          </h1>
-        </div>
-        
-        {/* Save Status & Manual Save */}
-        <div className="flex items-center space-x-4">
-          {/* Save Status Indicator */}
-          {saveStatus && (
-            <div className="flex items-center space-x-2">
-              {saveStatus === 'saving' && (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-600"></div>
-                  <span className="text-sm text-gray-600">Menyimpan...</span>
-                </>
-              )}
-              {saveStatus === 'saved' && (
-                <>
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-green-600">Tersimpan</span>
-                </>
-              )}
-              {saveStatus === 'error' && (
-                <span className="text-sm text-red-600">Gagal menyimpan</span>
-              )}
-            </div>
-          )}
-          
-          {/* Last Saved Time */}
-          {lastSaved && !saveStatus && (
-            <span className="text-xs text-gray-500">
-              Terakhir disimpan: {lastSaved.toLocaleTimeString()}
-            </span>
-          )}
-          
-          {/* Manual Save Button */}
-          <Button
-            onClick={handleManualSave}
-            disabled={isSaving || isLoading}
-            variant="outline"
-            size="sm"
-            className="text-pink-600 border-pink-600 hover:bg-pink-50"
-          >
-            <Save className="h-4 w-4 mr-1" />
-            Simpan
-          </Button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-base font-bold text-gray-800 truncate">Rundown Generate</h1>
+            <p className="text-xs text-pink-500 truncate">{decodeURIComponent(title || '')}</p>
+          </div>
+          {/* Save status */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {saveStatus === 'saving' && (
+              <div className="flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full">
+                <Loader2 className="h-3 w-3 animate-spin" /> Menyimpan...
+              </div>
+            )}
+            {saveStatus === 'saved' && (
+              <div className="flex items-center gap-1.5 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+                <CheckCircle className="h-3 w-3" /> Tersimpan
+              </div>
+            )}
+            {saveStatus === 'error' && (
+              <span className="text-xs text-red-500 bg-red-50 px-3 py-1.5 rounded-full">Gagal simpan</span>
+            )}
+            {lastSaved && !saveStatus && (
+              <span className="text-xs text-gray-400 hidden sm:block">
+                {lastSaved.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+            <button
+              onClick={handleManualSave}
+              disabled={isSaving || isLoading}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-pink-200 text-pink-600 text-xs font-semibold hover:bg-pink-50 disabled:opacity-50 transition-all"
+            >
+              <Save className="h-3.5 w-3.5" /> Simpan
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
-        {/* Section Custom Title */}
-        <div className="bg-white shadow rounded-2xl p-6 space-y-4">
-          <h2 className="text-sm font-medium text-gray-700">
-            Judul PDF (Opsional)
-          </h2>
-          <div className="space-y-2">
-            <Input
-              placeholder={`Default: Rundown – ${decodeURIComponent(title || '').replace(/-/g, ' ')}`}
-              value={customTitle}
-              onChange={(e) => setCustomTitle(e.target.value)}
-              className="w-full"
-            />
-            <p className="text-xs text-gray-500">
-              Kosongkan untuk menggunakan judul default. Judul ini akan muncul di PDF yang diexport.
-            </p>
+      <div className="max-w-5xl mx-auto p-4 md:px-8 pb-10 space-y-5">
+
+        {/* Stats summary */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-gradient-to-br from-pink-500 to-rose-500 rounded-2xl p-4 text-white shadow-sm">
+            <FileText className="h-5 w-5 mb-2 opacity-80" />
+            <p className="text-2xl font-bold">{items.length}</p>
+            <p className="text-xs text-white/75">Total Sesi</p>
+          </div>
+          <div className="bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl p-4 text-white shadow-sm">
+            <CheckCircle className="h-5 w-5 mb-2 opacity-80" />
+            <p className="text-2xl font-bold">{filledCount}</p>
+            <p className="text-xs text-white/75">Terisi</p>
+          </div>
+          <div className="bg-gradient-to-br from-amber-400 to-orange-400 rounded-2xl p-4 text-white shadow-sm">
+            <Clock className="h-5 w-5 mb-2 opacity-80" />
+            <p className="text-2xl font-bold">{items.filter(i => i.start).length}</p>
+            <p className="text-xs text-white/75">Waktu Diisi</p>
           </div>
         </div>
 
-        {/* Section Input Rundown */}
-        <div className="bg-white shadow rounded-2xl p-6 space-y-4">
+        {/* Judul PDF */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-7 h-7 rounded-full bg-pink-500 text-white text-xs font-bold flex items-center justify-center">1</div>
+            <span className="text-sm font-semibold text-gray-700">Judul PDF (Opsional)</span>
+          </div>
+          <Input
+            placeholder={`Default: Rundown – ${decodeURIComponent(title || '').replace(/-/g, ' ')}`}
+            value={customTitle}
+            onChange={e => setCustomTitle(e.target.value)}
+            className="rounded-xl border-gray-200 focus:ring-2 focus:ring-pink-300"
+          />
+          <p className="text-xs text-gray-400">Kosongkan untuk gunakan judul default dari nama undangan.</p>
+        </div>
+
+        {/* Daftar Rundown */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-gray-700">
-              Daftar Rundown
-            </h2>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-pink-500 text-white text-xs font-bold flex items-center justify-center">2</div>
+              <span className="text-sm font-semibold text-gray-700">Daftar Rundown</span>
+            </div>
             {isLoading && (
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-600"></div>
-                <span className="text-sm text-gray-600">Memuat draft...</span>
+              <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                <Loader2 className="h-3 w-3 animate-spin" /> Memuat draft...
               </div>
             )}
           </div>
-          <div className="space-y-4">
+
+          <div className="space-y-3">
             {items.map((item, idx) => (
               <div
                 key={idx}
-                className="space-y-2 p-3 border border-gray-200 rounded-md"
+                className="group relative bg-gray-50 rounded-2xl border border-gray-100 p-4 space-y-3 hover:border-pink-200 transition-colors"
               >
-                {/* Baris 1: Input waktu (Start dan End) */}
-                <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    type="time"
-                    placeholder="Start"
-                    value={item.start}
-                    onChange={(e) => handleChange(idx, 'start', e.target.value)}
-                    className="w-full"
-                  />
-                  <Input
-                    type="time"
-                    placeholder="End"
-                    value={item.end}
-                    onChange={(e) => handleChange(idx, 'end', e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                {/* Baris 2: Input keterangan */}
-                <div className="relative">
-                  <Input
-                    placeholder="Keterangan"
-                    value={item.activity}
-                    onChange={(e) =>
-                      handleChange(idx, 'activity', e.target.value)
-                    }
-                    className="w-full"
-                  />
+                {/* No. & hapus */}
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-semibold text-pink-500">Sesi {idx + 1}</span>
                   {items.length > 1 && (
                     <button
                       onClick={() => handleRemoveRow(idx)}
-                      className="absolute right-2 top-2 text-red-500 hover:text-red-700"
+                      className="p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all"
                     >
-                      &times;
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   )}
+                </div>
+                {/* Waktu */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">Mulai</label>
+                    <Input
+                      type="time"
+                      value={item.start}
+                      onChange={e => handleChange(idx, 'start', e.target.value)}
+                      className="rounded-xl border-gray-200 focus:ring-2 focus:ring-pink-300 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">Berakhir</label>
+                    <Input
+                      type="time"
+                      value={item.end}
+                      onChange={e => handleChange(idx, 'end', e.target.value)}
+                      className="rounded-xl border-gray-200 focus:ring-2 focus:ring-pink-300 text-sm"
+                    />
+                  </div>
+                </div>
+                {/* Kegiatan */}
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">Kegiatan / Keterangan</label>
+                  <Input
+                    placeholder="Contoh: Akad Nikah, Resepsi, Hiburan..."
+                    value={item.activity}
+                    onChange={e => handleChange(idx, 'activity', e.target.value)}
+                    className="rounded-xl border-gray-200 focus:ring-2 focus:ring-pink-300 text-sm"
+                  />
                 </div>
               </div>
             ))}
           </div>
-          <Button
-            variant="outline"
-            size="sm"
+
+          <button
             onClick={handleAddRow}
-            className="text-pink-600 border-pink-600"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-pink-200 text-pink-500 text-sm font-semibold hover:bg-pink-50 hover:border-pink-400 transition-all"
           >
-            Tambah Baris
-          </Button>
+            <Plus className="h-4 w-4" /> Tambah Sesi
+          </button>
         </div>
 
-        {/* Tombol Preview & Export PDF */}
-        <div className="bg-white shadow rounded-2xl p-6 flex justify-end space-x-2">
-          <Button
-            className="bg-blue-600 hover:bg-blue-700 flex items-center"
-            onClick={handlePreviewPDF}
-          >
-            <Eye className="mr-2 h-4 w-4" />
-            Preview PDF
-          </Button>
-          <Button
-            className="bg-pink-600 hover:bg-pink-700 flex items-center"
-            onClick={handleExportPDF}
-          >
-            <ArrowDown className="mr-2 h-4 w-4" />
-            Export PDF
-          </Button>
+        {/* Export */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-7 h-7 rounded-full bg-pink-500 text-white text-xs font-bold flex items-center justify-center">3</div>
+            <span className="text-sm font-semibold text-gray-700">Export PDF</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              onClick={handlePreviewPDF}
+              className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 font-semibold text-sm hover:bg-blue-100 transition-all"
+            >
+              <Eye className="h-4 w-4" /> Preview PDF
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold text-sm shadow-md hover:shadow-pink-200 hover:from-pink-600 hover:to-rose-600 transition-all"
+            >
+              <ArrowDown className="h-4 w-4" /> Download PDF
+            </button>
+          </div>
         </div>
+
       </div>
     </div>
   );
