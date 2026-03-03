@@ -1,5 +1,5 @@
 // app/layout.tsx
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import './globals.css';
 import Script from 'next/script';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -9,13 +9,6 @@ import WhatsAppButton from './wa'; // Import the new component
 
 // Google Tag Manager and Facebook Pixel Configuration
 const GTM_ID = 'GTM-TBLT72Q4'; // Updated GTM ID
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-};
 
 export const metadata: Metadata = {
   title: 'Papunda | Buat Undangan Digital Gratis',

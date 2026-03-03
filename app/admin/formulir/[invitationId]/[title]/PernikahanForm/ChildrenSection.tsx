@@ -170,7 +170,7 @@ export function ChildrenSection({
             <div className="space-y-4">
               {/* NAMA LENGKAP */}
               <div className="space-y-1.5">
-                <Label htmlFor={`${who}-name`} className="text-xs text-gray-600 font-medium">Nama Lengkap</Label>
+                <Label htmlFor={`${who}-name`} className="text-xs text-gray-600 font-medium whitespace-nowrap">Nama Lengkap</Label>
                 <Controller
                   name={`children.${i}.name`}
                   control={control}
@@ -192,7 +192,7 @@ export function ChildrenSection({
 
               {/* NAMA PANGGILAN */}
               <div className="space-y-1.5">
-                <Label htmlFor={`${who}-nick`} className="text-xs text-gray-600 font-medium">Nama Panggilan</Label>
+                <Label htmlFor={`${who}-nick`} className="text-xs text-gray-600 font-medium whitespace-nowrap">Nama Panggilan</Label>
                 <Controller
                   name={`children.${i}.nickname`}
                   control={control}

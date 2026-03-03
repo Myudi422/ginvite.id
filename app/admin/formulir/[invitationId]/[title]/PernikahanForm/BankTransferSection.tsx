@@ -101,7 +101,7 @@ export function BankTransferSection({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField name={`bank_transfer.accounts.${idx}.bank_name`} control={control} render={({ field }) => (
                   <FormItem className="space-y-1.5">
-                    <FormLabel className="text-xs text-gray-600 font-medium">Nama Bank / E-Wallet</FormLabel>
+                    <FormLabel className="text-xs text-gray-600 font-medium whitespace-nowrap">Nama Bank / E-Wallet</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Contoh: BCA / GoPay" className="bg-gray-50/50 border-gray-200 text-sm focus-visible:ring-1 focus-visible:ring-gray-300" />
                     </FormControl>
@@ -110,7 +110,7 @@ export function BankTransferSection({
                 )} />
                 <FormField name={`bank_transfer.accounts.${idx}.account_number`} control={control} render={({ field }) => (
                   <FormItem className="space-y-1.5">
-                    <FormLabel className="text-xs text-gray-600 font-medium">Nomor Rekening</FormLabel>
+                    <FormLabel className="text-xs text-gray-600 font-medium whitespace-nowrap">Nomor Rekening</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -126,7 +126,7 @@ export function BankTransferSection({
 
               <FormField name={`bank_transfer.accounts.${idx}.account_name`} control={control} render={({ field }) => (
                 <FormItem className="space-y-1.5">
-                  <FormLabel className="text-xs text-gray-600 font-medium">Nama Pemilik Rekening</FormLabel>
+                  <FormLabel className="text-xs text-gray-600 font-medium whitespace-nowrap">Nama Pemilik Rekening</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Contoh: Romeo Montague" className="bg-gray-50/50 border-gray-200 text-sm focus-visible:ring-1 focus-visible:ring-gray-300" />
                   </FormControl>
