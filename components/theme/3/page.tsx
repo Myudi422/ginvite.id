@@ -18,6 +18,7 @@ import { submitRsvp, getRsvpList } from '@/app/actions/rsvp';
 import { submitBankTransfer } from '@/app/actions/bank';
 import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
+import { ScrollReveal, fadeUpClass, slideLeftClass, slideRightClass, scaleUpClass, fadeInClass } from "./animations";
 
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
 
@@ -644,786 +645,815 @@ export default function Theme3({ data }: Theme3Props) {
           {/* Content Details - Scrollable */}
           <div className="p-4 space-y-6" style={{ paddingBottom: '1rem' }}>
             {/* Netflix Style Header */}
-            <div className="flex items-start gap-2">
-              <NetflixIcon className="w-4 h-3 text-red-600 mt-1" />
-              <NetflixText variant="caption" color="gray">
-                DOCUMENTER
-              </NetflixText>
-            </div>
+            <ScrollReveal animClass={fadeInClass}>
+              <div className="flex items-start gap-2">
+                <NetflixIcon className="w-4 h-3 text-red-600 mt-1" />
+                <NetflixText variant="caption" color="gray">
+                  DOCUMENTER
+                </NetflixText>
+              </div>
+            </ScrollReveal>
 
             {/* Title */}
-            <NetflixHeader size="xl" className="text-3xl leading-tight">
-              {isKhitan ? (
-                <>
-                  <div className="text-4xl font-bold">{nickname1}:</div>
-                  <div className="text-3xl font-semibold">Khitanan</div>
-                </>
-              ) : (
-                <>
-                  <div className="text-4xl font-bold">{nickname}:</div>
-                  <div className="text-3xl font-semibold">
-                    {isWedding ? 'Menuju Hari Bahagia' : 'Celebration'}
-                  </div>
-                </>
-              )}
-            </NetflixHeader>
+            <ScrollReveal animClass={fadeUpClass}>
+              <NetflixHeader size="xl" className="text-3xl leading-tight">
+                {isKhitan ? (
+                  <>
+                    <div className="text-4xl font-bold">{nickname1}:</div>
+                    <div className="text-3xl font-semibold">Khitanan</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-4xl font-bold">{nickname}:</div>
+                    <div className="text-3xl font-semibold">
+                      {isWedding ? 'Menuju Hari Bahagia' : 'Celebration'}
+                    </div>
+                  </>
+                )}
+              </NetflixHeader>
+            </ScrollReveal>
 
             {/* Meta Info */}
-            <div className="flex items-center gap-2 text-sm flex-wrap">
-              <NetflixText variant="meta" color="green">100% match</NetflixText>
-              <NetflixBadge>SU</NetflixBadge>
-              <NetflixText variant="meta">{eventDate ? eventDate.getFullYear() : '-'}</NetflixText>
-              <NetflixText variant="meta">
-                {firstEvent && firstEvent.time ? (() => {
-                  // Estimasi durasi: jika ada endTime di event, hitung selisih, jika tidak tampilkan jam saja
-                  const [startHour, startMinute] = firstEvent.time.split(":").map(Number);
-                  let endHour = startHour, endMinute = startMinute;
-                  // Coba cari endTime di note, format "- HH:MM" atau "sampai HH:MM"
-                  let found = false;
-                  if (firstEvent.note) {
-                    const match = firstEvent.note.match(/(?:-|sampai)\s*(\d{1,2}):(\d{2})/i);
-                    if (match) {
-                      endHour = parseInt(match[1], 10);
-                      endMinute = parseInt(match[2], 10);
-                      found = true;
+            <ScrollReveal animClass={slideLeftClass}>
+              <div className="flex items-center gap-2 text-sm flex-wrap">
+                <NetflixText variant="meta" color="green">100% match</NetflixText>
+                <NetflixBadge>SU</NetflixBadge>
+                <NetflixText variant="meta">{eventDate ? eventDate.getFullYear() : '-'}</NetflixText>
+                <NetflixText variant="meta">
+                  {firstEvent && firstEvent.time ? (() => {
+                    // Estimasi durasi: jika ada endTime di event, hitung selisih, jika tidak tampilkan jam saja
+                    const [startHour, startMinute] = firstEvent.time.split(":").map(Number);
+                    let endHour = startHour, endMinute = startMinute;
+                    // Coba cari endTime di note, format "- HH:MM" atau "sampai HH:MM"
+                    let found = false;
+                    if (firstEvent.note) {
+                      const match = firstEvent.note.match(/(?:-|sampai)\s*(\d{1,2}):(\d{2})/i);
+                      if (match) {
+                        endHour = parseInt(match[1], 10);
+                        endMinute = parseInt(match[2], 10);
+                        found = true;
+                      }
                     }
-                  }
-                  let durasi = 0;
-                  if (found) {
-                    durasi = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
-                  }
-                  if (found && durasi > 0) {
-                    const jam = Math.floor(durasi / 60);
-                    const menit = durasi % 60;
-                    return `${jam > 0 ? jam + 'h ' : ''}${menit > 0 ? menit + 'm' : ''}`.trim();
-                  } else {
-                    return `${startHour}h`;
-                  }
-                })() : '-'}
-              </NetflixText>
-              <img src="/ICON4K.webp" alt="4K" className="w-4 h-4 inline" />
-              <img src="/ICONHD.webp" alt="HD" className="w-4 h-4 inline" />
-            </div>
+                    let durasi = 0;
+                    if (found) {
+                      durasi = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
+                    }
+                    if (found && durasi > 0) {
+                      const jam = Math.floor(durasi / 60);
+                      const menit = durasi % 60;
+                      return `${jam > 0 ? jam + 'h ' : ''}${menit > 0 ? menit + 'm' : ''}`.trim();
+                    } else {
+                      return `${startHour}h`;
+                    }
+                  })() : '-'}
+                </NetflixText>
+                <img src="/ICON4K.webp" alt="4K" className="w-4 h-4 inline" />
+                <img src="/ICONHD.webp" alt="HD" className="w-4 h-4 inline" />
+              </div>
+            </ScrollReveal>
 
             {/* Coming Soon Banner */}
-            <NetflixBadge variant="primary">
-              Coming soon on {formattedDate}
-            </NetflixBadge>
+            <ScrollReveal animClass={fadeUpClass} threshold={0.1}>
+              <NetflixBadge variant="primary">
+                Coming soon on {formattedDate}
+              </NetflixBadge>
+            </ScrollReveal>
 
             {/* Description */}
-            <NetflixSection>
-              <NetflixText>
-                {isKhitan ?
-                  `Setelah perjalanan panjang, kami dengan bangga mengundang Anda untuk menghadiri acara khitanan ${nickname1}. Sebuah momen sakral yang menandai babak baru dalam kehidupan spiritual.` :
-                  `Penantian panjang itu akhirnya berujung pada waktu yang tepat. Saat kedewasaan telah menyatukan hati, ${nickname1} dan ${nickname2} kini bersiap mengawali perjalanan indah mereka menuju ${isWedding ? 'pernikahan' : 'kebahagiaan'}.`
-                }
-              </NetflixText>
-              <NetflixText variant="caption" color="gray">
-                {data.content.quote
-                  ? (typeof data.content.quote === 'string'
-                    ? data.content.quote
-                    : (data.content.quote.text || data.content.quote.quote || ''))
-                  : (isKhitan
-                    ? '"Dan bahwasannya kepada Tuhanmu adalah kesudahan (segala sesuatu)" (Q.S An-Najm: 42)'
-                    : '"Segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah)" (Q.S Az-Zariyah: 49)')
-                }
-              </NetflixText>
-            </NetflixSection>
+            <ScrollReveal animClass={fadeUpClass} threshold={0.1}>
+              <NetflixSection>
+                <NetflixText>
+                  {isKhitan ?
+                    `Setelah perjalanan panjang, kami dengan bangga mengundang Anda untuk menghadiri acara khitanan ${nickname1}. Sebuah momen sakral yang menandai babak baru dalam kehidupan spiritual.` :
+                    `Penantian panjang itu akhirnya berujung pada waktu yang tepat. Saat kedewasaan telah menyatukan hati, ${nickname1} dan ${nickname2} kini bersiap mengawali perjalanan indah mereka menuju ${isWedding ? 'pernikahan' : 'kebahagiaan'}.`
+                  }
+                </NetflixText>
+                <NetflixText variant="caption" color="gray">
+                  {data.content.quote
+                    ? (typeof data.content.quote === 'string'
+                      ? data.content.quote
+                      : (data.content.quote.text || data.content.quote.quote || ''))
+                    : (isKhitan
+                      ? '"Dan bahwasannya kepada Tuhanmu adalah kesudahan (segala sesuatu)" (Q.S An-Najm: 42)'
+                      : '"Segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah)" (Q.S Az-Zariyah: 49)')
+                  }
+                </NetflixText>
+              </NetflixSection>
+            </ScrollReveal>
 
             {/* Breaking News Section */}
-            <NetflixSection>
-              <NetflixHeader>Breaking News</NetflixHeader>
-              <div className="relative aspect-video w-full overflow-hidden rounded">
-                <div
-                  className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-                  style={{ backgroundImage: `url(${gallery?.items?.[1] || backgroundImage || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22%3E%3Crect fill=%22%23808080%22 width=%22400%22 height=%22225%22/%3E%3C/svg%3E'})` }}
-                />
-              </div>
-              <div className="space-y-4">
-                <NetflixText variant="body" color="gray">
-                  {isKhitan ?
-                    `Dengan penuh syukur, kami mengumumkan bahwa ${nickname1} akan menjalani proses khitanan sebagai bagian dari perjalanan menuju kedewasaan. 🌟` :
-                    `Setelah melalui perjalanan panjang penuh cerita, kini kami tiba di babak paling berharga dalam hidup. 🌸 Seseorang yang telah mengisi hari dengan makna, kini menjadi sosok yang terpilih untuk saling mendampingi dalam ikatan janji seumur hidup.`
-                  }
-                </NetflixText>
-                <NetflixText variant="body" color="gray">
-                  {isKhitan ?
-                    `Acara ini merupakan momen sakral yang menandai kedewasaan dan komitmen keluarga dalam menjaga nilai-nilai kebaikan. 🤲` :
-                    'Dengan hati yang penuh rasa bahagia, kami ingin berbagi kabar indah ini — kami akan segera menyatukan langkah dalam ikatan pernikahan! 💖'
-                  }
-                </NetflixText>
-                <NetflixText variant="body" color="gray">
-                  Hari istimewa kami akan diselenggarakan di {firstEvent?.location || 'tempat yang telah ditentukan'}.
-                </NetflixText>
-                <NetflixText variant="body" color="gray">
-                  Kami mohon doa terbaik dari kalian yang selama ini menjadi bagian berharga dalam hidup kami, agar setiap langkah menuju hari itu, dan hari-hari setelahnya, senantiasa dipenuhi cinta, berkah, dan kebahagiaan.
-                </NetflixText>
-                <NetflixText variant="body" color="gray">Dengan penuh cinta,</NetflixText>
-                <NetflixText>
-                  {isKhitan
-                    ? nickname1
-                    : [nickname1, nickname2].filter(Boolean).join(' & ')
-                  } &lt;3
-                </NetflixText>
-              </div>
-            </NetflixSection>
+            <ScrollReveal animClass={slideLeftClass} threshold={0.1}>
+              <NetflixSection>
+                <NetflixHeader>Breaking News</NetflixHeader>
+                <div className="relative aspect-video w-full overflow-hidden rounded">
+                  <div
+                    className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: `url(${gallery?.items?.[1] || backgroundImage || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22225%22%3E%3Crect fill=%22%23808080%22 width=%22400%22 height=%22225%22/%3E%3C/svg%3E'})` }}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <NetflixText variant="body" color="gray">
+                    {isKhitan ?
+                      `Dengan penuh syukur, kami mengumumkan bahwa ${nickname1} akan menjalani proses khitanan sebagai bagian dari perjalanan menuju kedewasaan. 🌟` :
+                      `Setelah melalui perjalanan panjang penuh cerita, kini kami tiba di babak paling berharga dalam hidup. 🌸 Seseorang yang telah mengisi hari dengan makna, kini menjadi sosok yang terpilih untuk saling mendampingi dalam ikatan janji seumur hidup.`
+                    }
+                  </NetflixText>
+                  <NetflixText variant="body" color="gray">
+                    {isKhitan ?
+                      `Acara ini merupakan momen sakral yang menandai kedewasaan dan komitmen keluarga dalam menjaga nilai-nilai kebaikan. 🤲` :
+                      'Dengan hati yang penuh rasa bahagia, kami ingin berbagi kabar indah ini — kami akan segera menyatukan langkah dalam ikatan pernikahan! 💖'
+                    }
+                  </NetflixText>
+                  <NetflixText variant="body" color="gray">
+                    Hari istimewa kami akan diselenggarakan di {firstEvent?.location || 'tempat yang telah ditentukan'}.
+                  </NetflixText>
+                  <NetflixText variant="body" color="gray">
+                    Kami mohon doa terbaik dari kalian yang selama ini menjadi bagian berharga dalam hidup kami, agar setiap langkah menuju hari itu, dan hari-hari setelahnya, senantiasa dipenuhi cinta, berkah, dan kebahagiaan.
+                  </NetflixText>
+                  <NetflixText variant="body" color="gray">Dengan penuh cinta,</NetflixText>
+                  <NetflixText>
+                    {isKhitan
+                      ? nickname1
+                      : [nickname1, nickname2].filter(Boolean).join(' & ')
+                    } &lt;3
+                  </NetflixText>
+                </div>
+              </NetflixSection>
+            </ScrollReveal>
 
             {/* Turut Mengundang Section */}
-            <NetflixTurutSection
-              enabled={content?.turut?.enabled}
-              list={content?.turut?.list || []}
-            />
+            <ScrollReveal animClass={fadeUpClass} threshold={0.1}>
+              <NetflixTurutSection
+                enabled={content?.turut?.enabled}
+                list={content?.turut?.list || []}
+              />
+            </ScrollReveal>
 
             {/* Bride and Groom / Child Section */}
-            <NetflixSection id="event">
-              <NetflixHeader>{isKhitan ? 'The Star' : 'Bride and Groom'}</NetflixHeader>
-              <div className="flex gap-5">
-                {children?.map((child, index) => {
-                  const hasImage = child.image || child.profile;
+            <ScrollReveal animClass={scaleUpClass} threshold={0.1}>
+              <NetflixSection id="event">
+                <NetflixHeader>{isKhitan ? 'The Star' : 'Bride and Groom'}</NetflixHeader>
+                <div className="flex gap-5">
+                  {children?.map((child, index) => {
+                    const hasImage = child.image || child.profile;
 
-                  return (
-                    <div key={index} className="max-w-40">
-                      <div className="relative w-40 h-40 overflow-hidden rounded bride-groom-image bg-gray-800 flex items-center justify-center">
-                        {hasImage ? (
-                          <div
-                            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-                            style={{ backgroundImage: `url(${child.image || child.profile})` }}
-                          />
-                        ) : (
-                          <div className="text-gray-500">
-                            {isKhitan ? (
-                              <MaleIcon className="w-20 h-20" />
-                            ) : (
-                              index === 0 ? <MaleIcon className="w-20 h-20" /> : <FemaleIcon className="w-20 h-20" />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <NetflixText variant="meta" color="white">
-                        {child.name}
-                      </NetflixText>
-                      <NetflixText variant="caption" color="gray">
-                        {isKhitan ?
-                          `Putra dari keluarga yang penuh berkah` :
-                          (() => {
-                            // Groom = index 0, Bride = index 1
-                            const isGroom = index === 0;
-                            const parents = isGroom ? content.parents?.groom : content.parents?.bride;
-                            if (parents && parents.father && parents.mother) {
-                              return `${isGroom ? 'Putra' : 'Putri'} dari ${parents.father} & ${parents.mother}`;
-                            }
-                            return `${isGroom ? 'Putra' : 'Putri'} dari Bapak & Ibu`;
-                          })()
-                        }
-                      </NetflixText>
-                    </div>
-                  );
-                })}
-              </div>
-            </NetflixSection>
-
-            {/* Event Timeline */}
-            {apiEvents && Object.keys(apiEvents).length > 0 && (
-              <NetflixSection>
-                <NetflixHeader>Timeline & Location</NetflixHeader>
-                <div className="space-y-4">
-                  {Object.entries(apiEvents).map(([key, evt], idx) => {
-                    // Support both mapsLink (theme 1) and location_url (theme 3)
-                    const mapsUrl = evt.mapsLink || evt.location_url || '';
-                    const hasMaps = typeof mapsUrl === 'string' && mapsUrl.trim() !== '';
                     return (
-                      <div key={key} className="flex items-center gap-3">
-                        <div className="relative w-16 h-16 flex items-center justify-center overflow-hidden rounded bg-gray-800">
-                          <img src="/icon-maps.png" alt="Maps" className="w-10 h-10 object-contain" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📍</span>'; }} />
-                        </div>
-                        <div className="flex-1">
-                          <NetflixText variant="meta" color="white">
-                            {isKhitan ? 'Khitanan' : evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
-                          </NetflixText>
-                          <NetflixText variant="caption" color="gray">
-                            {(() => {
-                              // Format date to Indo style
-                              try {
-                                const date = new Date(evt.date);
-                                const options = { day: 'numeric', month: 'long', year: 'numeric' };
-                                return date.toLocaleDateString('id-ID', options) + ' ' + evt.time;
-                              } catch {
-                                return evt.date + ' ' + evt.time;
-                              }
-                            })()}
-                          </NetflixText>
-                          <NetflixText variant="caption" color="gray">
-                            {evt.location}
-                          </NetflixText>
-                          {hasMaps && (
-                            <div className="mt-1">
-                              <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="underline text-blue-400">Lihat Maps</a>
+                      <div key={index} className="max-w-40">
+                        <div className="relative w-40 h-40 overflow-hidden rounded bride-groom-image bg-gray-800 flex items-center justify-center">
+                          {hasImage ? (
+                            <div
+                              className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+                              style={{ backgroundImage: `url(${child.image || child.profile})` }}
+                            />
+                          ) : (
+                            <div className="text-gray-500">
+                              {isKhitan ? (
+                                <MaleIcon className="w-20 h-20" />
+                              ) : (
+                                index === 0 ? <MaleIcon className="w-20 h-20" /> : <FemaleIcon className="w-20 h-20" />
+                              )}
                             </div>
                           )}
                         </div>
+                        <NetflixText variant="meta" color="white">
+                          {child.name}
+                        </NetflixText>
+                        <NetflixText variant="caption" color="gray">
+                          {isKhitan ?
+                            `Putra dari keluarga yang penuh berkah` :
+                            (() => {
+                              // Groom = index 0, Bride = index 1
+                              const isGroom = index === 0;
+                              const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                              if (parents && parents.father && parents.mother) {
+                                return `${isGroom ? 'Putra' : 'Putri'} dari ${parents.father} & ${parents.mother}`;
+                              }
+                              return `${isGroom ? 'Putra' : 'Putri'} dari Bapak & Ibu`;
+                            })()
+                          }
+                        </NetflixText>
                       </div>
                     );
                   })}
                 </div>
-
-                {/* Countdown Timer Section - dibawah Timeline & Location */}
-                {eventDate && (
-                  <div className="mt-6 pt-6 border-t border-gray-700">
-                    <div className="flex items-center justify-between gap-4">
-                      {/* Left: Single Icon */}
-                      <div className="flex-shrink-0">
-                        <div className="w-16 h-16 rounded bg-red-600/20 border border-red-600/50 flex items-center justify-center text-5xl">💕</div>
-                      </div>
-
-                      {/* Center: Timer */}
-                      <div className="flex-1 text-center">
-                        <p className="text-gray-400 text-xs mb-2">Menghitung Mundur</p>
-                        <div className="flex justify-center gap-1.5">
-                          {(() => {
-                            const now = new Date().getTime();
-                            const eventTime = eventDate.getTime();
-                            const diff = eventTime - now;
-
-                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-                            const timeUnits = [
-                              { label: 'H', value: days },
-                              { label: 'J', value: hours },
-                              { label: 'M', value: minutes },
-                              { label: 'D', value: seconds }
-                            ];
-
-                            return timeUnits.map((unit, idx) => (
-                              <div key={idx} className="flex flex-col items-center">
-                                <div className="w-8 h-8 rounded bg-gray-800 flex items-center justify-center text-xs font-bold text-white border border-gray-700">
-                                  {String(unit.value).padStart(2, '0')}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-0.5">{unit.label}</div>
-                              </div>
-                            ));
-                          })()}
-                        </div>
-                      </div>
-
-                      {/* Right: Save Button */}
-                      {calendarUrl && (
-                        <div className="flex-shrink-0">
-                          <a href={calendarUrl} target="_blank" rel="noopener noreferrer">
-                            <button className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors inline-flex items-center gap-1.5 whitespace-nowrap">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z" />
-                              </svg>
-                              Simpan
-                            </button>
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </NetflixSection>
+            </ScrollReveal>
+
+            {/* Event Timeline */}
+            {apiEvents && Object.keys(apiEvents).length > 0 && (
+              <ScrollReveal animClass={slideRightClass} threshold={0.1}>
+                <NetflixSection>
+                  <NetflixHeader>Timeline & Location</NetflixHeader>
+                  <div className="space-y-4">
+                    {Object.entries(apiEvents).map(([key, evt], idx) => {
+                      // Support both mapsLink (theme 1) and location_url (theme 3)
+                      const mapsUrl = evt.mapsLink || evt.location_url || '';
+                      const hasMaps = typeof mapsUrl === 'string' && mapsUrl.trim() !== '';
+                      return (
+                        <div key={key} className="flex items-center gap-3">
+                          <div className="relative w-16 h-16 flex items-center justify-center overflow-hidden rounded bg-gray-800">
+                            <img src="/icon-maps.png" alt="Maps" className="w-10 h-10 object-contain" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📍</span>'; }} />
+                          </div>
+                          <div className="flex-1">
+                            <NetflixText variant="meta" color="white">
+                              {isKhitan ? 'Khitanan' : evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
+                            </NetflixText>
+                            <NetflixText variant="caption" color="gray">
+                              {(() => {
+                                // Format date to Indo style
+                                try {
+                                  const date = new Date(evt.date);
+                                  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                                  return date.toLocaleDateString('id-ID', options) + ' ' + evt.time;
+                                } catch {
+                                  return evt.date + ' ' + evt.time;
+                                }
+                              })()}
+                            </NetflixText>
+                            <NetflixText variant="caption" color="gray">
+                              {evt.location}
+                            </NetflixText>
+                            {hasMaps && (
+                              <div className="mt-1">
+                                <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="underline text-blue-400">Lihat Maps</a>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Countdown Timer Section - dibawah Timeline & Location */}
+                  {eventDate && (
+                    <div className="mt-6 pt-6 border-t border-gray-700">
+                      <div className="flex items-center justify-between gap-4">
+                        {/* Left: Single Icon */}
+                        <div className="flex-shrink-0">
+                          <div className="w-16 h-16 rounded bg-red-600/20 border border-red-600/50 flex items-center justify-center text-5xl">💕</div>
+                        </div>
+
+                        {/* Center: Timer */}
+                        <div className="flex-1 text-center">
+                          <p className="text-gray-400 text-xs mb-2">Menghitung Mundur</p>
+                          <div className="flex justify-center gap-1.5">
+                            {(() => {
+                              const now = new Date().getTime();
+                              const eventTime = eventDate.getTime();
+                              const diff = eventTime - now;
+
+                              const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                              const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                              const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                              const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                              const timeUnits = [
+                                { label: 'H', value: days },
+                                { label: 'J', value: hours },
+                                { label: 'M', value: minutes },
+                                { label: 'D', value: seconds }
+                              ];
+
+                              return timeUnits.map((unit, idx) => (
+                                <div key={idx} className="flex flex-col items-center">
+                                  <div className="w-8 h-8 rounded bg-gray-800 flex items-center justify-center text-xs font-bold text-white border border-gray-700">
+                                    {String(unit.value).padStart(2, '0')}
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-0.5">{unit.label}</div>
+                                </div>
+                              ));
+                            })()}
+                          </div>
+                        </div>
+
+                        {/* Right: Save Button */}
+                        {calendarUrl && (
+                          <div className="flex-shrink-0">
+                            <a href={calendarUrl} target="_blank" rel="noopener noreferrer">
+                              <button className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors inline-flex items-center gap-1.5 whitespace-nowrap">
+                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z" />
+                                </svg>
+                                Simpan
+                              </button>
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </NetflixSection>
+              </ScrollReveal>
             )}
 
             {/* Our Story Section */}
             {Array.isArray(content.our_story) && content.our_story.length > 0 && (
-              <NetflixSection>
-                <NetflixHeader>Our Love Story</NetflixHeader>
-                <div className="space-y-8">
-                  {content.our_story.map((story, idx) => {
-                    const hasImage = story.pictures && story.pictures[0] && story.pictures[0].trim() !== '';
-                    return (
-                      <div key={idx} className="flex flex-col gap-3">
-                        {/* Header: Image + Title */}
-                        <div className="flex flex-row items-start gap-4">
-                          <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-800">
-                            {hasImage ? (
-                              <img src={story.pictures[0]} alt={story.title || `Episode ${idx + 1}`} className="object-cover w-full h-full" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📖</span>'; }} />
-                            ) : (
-                              <span style={{ color: 'white', fontSize: '2rem' }}>📖</span>
-                            )}
-                          </div>
-                          <div className="flex-1 flex flex-col justify-start">
-                            <div className="font-bold text-base md:text-lg text-white mb-1">Episode {idx + 1}: {story.title}</div>
-                            {story.date && (
-                              <div className="text-xs text-gray-400 mb-1">{story.date}</div>
-                            )}
-                            <div className="flex items-center gap-1">
-                              <img src="/ICON4K.webp" alt="4K" className="w-4 h-4 inline" />
-                              <img src="/ICONHD.webp" alt="HD" className="w-4 h-4 inline" />
+              <ScrollReveal animClass={fadeUpClass} threshold={0.1}>
+                <NetflixSection>
+                  <NetflixHeader>Our Love Story</NetflixHeader>
+                  <div className="space-y-8">
+                    {content.our_story.map((story, idx) => {
+                      const hasImage = story.pictures && story.pictures[0] && story.pictures[0].trim() !== '';
+                      return (
+                        <div key={idx} className="flex flex-col gap-3">
+                          {/* Header: Image + Title */}
+                          <div className="flex flex-row items-start gap-4">
+                            <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-800">
+                              {hasImage ? (
+                                <img src={story.pictures[0]} alt={story.title || `Episode ${idx + 1}`} className="object-cover w-full h-full" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📖</span>'; }} />
+                              ) : (
+                                <span style={{ color: 'white', fontSize: '2rem' }}>📖</span>
+                              )}
+                            </div>
+                            <div className="flex-1 flex flex-col justify-start">
+                              <div className="font-bold text-base md:text-lg text-white mb-1">Episode {idx + 1}: {story.title}</div>
+                              {story.date && (
+                                <div className="text-xs text-gray-400 mb-1">{story.date}</div>
+                              )}
+                              <div className="flex items-center gap-1">
+                                <img src="/ICON4K.webp" alt="4K" className="w-4 h-4 inline" />
+                                <img src="/ICONHD.webp" alt="HD" className="w-4 h-4 inline" />
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Content: Full width description */}
-                        <div className="text-sm text-gray-200 whitespace-pre-line leading-relaxed">{story.description}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </NetflixSection>
+                          {/* Content: Full width description */}
+                          <div className="text-sm text-gray-200 whitespace-pre-line leading-relaxed">{story.description}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </NetflixSection>
+              </ScrollReveal>
             )}
 
             {/* Gallery Section */}
             {Array.isArray(gallery?.items) && gallery.items.length > 0 && (
-              <NetflixSection id="gallery">
-                <NetflixHeader>Our Gallery</NetflixHeader>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {Array.from({ length: 6 }, (_, idx) => {
-                    const imgSrc = gallery.items[idx % gallery.items.length] || gallery.items[0];
-                    const hasImage = imgSrc && imgSrc.trim() !== '';
-                    const gradientColors = [
-                      'from-purple-900/90 via-purple-600/60 to-transparent',
-                      'from-pink-900/90 via-pink-600/60 to-transparent',
-                      'from-yellow-900/90 via-yellow-600/60 to-transparent',
-                      'from-green-900/90 via-green-600/60 to-transparent',
-                      'from-indigo-900/90 via-indigo-600/60 to-transparent',
-                      'from-rose-900/90 via-rose-600/60 to-transparent'
-                    ];
-                    return (
-                      <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-800 cursor-pointer" onClick={() => hasImage && setSelectedImage(imgSrc)}>
-                        {hasImage ? (
-                          <img src={imgSrc} alt={`Gallery ${idx + 1}`} className="object-cover w-full h-full" />
-                        ) : (
-                          <div className="flex items-center justify-center w-full h-full">
-                            <span className="text-4xl">📷</span>
+              <ScrollReveal animClass={fadeUpClass} threshold={0.05}>
+                <NetflixSection id="gallery">
+                  <NetflixHeader>Our Gallery</NetflixHeader>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {Array.from({ length: 6 }, (_, idx) => {
+                      const imgSrc = gallery.items[idx % gallery.items.length] || gallery.items[0];
+                      const hasImage = imgSrc && imgSrc.trim() !== '';
+                      const gradientColors = [
+                        'from-purple-900/90 via-purple-600/60 to-transparent',
+                        'from-pink-900/90 via-pink-600/60 to-transparent',
+                        'from-yellow-900/90 via-yellow-600/60 to-transparent',
+                        'from-green-900/90 via-green-600/60 to-transparent',
+                        'from-indigo-900/90 via-indigo-600/60 to-transparent',
+                        'from-rose-900/90 via-rose-600/60 to-transparent'
+                      ];
+                      return (
+                        <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-800 cursor-pointer" onClick={() => hasImage && setSelectedImage(imgSrc)}>
+                          {hasImage ? (
+                            <img src={imgSrc} alt={`Gallery ${idx + 1}`} className="object-cover w-full h-full" />
+                          ) : (
+                            <div className="flex items-center justify-center w-full h-full">
+                              <span className="text-4xl">📷</span>
+                            </div>
+                          )}
+
+                          {/* Gradient shadow overlay - bottom to top */}
+                          <div className={`absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t ${gradientColors[idx]}`} />
+
+                          {/* Top number badge */}
+                          <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                            {idx + 1}
                           </div>
-                        )}
 
-                        {/* Gradient shadow overlay - bottom to top */}
-                        <div className={`absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t ${gradientColors[idx]}`} />
+                          {/* Top right favorite badges */}
+                          {(idx === 1 || idx === 4) && (
+                            <div className="absolute top-2 right-2 bg-red-600 text-white text-[9px] px-1 py-0.5 rounded max-w-[60px]">
+                              {idx === 1 && 'Our Favorite'}
+                              {idx === 4 && "Groom's Fav"}
+                            </div>
+                          )}
 
-                        {/* Top number badge */}
-                        <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                          {idx + 1}
+                          {/* Bottom overlay with title */}
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                            <div className="text-white text-xs font-semibold">
+                              {idx === 0 && 'Perfect Date'}
+                              {idx === 1 && 'Nanti Kita Cerita Tentang Hari Ini'}
+                              {idx === 2 && 'Jatuh Cinta Seperti Di Film-Film'}
+                              {idx === 3 && 'Tune Infor Love'}
+                              {idx === 4 && 'Teman Tapi Menikah'}
+                              {idx === 5 && 'Architecture of Love'}
+                            </div>
+                          </div>
                         </div>
-
-                        {/* Top right favorite badges */}
-                        {(idx === 1 || idx === 4) && (
-                          <div className="absolute top-2 right-2 bg-red-600 text-white text-[9px] px-1 py-0.5 rounded max-w-[60px]">
-                            {idx === 1 && 'Our Favorite'}
-                            {idx === 4 && "Groom's Fav"}
-                          </div>
-                        )}
-
-                        {/* Bottom overlay with title */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                          <div className="text-white text-xs font-semibold">
-                            {idx === 0 && 'Perfect Date'}
-                            {idx === 1 && 'Nanti Kita Cerita Tentang Hari Ini'}
-                            {idx === 2 && 'Jatuh Cinta Seperti Di Film-Film'}
-                            {idx === 3 && 'Tune Infor Love'}
-                            {idx === 4 && 'Teman Tapi Menikah'}
-                            {idx === 5 && 'Architecture of Love'}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </NetflixSection>
+                      );
+                    })}
+                  </div>
+                </NetflixSection>
+              </ScrollReveal>
             )}
 
             {/* Gift for Couple Section */}
             {bankTransfer?.enabled && Array.isArray(bankTransfer?.accounts) && bankTransfer.accounts.some(acc =>
               acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
             ) && (
-                <NetflixSection id="gift">
-                  <NetflixHeader size="lg" className="mb-4 text-center">
-                    Gift for the couple
-                  </NetflixHeader>
+                <ScrollReveal animClass={scaleUpClass} threshold={0.1}>
+                  <NetflixSection id="gift">
+                    <NetflixHeader size="lg" className="mb-4 text-center">
+                      Gift for the couple
+                    </NetflixHeader>
 
-                  <NetflixText variant="body" color="gray" className="text-center mb-6">
-                    Bagi tamu undangan yang ingin memberikan tanda kasih untuk calon pengantin, dapat diberikan melalui:
-                  </NetflixText>
+                    <NetflixText variant="body" color="gray" className="text-center mb-6">
+                      Bagi tamu undangan yang ingin memberikan tanda kasih untuk calon pengantin, dapat diberikan melalui:
+                    </NetflixText>
 
-                  <Button
-                    onClick={() => setShowGiftForm(prev => !prev)}
-                    className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] mb-4 bg-red-600 hover:bg-red-700 text-white"
-                    disabled={data.status === "tidak"}
-                  >
-                    {showGiftForm ? 'Hide Account Details' : 'Show Account Details'}
-                  </Button>
+                    <Button
+                      onClick={() => setShowGiftForm(prev => !prev)}
+                      className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] mb-4 bg-red-600 hover:bg-red-700 text-white"
+                      disabled={data.status === "tidak"}
+                    >
+                      {showGiftForm ? 'Hide Account Details' : 'Show Account Details'}
+                    </Button>
 
-                  {showGiftForm && (
-                    <div className="space-y-6">
-                      {/* Bank Account Selection */}
-                      {bankTransfer.accounts.filter(acc =>
-                        acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
-                      ).length > 1 && (
-                          <div className="flex gap-2 mb-4 overflow-x-auto">
-                            {bankTransfer.accounts.filter(acc =>
-                              acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
-                            ).map((acc, idx) => (
-                              <button
-                                key={idx}
-                                type="button"
-                                className={`px-4 py-2 rounded-lg border whitespace-nowrap ${selectedAccountIdx === idx
-                                  ? 'bg-red-600 border-red-500 text-white'
-                                  : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
-                                  }`}
-                                onClick={() => setSelectedAccountIdx(idx)}
-                                disabled={data.status === "tidak"}
-                              >
-                                {acc.bank_name}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-
-                      {/* Bank Account Details */}
-                      {(() => {
-                        const validAccounts = bankTransfer.accounts.filter(acc =>
+                    {showGiftForm && (
+                      <div className="space-y-6">
+                        {/* Bank Account Selection */}
+                        {bankTransfer.accounts.filter(acc =>
                           acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
-                        );
-                        const selectedAccount = validAccounts[selectedAccountIdx];
-
-                        return selectedAccount && (
-                          <div className="bg-gray-900 border border-gray-600 rounded-lg p-4">
-                            <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 relative overflow-hidden">
-                              <div
-                                className="absolute inset-0 bg-cover bg-center opacity-30"
-                                style={{ backgroundImage: `url(${gallery?.items?.[0] || backgroundImage})` }}
-                              />
-                              <div className="absolute inset-0 bg-black/50" />
-                              <div className="relative z-10 p-6 h-full flex flex-col justify-center items-center text-center">
-                                <NetflixText className="text-3xl font-bold mb-2">
-                                  {nickname1} & {nickname2}
-                                </NetflixText>
-                                <NetflixText variant="caption" color="gray">
-                                  {formattedDate}
-                                </NetflixText>
-                              </div>
-                            </div>
-
-                            <div className="space-y-3">
-                              <div className="text-center">
-                                <NetflixText className="font-semibold text-lg text-white">
-                                  {selectedAccount.bank_name}
-                                </NetflixText>
-                              </div>
-
-                              <div className="flex items-center justify-between bg-gray-800 border border-gray-600 rounded-lg p-3">
-                                <div className="flex-1">
-                                  <NetflixText variant="caption" color="gray" className="text-xs mb-1">
-                                    Account Number
-                                  </NetflixText>
-                                  <NetflixText className="font-mono text-lg text-white">
-                                    {selectedAccount.account_number}
-                                  </NetflixText>
-                                </div>
+                        ).length > 1 && (
+                            <div className="flex gap-2 mb-4 overflow-x-auto">
+                              {bankTransfer.accounts.filter(acc =>
+                                acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
+                              ).map((acc, idx) => (
                                 <button
-                                  onClick={() => handleCopyAccountNumber(selectedAccount.account_number)}
-                                  className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                  key={idx}
+                                  type="button"
+                                  className={`px-4 py-2 rounded-lg border whitespace-nowrap ${selectedAccountIdx === idx
+                                    ? 'bg-red-600 border-red-500 text-white'
+                                    : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
+                                    }`}
+                                  onClick={() => setSelectedAccountIdx(idx)}
                                   disabled={data.status === "tidak"}
                                 >
-                                  <FiCopy className="w-4 h-4 text-white" />
+                                  {acc.bank_name}
                                 </button>
+                              ))}
+                            </div>
+                          )}
+
+                        {/* Bank Account Details */}
+                        {(() => {
+                          const validAccounts = bankTransfer.accounts.filter(acc =>
+                            acc.bank_name?.trim() && acc.account_name?.trim() && acc.account_number?.trim()
+                          );
+                          const selectedAccount = validAccounts[selectedAccountIdx];
+
+                          return selectedAccount && (
+                            <div className="bg-gray-900 border border-gray-600 rounded-lg p-4">
+                              <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg mb-4 relative overflow-hidden">
+                                <div
+                                  className="absolute inset-0 bg-cover bg-center opacity-30"
+                                  style={{ backgroundImage: `url(${gallery?.items?.[0] || backgroundImage})` }}
+                                />
+                                <div className="absolute inset-0 bg-black/50" />
+                                <div className="relative z-10 p-6 h-full flex flex-col justify-center items-center text-center">
+                                  <NetflixText className="text-3xl font-bold mb-2">
+                                    {nickname1} & {nickname2}
+                                  </NetflixText>
+                                  <NetflixText variant="caption" color="gray">
+                                    {formattedDate}
+                                  </NetflixText>
+                                </div>
                               </div>
 
-                              <div className="text-center">
-                                <NetflixText variant="caption" color="gray" className="text-xs">
-                                  Account Holder
-                                </NetflixText>
-                                <NetflixText className="font-semibold text-white">
-                                  {selectedAccount.account_name}
+                              <div className="space-y-3">
+                                <div className="text-center">
+                                  <NetflixText className="font-semibold text-lg text-white">
+                                    {selectedAccount.bank_name}
+                                  </NetflixText>
+                                </div>
+
+                                <div className="flex items-center justify-between bg-gray-800 border border-gray-600 rounded-lg p-3">
+                                  <div className="flex-1">
+                                    <NetflixText variant="caption" color="gray" className="text-xs mb-1">
+                                      Account Number
+                                    </NetflixText>
+                                    <NetflixText className="font-mono text-lg text-white">
+                                      {selectedAccount.account_number}
+                                    </NetflixText>
+                                  </div>
+                                  <button
+                                    onClick={() => handleCopyAccountNumber(selectedAccount.account_number)}
+                                    className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                    disabled={data.status === "tidak"}
+                                  >
+                                    <FiCopy className="w-4 h-4 text-white" />
+                                  </button>
+                                </div>
+
+                                <div className="text-center">
+                                  <NetflixText variant="caption" color="gray" className="text-xs">
+                                    Account Holder
+                                  </NetflixText>
+                                  <NetflixText className="font-semibold text-white">
+                                    {selectedAccount.account_name}
+                                  </NetflixText>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Gift Amount Form */}
+                        <form onSubmit={handleGiftSubmit} className="space-y-4 relative">
+                          {/* Free Mode Overlay - hanya untuk form */}
+                          {data.status === "tidak" && (
+                            <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+                              <div className="text-center p-4 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
+                                <FiLock className="mx-auto mb-2 text-2xl text-red-500" />
+                                <NetflixText variant="meta" className="text-white mb-2">Mode Gratis</NetflixText>
+                                <NetflixText variant="caption" color="gray" className="text-xs mb-2">
+                                  Aktifkan untuk fitur ini
                                 </NetflixText>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })()}
-
-                      {/* Gift Amount Form */}
-                      <form onSubmit={handleGiftSubmit} className="space-y-4 relative">
-                        {/* Free Mode Overlay - hanya untuk form */}
-                        {data.status === "tidak" && (
-                          <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
-                            <div className="text-center p-4 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
-                              <FiLock className="mx-auto mb-2 text-2xl text-red-500" />
-                              <NetflixText variant="meta" className="text-white mb-2">Mode Gratis</NetflixText>
-                              <NetflixText variant="caption" color="gray" className="text-xs mb-2">
-                                Aktifkan untuk fitur ini
-                              </NetflixText>
+                          )}
+                          {errorGift && (
+                            <div className="p-3 rounded-lg bg-red-900/50 flex items-center gap-2 text-red-300 border border-red-500">
+                              <FaComment className="flex-shrink-0" />
+                              <span>{errorGift}</span>
                             </div>
+                          )}
+
+                          {successGift && (
+                            <div className="p-3 rounded-lg bg-green-900/50 flex items-center gap-2 text-green-300 border border-green-500">
+                              <FaComment className="flex-shrink-0" />
+                              <span>Terima kasih! Konfirmasi transfer telah terkirim.</span>
+                            </div>
+                          )}
+
+                          <div className="relative">
+                            <FaUser className="absolute top-3 left-3 text-gray-400" />
+                            <input
+                              type="text"
+                              value={namaGift}
+                              onChange={(e) => setNamaGift(e.target.value)}
+                              placeholder="Nama Pengirim"
+                              className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                              disabled={data.status === "tidak"}
+                            />
                           </div>
-                        )}
-                        {errorGift && (
-                          <div className="p-3 rounded-lg bg-red-900/50 flex items-center gap-2 text-red-300 border border-red-500">
-                            <FaComment className="flex-shrink-0" />
-                            <span>{errorGift}</span>
+
+                          <div className="relative">
+                            <span className="absolute top-3 left-3 text-gray-400 text-sm">IDR</span>
+                            <input
+                              type="text"
+                              value={formattedJumlahGift}
+                              onChange={handleJumlahGiftChange}
+                              placeholder="Jumlah Transfer"
+                              className="w-full pl-12 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                              disabled={data.status === "tidak"}
+                            />
                           </div>
-                        )}
 
-                        {successGift && (
-                          <div className="p-3 rounded-lg bg-green-900/50 flex items-center gap-2 text-green-300 border border-green-500">
-                            <FaComment className="flex-shrink-0" />
-                            <span>Terima kasih! Konfirmasi transfer telah terkirim.</span>
-                          </div>
-                        )}
-
-                        <div className="relative">
-                          <FaUser className="absolute top-3 left-3 text-gray-400" />
-                          <input
-                            type="text"
-                            value={namaGift}
-                            onChange={(e) => setNamaGift(e.target.value)}
-                            placeholder="Nama Pengirim"
-                            className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                            disabled={data.status === "tidak"}
-                          />
-                        </div>
-
-                        <div className="relative">
-                          <span className="absolute top-3 left-3 text-gray-400 text-sm">IDR</span>
-                          <input
-                            type="text"
-                            value={formattedJumlahGift}
-                            onChange={handleJumlahGiftChange}
-                            placeholder="Jumlah Transfer"
-                            className="w-full pl-12 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                            disabled={data.status === "tidak"}
-                          />
-                        </div>
-
-                        <Button
-                          type="submit"
-                          disabled={loadingGift || data.status === "tidak"}
-                          className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] bg-red-600 hover:bg-red-700 text-white"
-                          style={{
-                            opacity: loadingGift || data.status === "tidak" ? 0.7 : 1
-                          }}
-                        >
-                          <FaPaperPlane className="mr-2" />
-                          {data.status === "tidak" ? "Free Mode - Not Available" : loadingGift ? "Sending..." : "Send Confirmation"}
-                        </Button>
-                      </form>
-                    </div>
-                  )}
-                </NetflixSection>
+                          <Button
+                            type="submit"
+                            disabled={loadingGift || data.status === "tidak"}
+                            className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] bg-red-600 hover:bg-red-700 text-white"
+                            style={{
+                              opacity: loadingGift || data.status === "tidak" ? 0.7 : 1
+                            }}
+                          >
+                            <FaPaperPlane className="mr-2" />
+                            {data.status === "tidak" ? "Free Mode - Not Available" : loadingGift ? "Sending..." : "Send Confirmation"}
+                          </Button>
+                        </form>
+                      </div>
+                    )}
+                  </NetflixSection>
+                </ScrollReveal>
               )}
 
             {/* Comments/RSVP Section */}
-            <NetflixSection id="rsvp">
-              <NetflixHeader size="lg" className="mb-6 text-center flex items-center justify-center gap-2">
-                <FaComment className="inline-block" />
-                Wish for the couple
-              </NetflixHeader>
+            <ScrollReveal animClass={fadeUpClass} threshold={0.1}>
+              <NetflixSection id="rsvp">
+                <NetflixHeader size="lg" className="mb-6 text-center flex items-center justify-center gap-2">
+                  <FaComment className="inline-block" />
+                  Wish for the couple
+                </NetflixHeader>
 
-              {/* Form Section */}
-              <form onSubmit={handleSubmit} className="space-y-4 mb-6 relative">
-                {/* Free Mode Overlay - hanya untuk form */}
-                {data.status === "tidak" && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
-                    <div className="text-center p-4 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
-                      <FiLock className="mx-auto mb-2 text-2xl text-red-500" />
-                      <NetflixText variant="meta" className="text-white mb-2">Mode Gratis</NetflixText>
-                      <NetflixText variant="caption" color="gray" className="text-xs mb-2">
-                        Aktifkan untuk fitur ini
-                      </NetflixText>
+                {/* Form Section */}
+                <form onSubmit={handleSubmit} className="space-y-4 mb-6 relative">
+                  {/* Free Mode Overlay - hanya untuk form */}
+                  {data.status === "tidak" && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+                      <div className="text-center p-4 bg-gray-800 bg-opacity-90 rounded-lg shadow-xl max-w-xs mx-4">
+                        <FiLock className="mx-auto mb-2 text-2xl text-red-500" />
+                        <NetflixText variant="meta" className="text-white mb-2">Mode Gratis</NetflixText>
+                        <NetflixText variant="caption" color="gray" className="text-xs mb-2">
+                          Aktifkan untuk fitur ini
+                        </NetflixText>
+                      </div>
+                    </div>
+                  )}
+                  {error && (
+                    <div className="p-3 rounded-lg bg-red-900/50 flex items-center gap-2 text-red-300 border border-red-500">
+                      <FaComment className="flex-shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+
+                  {success && (
+                    <div className="p-3 rounded-lg bg-green-900/50 flex items-center gap-2 text-green-300 border border-green-500">
+                      <FaComment className="flex-shrink-0" />
+                      <span>Terima kasih! Ucapan Anda telah terkirim.</span>
+                    </div>
+                  )}
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="relative">
+                      <FaUser className="absolute top-3 left-3 text-gray-400" />
+                      <input
+                        type="text"
+                        value={nama}
+                        onChange={(e) => setNama(e.target.value)}
+                        placeholder="Name"
+                        className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                        disabled={data.status === "tidak"}
+                      />
+                    </div>
+
+                    <div className="relative">
+                      <FaWhatsapp className="absolute top-3 left-3 text-gray-400" />
+                      <input
+                        type="tel"
+                        value={wa}
+                        onKeyPress={handleKeyPressWa}
+                        onChange={(e) => setWa(e.target.value)}
+                        placeholder="WhatsApp"
+                        className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                        disabled={data.status === "tidak"}
+                      />
                     </div>
                   </div>
-                )}
-                {error && (
-                  <div className="p-3 rounded-lg bg-red-900/50 flex items-center gap-2 text-red-300 border border-red-500">
-                    <FaComment className="flex-shrink-0" />
-                    <span>{error}</span>
-                  </div>
-                )}
 
-                {success && (
-                  <div className="p-3 rounded-lg bg-green-900/50 flex items-center gap-2 text-green-300 border border-green-500">
-                    <FaComment className="flex-shrink-0" />
-                    <span>Terima kasih! Ucapan Anda telah terkirim.</span>
-                  </div>
-                )}
-
-                <div className="grid md:grid-cols-2 gap-4">
                   <div className="relative">
-                    <FaUser className="absolute top-3 left-3 text-gray-400" />
-                    <input
-                      type="text"
-                      value={nama}
-                      onChange={(e) => setNama(e.target.value)}
-                      placeholder="Name"
-                      className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                    <FaComment className="absolute top-3 left-3 text-gray-400" />
+                    <textarea
+                      value={ucapan}
+                      onChange={(e) => setUcapan(e.target.value)}
+                      placeholder="Message"
+                      rows={3}
+                      className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none"
                       disabled={data.status === "tidak"}
                     />
                   </div>
 
                   <div className="relative">
-                    <FaWhatsapp className="absolute top-3 left-3 text-gray-400" />
-                    <input
-                      type="tel"
-                      value={wa}
-                      onKeyPress={handleKeyPressWa}
-                      onChange={(e) => setWa(e.target.value)}
-                      placeholder="WhatsApp"
-                      className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                    <FaCalendarCheck className="absolute top-3 left-3 text-gray-400" />
+                    <select
+                      value={konfirmasi}
+                      onChange={(e) => setKonfirmasi(e.target.value as any)}
+                      className="w-full pl-10 pr-8 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 appearance-none"
                       disabled={data.status === "tidak"}
-                    />
+                    >
+                      <option value="" className="text-gray-400">Attendance Confirmation</option>
+                      <option value="hadir">Will Attend</option>
+                      <option value="tidak hadir">Cannot Attend</option>
+                    </select>
+                    <FiChevronDown className="absolute top-3 right-3 pointer-events-none text-gray-400" />
                   </div>
-                </div>
 
-                <div className="relative">
-                  <FaComment className="absolute top-3 left-3 text-gray-400" />
-                  <textarea
-                    value={ucapan}
-                    onChange={(e) => setUcapan(e.target.value)}
-                    placeholder="Message"
-                    rows={3}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none"
-                    disabled={data.status === "tidak"}
-                  />
-                </div>
-
-                <div className="relative">
-                  <FaCalendarCheck className="absolute top-3 left-3 text-gray-400" />
-                  <select
-                    value={konfirmasi}
-                    onChange={(e) => setKonfirmasi(e.target.value as any)}
-                    className="w-full pl-10 pr-8 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 appearance-none"
-                    disabled={data.status === "tidak"}
+                  <Button
+                    type="submit"
+                    disabled={loading || data.status === "tidak"}
+                    className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] bg-red-600 hover:bg-red-700 text-white"
+                    style={{
+                      opacity: loading || data.status === "tidak" ? 0.7 : 1
+                    }}
                   >
-                    <option value="" className="text-gray-400">Attendance Confirmation</option>
-                    <option value="hadir">Will Attend</option>
-                    <option value="tidak hadir">Cannot Attend</option>
-                  </select>
-                  <FiChevronDown className="absolute top-3 right-3 pointer-events-none text-gray-400" />
-                </div>
+                    <FaPaperPlane className="mr-2" />
+                    {data.status === "tidak" ? "Free Mode - Not Available" : loading ? "Sending..." : "Send"}
+                  </Button>
+                </form>
 
                 <Button
-                  type="submit"
-                  disabled={loading || data.status === "tidak"}
-                  className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] bg-red-600 hover:bg-red-700 text-white"
-                  style={{
-                    opacity: loading || data.status === "tidak" ? 0.7 : 1
-                  }}
+                  onClick={() => setShowComments(prev => !prev)}
+                  className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] mb-4 bg-gray-800 hover:bg-gray-700 text-white border border-gray-600"
                 >
-                  <FaPaperPlane className="mr-2" />
-                  {data.status === "tidak" ? "Free Mode - Not Available" : loading ? "Sending..." : "Send"}
+                  {showComments ? 'Hide Comments' : `Show Comments (${rsvpList.length})`}
                 </Button>
-              </form>
 
-              <Button
-                onClick={() => setShowComments(prev => !prev)}
-                className="w-full py-3 rounded-lg font-medium transition-all hover:scale-[1.02] mb-4 bg-gray-800 hover:bg-gray-700 text-white border border-gray-600"
-              >
-                {showComments ? 'Hide Comments' : `Show Comments (${rsvpList.length})`}
-              </Button>
+                {/* Comments Section */}
+                {showComments && (
+                  <div className="rounded-xl shadow-md space-y-4 max-h-96 overflow-y-auto bg-gray-900 border border-gray-600">
+                    {loadingRsvp ? (
+                      <div className="text-center py-4 text-gray-400">Loading comments...</div>
+                    ) : errorRsvp ? (
+                      <div className="text-red-400 text-center py-4">{errorRsvp}</div>
+                    ) : rsvpList.length > 0 ? (
+                      <div className="p-4 space-y-4">
+                        {rsvpList.slice(0, visibleComments).map((rsvp, index) => {
+                          // Generate random colors for avatar background
+                          const colors = ['#dc2626', '#ea580c', '#d97706', '#ca8a04', '#65a30d', '#16a34a', '#059669', '#0d9488', '#0891b2', '#0284c7', '#2563eb', '#4f46e5', '#7c3aed', '#a21caf', '#be185d'];
+                          const bgColor = colors[index % colors.length];
 
-              {/* Comments Section */}
-              {showComments && (
-                <div className="rounded-xl shadow-md space-y-4 max-h-96 overflow-y-auto bg-gray-900 border border-gray-600">
-                  {loadingRsvp ? (
-                    <div className="text-center py-4 text-gray-400">Loading comments...</div>
-                  ) : errorRsvp ? (
-                    <div className="text-red-400 text-center py-4">{errorRsvp}</div>
-                  ) : rsvpList.length > 0 ? (
-                    <div className="p-4 space-y-4">
-                      {rsvpList.slice(0, visibleComments).map((rsvp, index) => {
-                        // Generate random colors for avatar background
-                        const colors = ['#dc2626', '#ea580c', '#d97706', '#ca8a04', '#65a30d', '#16a34a', '#059669', '#0d9488', '#0891b2', '#0284c7', '#2563eb', '#4f46e5', '#7c3aed', '#a21caf', '#be185d'];
-                        const bgColor = colors[index % colors.length];
-
-                        return (
-                          <div key={index} className="flex gap-3 items-start">
-                            {/* Avatar with FACE.webp */}
-                            <div
-                              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden"
-                              style={{ backgroundColor: bgColor }}
-                            >
-                              <img
-                                src="/FACE.webp"
-                                alt="Face"
-                                className="w-6 h-6 object-contain"
-                              />
-                            </div>
-                            <div className="flex-1 overflow-hidden">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <span className="font-semibold text-sm block truncate max-w-[180px] text-left text-white" title={rsvp.nama}>
-                                    {rsvp.nama}
-                                  </span>
-                                  <span className="text-xs text-gray-400 mb-1 block text-left">
-                                    {timeAgo(rsvp.created_at)}
-                                  </span>
-                                </div>
-                                <div className="text-lg flex-shrink-0">
-                                  {rsvp.konfirmasi === 'hadir' ? '✅' : '❌'}
-                                </div>
+                          return (
+                            <div key={index} className="flex gap-3 items-start">
+                              {/* Avatar with FACE.webp */}
+                              <div
+                                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 relative overflow-hidden"
+                                style={{ backgroundColor: bgColor }}
+                              >
+                                <img
+                                  src="/FACE.webp"
+                                  alt="Face"
+                                  className="w-6 h-6 object-contain"
+                                />
                               </div>
-                              <p className="text-sm mt-1 break-words text-left text-gray-300">
-                                {rsvp.ucapan}
-                              </p>
+                              <div className="flex-1 overflow-hidden">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <span className="font-semibold text-sm block truncate max-w-[180px] text-left text-white" title={rsvp.nama}>
+                                      {rsvp.nama}
+                                    </span>
+                                    <span className="text-xs text-gray-400 mb-1 block text-left">
+                                      {timeAgo(rsvp.created_at)}
+                                    </span>
+                                  </div>
+                                  <div className="text-lg flex-shrink-0">
+                                    {rsvp.konfirmasi === 'hadir' ? '✅' : '❌'}
+                                  </div>
+                                </div>
+                                <p className="text-sm mt-1 break-words text-left text-gray-300">
+                                  {rsvp.ucapan}
+                                </p>
+                              </div>
                             </div>
+                          );
+                        })}
+
+                        {visibleComments < rsvpList.length && (
+                          <div className="text-center pt-4">
+                            <Button
+                              onClick={loadMoreComments}
+                              className="px-6 py-2 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 text-white"
+                            >
+                              Load More
+                            </Button>
                           </div>
-                        );
-                      })}
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4 text-gray-400">No comments yet</div>
+                    )}
+                  </div>
+                )}
+              </NetflixSection>
 
-                      {visibleComments < rsvpList.length && (
-                        <div className="text-center pt-4">
-                          <Button
-                            onClick={loadMoreComments}
-                            className="px-6 py-2 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 text-white"
-                          >
-                            Load More
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-4 text-gray-400">No comments yet</div>
-                  )}
-                </div>
-              )}
-            </NetflixSection>
+              {/* Invitation Gallery Section */}
+              <NetflixSection className="mt-8">
+                <div className="relative w-full rounded-lg overflow-hidden h-96">
+                  {/* Background Image */}
+                  <div
+                    className="absolute inset-0 w-full h-full bg-cover bg-center"
+                    style={{ backgroundImage: `url(${gallery?.items?.[0] || backgroundImage})` }}
+                  />
 
-            {/* Invitation Gallery Section */}
-            <NetflixSection>
-              <div className="relative w-full rounded-lg overflow-hidden h-96">
-                {/* Background Image */}
-                <div
-                  className="absolute inset-0 w-full h-full bg-cover bg-center"
-                  style={{ backgroundImage: `url(${gallery?.items?.[0] || backgroundImage})` }}
-                />
+                  {/* Overlay gradient - transparent black */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/80" />
 
-                {/* Overlay gradient - transparent black */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black/80" />
-
-                {/* Content overlay */}
-                <div className="relative z-20 h-full flex flex-col justify-center items-center p-8 sm:p-12 text-center space-y-6">
-                  <NetflixText className="text-lg sm:text-xl leading-relaxed text-white">
-                    Suatu kebahagiaan & kehormatan bagi kami,
-                    <br />
-                    <span className="font-semibold">apabila saudara/i {urlParams.toName || "Bapak/Ibu/Saudara/i"}</span>
-                    <br />
-                    berkenan hadir dan memberikan do'a restu kepada kami
-                  </NetflixText>
-
-                  <div className="pt-6 border-t border-gray-500">
-                    <NetflixText className="text-sm sm:text-base text-gray-300 mb-3">
-                      Kami Yang Berbahagia,
+                  {/* Content overlay */}
+                  <div className="relative z-20 h-full flex flex-col justify-center items-center p-8 sm:p-12 text-center space-y-6">
+                    <NetflixText className="text-lg sm:text-xl leading-relaxed text-white">
+                      Suatu kebahagiaan & kehormatan bagi kami,
+                      <br />
+                      <span className="font-semibold">apabila saudara/i {urlParams.toName || "Bapak/Ibu/Saudara/i"}</span>
+                      <br />
+                      berkenan hadir dan memberikan do'a restu kepada kami
                     </NetflixText>
-                    <NetflixHeader size="lg" className="text-2xl sm:text-3xl">
-                      {isKhitan ? nickname1 : `${nickname1} & ${nickname2}`} 💕
-                    </NetflixHeader>
+
+                    <div className="pt-6 border-t border-gray-500">
+                      <NetflixText className="text-sm sm:text-base text-gray-300 mb-3">
+                        Kami Yang Berbahagia,
+                      </NetflixText>
+                      <NetflixHeader size="lg" className="text-2xl sm:text-3xl">
+                        {isKhitan ? nickname1 : `${nickname1} & ${nickname2}`} 💕
+                      </NetflixHeader>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </NetflixSection>
+              </NetflixSection>
+            </ScrollReveal>
 
             {/* Footer */}
-            <NetflixSection className="text-center py-8">
-              <NetflixText>Thank you for checking up all the things up there!</NetflixText>
-              <NetflixText>Can't wait to see u again! &lt;3</NetflixText>
-              <NetflixText variant="caption" color="gray">
-                E-Invitation Powered By <a href="https://papunda.com/" target="_blank" className="font-bold">papunda.com</a>
-              </NetflixText>
-            </NetflixSection>
+            <ScrollReveal animClass={fadeInClass} threshold={0.05}>
+              <NetflixSection className="text-center py-12 mt-4 border-t border-gray-800">
+                <NetflixText>Thank you for checking up all the things up there!</NetflixText>
+                <NetflixText>Can't wait to see u again! &lt;3</NetflixText>
+                <NetflixText variant="caption" color="gray">
+                  E-Invitation Powered By <a href="https://papunda.com/" target="_blank" className="font-bold">papunda.com</a>
+                </NetflixText>
+              </NetflixSection>
+            </ScrollReveal>
           </div>
+
 
           {/* Netflix Navigation */}
           {isOpen && plugin?.navbar && (
@@ -1455,17 +1485,17 @@ export default function Theme3({ data }: Theme3Props) {
 
 // Add CSS animations
 const styleSheet = `
-  @keyframes fadeInSlide {
-    from {
-      opacity: 0;
+      @keyframes fadeInSlide {
+        from {
+        opacity: 0;
       transform: translateX(10px);
     }
-    to {
-      opacity: 1;
+      to {
+        opacity: 1;
       transform: translateX(0);
     }
   }
-`;
+      `;
 
 // Inject styles on component mount
 if (typeof document !== 'undefined') {

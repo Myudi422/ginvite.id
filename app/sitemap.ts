@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next'
 // Force static generation for better performance
 export const dynamic = 'force-static'
 export const revalidate = 3600 // Revalidate every hour
- 
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://papunda.com';
 
@@ -76,6 +76,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
   ];
 
   // Fetch dynamic invitation pages
@@ -90,10 +96,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         revalidate: 3600 // Revalidate every hour instead of no-cache
       }
     });
-    
+
     if (res.ok) {
       const data = await res.json();
-      
+
       if (data.status === 'success' && data.data && Array.isArray(data.data)) {
         // Generate SEO-optimized sitemap entries with rich metadata
         dynamicPages = data.data
@@ -106,55 +112,55 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             } catch (e) {
               content = {};
             }
-            
+
             // Extract names from children array for SEO
             const children = content.children || [];
             const names = children
               .map((child: any) => child.name)
               .filter((name: string) => name && name.trim())
               .slice(0, 2); // Max 2 names
-            
+
             // Determine invitation type from title or content
             const title = inv.title.toLowerCase();
             let invitationType = 'undangan';
             if (title.includes('khitan') || title.includes('sunatan')) {
               invitationType = 'khitanan';
             } else if (title.includes('nikah') || title.includes('wedding') || title.includes('pernikahan')) {
-              invitationType = 'pernikahan';  
+              invitationType = 'pernikahan';
             } else if (title.includes('ulang') || title.includes('birthday')) {
               invitationType = 'ulang tahun';
             }
-            
+
             // Get event date for SEO
             const eventDate = content.event?.resepsi?.date || content.event?.akad?.date || '';
             const location = content.event?.resepsi?.location || content.event?.akad?.location || '';
-            
+
             // Create SEO-friendly title and description
             const nameString = names.length > 0 ? names.join(' & ') : inv.first_name || 'Undangan Digital';
-            
+
             // Determine priority based on views and recency
             let priority = 0.6;
             const viewCount = parseInt(inv.view) || 0;
             const lastUpdate = new Date(inv.updated_at);
             const daysSinceUpdate = Math.floor((Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
-            
+
             // Priority calculation
             if (viewCount > 100) priority = 0.9;
             else if (viewCount > 50) priority = 0.8;
             else if (viewCount > 20) priority = 0.7;
             else if (daysSinceUpdate < 7) priority = 0.8; // Boost new invitations
-            
+
             // Change frequency based on activity
             let changeFreq: 'daily' | 'weekly' | 'monthly' = 'monthly';
             if (daysSinceUpdate < 3) changeFreq = 'daily';
             else if (daysSinceUpdate < 14) changeFreq = 'weekly';
-            
+
             // Extract images for Google Image Search optimization
             const galleryImages = content.gallery?.items || [];
             const childrenProfiles = children
               .map((child: any) => child.profile)
               .filter((profile: string) => profile && profile.startsWith('http'));
-            
+
             // Get user profile picture with Google Photos optimization  
             let userProfilePic = '';
             if (inv.pictures_url) {
@@ -164,7 +170,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 userProfilePic = userProfilePic.replace('=s96-c', '=s1200-c');
               }
             }
-            
+
             // Collect all valid images with SEO-friendly naming
             const validGalleryImages = galleryImages
               .filter((img: string) => img && img.startsWith('http'))
@@ -174,7 +180,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 caption: `Dokumentasi ${invitationType} ${nameString}`,
                 type: 'gallery'
               }));
-              
+
             const validProfileImages = childrenProfiles
               .map((img: string, index: number) => ({
                 url: img,
@@ -182,20 +188,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                 caption: `Portrait ${names[index] || nameString}`,
                 type: 'profile'
               }));
-              
+
             const userImage = userProfilePic ? [{
               url: userProfilePic,
               alt: `Foto ${nameString} - Pembuat undangan ${invitationType}`,
               caption: `Profile ${nameString}`,
               type: 'user'
             }] : [];
-            
+
             const allImages = [
               ...validGalleryImages,
-              ...validProfileImages, 
+              ...validProfileImages,
               ...userImage
             ].slice(0, 15); // Increase limit for better SEO coverage
-            
+
             return {
               url: `${baseUrl}/undang/${inv.user_id}/${encodeURIComponent(inv.title)}`,
               lastModified: new Date(inv.updated_at),
@@ -242,7 +248,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
                   } : undefined,
                   image: allImages.map(img => img.url),
                   organizer: {
-                    '@type': 'Person', 
+                    '@type': 'Person',
                     name: nameString
                   },
                   offers: {
@@ -255,7 +261,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
               }
             };
           });
-        
+
       }
     }
   } catch (error) {
@@ -263,5 +269,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn('Sitemap generation fallback: using static pages only');
   }
 
-  return [...staticPages, ...dynamicPages];
+  // Fetch published blog posts for sitemap
+  let blogPages: MetadataRoute.Sitemap = [];
+  try {
+    const blogRes = await fetch(
+      'https://ccgnimex.my.id/v2/android/ginvite/page/blog_public.php?action=list&limit=500',
+      { next: { revalidate: 3600 } }
+    );
+    if (blogRes.ok) {
+      const blogData = await blogRes.json();
+      if (blogData.status === 'success' && Array.isArray(blogData.data)) {
+        blogPages = blogData.data.map((blog: any) => ({
+          url: `${baseUrl}/blog/${encodeURIComponent(blog.slug)}`,
+          lastModified: new Date(blog.updated_at || blog.created_at),
+          changeFrequency: 'weekly' as const,
+          priority: 0.7,
+        }));
+      }
+    }
+  } catch {
+    // silently ignore
+  }
+
+  return [...staticPages, ...dynamicPages, ...blogPages];
 }

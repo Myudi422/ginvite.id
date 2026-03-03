@@ -730,9 +730,9 @@ export default function Theme4({ data }: Theme4Props) {
           }
 
           {/* Gift & RSVP */}
-          <ThemeSection id="gift" className="mb-24">
+          <ThemeSection id="gift">
             {content?.bank_transfer?.enabled && (
-              <div className="mb-12">
+              <div className="mb-8">
                 <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-amber-500">
                   Wedding Gift
                 </ThemeHeader>
@@ -742,79 +742,82 @@ export default function Theme4({ data }: Theme4Props) {
                   </ThemeText>
                 </div>
 
-                <div className="flex justify-center mb-6">
-                  <ThemeButton onClick={() => setShowGiftForm(!showGiftForm)}>
-                    {showGiftForm ? "Hide Account" : "Show Account"}
-                  </ThemeButton>
-                </div>
-
-                {showGiftForm && (
-                  <div className="max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-2xl p-6 transition-all animate-in fade-in slide-in-from-bottom-4">
-                    {/* Bank Accounts */}
-                    {content.bank_transfer?.accounts?.map((acc: any, idx: number) => (
-                      <div key={idx} className="bg-gradient-to-r from-zinc-800 to-zinc-900 p-4 rounded-xl border border-white/5 mb-4 relative overflow-hidden">
-                        <div className="relative z-10 flex justify-between items-center">
-                          <div>
-                            <p className="text-xs uppercase text-amber-500 font-bold mb-1">{acc.bank_name}</p>
-                            <p className="text-xl font-mono text-white tracking-wider">{acc.account_number}</p>
-                            <p className="text-sm text-zinc-400 mt-1">{acc.account_name}</p>
-                          </div>
-                          <button onClick={() => handleCopyAccountNumber(acc.account_number)} className="p-2 bg-zinc-700/50 rounded-lg hover:bg-zinc-700 transition-colors text-white">
-                            <FiCopy />
-                          </button>
+                {/* Relative wrapper so overlay covers entire gift content */}
+                <div className="relative">
+                  {/* Free Mode Overlay — covers show account button + form */}
+                  {data.status === "tidak" && (
+                    <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-2xl border border-amber-500/20" style={{ minHeight: '80px' }}>
+                      <div className="text-center p-4">
+                        <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <FiLock className="text-2xl text-amber-500" />
                         </div>
+                        <ThemeText variant="meta" color="white" className="mb-1 text-sm">Mode Trial</ThemeText>
+                        <ThemeText variant="caption" color="gray" className="text-xs">
+                          Aktifkan undangan untuk fitur ini
+                        </ThemeText>
                       </div>
-                    ))}
+                    </div>
+                  )}
 
-                    {/* Confirmation Form */}
-                    <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10 relative">
-                      <ThemeText variant="caption" color="gold" className="text-center mb-4">Confirmation Form</ThemeText>
+                  <div className="flex justify-center mb-6">
+                    <ThemeButton onClick={() => setShowGiftForm(!showGiftForm)}>
+                      {showGiftForm ? "Hide Account" : "Show Account"}
+                    </ThemeButton>
+                  </div>
 
-                      {/* Free Mode Overlay */}
-                      {data.status === "tidak" && (
-                        <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-xl border border-amber-500/20">
-                          <div className="text-center p-4">
-                            <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                              <FiLock className="text-2xl text-amber-500" />
+                  {showGiftForm && (
+                    <div className="max-w-md mx-auto bg-zinc-900 border border-zinc-800 rounded-2xl p-6 transition-all animate-in fade-in slide-in-from-bottom-4">
+                      {/* Bank Accounts */}
+                      {content.bank_transfer?.accounts?.map((acc: any, idx: number) => (
+                        <div key={idx} className="bg-gradient-to-r from-zinc-800 to-zinc-900 p-4 rounded-xl border border-white/5 mb-4 relative overflow-hidden">
+                          <div className="relative z-10 flex justify-between items-center">
+                            <div>
+                              <p className="text-xs uppercase text-amber-500 font-bold mb-1">{acc.bank_name}</p>
+                              <p className="text-xl font-mono text-white tracking-wider">{acc.account_number}</p>
+                              <p className="text-sm text-zinc-400 mt-1">{acc.account_name}</p>
                             </div>
-                            <ThemeText variant="meta" color="white" className="mb-1 text-sm">Mode Trial</ThemeText>
-                            <ThemeText variant="caption" color="gray" className="text-xs">
-                              Aktifkan undangan untuk fitur ini
-                            </ThemeText>
+                            <button onClick={() => handleCopyAccountNumber(acc.account_number)} className="p-2 bg-zinc-700/50 rounded-lg hover:bg-zinc-700 transition-colors text-white">
+                              <FiCopy />
+                            </button>
                           </div>
                         </div>
-                      )}
+                      ))}
 
-                      <input
-                        type="text"
-                        placeholder="Name"
-                        value={namaGift}
-                        onChange={e => setNamaGift(e.target.value)}
-                        disabled={data.status === "tidak"}
-                        className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Amount"
-                        value={formattedJumlahGift}
-                        onChange={handleJumlahGiftChange}
-                        disabled={data.status === "tidak"}
-                        className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
-                      />
-                      <ThemeButton variant="outline" className="w-full" disabled={loadingGift || data.status === "tidak"}>
-                        {data.status === "tidak" ? "Free Mode" : loadingGift ? "Sending..." : "Confirm Transfer"}
-                      </ThemeButton>
-                      {successGift && <p className="text-green-500 text-center text-sm z-20 relative">Thank you!</p>}
-                    </form>
-                  </div>
-                )}
+                      {/* Confirmation Form */}
+                      <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10">
+                        <ThemeText variant="caption" color="gold" className="text-center mb-4">Confirmation Form</ThemeText>
+
+                        <input
+                          type="text"
+                          placeholder="Name"
+                          value={namaGift}
+                          onChange={e => setNamaGift(e.target.value)}
+                          disabled={data.status === "tidak"}
+                          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Amount"
+                          value={formattedJumlahGift}
+                          onChange={handleJumlahGiftChange}
+                          disabled={data.status === "tidak"}
+                          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-4 py-3 text-white focus:ring-1 focus:ring-white/50 outline-none disabled:opacity-50"
+                        />
+                        <ThemeButton variant="outline" className="w-full" disabled={loadingGift || data.status === "tidak"}>
+                          {data.status === "tidak" ? "Free Mode" : loadingGift ? "Sending..." : "Confirm Transfer"}
+                        </ThemeButton>
+                        {successGift && <p className="text-green-500 text-center text-sm">Thank you!</p>}
+                      </form>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </ThemeSection>
 
           {/* RSVP Section */}
           {content.plugin?.rsvp && (
-            <ThemeSection id="rsvp" className="max-w-md mx-auto mb-24">
+            <ThemeSection id="rsvp" className="max-w-md mx-auto">
               <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest" style={{ color: 'var(--t4-text-accent, #f59e0b)' }}>
                 RSVP
               </ThemeHeader>

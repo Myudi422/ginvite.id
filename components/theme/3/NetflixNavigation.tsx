@@ -26,35 +26,35 @@ export default function NetflixNavigation({
   }, []);
 
   const navItems = [
-    { 
-      id: "home", 
-      icon: Home, 
-      label: "Home", 
-      show: true 
+    {
+      id: "home",
+      icon: Home,
+      label: "Home",
+      show: true
     },
-    { 
-      id: "event", 
-      icon: Calendar, 
-      label: "Coming Soon", 
-      show: true 
+    {
+      id: "event",
+      icon: Calendar,
+      label: "Coming Soon",
+      show: true
     },
-    { 
-      id: "gallery", 
-      icon: Search, 
-      label: "Gallery", 
-      show: showGallery 
+    {
+      id: "gallery",
+      icon: Search,
+      label: "Gallery",
+      show: showGallery
     },
-    { 
-      id: "gift", 
-      icon: Gift, 
-      label: "Gift", 
-      show: showGift 
+    {
+      id: "gift",
+      icon: Gift,
+      label: "Gift",
+      show: showGift
     },
-    { 
-      id: "rsvp", 
-      icon: Heart, 
-      label: "More", 
-      show: showRsvp 
+    {
+      id: "rsvp",
+      icon: Heart,
+      label: "More",
+      show: showRsvp
     },
   ].filter(item => item.show);
 
@@ -133,26 +133,54 @@ export default function NetflixNavigation({
   );
 }
 
-// Netflix-style navigation hook for managing active section
+// Netflix-style navigation hook — uses IntersectionObserver for reliable detection
 export function useNetflixNavigation() {
   const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = ["home", "event", "gallery", "gift", "rsvp"];
-      const scrollPosition = window.scrollY + 200; // Offset for better UX
+    const sectionIds = ["home", "event", "gallery", "gift", "rsvp"];
 
-      for (const sectionId of sections.reverse()) {
-        const element = document.getElementById(sectionId);
-        if (element && element.offsetTop <= scrollPosition) {
-          setActiveSection(sectionId);
-          break;
+    const observers: IntersectionObserver[] = [];
+
+    // Track which sections are currently visible and pick the topmost one
+    const visible = new Set<string>();
+
+    const updateActive = () => {
+      // Pick the first section (in document order) that is visible
+      for (const id of sectionIds) {
+        if (visible.has(id)) {
+          setActiveSection(id);
+          return;
         }
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            visible.add(id);
+          } else {
+            visible.delete(id);
+          }
+          updateActive();
+        },
+        {
+          // Trigger when section is at least 20% visible
+          threshold: 0.2,
+          // Narrow the root margin so we detect the section in the upper viewport
+          rootMargin: "-10% 0px -60% 0px",
+        }
+      );
+
+      obs.observe(el);
+      observers.push(obs);
+    });
+
+    return () => observers.forEach((o) => o.disconnect());
   }, []);
 
   return { activeSection, setActiveSection };
