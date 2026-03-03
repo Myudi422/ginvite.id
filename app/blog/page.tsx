@@ -61,7 +61,7 @@ async function fetchBlogs(category?: string): Promise<BlogListResponse | null> {
         const url = category
             ? `${API}?action=list&limit=12&category=${encodeURIComponent(category)}`
             : `${API}?action=list&limit=12`;
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetch(url, { next: { revalidate: 60 } });
         if (!res.ok) return null;
         return res.json();
     } catch {
