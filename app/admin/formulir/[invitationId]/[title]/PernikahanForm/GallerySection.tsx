@@ -131,93 +131,126 @@ export function GallerySection({ userId, invitationId, slug, onSavedSlug }: Gall
   }, [autoSave, imageToDeleteIndex, previewImages, setValue]);
 
   return (
-    <Collapsible title="Gallery">
-      <div className="pt-4 mb-4 flex items-center space-x-2">
+    <Collapsible title="Galeri Foto" defaultOpen={false}>
+      {/* Toggle Header */}
+      <div className="flex items-center justify-between bg-gray-50 border border-gray-100 p-4 rounded-xl mt-4">
+        <div>
+          <h4 className="text-sm font-semibold text-gray-800">Aktifkan Galeri Foto</h4>
+          <p className="text-xs text-gray-400 mt-0.5">Tampilkan foto-foto prewedding atau momen berharga</p>
+        </div>
         <Controller
           name="gallery_enabled"
           control={control}
           render={({ field }) => (
             <Switch
               checked={field.value}
-              onCheckedChange={(v) => field.onChange(v)}
+              onCheckedChange={field.onChange}
+              className="data-[state=checked]:bg-pink-500"
             />
           )}
         />
-        <span className="text-sm font-medium">
-          {enabled ? 'Gallery Aktif' : 'Gallery Nonaktif'}
-        </span>
       </div>
 
-      <div className={`mb-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>  
-        <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700">
-          Unggah Gambar (Maksimum 6)
-        </label>
-        <input
-          id="image-upload"
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleImageChange}
-          className="mt-1 block w-full border rounded-md py-2 px-3 focus:outline-none focus:ring focus:border-blue-300"
-          disabled={!enabled || uploading}
-        />
-        {uploading && <p className="text-yellow-500">Mengunggah gambar...</p>}
-        {uploadError && <p className="text-red-600">{uploadError}</p>}
-        {deleting && <p className="text-yellow-500">Menghapus gambar...</p>}
-        {deleteError && <p className="text-red-600">{deleteError}</p>}
-      </div>
+      {/* Main Content */}
+      <div className={`transition-all duration-300 mt-4 ${!enabled ? 'opacity-50 grayscale select-none pointer-events-none' : ''}`}>
 
-      <div className={`grid grid-cols-3 gap-4 ${!enabled ? 'opacity-50 pointer-events-none' : ''}`}>  
-        {[...previewImages, ...localPreviews].map((url, idx) => (
-          <div key={idx} className="relative">
-            <img
-              src={url}
-              alt={`Gambar ${idx + 1}`}
-              className="w-full h-auto rounded-md object-cover aspect-square"
-              style={{ maxHeight: '150px' }}
-            />
-            <button
-              type="button"
-              onClick={() => {
-                if (idx < previewImages.length) handleOpenDeleteConfirmation(idx);
-                else {
-                  setLocalPreviews(prev => {
-                    const newArr = [...prev];
-                    newArr.splice(idx - previewImages.length, 1);
-                    return newArr;
-                  });
-                }
-              }}
-              className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-            >
-              ×
-            </button>
-          </div>
-        ))}
-        {fields.slice(previewImages.length + localPreviews.length).map((item, i) => (
-          <Controller
-            key={item.id}
-            control={control}
-            name={`gallery.items.${previewImages.length + localPreviews.length + i}`}
-            render={({ field }) => (
-              <Input {...field} placeholder={`URL Gambar ${previewImages.length + localPreviews.length + i + 1}`} />
-            )}
+        {/* Upload Area */}
+        <div className="relative border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors">
+          <input
+            id="image-upload"
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            disabled={!enabled || uploading}
           />
-        ))}
+          <div className="space-y-2">
+            <div className="w-10 h-10 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            </div>
+            <p className="text-sm font-medium text-gray-700">Klik atau seret gambar ke sini</p>
+            <p className="text-xs text-gray-400">Maksimal 6 foto (JPG, PNG)</p>
+          </div>
+
+          {/* Status Messages */}
+          {(uploading || deleting || uploadError || deleteError) && (
+            <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col items-center justify-center gap-2">
+              {uploading && <p className="text-xs font-medium text-blue-500 flex items-center gap-1"><span className="animate-spin text-lg leading-none">⏳</span> Mengunggah foto...</p>}
+              {deleting && <p className="text-xs font-medium text-amber-500 flex items-center gap-1"><span className="animate-spin text-lg leading-none">⏳</span> Menghapus foto...</p>}
+              {uploadError && <p className="text-xs font-medium text-red-500 bg-red-50 px-3 py-1.5 rounded-md">⚠️ {uploadError}</p>}
+              {deleteError && <p className="text-xs font-medium text-red-500 bg-red-50 px-3 py-1.5 rounded-md">⚠️ {deleteError}</p>}
+            </div>
+          )}
+        </div>
+
+        {/* Gallery Grid */}
+        {([...previewImages, ...localPreviews].length > 0) && (
+          <div className="mt-6">
+            <h5 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Foto Tersimpan</h5>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {[...previewImages, ...localPreviews].map((url, idx) => (
+                <div key={idx} className="relative group rounded-xl overflow-hidden shadow-sm border border-gray-100 aspect-square">
+                  <img
+                    src={url}
+                    alt={`Preview ${idx + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (idx < previewImages.length) handleOpenDeleteConfirmation(idx);
+                        else {
+                          setLocalPreviews(prev => {
+                            const newArr = [...prev];
+                            newArr.splice(idx - previewImages.length, 1);
+                            return newArr;
+                          });
+                        }
+                      }}
+                      className="bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transform hover:scale-110 shadow-sm"
+                      title="Hapus foto"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* URL Inputs (Fallback) */}
+        <div className="mt-6 space-y-3">
+          <p className="text-xs text-gray-400 italic">Atau masukkan URL gambar secara manual:</p>
+          {fields.slice(previewImages.length + localPreviews.length).map((item, i) => (
+            <Controller
+              key={item.id}
+              control={control}
+              name={`gallery.items.${previewImages.length + localPreviews.length + i}`}
+              render={({ field }) => (
+                <Input {...field} className="text-sm bg-gray-50 border-gray-200" placeholder={`URL Gambar ${previewImages.length + localPreviews.length + i + 1}`} />
+              )}
+            />
+          ))}
+        </div>
+
       </div>
 
       <AlertDialog open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Foto?</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus gambar ini? Tindakan ini tidak dapat dibatalkan.
+              Foto ini akan dihapus secara permanen dari galeri undangan Anda.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCloseDeleteConfirmation}>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} disabled={deleting}>
-              {deleting ? 'Menghapus...' : 'Hapus'}
+            <AlertDialogCancel onClick={handleCloseDeleteConfirmation} className="rounded-xl">Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} disabled={deleting} className="bg-red-500 hover:bg-red-600 text-white rounded-xl">
+              {deleting ? 'Menghapus...' : 'Ya, Hapus'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

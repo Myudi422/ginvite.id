@@ -52,20 +52,20 @@ export function PluginSection({ userId, invitationId, slug, onSavedSlug, onStatu
   }, [getValues, userId, invitationId, slug, onSavedSlug, onStatusChange]);
 
   const giftEnabled = useWatch({ control, name: 'plugin.gift' });
-  const prevGiftEnabled = useRef(giftEnabled);
-  useEffect(() => {
-    if (prevGiftEnabled.current !== undefined && prevGiftEnabled.current !== giftEnabled && !giftEnabled) {
-      setValue('plugin.youtube_link', '');
-      const t = setTimeout(() => autoSave(), 500);
-      return () => clearTimeout(t);
-    }
-    prevGiftEnabled.current = giftEnabled;
-  }, [giftEnabled, setValue, autoSave]);
-
   const whatsappNotifEnabled = useWatch({ control, name: 'plugin.whatsapp_notif' });
 
   const handleToggle = useCallback((name: string, value: boolean) => {
     setValue(name as any, value);
+
+    // Jika fitur Video YT dimatikan, bersihkan field link
+    if (name === 'plugin.gift' && !value) {
+      setValue('plugin.youtube_link', '');
+    }
+    // Jika WA Notif dimatikan, bersihkan nomor
+    if (name === 'plugin.whatsapp_notif' && !value) {
+      setValue('plugin.whatsapp_number', '');
+    }
+
     autoSave();
   }, [setValue, autoSave]);
 

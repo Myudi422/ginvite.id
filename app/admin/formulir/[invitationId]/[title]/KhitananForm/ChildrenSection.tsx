@@ -56,11 +56,11 @@ export function ChildrenSection({
     getValues('children.0.profile') || '',
   ]);
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string|null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string|null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const [currentChildIndex, setCurrentChildIndex] = useState<number|null>(null);
+  const [currentChildIndex, setCurrentChildIndex] = useState<number | null>(null);
 
   const autoSave = useCallback(async () => {
     const data = getValues();
@@ -75,7 +75,7 @@ export function ChildrenSection({
       mapsLink: data.event.khitanan?.mapsLink,
     };
     await saveGalleryContent(payload);
-    const frm = document.getElementById('previewFrame') as HTMLIFrameElement|null;
+    const frm = document.getElementById('previewFrame') as HTMLIFrameElement | null;
     if (frm) frm.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}`;
   }, [getValues, invitationId, onSavedSlug, slug, userId]);
 
@@ -165,98 +165,124 @@ export function ChildrenSection({
   }, [currentChildIndex, getValues, setValue, autoSave]);
 
   return (
-    <Collapsible title="Data Anak">
-      {/* NAMA & NICKNAME */}
-      <div className="grid grid-cols-1 gap-4 mt-6 mb-6">
-        <div className="border p-4 rounded">
-          <Label htmlFor="anak-name">Nama Anak</Label>
-          <Controller
-            name="children.0.name"
-            control={control}
-            render={({ field }) => (
-              <Input 
-                {...field} 
-                id="anak-name"
-                onChange={(e) => {
-                  field.onChange(e);
-                  // Trigger auto refresh when name changes
-                  setTimeout(() => {
-                    window.dispatchEvent(new CustomEvent('formDataChanged'));
-                  }, 500);
-                  // Trigger auto save
-                  debouncedAutoSave();
-                }}
-              />
-            )}
-          />
-          <Label htmlFor="anak-nick" className="mt-4">Nickname Anak</Label>
-          <Controller
-            name="children.0.nickname"
-            control={control}
-            render={({ field }) => (
-              <Input 
-                {...field} 
-                id="anak-nick"
-                onChange={(e) => {
-                  field.onChange(e);
-                  // Trigger auto refresh when nickname changes
-                  setTimeout(() => {
-                    window.dispatchEvent(new CustomEvent('formDataChanged'));
-                  }, 500);
-                  // Trigger auto save
-                  debouncedAutoSave();
-                }}
-              />
-            )}
-          />
+    <Collapsible title="Data Anak" defaultOpen={true}>
+      <div className="mt-4 mb-2 max-w-2xl mx-auto">
+        <div className="relative p-5 rounded-2xl border bg-blue-50/50 border-blue-100">
+          <h4 className="text-sm font-semibold mb-4 flex items-center gap-2 text-blue-700">
+            👦 Data Anak Khitan
+          </h4>
 
-          {/* FOTO */}
-          <Label className="mt-6">Foto Anak</Label>
-          <div className="mt-1 flex items-center space-x-4">
-            {localPreviews[0] ? (
-              <div className="relative w-24 h-24">
-                <img
-                  src={localPreviews[0]}
-                  alt="Foto Anak"
-                  className="object-cover w-full h-full rounded-full"
-                />
-                <button
-                  type="button"
-                  onClick={() => openDelete(0)}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transform translate-x-1/4 -translate-y-1/4"
-                >×</button>
+          <div className="space-y-4">
+            {/* NAMA LENGKAP */}
+            <div className="space-y-1.5">
+              <Label htmlFor="anak-name" className="text-xs text-gray-600 font-medium whitespace-nowrap">Nama Lengkap</Label>
+              <Controller
+                name="children.0.name"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="anak-name"
+                    className="bg-white border-gray-200 text-sm focus-visible:ring-1 focus-visible:ring-gray-300"
+                    placeholder="Contoh: Muhammad Al Fatih"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      setTimeout(() => window.dispatchEvent(new CustomEvent('formDataChanged')), 500);
+                      debouncedAutoSave();
+                    }}
+                  />
+                )}
+              />
+            </div>
+
+            {/* NAMA PANGGILAN */}
+            <div className="space-y-1.5">
+              <Label htmlFor="anak-nick" className="text-xs text-gray-600 font-medium whitespace-nowrap">Nama Panggilan</Label>
+              <Controller
+                name="children.0.nickname"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="anak-nick"
+                    className="bg-white border-gray-200 text-sm focus-visible:ring-1 focus-visible:ring-gray-300"
+                    placeholder="Contoh: Fatih"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      setTimeout(() => window.dispatchEvent(new CustomEvent('formDataChanged')), 500);
+                      debouncedAutoSave();
+                    }}
+                  />
+                )}
+              />
+            </div>
+
+            {/* FOTO */}
+            <div className="pt-2">
+              <Label className="text-xs text-gray-600 font-medium block mb-2">Foto Profil</Label>
+              <div className="flex items-center gap-4">
+                <div className="relative w-24 h-24 flex-shrink-0 rounded-2xl border-2 border-dashed border-gray-200 bg-white overflow-hidden group">
+                  {localPreviews[0] ? (
+                    <>
+                      <img
+                        src={localPreviews[0]}
+                        alt="Foto Anak"
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => openDelete(0)}
+                          className="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transform hover:scale-110 shadow-sm transition-all"
+                          title="Hapus Foto"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                      {uploading ? (
+                        <span className="animate-spin text-xl">⏳</span>
+                      ) : (
+                        <>
+                          <svg className="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                          <span className="text-[10px] text-gray-500 font-medium">Unggah</span>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={e => handleImageChange(e, 0)}
+                        disabled={uploading}
+                      />
+                    </label>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] text-gray-400 leading-tight">Gunakan foto potret dengan rasio 1:1 (kotak) agar terlihat rapi.</p>
+                  {uploadError && <p className="text-[11px] font-medium text-red-500 mt-1 line-clamp-2">⚠️ {uploadError}</p>}
+                </div>
               </div>
-            ) : (
-              <label className="cursor-pointer bg-white py-2 px-3 border rounded-md shadow-sm text-sm font-medium">
-                {uploading ? 'Mengunggah...' : 'Unggah Foto'}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  onChange={e => handleImageChange(e, 0)}
-                  disabled={uploading}
-                />
-              </label>
-            )}
-            {uploadError && <p className="text-red-600">{uploadError}</p>}
+            </div>
           </div>
         </div>
       </div>
 
-
       {/* DIALOG HAPUS */}
       <AlertDialog open={deleteConfirmationOpen} onOpenChange={setDeleteConfirmationOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Konfirmasi Hapus Foto</AlertDialogTitle>
+            <AlertDialogTitle>Hapus Foto Profil?</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus foto ini? Tindakan ini tidak dapat dibatalkan.
+              Foto profil anak ini akan dihapus secara permanen.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDelete}>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={deleting}>
-              {deleting ? 'Menghapus...' : 'Hapus'}
+            <AlertDialogCancel onClick={closeDelete} className="rounded-xl">Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} disabled={deleting} className="bg-red-500 hover:bg-red-600 text-white rounded-xl">
+              {deleting ? 'Menghapus...' : 'Ya, Hapus'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
