@@ -14,16 +14,15 @@ function error($code, $msg)
 // 1) Ambil parameter user, title, dan category_type (optional)
 $userId = null;
 if (isset($_GET['user_id']) && is_numeric($_GET['user_id'])) {
-    $userId = (int)$_GET['user_id'];
-}
-elseif (isset($_GET['user']) && is_numeric($_GET['user'])) {
-    $userId = (int)$_GET['user'];
+    $userId = (int) $_GET['user_id'];
+} elseif (isset($_GET['user']) && is_numeric($_GET['user'])) {
+    $userId = (int) $_GET['user'];
 }
 $title = isset($_GET['title']) && trim($_GET['title']) !== ''
     ? trim($_GET['title'])
     : null;
 $categoryTypeId = isset($_GET['category_type']) && is_numeric($_GET['category_type'])
-    ? (int)$_GET['category_type']
+    ? (int) $_GET['category_type']
     : null;
 
 if (!$userId || !$title) {
@@ -60,8 +59,18 @@ if (!is_array($userContent)) {
 $eventData = $userContent['event'] ?? [];
 unset($userContent['event']);
 
+// Tentukan agama berdasarkan quoteCategory
+// Hanya rename 'akad' → 'pemberkatan' kalau kategori mengandung kata "kristen"
+// Kategori lain (Islam, Global, kosong) tetap pakai key 'akad'
+$quoteCategory = strtolower(trim($userContent['quoteCategory'] ?? ''));
+$isKristen = strpos($quoteCategory, 'kristen') !== false;
+if ($isKristen && isset($eventData['akad'])) {
+    $eventData['pemberkatan'] = $eventData['akad'];
+    unset($eventData['akad']);
+}
+
 // 5) Ambil template dan nama kategori berdasarkan category_type
-$templateCategoryId = (int)$cu['category_id'];
+$templateCategoryId = (int) $cu['category_id'];
 $stmt = $pdo->prepare("SELECT content_template, name AS category_type_name FROM category_type WHERE id = ?");
 $stmt->execute([$templateCategoryId]);
 $templateRow = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -76,11 +85,11 @@ $template = json_decode($templateJson, true);
 $content = array_merge($template, $userContent);
 $content['our_story'] = $content['our_story'] ?? [];
 $content['themeCategoryTemplate'] = $templateCategoryId;
-$content['themeCategory'] = (int)$cu['kategory_theme_id'];
-$content['theme'] = (int)$cu['theme_id'];
+$content['themeCategory'] = (int) $cu['kategory_theme_id'];
+$content['theme'] = (int) $cu['theme_id'];
 
 // 7) Ambil data theme berdasarkan theme_id
-$themeId = (int)$cu['theme_id'];
+$themeId = (int) $cu['theme_id'];
 $stmt = $pdo->prepare("SELECT * FROM theme WHERE id = ?");
 $stmt->execute([$themeId]);
 $theme = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -118,7 +127,7 @@ $result = [
         'bottomLeft' => $theme['decorations_bottom_left'],
         'bottomRight' => $theme['decorations_bottom_right'],
     ],
-    'content_user_id' => (int)$cu['id'],
+    'content_user_id' => (int) $cu['id'],
     'content' => $content,
     'event' => $eventData,
     'status' => $cu['status_teks'],

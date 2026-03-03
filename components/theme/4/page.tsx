@@ -587,7 +587,7 @@ export default function Theme4({ data }: Theme4Props) {
                       }}
                     >
                       <ThemeText variant="caption" color="gold" className="text-lg">
-                        {evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
+                        {evt.title || (key === 'pemberkatan' ? 'Pemberkatan' : key === 'resepsi' ? 'Resepsi' : key === 'akad' ? 'Akad Nikah' : (idx === 0 ? 'Akad Nikah' : 'Resepsi'))}
                       </ThemeText>
 
                       <div className="py-4 border-y border-white/10">
