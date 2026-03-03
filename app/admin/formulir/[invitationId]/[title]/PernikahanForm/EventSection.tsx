@@ -1,11 +1,10 @@
-// components/EventSection.tsx
+// EventSection.tsx
 'use client';
 
 import React, { useEffect } from 'react';
 import { useFormContext, useWatch, Controller } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Collapsible } from './Collapsible';
 import { autoSaveContent } from '@/app/actions/saved';
 
 interface EventSectionProps {
@@ -15,23 +14,55 @@ interface EventSectionProps {
   onSavedSlug: string;
 }
 
-export function EventSection({
-  userId,
-  invitationId,
-  slug,
-  onSavedSlug,
-}: EventSectionProps) {
+function EventFields({ prefix, label }: { prefix: string; label: string }) {
+  const { control } = useFormContext<any>();
+  return (
+    <div className="space-y-3">
+      <p className="text-xs font-semibold text-pink-500 uppercase tracking-wider">{label}</p>
+      <div className="grid grid-cols-2 gap-3">
+        <FormField name={`${prefix}.date`} control={control} render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-xs text-gray-500">📅 Tanggal</FormLabel>
+            <FormControl><Input type="date" {...field} className="text-sm" /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+        <FormField name={`${prefix}.time`} control={control} render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-xs text-gray-500">⏰ Waktu</FormLabel>
+            <FormControl><Input type="time" {...field} className="text-sm" /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+      </div>
+      <FormField name={`${prefix}.location`} control={control} render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-xs text-gray-500">📍 Lokasi</FormLabel>
+          <FormControl><Input {...field} placeholder="Nama gedung / tempat acara" className="text-sm" /></FormControl>
+          <FormMessage />
+        </FormItem>
+      )} />
+      <FormField name={`${prefix}.mapsLink`} control={control} render={({ field }) => (
+        <FormItem>
+          <FormLabel className="text-xs text-gray-500">🗺️ Link Google Maps</FormLabel>
+          <FormControl><Input {...field} placeholder="https://maps.google.com/..." className="text-sm" /></FormControl>
+          <FormMessage />
+        </FormItem>
+      )} />
+    </div>
+  );
+}
+
+export function EventSection({ userId, invitationId, slug, onSavedSlug }: EventSectionProps) {
   const { control, getValues, setValue } = useFormContext<any>();
   const resepsi = useWatch({ control, name: 'event.resepsi' });
   const akad = useWatch({ control, name: 'event.akad' });
   const quoteCategory = useWatch({ control, name: 'quoteCategory' }) as string | undefined;
 
-  // Hanya tampilkan "Pemberkatan" kalau kategori mengandung kata "kristen"
-  // Kategori lain (Islam, Global, kosong) tetap tampilkan "Akad"
   const isKristen = quoteCategory?.toLowerCase().includes('kristen') ?? false;
-  const secondEventLabel = isKristen ? 'Pemberkatan' : 'Akad';
+  const secondEventLabel = isKristen ? 'Pemberkatan' : 'Akad Nikah';
+  const showAkad = Boolean(akad);
 
-  // auto-save kapanpun resepsi atau akad berubah
   useEffect(() => {
     const timer = setTimeout(async () => {
       const data = getValues();
@@ -48,106 +79,48 @@ export function EventSection({
       try {
         await autoSaveContent(payload);
         const iframe = document.getElementById('previewFrame') as HTMLIFrameElement | null;
-        if (iframe) {
-          iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
-        }
+        if (iframe) iframe.src = `/undang/${userId}/${encodeURIComponent(onSavedSlug)}?time=${Date.now()}`;
       } catch (e) {
         console.error('Auto-save Event gagal:', (e as Error).message);
       }
-    }, 500);
+    }, 800);
     return () => clearTimeout(timer);
   }, [resepsi, akad, getValues, invitationId, slug, onSavedSlug, userId]);
 
-  const showAkad = Boolean(akad);
-
   return (
-    <Collapsible title="Detail Acara">
+    <div className="space-y-5">
       {/* Resepsi */}
-      <h4 className="font-semibold mt-2">Resepsi</h4>
-      <FormField name="event.resepsi.date" control={control} render={({ field }) => (
-        <FormItem>
-          <FormLabel>Tanggal</FormLabel>
-          <FormControl><Input type="date" {...field} /></FormControl>
-          <FormMessage />
-        </FormItem>
-      )} />
-      <FormField name="event.resepsi.time" control={control} render={({ field }) => (
-        <FormItem>
-          <FormLabel>Waktu</FormLabel>
-          <FormControl><Input type="time" {...field} /></FormControl>
-          <FormMessage />
-        </FormItem>
-      )} />
-      <FormField name="event.resepsi.location" control={control} render={({ field }) => (
-        <FormItem>
-          <FormLabel>Lokasi</FormLabel>
-          <FormControl><Input {...field} /></FormControl>
-          <FormMessage />
-        </FormItem>
-      )} />
-      <FormField name="event.resepsi.mapsLink" control={control} render={({ field }) => (
-        <FormItem>
-          <FormLabel>Link Maps</FormLabel>
-          <FormControl><Input {...field} /></FormControl>
-          <FormMessage />
-        </FormItem>
-      )} />
+      <EventFields prefix="event.resepsi" label="🎊 Resepsi" />
 
-      {/* Toggle Akad / Pemberkatan */}
-      <div className="mt-4 flex items-center">
-        <label className="mr-2">Tampilkan {secondEventLabel}?</label>
-        <input
-          type="checkbox"
-          checked={showAkad}
-          onChange={e => {
-            if (e.target.checked) {
-              setValue('event.akad', {
-                date: '',
-                time: '',
-                location: '',
-                mapsLink: '',
-              });
-            } else {
-              setValue('event.akad', undefined);
-            }
-          }}
-        />
+      {/* Divider + toggle Akad */}
+      <div className="border-t border-gray-100 pt-4">
+        <label className="flex items-center gap-3 cursor-pointer group">
+          <div className="relative">
+            <input
+              type="checkbox"
+              className="sr-only"
+              checked={showAkad}
+              onChange={e => {
+                if (e.target.checked) {
+                  setValue('event.akad', { date: '', time: '', location: '', mapsLink: '' });
+                } else {
+                  setValue('event.akad', undefined);
+                }
+              }}
+            />
+            <div className={`w-10 h-5 rounded-full transition-colors ${showAkad ? 'bg-pink-500' : 'bg-gray-200'}`} />
+            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${showAkad ? 'translate-x-5' : ''}`} />
+          </div>
+          <span className="text-sm font-medium text-gray-700">Tampilkan {secondEventLabel}?</span>
+        </label>
       </div>
 
-      {/* Akad */}
+      {/* Akad / Pemberkatan */}
       {showAkad && (
-        <>
-          <h4 className="font-semibold mt-4">{secondEventLabel}</h4>
-          <FormField name="event.akad.date" control={control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tanggal</FormLabel>
-              <FormControl><Input type="date" {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField name="event.akad.time" control={control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Waktu</FormLabel>
-              <FormControl><Input type="time" {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField name="event.akad.location" control={control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Lokasi</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-          <FormField name="event.akad.mapsLink" control={control} render={({ field }) => (
-            <FormItem>
-              <FormLabel>Link Maps</FormLabel>
-              <FormControl><Input {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )} />
-        </>
+        <div className="bg-pink-50/50 rounded-xl p-4 border border-pink-100">
+          <EventFields prefix="event.akad" label={`💍 ${secondEventLabel}`} />
+        </div>
       )}
-    </Collapsible>
+    </div>
   );
 }

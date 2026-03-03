@@ -1,33 +1,34 @@
 'use client';
 
-import { Disclosure } from '@headlessui/react';
+import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 interface CollapsibleProps {
   title: string;
   children: React.ReactNode;
+  defaultOpen?: boolean;
 }
 
-export function Collapsible({ title, children }: CollapsibleProps) {
+export function Collapsible({ title, children, defaultOpen = false }: CollapsibleProps) {
+  const [open, setOpen] = useState(defaultOpen);
+
   return (
-    <Disclosure as="div" className="border rounded-lg">
-      {({ open }) => (
-        <>
-          <Disclosure.Button
-            className="flex justify-between w-full px-4 py-2 text-left font-medium bg-gray-100 hover:bg-gray-200 rounded-t-lg"
-          >
-            <span>{title}</span>
-            <ChevronDown
-              className={`w-5 h-5 transform transition-transform ${
-                open ? 'rotate-180' : 'rotate-0'
-              }`}
-            />
-          </Disclosure.Button>
-          <Disclosure.Panel className="px-4 pb-4 space-y-4">
-            {children}
-          </Disclosure.Panel>
-        </>
+    <div className="rounded-xl border border-gray-100 overflow-hidden bg-white">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+      >
+        <span>{title}</span>
+        <ChevronDown
+          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {open && (
+        <div className="px-4 pb-4 pt-2 space-y-4 border-t border-gray-50">
+          {children}
+        </div>
       )}
-    </Disclosure>
+    </div>
   );
 }
