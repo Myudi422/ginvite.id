@@ -1,5 +1,5 @@
 // app/layout.tsx
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Script from 'next/script';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -9,6 +9,13 @@ import WhatsAppButton from './wa'; // Import the new component
 
 // Google Tag Manager and Facebook Pixel Configuration
 const GTM_ID = 'GTM-TBLT72Q4'; // Updated GTM ID
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: 'Papunda | Buat Undangan Digital Gratis',
@@ -138,7 +145,7 @@ export default function RootLayout({
           `}
         </Script>
 
-        <Script 
+        <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1587740600496860"
           strategy="lazyOnload"
           crossOrigin="anonymous"
@@ -151,7 +158,7 @@ export default function RootLayout({
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-            height="0" width="0" style={{ display: 'none', visibility: 'hidden' }}/>
+            height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
         </noscript>
 
         <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
