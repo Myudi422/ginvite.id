@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { ChevronLeftIcon } from 'lucide-react';
+import { ChevronLeftIcon, ExternalLink } from 'lucide-react';
 import jwt from 'jsonwebtoken';
 import { PernikahanForm } from './PernikahanForm';
 import { KhitananForm } from './KhitananForm';
@@ -11,7 +11,7 @@ const SECRET = 'very-secret-key';
 
 interface PageProps {
   params: {
-    invitationId: string; // tetapkan nama invitationId untuk mendapatkan userId
+    invitationId: string;
     title: string;
   };
 }
@@ -31,14 +31,13 @@ export default async function Page({ params }: PageProps) {
   } catch (error) {
     return redirect('/login');
   }
-  const jwtUserId = payload.data.userId as number;
 
   // 2) Fetch record
   const res = await fetch(
     `https://ccgnimex.my.id/v2/android/ginvite/index.php` +
-      `?action=get_content_user` +
-      `&user_id=${userIdParam}` +
-      `&title=${encodeURIComponent(title)}`,
+    `?action=get_content_user` +
+    `&user_id=${userIdParam}` +
+    `&title=${encodeURIComponent(title)}`,
     { cache: 'no-store' }
   );
   if (!res.ok) {
@@ -47,7 +46,6 @@ export default async function Page({ params }: PageProps) {
   }
   const json = await res.json();
   if (json.status !== 'success' || !json.data.length) {
-    console.log(`Data undangan "${title}" untuk user ${userIdParam} tidak ditemukan.`);
     return redirect('/admin');
   }
 
@@ -58,7 +56,6 @@ export default async function Page({ params }: PageProps) {
   try {
     contentData = JSON.parse(record.content);
   } catch (error) {
-    console.error('Gagal mem-parsing data undangan:', error);
     return <p className="text-red-600">Gagal mem-parsing data undangan.</p>;
   }
 
@@ -77,19 +74,17 @@ export default async function Page({ params }: PageProps) {
       },
       akad: eventRaw.akad
         ? {
-            date: eventRaw.akad.date,
-            note: eventRaw.akad.note,
-            time: eventRaw.akad.time,
-            location: eventRaw.akad.location,
-            mapsLink: eventRaw.akad.mapsLink,
-          }
+          date: eventRaw.akad.date,
+          note: eventRaw.akad.note,
+          time: eventRaw.akad.time,
+          location: eventRaw.akad.location,
+          mapsLink: eventRaw.akad.mapsLink,
+        }
         : undefined,
     };
-    // Exclude event from contentData
     const { event, ...rest } = contentData;
     restContentData = rest;
   } else if (record.category_name === 'khitanan') {
-    // Sesuaikan struktur sesuai kebutuhan form Khitanan
     const eventRaw = contentData.event || {};
     initialEventData = {
       khitanan: {
@@ -97,65 +92,86 @@ export default async function Page({ params }: PageProps) {
         time: eventRaw.khitanan?.time ?? '',
         location: eventRaw.khitanan?.location ?? '',
         mapsLink: eventRaw.khitanan?.mapsLink ?? '',
-      }
+      },
     };
-    // Exclude event from contentData
     const { event, ...rest } = contentData;
     restContentData = rest;
   } else {
-    // Default
-    initialEventData = {};
     restContentData = contentData;
   }
 
-  // 5) Choose FormComponent berdasarkan jenis acara
+  // 5) Choose FormComponent
   let FormComponent: React.ComponentType<any> | null = null;
-  if (record.category_name === 'pernikahan') {
-    FormComponent = PernikahanForm;
-  } else if (record.category_name === 'khitanan') {
-    FormComponent = KhitananForm;
-  } else {
-    FormComponent = null;
-  }
+  if (record.category_name === 'pernikahan') FormComponent = PernikahanForm;
+  else if (record.category_name === 'khitanan') FormComponent = KhitananForm;
 
-  // 6) Preview URL
+  // 6) URLs
   const previewUrl = `/undang/${record.user_id}/${encodeURIComponent(record.title)}`;
+  const decodedTitle = decodeURIComponent(title).replace(/-/g, ' ');
+  const categoryEmoji = record.category_name === 'pernikahan' ? '💒' : record.category_name === 'khitanan' ? '🎉' : '✨';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* BACK HEADER */}
-      <div className="flex items-center bg-white shadow p-4">
-        <Link href="/admin" className="p-2 rounded hover:bg-gray-100">
-          <ChevronLeftIcon className="h-6 w-6 text-pink-600" />
-        </Link>
-        <h1 className="ml-4 text-lg font-semibold text-gray-800">
-          Formulir Undangan – {decodeURIComponent(title)}
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
+
+      {/* ── Sticky Header ── */}
+      <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-pink-100 shadow-sm">
+        <div className="flex items-center gap-3 px-4 py-3 max-w-7xl mx-auto">
+          <Link href="/admin" className="p-2 rounded-xl hover:bg-pink-50 transition-colors flex-shrink-0">
+            <ChevronLeftIcon className="h-5 w-5 text-pink-600" />
+          </Link>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">Edit Undangan</p>
+            <h1 className="text-sm font-bold text-gray-800 truncate capitalize">{decodedTitle}</h1>
+          </div>
+          <a
+            href={previewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 text-xs font-semibold hover:bg-pink-100 transition-colors flex-shrink-0"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Preview</span>
+          </a>
+        </div>
       </div>
 
-      <div className="py-2 px-2">
-        <div className="flex flex-col lg:flex-row items-stretch h-full max-w-7xl mx-auto gap-4">
-          {/* Live Preview dengan toggle */}
+      {/* ── Main Layout ── */}
+      <div className="py-4 px-3 pb-10 max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row items-stretch gap-5">
+
+          {/* Live Preview panel */}
           <LivePreview previewUrl={previewUrl} />
 
-          {/* Form */}
-          <div className="order-last lg:order-first w-full lg:w-1/2 bg-white shadow-md rounded-lg p-6 flex flex-col">
-            {FormComponent ? (
-              <FormComponent
-                previewUrl={previewUrl}
-                userId={record.user_id}
-                invitationId={record.id}
-                initialSlug={record.title}
-                contentData={restContentData}
-                initialStatus={record.status}
-                initialEventData={initialEventData}
-              />
-            ) : (
-              <p className="text-yellow-500">
-                Form untuk jenis acara “{record.category_name}” belum tersedia.
-              </p>
-            )}
+          {/* Form panel */}
+          <div className="order-last lg:order-first w-full lg:w-1/2 bg-white shadow-sm rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+            {/* Form panel header */}
+            <div className="px-5 py-4 bg-gradient-to-r from-blue-100 to-blue-50 border-b border-pink-100 flex-shrink-0">
+              <p className="text-[10px] text-pink-500 font-semibold uppercase tracking-widest">Formulir Undangan</p>
+              <h2 className="font-bold text-gray-800 text-sm mt-0.5">{categoryEmoji} {record.category_name === 'pernikahan' ? 'Undangan Pernikahan' : record.category_name === 'khitanan' ? 'Undangan Khitanan' : record.category_name}</h2>
+              <p className="text-xs text-gray-400 mt-1">Isi setiap bagian — tiap bagian simpan sendiri secara otomatis. ✏️</p>
+            </div>
+
+            {/* Form body */}
+            <div className="p-4 flex-1">
+              {FormComponent ? (
+                <FormComponent
+                  previewUrl={previewUrl}
+                  userId={record.user_id}
+                  invitationId={record.id}
+                  initialSlug={record.title}
+                  contentData={restContentData}
+                  initialStatus={record.status}
+                  initialEventData={initialEventData}
+                />
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-3xl mb-3">🚧</p>
+                  <p className="text-amber-600 font-medium text-sm">Form untuk jenis acara "{record.category_name}" belum tersedia.</p>
+                </div>
+              )}
+            </div>
           </div>
+
         </div>
       </div>
     </div>

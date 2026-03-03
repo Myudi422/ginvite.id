@@ -78,8 +78,15 @@ try {
     
     $content_json_string = $content_user_data['content'] ?? '{}'; // Get content and default to empty JSON object
 
-    // Initialize QR to false
     $QR = false;
+
+$content_data = json_decode($content_json_string, true);
+
+if (json_last_error() === JSON_ERROR_NONE) {
+    if (isset($content_data['plugin']['qrcode']) && $content_data['plugin']['qrcode'] === true) {
+        $QR = true;
+    }
+}
 
     // Decode the content JSON
     $content_data = json_decode($content_json_string, true);

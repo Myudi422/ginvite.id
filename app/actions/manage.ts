@@ -20,7 +20,7 @@ export async function getManageData(userId: string, title: string): Promise<Mana
   // Get current user email from token
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
-  
+
   let currentUserEmail = '';
   if (token) {
     try {
@@ -30,14 +30,14 @@ export async function getManageData(userId: string, title: string): Promise<Mana
       // Token invalid, continue without current user
     }
   }
-  
+
   const url = new URL(`${MANAGE_API_URL}?action=get_manage`);
   url.searchParams.append('user_id', userId);
   url.searchParams.append('title', title);
   if (currentUserEmail) {
     url.searchParams.append('current_user_email', currentUserEmail);
   }
-  
+
   const res = await fetch(url.toString());
 
   if (!res.ok) {

@@ -56,7 +56,7 @@ export function KhitananForm({
         instagramUsername: ''
       }
     ],
-    plugin: { rsvp: false, navbar: false, gift: false,  whatsapp_notif: false },
+    plugin: { rsvp: false, navbar: false, gift: false, whatsapp_notif: false },
     bank_transfer: { enabled: false, account_name: '', account_number: '', bank_name: '' },
     music: { enabled: false, url: '' },
     quote: '',
@@ -68,15 +68,15 @@ export function KhitananForm({
   console.log('initialEventData', initialEventData);
 
   const { khitanan: initKhitanan } = initialEventData || {};
-  
+
   // Ensure children has default values if empty or missing
   const processedContentData = {
     ...contentData,
-    children: contentData.children && contentData.children.length > 0 
-      ? contentData.children 
+    children: contentData.children && contentData.children.length > 0
+      ? contentData.children
       : defaultValues.children
   };
-  
+
   const initialValues: FormValues = {
     ...defaultValues,
     ...processedContentData,
@@ -106,7 +106,7 @@ export function KhitananForm({
 
   // Watch form changes for auto refresh
   const watchedValues = form.watch();
-  
+
   // Only refresh iframe ONCE on mount, with debug log
   const didReloadRef = useRef(false);
   const isInitialMount = useRef(true);
@@ -127,7 +127,7 @@ export function KhitananForm({
       isInitialMount.current = false;
       return;
     }
-    
+
     // Trigger auto refresh when form data changes
     triggerAutoRefresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -151,36 +151,36 @@ export function KhitananForm({
   };
 
   // save content
- const onSave = async () => {
-  setSaving(true);
-  setError(null);
+  const onSave = async () => {
+    setSaving(true);
+    setError(null);
 
-  try {
-    const data = form.getValues();
-    console.log('Form data before save (Khitanan):', data); // Debug log
-    console.log('Children data (Khitanan):', data.children); // Debug children specifically
-    
-    const jumlah = (data.plugin.gift || data.plugin.whatsapp_notif) ? 100000 : 40000;
-    const payload = {
-      user_id: userId,
-      id: invitationId,
-      title: inputSlug,
-      theme_id: data.theme,
-      content: JSON.stringify({ ...data, event: data.event, jumlah }),
-    };
+    try {
+      const data = form.getValues();
+      console.log('Form data before save (Khitanan):', data); // Debug log
+      console.log('Children data (Khitanan):', data.children); // Debug children specifically
 
-    console.log('Payload to save (Khitanan):', payload); // Debug payload
-    const result = await saveContentAction(payload);
-    setStatus(result.status as 0 | 1);
-    setSlug(inputSlug);
-    refreshPreview();
-    router.replace(`/admin/formulir/${userId}/${encodeURIComponent(inputSlug)}`);
-  } catch (err: any) {
-    setError(err.message);
-  } finally {
-    setSaving(false);
-  }
-};
+      const jumlah = (data.plugin.gift || data.plugin.whatsapp_notif) ? 100000 : 40000;
+      const payload = {
+        user_id: userId,
+        id: invitationId,
+        title: inputSlug,
+        theme_id: data.theme,
+        content: JSON.stringify({ ...data, event: data.event, jumlah }),
+      };
+
+      console.log('Payload to save (Khitanan):', payload); // Debug payload
+      const result = await saveContentAction(payload);
+      setStatus(result.status as 0 | 1);
+      setSlug(inputSlug);
+      refreshPreview();
+      router.replace(`/admin/formulir/${userId}/${encodeURIComponent(inputSlug)}`);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // refresh preview iframe (now triggers LivePreview component)
   const refreshPreview = () => {
@@ -194,161 +194,216 @@ export function KhitananForm({
   };
 
   const onToggle = async () => {
-  setSaving(true);
-  setError(null);
+    setSaving(true);
+    setError(null);
 
-  try {
-    if (status === 0) {
-      const mjson = await midtransAction({
-        user_id: userId,
-        id_content: invitationId,
-        title: slug,
-      });
+    try {
+      if (status === 0) {
+        const mjson = await midtransAction({
+          user_id: userId,
+          id_content: invitationId,
+          title: slug,
+        });
 
-      if (mjson.status === 'paid') {
+        if (mjson.status === 'paid') {
+          const toggled = await toggleStatusAction({
+            user_id: userId,
+            id: invitationId,
+            title: slug,
+            status: 1,
+          });
+          setStatus(toggled.status);
+          refreshPreview();
+        } else {
+          // pending -> buka Snap
+          // @ts-ignore
+          window.snap.pay(mjson.snap_token, {
+            onSuccess: async () => {
+              const toggled = await toggleStatusAction({
+                user_id: userId,
+                id: invitationId,
+                title: slug,
+                status: 1,
+              });
+              setStatus(toggled.status);
+              refreshPreview();
+            },
+            onError: (e: any) => setError('Pembayaran gagal: ' + e),
+          });
+        }
+      } else {
+        // jika sudah aktif, langsung non-aktifkan
         const toggled = await toggleStatusAction({
           user_id: userId,
           id: invitationId,
           title: slug,
-          status: 1,
+          status: 0,
         });
         setStatus(toggled.status);
         refreshPreview();
-      } else {
-        // pending -> buka Snap
-        // @ts-ignore
-        window.snap.pay(mjson.snap_token, {
-          onSuccess: async () => {
-            const toggled = await toggleStatusAction({
-              user_id: userId,
-              id: invitationId,
-              title: slug,
-              status: 1,
-            });
-            setStatus(toggled.status);
-            refreshPreview();
-          },
-          onError: (e: any) => setError('Pembayaran gagal: ' + e),
-        });
       }
-    } else {
-      // jika sudah aktif, langsung non-aktifkan
-      const toggled = await toggleStatusAction({
-        user_id: userId,
-        id: invitationId,
-        title: slug,
-        status: 0,
-      });
-      setStatus(toggled.status);
-      refreshPreview();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
     }
-  } catch (err: any) {
-    setError(err.message);
-  } finally {
-    setSaving(false);
-  }
-};
+  };
+
+  const SectionHeader = ({ num, title, desc }: { num: number; title: string; desc: string }) => (
+    <div className="flex items-start gap-3 mb-4">
+      <div className="w-7 h-7 rounded-full bg-pink-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{num}</div>
+      <div>
+        <p className="text-sm font-semibold text-gray-800">{title}</p>
+        <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+      </div>
+    </div>
+  );
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={e => e.preventDefault()} className="space-y-6">
-        <FormField
-          name="slug"
-          control={form.control}
-          render={() => (
-            <FormItem>
-              <FormLabel>Judul URL (Yang dibagikan)</FormLabel>
-              <div className="flex items-center space-x-2">
-                <FormControl>
-                  <Input
-                    placeholder="Masukkan slug undangan Anda"
-                    className="flex-1"
-                    required                         // <-- HTML5 required
-                    value={inputSlug}
-                    disabled // <-- ADD THIS LINE TO DISABLE THE INPUT
-                    onChange={e => {
-                      const raw = e.target.value
-                      const newSlug = raw
-                        .toLowerCase()
-                        .replace(/[^a-z0-9\s-]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace(/-+/g, '-')
-                      setInputSlug(newSlug)
-                      form.setValue('slug', newSlug, {
-                        shouldValidate: true,
-                        shouldDirty: true
-                      })
-                    }}
-                  />
-                </FormControl>
+      <form onSubmit={e => e.preventDefault()} className="space-y-1">
 
-                {/* Copy */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!inputSlug}            // <-- disable if empty
-                  onClick={() => {
-                    const slugVal = inputSlug
-                    const url = `papunda.com/undang/${userId}/${encodeURIComponent(slugVal)}`
-                    navigator.clipboard.writeText(url)
-                    alert('Tautan berhasil disalin!')
-                  }}
-                >
-                  <FiCopy size={16} />
-                </Button>
-
-                {/* Open in new tab */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!inputSlug}            // <-- disable if empty
-                  onClick={() => {
-                    const slugVal = inputSlug
-                    const fullUrl = `https://papunda.com/undang/${userId}/${encodeURIComponent(slugVal)}`
-                    window.open(fullUrl, '_blank')
-                  }}
-                >
-                  <FiExternalLink size={16} />
-                </Button>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-
-        <ThemeSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
-        <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
-        <EventSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
-        <QoutesSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
-        <GallerySection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
-        <ParentsSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
-        <ChildrenSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
-        <BankTransferSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
-        <MusicSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug}/>
-        <PluginSection
-          userId={userId}
-          invitationId={invitationId}
-          slug={inputSlug}
-          onSavedSlug={slug}
-          onStatusChange={newStatus => {
-            setStatus(newStatus);
-            refreshPreview();
-          }}
-        />
-        <TurutSection 
-          userId={userId} 
-          invitationId={invitationId} 
-          slug={inputSlug} 
-          onSavedSlug={slug} 
-        />
-
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={onSave} disabled={saving}>{saving ? 'Menyimpan…' : 'Simpan'}</Button>
-          <Button onClick={onToggle} disabled={saving}>{status === 1 ? 'Non-aktifkan' : 'Aktifkan'}</Button>
+        {/* URL Undangan */}
+        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4">
+          <p className="text-xs font-semibold text-blue-600 mb-1">🔗 Link Undangan</p>
+          <FormField
+            name="slug"
+            control={form.control}
+            render={() => (
+              <FormItem>
+                <FormLabel className="text-xs text-blue-700">URL yang dibagikan ke tamu</FormLabel>
+                <div className="flex items-center gap-2">
+                  <FormControl>
+                    <Input
+                      placeholder="Masukkan slug undangan"
+                      className="flex-1 text-sm bg-white"
+                      value={inputSlug}
+                      disabled
+                      onChange={e => {
+                        const raw = e.target.value;
+                        const newSlug = raw.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+                        setInputSlug(newSlug);
+                        form.setValue('slug' as any, newSlug, { shouldValidate: true, shouldDirty: true });
+                      }}
+                    />
+                  </FormControl>
+                  <Button variant="outline" size="sm" disabled={!inputSlug}
+                    onClick={() => { navigator.clipboard.writeText(`papunda.com/undang/${userId}/${encodeURIComponent(inputSlug)}`); alert('Tautan berhasil disalin!'); }}>
+                    <FiCopy size={14} />
+                  </Button>
+                  <Button variant="outline" size="sm" disabled={!inputSlug}
+                    onClick={() => window.open(`https://papunda.com/undang/${userId}/${encodeURIComponent(inputSlug)}`, '_blank')}>
+                    <FiExternalLink size={14} />
+                  </Button>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        {error && <p className="text-red-600">Error: {error}</p>}
+        {/* Status badge */}
+        <div className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl mb-4 text-sm font-medium ${status === 1 ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-amber-50 border border-amber-200 text-amber-700'}`}>
+          <span className={`w-2 h-2 rounded-full ${status === 1 ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+          {status === 1 ? '✅ Undangan aktif & bisa diakses tamu' : '⏸ Belum aktif — klik "Aktifkan" setelah selesai mengisi'}
+        </div>
+
+        {/* 1. Tema */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={1} title="Pilih Tema" desc="Pilih desain tampilan undangan kamu" />
+          <ThemeSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 2. Font */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={2} title="Gaya Tulisan" desc="Pilih font untuk judul, isi, dan nama anak" />
+          <FontSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 3. Jadwal Acara */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={3} title="Jadwal Acara" desc="Tanggal, waktu, dan lokasi khitanan" />
+          <EventSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 4. Kutipan */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={4} title="Kutipan / Ayat" desc="Kata-kata indah yang ditampilkan di undangan" />
+          <QoutesSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 5. Galeri Foto */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={5} title="Galeri Foto" desc="Foto-foto yang ditampilkan di undangan" />
+          <GallerySection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 6. Orang Tua */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={6} title="Nama Orang Tua" desc="Nama ayah & ibu yang mengadakan khitanan" />
+          <ParentsSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 7. Data Anak */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={7} title="Data Anak" desc="Nama lengkap, panggilan, dan foto anak" />
+          <ChildrenSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 8. Gift / Transfer */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={8} title="Gift & Transfer" desc="Rekening untuk tamu yang ingin memberikan hadiah" />
+          <BankTransferSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 9. Musik */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={9} title="Musik Latar" desc="Musik yang diputar saat tamu membuka undangan" />
+          <MusicSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* 10. Plugin */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={10} title="Plugin & Fitur" desc="Aktifkan fitur tambahan: RSVP, QR, Notifikasi WA, dll" />
+          <PluginSection
+            userId={userId}
+            invitationId={invitationId}
+            slug={inputSlug}
+            onSavedSlug={slug}
+            onStatusChange={newStatus => { setStatus(newStatus); refreshPreview(); }}
+          />
+        </div>
+
+        {/* 11. Turut Mengundang */}
+        <div className="border border-gray-100 rounded-2xl p-4 bg-white mb-3">
+          <SectionHeader num={11} title="Turut Mengundang" desc="Nama pihak lain yang turut mengundang (opsional)" />
+          <TurutSection userId={userId} invitationId={invitationId} slug={inputSlug} onSavedSlug={slug} />
+        </div>
+
+        {/* ── Sticky Action Buttons ── */}
+        <div className="sticky bottom-0 bg-white/90 backdrop-blur-md border-t border-gray-100 -mx-4 px-4 py-4 flex flex-col sm:flex-row gap-3 mt-6">
+          <Button
+            variant="outline"
+            onClick={onSave}
+            disabled={saving}
+            className="flex-1 border-pink-200 text-pink-600 hover:bg-pink-50 rounded-xl"
+          >
+            {saving ? '⏳ Menyimpan…' : '💾 Simpan Perubahan'}
+          </Button>
+          <Button
+            onClick={onToggle}
+            disabled={saving}
+            className={`flex-1 rounded-xl font-semibold ${status === 1 ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 shadow-md'}`}
+          >
+            {status === 1 ? '⏸ Non-aktifkan' : '🚀 Aktifkan Undangan'}
+          </Button>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600">
+            ⚠️ {error}
+          </div>
+        )}
       </form>
     </FormProvider>
   );
