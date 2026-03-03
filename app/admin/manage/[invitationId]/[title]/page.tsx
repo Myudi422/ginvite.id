@@ -12,9 +12,78 @@ import {
   QrCode,
   Wallet,
   Mails,
+  TrendingUp,
+  Lock,
+  ChevronRight,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getManageData, type ManageData } from '@/app/actions/manage';
+
+// ─── Stat Card ───
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  gradient,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  gradient: string;
+}) {
+  return (
+    <div className={`rounded-2xl p-4 text-white ${gradient} shadow-md`}>
+      <div className="bg-white/20 rounded-xl p-2 w-fit mb-3">
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="text-2xl font-bold">{value}</p>
+      <p className="text-xs text-white/75 mt-1">{label}</p>
+    </div>
+  );
+}
+
+// ─── Action Button ───
+function ActionButton({
+  icon: Icon,
+  label,
+  sublabel,
+  onClick,
+  locked,
+  gradient,
+}: {
+  icon: React.ElementType;
+  label: string;
+  sublabel?: string;
+  onClick: () => void;
+  locked?: boolean;
+  gradient?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={locked}
+      className={`group relative flex items-center gap-4 w-full rounded-2xl p-4 text-left shadow-sm border transition-all duration-200
+        ${locked
+          ? 'bg-gray-100 border-gray-200 cursor-not-allowed opacity-60'
+          : `${gradient ?? 'bg-white border-gray-100'} hover:shadow-md hover:-translate-y-0.5`
+        }`}
+    >
+      <div className={`rounded-xl p-3 flex-shrink-0 ${locked ? 'bg-gray-200 text-gray-400' : 'bg-pink-100 text-pink-600 group-hover:bg-pink-500 group-hover:text-white transition-colors'}`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className={`font-semibold text-sm ${locked ? 'text-gray-400' : 'text-gray-800'}`}>{label}</p>
+        {sublabel && <p className="text-xs text-gray-400 mt-0.5">{sublabel}</p>}
+        {locked && (
+          <span className="inline-flex items-center gap-1 text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full mt-1">
+            <Lock className="h-3 w-3" /> Fitur terkunci
+          </span>
+        )}
+      </div>
+      {!locked && <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-pink-500 flex-shrink-0 transition-colors" />}
+    </button>
+  );
+}
 
 export default function ManagePage() {
   const router = useRouter();
@@ -22,7 +91,6 @@ export default function ManagePage() {
     invitationId: string;
     title: string;
   };
-  // Kita perlu encodeURIComponent untuk dipakai di URL fetch & route‐link
   const slug = encodeURIComponent(title!);
   const userId = invitationId;
 
@@ -48,20 +116,27 @@ export default function ManagePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-pink-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 flex justify-center items-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-pink-200 border-t-pink-500" />
+          <p className="text-sm text-gray-500">Memuat data...</p>
+        </div>
       </div>
     );
   }
+
   if (error) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        <div className="text-center p-6 bg-white rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-red-500 mb-2">Terjadi Kesalahan</h2>
-          <p className="text-gray-700">{error}</p>
+      <div className="min-h-screen flex justify-center items-center bg-pink-50">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-md max-w-sm w-full mx-4">
+          <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">⚠️</span>
+          </div>
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">Terjadi Kesalahan</h2>
+          <p className="text-sm text-gray-500 mb-5">{error}</p>
           <button
             onClick={() => router.back()}
-            className="mt-4 px-4 py-2 bg-pink-500 text-white rounded"
+            className="px-6 py-2 bg-pink-500 text-white rounded-xl text-sm font-medium hover:bg-pink-600 transition-colors"
           >
             Kembali
           </button>
@@ -69,126 +144,132 @@ export default function ManagePage() {
       </div>
     );
   }
+
   if (!manageData) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        Data Tidak Ditemukan
+      <div className="min-h-screen flex justify-center items-center bg-pink-50">
+        <p className="text-gray-500">Data tidak ditemukan.</p>
       </div>
     );
   }
 
-  const { id_content_user, view, total_nominal_bank_transfer, jumlah_konfirmasi } = manageData;
+  const { view, total_nominal_bank_transfer, jumlah_konfirmasi } = manageData;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex items-center bg-white shadow p-4">
-        <button onClick={() => router.back()} className="p-2 rounded hover:bg-gray-100">
-          <ChevronLeft className="h-6 w-6 text-pink-600" />
-        </button>
-        <h1 className="ml-4 text-lg font-semibold text-gray-800">
-          Manage Undangan – {decodeURIComponent(title!)}
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-pink-100 shadow-sm">
+        <div className="flex items-center p-4 max-w-5xl mx-auto">
+          <button
+            onClick={() => router.back()}
+            className="p-2 rounded-xl hover:bg-pink-50 transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5 text-pink-600" />
+          </button>
+          <div className="ml-3 min-w-0">
+            <h1 className="text-base font-bold text-gray-800 truncate">Manage Undangan</h1>
+            <p className="text-xs text-pink-500 truncate">{decodeURIComponent(title!)}</p>
+          </div>
+        </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="max-w-5xl mx-auto p-4 md:px-8 pb-10 space-y-6">
 
-        <div className="bg-white shadow rounded-2xl p-4 flex items-center space-x-4">
-          <Wallet className="h-8 w-8 text-pink-600" />
-          <div>
-            <p className="text-sm text-gray-600">Gift yang Didapatkan</p>
-            <p className="text-2xl font-bold text-gray-800">
-              Rp{total_nominal_bank_transfer.toLocaleString('id-ID')}
-            </p>
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatCard
+            icon={Eye}
+            label="Total Dilihat"
+            value={view}
+            gradient="bg-gradient-to-br from-pink-500 to-rose-500"
+          />
+          <StatCard
+            icon={ThumbsUp}
+            label="Bersedia Hadir"
+            value={jumlah_konfirmasi.hadir}
+            gradient="bg-gradient-to-br from-emerald-400 to-teal-500"
+          />
+          <StatCard
+            icon={User}
+            label="Tidak Hadir"
+            value={jumlah_konfirmasi.tidak_hadir}
+            gradient="bg-gradient-to-br from-orange-400 to-amber-500"
+          />
+          <StatCard
+            icon={Wallet}
+            label="Gift Terkumpul"
+            value={`Rp ${total_nominal_bank_transfer.toLocaleString('id-ID')}`}
+            gradient="bg-gradient-to-br from-violet-500 to-purple-500"
+          />
+        </div>
+
+        {/* Info Banner */}
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl">
+          <Calendar className="h-5 w-5 flex-shrink-0 mt-0.5" />
+          <p className="text-sm">
+            Untuk mengaktifkan plugin yang terkunci, silahkan ubah di <strong>Edit Formulir</strong> dan lakukan pembayaran.
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-1">Menu Utama</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <ActionButton
+              icon={ClipboardList}
+              label="Edit Formulir"
+              sublabel="Ubah data, tema, dan konten undangan"
+              onClick={() => router.push(`/admin/formulir/${invitationId}/${slug}`)}
+            />
+            <ActionButton
+              icon={User}
+              label="Data Tamu"
+              sublabel="Lihat RSVP, transfer, dan kehadiran"
+              onClick={() => router.push(`/admin/manage/${invitationId}/${slug}/data-tamu`)}
+            />
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl h-40 bg-white shadow">
-          <div className="absolute inset-0 bg-[url('/sample-bg.jpg')] bg-cover bg-center opacity-20" />
-          <div className="relative z-10 flex justify-around items-center h-full">
-            {[
-              { icon: Eye, label: 'Dilihat', value: view },
-              { icon: ThumbsUp, label: 'Bersedia', value: jumlah_konfirmasi.hadir },
-              { icon: User, label: 'Tidak Hadir', value: jumlah_konfirmasi.tidak_hadir },
-            ].map(({ icon: Icon, label, value }) => (
-              <div key={label} className="text-center">
-                <Icon className="mx-auto h-8 w-8 text-pink-600" />
-                <p className="mt-2 text-sm text-gray-600">{label}</p>
-                <p className="mt-1 text-2xl font-bold text-gray-800">{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 bg-pink-50 border-l-4 border-pink-400 text-pink-800 p-4 rounded">
-          <Calendar className="h-5 w-5" />
-          <p>Untuk Mengaktifkan Plugin yang terkunci, silahkan ubah di formulir dan lakukan payment.</p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => router.push(`/admin/formulir/${invitationId}/${slug}`)}
-            className="flex flex-col items-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700"
-          >
-            <ClipboardList className="h-8 w-8 mb-2" />
-            <span className="font-semibold">Edit Formulir</span>
-          </button>
-          <button
-            onClick={() => router.push(`/admin/manage/${invitationId}/${slug}/data-tamu`)}
-            className="flex flex-col items-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700"
-          >
-            <User className="h-8 w-8 mb-2" />
-            <span className="font-semibold">Data Tamu</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <button
-            onClick={() => router.push(`/admin/manage/${invitationId}/${slug}/bulk`)}
-            className="flex flex-col items-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700"
-          >
-            <Mails className="h-8 w-8 mb-2" />
-            <span className="font-semibold">Bulk Undangan</span>
-          </button>
-          <button
-            onClick={() => router.push(`/admin/manage/${invitationId}/${slug}/rundown`)}
-            className="flex flex-col items-center bg-pink-600 text-white rounded-lg p-6 hover:bg-pink-700"
-          >
-            <ListChecks className="h-8 w-8 mb-2" />
-            <span className="font-semibold">Rundown Generate</span>
-          </button>
-          <button
-            onClick={async () => {
-              if (!manageData.QR) return;
-              
-              try {
-                // Verify QR access again before navigation
-                const res = await fetch(
-                  `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_manage&user_id=${userId}&title=${slug}`
-                );
-                const json = await res.json();
-                
-                if (json.status === 'success' && json.data?.QR) {
-                  router.push(`/admin/manage/${invitationId}/${slug}/qr-code`);
-                } else {
-                  alert('Fitur QR Code belum diaktifkan');
+        <div>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-1">Fitur Plugin</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <ActionButton
+              icon={Mails}
+              label="Bulk Undangan"
+              sublabel="Kirim undangan ke banyak tamu"
+              onClick={() => router.push(`/admin/manage/${invitationId}/${slug}/bulk`)}
+            />
+            <ActionButton
+              icon={ListChecks}
+              label="Rundown Generate"
+              sublabel="Buat susunan acara otomatis"
+              onClick={() => router.push(`/admin/manage/${invitationId}/${slug}/rundown`)}
+            />
+            <ActionButton
+              icon={QrCode}
+              label="QR Code Manage"
+              sublabel="Scan kehadiran tamu via QR"
+              locked={!manageData.QR}
+              onClick={async () => {
+                if (!manageData.QR) return;
+                try {
+                  const res = await fetch(
+                    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_manage&user_id=${userId}&title=${slug}`
+                  );
+                  const json = await res.json();
+                  if (json.status === 'success' && json.data?.QR) {
+                    router.push(`/admin/manage/${invitationId}/${slug}/qr-code`);
+                  } else {
+                    alert('Fitur QR Code belum diaktifkan');
+                  }
+                } catch {
+                  alert('Terjadi kesalahan saat mengakses QR Code');
                 }
-              } catch (err) {
-                alert('Terjadi kesalahan saat mengakses QR Code');
-              }
-            }}
-            className={`flex flex-col items-center rounded-lg p-6 ${
-              manageData.QR 
-                ? 'bg-pink-600 text-white hover:bg-pink-700' 
-                : 'bg-gray-300 text-gray-600 cursor-not-allowed'
-            }`}
-          >
-            <QrCode className="h-8 w-8 mb-2" />
-            <span className="font-semibold">QR CODE Manage</span>
-            {!manageData.QR && (
-              <span className="text-xs mt-1">🔒 Terkunci</span>
-            )}
-          </button>
+              }}
+            />
+          </div>
         </div>
+
       </div>
     </div>
   );
