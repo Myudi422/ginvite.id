@@ -80,7 +80,7 @@ export default function WeddingPlannerPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white">
+        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white overflow-x-hidden">
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
                 <div className="flex items-center p-4 max-w-5xl mx-auto">
@@ -110,7 +110,7 @@ export default function WeddingPlannerPage() {
                         <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden mb-4">
                             <div className="h-2.5 rounded-full bg-white transition-all duration-1000" style={{ width: `${overallPct}%` }} />
                         </div>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             <div className="bg-white/15 rounded-2xl p-3 text-center backdrop-blur-sm">
                                 <p className="text-lg font-bold">{loading ? '—' : (summary?.vendor_count ?? 0)}</p>
                                 <p className="text-[10px] text-rose-200 mt-0.5">Vendor</p>

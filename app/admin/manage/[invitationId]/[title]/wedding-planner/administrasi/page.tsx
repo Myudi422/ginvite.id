@@ -62,7 +62,7 @@ export default function AdministrasiPage() {
     if (loading) return <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50 flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-4 border-amber-200 border-t-amber-500" /></div>;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50">
+        <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50 overflow-x-hidden">
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-amber-100 shadow-sm">
                 <div className="flex items-center justify-between p-4 max-w-5xl mx-auto">
                     <div className="flex items-center gap-2">

@@ -81,7 +81,7 @@ export default function BudgetPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white">
+        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white overflow-x-hidden">
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
                 <div className="flex items-center p-4 max-w-5xl mx-auto">
@@ -130,7 +130,7 @@ export default function BudgetPage() {
                         </div>
 
                         {/* Stats row */}
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             <div className="bg-white/15 rounded-2xl p-3 text-center backdrop-blur-sm">
                                 <p className="text-base font-bold">{fmt(totalSpent)}</p>
                                 <p className="text-[10px] text-rose-200 mt-0.5">Terpakai</p>
@@ -199,13 +199,13 @@ export default function BudgetPage() {
                                             <div key={idx} className="flex items-center justify-between px-4 py-2.5 hover:bg-rose-50/40 transition-colors">
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm text-gray-700 truncate">{name}</p>
-                                                    {item.category && <p className="text-xs text-gray-400">{item.category as string}</p>}
+                                                    {item.category && <p className="text-xs text-gray-400">{String(item.category)}</p>}
                                                     {item.status && (
                                                         <span className={`inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full font-medium ${item.status === 'lunas' ? 'bg-emerald-100 text-emerald-700' :
                                                             item.status === 'dp' ? 'bg-amber-100 text-amber-700' :
                                                                 item.status === 'booking' ? 'bg-blue-100 text-blue-700' :
                                                                     'bg-gray-100 text-gray-600'
-                                                            }`}>{item.status as string}</span>
+                                                            }`}>{String(item.status)}</span>
                                                     )}
                                                 </div>
                                                 <div className="flex items-center gap-2 flex-shrink-0">

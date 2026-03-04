@@ -63,7 +63,7 @@ export default function VendorPage() {
     if (loading) return <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 flex items-center justify-center"><div className="animate-spin rounded-full h-10 w-10 border-4 border-rose-200 border-t-rose-500" /></div>;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white">
+        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white overflow-x-hidden">
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
                 <div className="flex items-center justify-between p-4 max-w-5xl mx-auto">
                     <div className="flex items-center gap-2">
@@ -81,7 +81,7 @@ export default function VendorPage() {
 
             <div className="max-w-5xl mx-auto p-4 pb-10 space-y-4">
                 {/* Status Filter */}
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
                         const count = vendors.filter(v => v.status === key).length;
                         return (
