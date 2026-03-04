@@ -83,7 +83,7 @@ export default function WeddingPlannerPage() {
         <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white">
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
-                <div className="flex items-center p-4 max-w-2xl mx-auto">
+                <div className="flex items-center p-4 max-w-5xl mx-auto">
                     <button onClick={() => router.back()} className="p-2 rounded-xl hover:bg-rose-50 transition-colors">
                         <ChevronLeft className="h-5 w-5 text-rose-500" />
                     </button>
@@ -94,7 +94,7 @@ export default function WeddingPlannerPage() {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto p-4 pb-10 space-y-5">
+            <div className="max-w-5xl mx-auto p-4 pb-10 space-y-5">
 
                 {/* Hero Summary Card */}
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-500 via-pink-500 to-rose-400 p-6 text-white shadow-lg shadow-rose-200">

@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, Trash2, Plus, Check, Edit3 } from 'lucide-react';
 import { getSeserahanItems, addSeserahanItem, updateSeserahanItem, toggleSeserahanItem, deleteSeserahanItem, type SeserahanItem } from '@/app/actions/weddingPlanner';
+import { RupiahInput } from '@/components/RupiahInput';
 
 const SUGGESTIONS = ['Cincin pernikahan', 'Al-Quran & mukena', 'Parfum', 'Perlengkapan sholat', 'Pakaian', 'Tas kulit', 'Sepatu', 'Perhiasan set', 'Peralatan make-up', 'Buah-buahan', 'Kue & coklat', 'Uang mahar', 'Bunga segar'];
 const fmt = (n: number) => 'Rp ' + Number(n).toLocaleString('id-ID');
@@ -64,7 +65,7 @@ export default function SeserahanPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white">
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
-                <div className="flex items-center justify-between p-4 max-w-2xl mx-auto">
+                <div className="flex items-center justify-between p-4 max-w-5xl mx-auto">
                     <div className="flex items-center gap-2">
                         <button onClick={() => router.back()} className="p-2 rounded-xl hover:bg-rose-50"><ChevronLeft className="h-5 w-5 text-rose-500" /></button>
                         <div>
@@ -78,7 +79,7 @@ export default function SeserahanPage() {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto p-4 pb-10 space-y-4">
+            <div className="max-w-5xl mx-auto p-4 pb-10 space-y-4">
                 {/* Summary */}
                 {items.length > 0 && (
                     <div className="bg-white rounded-2xl p-5 shadow-sm border border-rose-100">
@@ -106,7 +107,7 @@ export default function SeserahanPage() {
                         <input value={form.item_name} onChange={e => setForm(p => ({ ...p, item_name: e.target.value }))} placeholder="Nama item (mis: Cincin pernikahan)" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                         <div>
                             <label className="text-xs text-gray-500 mb-1 block">Estimasi Harga (Rp)</label>
-                            <input type="number" value={form.estimasi_harga || ''} onChange={e => setForm(p => ({ ...p, estimasi_harga: Number(e.target.value) }))} placeholder="0" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
+                            <RupiahInput value={form.estimasi_harga} onChange={val => setForm(p => ({ ...p, estimasi_harga: val }))} placeholder="0" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                         </div>
                         <input value={form.note || ''} onChange={e => setForm(p => ({ ...p, note: e.target.value }))} placeholder="Catatan (opsional)" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                         <div className="flex gap-2">
@@ -116,17 +117,25 @@ export default function SeserahanPage() {
                     </div>
                 )}
 
-                {/* Quick suggestions */}
-                {items.length === 0 && !showForm && (
-                    <div className="space-y-3">
-                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Seserahan Umum — Klik untuk tambah</p>
-                        <div className="flex flex-wrap gap-2">
-                            {SUGGESTIONS.map(s => (
-                                <button key={s} onClick={() => handleAdd(s)} className="text-sm bg-white border border-rose-200 text-rose-600 px-3 py-1.5 rounded-full hover:bg-rose-50 transition-colors shadow-sm">+ {s}</button>
-                            ))}
+                {/* Quick suggestions — selalu tampil sebagai referensi */}
+                {(() => {
+                    const addedNames = items.map(i => i.item_name.toLowerCase());
+                    const remaining = SUGGESTIONS.filter(s => !addedNames.includes(s.toLowerCase()));
+                    if (remaining.length === 0) return null;
+                    return (
+                        <div className="space-y-2">
+                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">💡 Saran Seserahan — Klik untuk tambah</p>
+                            <div className="flex flex-wrap gap-2">
+                                {remaining.map(s => (
+                                    <button key={s} onClick={() => handleAdd(s)} disabled={saving}
+                                        className="text-sm bg-white border border-rose-200 text-rose-500 px-3 py-1.5 rounded-full hover:bg-rose-50 hover:border-rose-400 transition-colors shadow-sm disabled:opacity-50">
+                                        + {s}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    );
+                })()}
 
                 {/* Item list */}
                 {items.length > 0 && (
@@ -140,7 +149,7 @@ export default function SeserahanPage() {
                                             <input value={editForm.item_name} onChange={e => setEditForm(p => p ? { ...p, item_name: e.target.value } : p)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                                             <div>
                                                 <label className="text-xs text-gray-500 mb-1 block">Estimasi Harga (Rp)</label>
-                                                <input type="number" value={editForm.estimasi_harga || ''} onChange={e => setEditForm(p => p ? { ...p, estimasi_harga: Number(e.target.value) } : p)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
+                                                <RupiahInput value={editForm.estimasi_harga} onChange={val => setEditForm(p => p ? { ...p, estimasi_harga: val } : p)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                                             </div>
                                             <input value={editForm.note || ''} onChange={e => setEditForm(p => p ? { ...p, note: e.target.value } : p)} placeholder="Catatan" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                                             <div className="flex gap-2">

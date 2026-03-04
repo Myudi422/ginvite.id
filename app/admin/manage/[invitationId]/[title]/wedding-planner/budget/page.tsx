@@ -10,6 +10,7 @@ import {
     deleteMiscBudgetItem,
     type BudgetBreakdown,
 } from '@/app/actions/weddingPlanner';
+import { RupiahInput } from '@/components/RupiahInput';
 
 const fmt = (n: number) => 'Rp ' + Number(n).toLocaleString('id-ID');
 
@@ -30,7 +31,7 @@ export default function BudgetPage() {
     const [totalInput, setTotalInput] = useState('');
     const [showMiscForm, setShowMiscForm] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [miscForm, setMiscForm] = useState({ item_name: '', actual_amount: '', note: '' });
+    const [miscForm, setMiscForm] = useState({ item_name: '', actual_amount: 0, note: '' });
 
     const load = useCallback(async () => {
         try { setData(await getFullBudgetBreakdown(invitationId, title)); }
@@ -60,7 +61,7 @@ export default function BudgetPage() {
                 category: 'Lainnya', item_name: miscForm.item_name,
                 budget_amount: 0, actual_amount: Number(miscForm.actual_amount) || 0, note: miscForm.note,
             });
-            setMiscForm({ item_name: '', actual_amount: '', note: '' });
+            setMiscForm({ item_name: '', actual_amount: 0, note: '' });
             setShowMiscForm(false);
             await load();
         } catch (e) { console.error(e); } finally { setSaving(false); }
@@ -83,7 +84,7 @@ export default function BudgetPage() {
         <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white">
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
-                <div className="flex items-center p-4 max-w-2xl mx-auto">
+                <div className="flex items-center p-4 max-w-5xl mx-auto">
                     <button onClick={() => router.back()} className="p-2 rounded-xl hover:bg-rose-50 transition-colors">
                         <ChevronLeft className="h-5 w-5 text-rose-500" />
                     </button>
@@ -94,7 +95,7 @@ export default function BudgetPage() {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto p-4 pb-10 space-y-4">
+            <div className="max-w-5xl mx-auto p-4 pb-10 space-y-4">
 
                 {/* Hero Budget Card */}
                 <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-500 via-pink-500 to-rose-400 p-6 text-white shadow-lg shadow-rose-200">
@@ -106,11 +107,10 @@ export default function BudgetPage() {
                         {editingTotal ? (
                             <div className="flex items-center gap-2 mt-1 mb-4">
                                 <span className="text-rose-200 text-lg">Rp</span>
-                                <input
-                                    type="number"
-                                    value={totalInput}
-                                    onChange={e => setTotalInput(e.target.value)}
-                                    placeholder="50000000"
+                                <RupiahInput
+                                    value={Number(totalInput.replace(/\./g, '').replace(/[^0-9]/g, '')) || 0}
+                                    onChange={val => setTotalInput(String(val))}
+                                    placeholder="50.000.000"
                                     autoFocus
                                     className="flex-1 bg-white/20 border-b-2 border-white text-white placeholder-rose-200 text-2xl font-black focus:outline-none"
                                 />
@@ -202,9 +202,9 @@ export default function BudgetPage() {
                                                     {item.category && <p className="text-xs text-gray-400">{item.category as string}</p>}
                                                     {item.status && (
                                                         <span className={`inline-block mt-0.5 text-[10px] px-2 py-0.5 rounded-full font-medium ${item.status === 'lunas' ? 'bg-emerald-100 text-emerald-700' :
-                                                                item.status === 'dp' ? 'bg-amber-100 text-amber-700' :
-                                                                    item.status === 'booking' ? 'bg-blue-100 text-blue-700' :
-                                                                        'bg-gray-100 text-gray-600'
+                                                            item.status === 'dp' ? 'bg-amber-100 text-amber-700' :
+                                                                item.status === 'booking' ? 'bg-blue-100 text-blue-700' :
+                                                                    'bg-gray-100 text-gray-600'
                                                             }`}>{item.status as string}</span>
                                                     )}
                                                 </div>
@@ -231,10 +231,9 @@ export default function BudgetPage() {
                                         placeholder="Nama item (mis: Dana darurat)"
                                         className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
                                     />
-                                    <input
-                                        type="number"
+                                    <RupiahInput
                                         value={miscForm.actual_amount}
-                                        onChange={e => setMiscForm(p => ({ ...p, actual_amount: e.target.value }))}
+                                        onChange={val => setMiscForm(p => ({ ...p, actual_amount: val }))}
                                         placeholder="Jumlah (Rp)"
                                         className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
                                     />

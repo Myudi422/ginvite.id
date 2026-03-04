@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, Trash2, Plus, Edit3 } from 'lucide-react';
 import { getSeragamItems, addSeragamItem, updateSeragamItem, deleteSeragamItem, type SeragamItem } from '@/app/actions/weddingPlanner';
+import { RupiahInput } from '@/components/RupiahInput';
 
 const fmt = (n: number) => 'Rp ' + Number(n).toLocaleString('id-ID');
 
@@ -59,7 +60,7 @@ export default function SeragamPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white">
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
-                <div className="flex items-center justify-between p-4 max-w-2xl mx-auto">
+                <div className="flex items-center justify-between p-4 max-w-5xl mx-auto">
                     <div className="flex items-center gap-2">
                         <button onClick={() => router.back()} className="p-2 rounded-xl hover:bg-rose-50"><ChevronLeft className="h-5 w-5 text-rose-500" /></button>
                         <div>
@@ -73,7 +74,7 @@ export default function SeragamPage() {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto p-4 pb-10 space-y-4">
+            <div className="max-w-5xl mx-auto p-4 pb-10 space-y-4">
                 {/* Summary cards */}
                 {items.length > 0 && (
                     <div className="grid grid-cols-2 gap-3">
@@ -102,7 +103,7 @@ export default function SeragamPage() {
                                 <input type="number" min="1" value={form.jumlah} onChange={e => setForm(p => ({ ...p, jumlah: Number(e.target.value) }))} className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                             </div>
                             <div><label className="text-xs text-gray-500 mb-1 block">Biaya / pcs (Rp)</label>
-                                <input type="number" value={form.biaya_per_pcs || ''} onChange={e => setForm(p => ({ ...p, biaya_per_pcs: Number(e.target.value) }))} placeholder="0" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
+                                <RupiahInput value={form.biaya_per_pcs} onChange={val => setForm(p => ({ ...p, biaya_per_pcs: val }))} placeholder="0" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                             </div>
                         </div>
                         <input value={form.note || ''} onChange={e => setForm(p => ({ ...p, note: e.target.value }))} placeholder="Catatan (opsional)" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
@@ -138,7 +139,7 @@ export default function SeragamPage() {
                                                     <input type="number" min="1" value={editForm.jumlah} onChange={e => setEdit({ jumlah: Number(e.target.value) })} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                                                 </div>
                                                 <div><label className="text-xs text-gray-500 mb-1 block">Biaya / pcs</label>
-                                                    <input type="number" value={editForm.biaya_per_pcs || ''} onChange={e => setEdit({ biaya_per_pcs: Number(e.target.value) })} placeholder="0" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
+                                                    <RupiahInput value={editForm.biaya_per_pcs} onChange={val => setEdit({ biaya_per_pcs: val })} placeholder="0" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                                                 </div>
                                             </div>
                                             <input value={editForm.note || ''} onChange={e => setEdit({ note: e.target.value })} placeholder="Catatan" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />

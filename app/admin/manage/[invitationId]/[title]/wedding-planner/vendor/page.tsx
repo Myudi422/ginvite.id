@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, Trash2, Plus, Edit3, Check, X } from 'lucide-react';
 import { getVendors, addVendor, updateVendor, deleteVendor, type Vendor } from '@/app/actions/weddingPlanner';
+import { RupiahInput } from '@/components/RupiahInput';
 
 const CATEGORIES = ['Gedung/Venue', 'Catering', 'Fotografi', 'Videografi', 'Dekorasi', 'Gaun Pengantin', 'MUA / Rias', 'Hiburan/Live Music', 'MC', 'Percetakan', 'Lainnya'];
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
@@ -64,7 +65,7 @@ export default function VendorPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white">
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm">
-                <div className="flex items-center justify-between p-4 max-w-2xl mx-auto">
+                <div className="flex items-center justify-between p-4 max-w-5xl mx-auto">
                     <div className="flex items-center gap-2">
                         <button onClick={() => router.back()} className="p-2 rounded-xl hover:bg-rose-50"><ChevronLeft className="h-5 w-5 text-rose-500" /></button>
                         <div>
@@ -78,7 +79,7 @@ export default function VendorPage() {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto p-4 pb-10 space-y-4">
+            <div className="max-w-5xl mx-auto p-4 pb-10 space-y-4">
                 {/* Status Filter */}
                 <div className="grid grid-cols-4 gap-2">
                     {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
@@ -107,7 +108,7 @@ export default function VendorPage() {
                             </select>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <input type="number" value={form.price || ''} onChange={e => setForm(p => ({ ...p, price: Number(e.target.value) }))} placeholder="Harga (Rp)" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
+                            <RupiahInput value={form.price} onChange={val => setForm(p => ({ ...p, price: val }))} placeholder="Harga (Rp)" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                             <input value={form.contact || ''} onChange={e => setForm(p => ({ ...p, contact: e.target.value }))} placeholder="Kontak (WA)" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                         </div>
                         <input value={form.note || ''} onChange={e => setForm(p => ({ ...p, note: e.target.value }))} placeholder="Catatan" className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
@@ -144,7 +145,7 @@ export default function VendorPage() {
                                                 </select>
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <input type="number" value={editForm.price || ''} onChange={e => setEditForm(p => p ? { ...p, price: Number(e.target.value) } : p)} placeholder="Harga (Rp)" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
+                                                <RupiahInput value={editForm.price} onChange={val => setEditForm(p => p ? { ...p, price: val } : p)} placeholder="Harga (Rp)" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                                                 <input value={editForm.contact || ''} onChange={e => setEditForm(p => p ? { ...p, contact: e.target.value } : p)} placeholder="Kontak" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />
                                             </div>
                                             <input value={editForm.note || ''} onChange={e => setEditForm(p => p ? { ...p, note: e.target.value } : p)} placeholder="Catatan" className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300" />

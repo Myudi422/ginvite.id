@@ -64,7 +64,7 @@ export default function AdministrasiPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50">
             <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-amber-100 shadow-sm">
-                <div className="flex items-center justify-between p-4 max-w-2xl mx-auto">
+                <div className="flex items-center justify-between p-4 max-w-5xl mx-auto">
                     <div className="flex items-center gap-2">
                         <button onClick={() => router.back()} className="p-2 rounded-xl hover:bg-amber-50"><ChevronLeft className="h-5 w-5 text-amber-600" /></button>
                         <div>
@@ -78,7 +78,7 @@ export default function AdministrasiPage() {
                 </div>
             </div>
 
-            <div className="max-w-2xl mx-auto p-4 pb-10 space-y-4">
+            <div className="max-w-5xl mx-auto p-4 pb-10 space-y-4">
                 {/* Progress */}
                 {tasks.length > 0 && (
                     <div className="bg-white rounded-2xl p-5 shadow-sm border border-amber-100">
@@ -109,20 +109,26 @@ export default function AdministrasiPage() {
                     </div>
                 )}
 
-                {/* Quick-add defaults */}
-                {tasks.length === 0 && !showForm && (
-                    <div className="space-y-3">
-                        <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Tugas Umum — Klik untuk tambah</p>
-                        <div className="grid grid-cols-1 gap-2">
-                            {DEFAULT_TASKS.map(dt => (
-                                <button key={dt} onClick={() => handleAdd(dt)} className="text-left bg-white rounded-xl px-4 py-3 border border-amber-100 shadow-sm text-sm text-gray-700 hover:bg-amber-50 hover:border-amber-300 transition-all flex items-center justify-between group">
-                                    <span>{dt}</span>
-                                    <Plus className="h-4 w-4 text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </button>
-                            ))}
+                {/* Quick-add defaults — selalu tampil sebagai referensi */}
+                {(() => {
+                    const addedNames = tasks.map(t => t.task_name.toLowerCase());
+                    const remaining = DEFAULT_TASKS.filter(dt => !addedNames.includes(dt.toLowerCase()));
+                    if (remaining.length === 0) return null;
+                    return (
+                        <div className="space-y-2">
+                            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">💡 Saran Tugas — Klik untuk tambah</p>
+                            <div className="grid grid-cols-1 gap-2">
+                                {remaining.map(dt => (
+                                    <button key={dt} onClick={() => handleAdd(dt)} disabled={saving}
+                                        className="text-left bg-white rounded-xl px-4 py-3 border border-amber-100 shadow-sm text-sm text-gray-700 hover:bg-amber-50 hover:border-amber-300 transition-all flex items-center justify-between group disabled:opacity-50">
+                                        <span>{dt}</span>
+                                        <Plus className="h-4 w-4 text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    );
+                })()}
 
                 {/* Task list */}
                 {tasks.length > 0 && (
