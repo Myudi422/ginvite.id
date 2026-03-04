@@ -79,8 +79,6 @@ export default function RootLayout({
   return (
     <html lang="id">
       <head>
-        {/* Viewport - wajib untuk responsive di mobile */}
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         {/* Midtrans Snap JS */}
         <Script
           src="https://app.midtrans.com/snap/snap.js"

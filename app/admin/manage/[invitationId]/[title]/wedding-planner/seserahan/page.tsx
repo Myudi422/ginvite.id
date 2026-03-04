@@ -82,15 +82,15 @@ export default function SeserahanPage() {
             <div className="max-w-5xl mx-auto p-4 pb-10 space-y-4">
                 {/* Summary */}
                 {items.length > 0 && (
-                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-rose-100 overflow-hidden">
-                        <div className="flex justify-between gap-2 mb-3">
-                            <div className="min-w-0">
+                    <div className="bg-white rounded-2xl p-5 shadow-sm border border-rose-100">
+                        <div className="flex justify-between mb-2">
+                            <div>
                                 <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Estimasi Total</p>
-                                <p className="text-base font-bold text-rose-500 truncate">{fmt(totalAll)}</p>
+                                <p className="text-lg font-bold text-rose-500">{fmt(totalAll)}</p>
                             </div>
-                            <div className="text-right min-w-0">
+                            <div className="text-right">
                                 <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Sudah Dibeli</p>
-                                <p className="text-base font-bold text-emerald-600 truncate">{fmt(totalBought)}</p>
+                                <p className="text-lg font-bold text-emerald-600">{fmt(totalBought)}</p>
                             </div>
                         </div>
                         <div className="w-full bg-rose-100 rounded-full h-2.5 overflow-hidden">
