@@ -158,20 +158,25 @@ export default function SeserahanPage() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="px-4 py-3 flex items-center gap-3">
-                                            <button onClick={() => handleToggle(item.id, item.is_bought)} className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${item.is_bought ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 hover:border-rose-400'}`}>
-                                                {item.is_bought && <Check className="h-3.5 w-3.5 text-white" />}
-                                            </button>
-                                            <div className="flex-1 min-w-0">
-                                                <p className={`text-sm font-medium ${item.is_bought ? 'line-through text-gray-400' : 'text-gray-800'}`}>{item.item_name}</p>
-                                                <div className="flex gap-3 mt-0.5">
-                                                    {Number(item.estimasi_harga) > 0 && <span className="text-xs text-rose-600 font-medium">{fmt(Number(item.estimasi_harga))}</span>}
-                                                    {item.note && <span className="text-xs text-gray-400">{item.note}</span>}
+                                        <div className="px-4 py-3">
+                                            {/* Row 1: checkbox + nama + action buttons */}
+                                            <div className="flex items-start gap-3">
+                                                <button onClick={() => handleToggle(item.id, item.is_bought)} className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${item.is_bought ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 hover:border-rose-400'}`}>
+                                                    {item.is_bought && <Check className="h-3 w-3 text-white" />}
+                                                </button>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className={`text-sm font-medium leading-snug ${item.is_bought ? 'line-through text-gray-400' : 'text-gray-800'}`}>{item.item_name}</p>
+                                                    {Number(item.estimasi_harga) > 0 && (
+                                                        <span className="inline-block text-xs text-rose-600 font-medium mt-0.5">{fmt(Number(item.estimasi_harga))}</span>
+                                                    )}
+                                                    {item.note && (
+                                                        <p className="text-xs text-gray-400 mt-1 break-all leading-relaxed">{item.note}</p>
+                                                    )}
                                                 </div>
-                                            </div>
-                                            <div className="flex gap-1 flex-shrink-0">
-                                                <button onClick={() => handleEdit(item)} className="text-gray-300 hover:text-rose-500 transition-colors p-1"><Edit3 className="h-4 w-4" /></button>
-                                                <button onClick={() => handleDelete(item.id)} className="text-gray-300 hover:text-red-500 transition-colors p-1"><Trash2 className="h-4 w-4" /></button>
+                                                <div className="flex gap-0.5 flex-shrink-0">
+                                                    <button onClick={() => handleEdit(item)} className="text-gray-300 hover:text-rose-500 transition-colors p-1"><Edit3 className="h-3.5 w-3.5" /></button>
+                                                    <button onClick={() => handleDelete(item.id)} className="text-gray-300 hover:text-red-500 transition-colors p-1"><Trash2 className="h-3.5 w-3.5" /></button>
+                                                </div>
                                             </div>
                                         </div>
                                     )}

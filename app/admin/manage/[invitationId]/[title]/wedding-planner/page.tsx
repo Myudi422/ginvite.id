@@ -110,7 +110,7 @@ export default function WeddingPlannerPage() {
                         <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden mb-4">
                             <div className="h-2.5 rounded-full bg-white transition-all duration-1000" style={{ width: `${overallPct}%` }} />
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             <div className="bg-white/15 rounded-2xl p-3 text-center backdrop-blur-sm">
                                 <p className="text-lg font-bold">{loading ? '—' : (summary?.vendor_count ?? 0)}</p>
                                 <p className="text-[10px] text-rose-200 mt-0.5">Vendor</p>
@@ -122,6 +122,10 @@ export default function WeddingPlannerPage() {
                             <div className="bg-white/15 rounded-2xl p-3 text-center backdrop-blur-sm">
                                 <p className="text-lg font-bold">{loading ? '—' : `${summary?.seserahan_bought ?? 0}/${summary?.seserahan_total ?? 0}`}</p>
                                 <p className="text-[10px] text-rose-200 mt-0.5">Seserahan</p>
+                            </div>
+                            <div className="bg-white/15 rounded-2xl p-3 text-center backdrop-blur-sm">
+                                <p className="text-lg font-bold">{loading ? '—' : `${summary?.seragam_total_pcs ?? 0} pcs`}</p>
+                                <p className="text-[10px] text-rose-200 mt-0.5">Seragam</p>
                             </div>
                         </div>
                     </div>
