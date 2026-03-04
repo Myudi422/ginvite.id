@@ -67,6 +67,7 @@ export default function Theme4({ data }: Theme4Props) {
   const params = useParams();
 
   const [showOpeningText, setShowOpeningText] = useState(false);
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
 
   // Destructure data
   const { theme, content, event: apiEvents, category_type } = data;
@@ -83,7 +84,8 @@ export default function Theme4({ data }: Theme4Props) {
   const nickname = [nickname1, nickname2].filter(Boolean).join(' & ');
 
   // Backgrounds
-  const backgroundImage = gallery?.items?.[0] || theme.defaultBgImage1 || '/images/default-wedding.jpg';
+  const bgImages = gallery?.items && gallery.items.length > 0 ? gallery.items : [theme.defaultBgImage1 || '/images/default-wedding.jpg'];
+  const backgroundImage = bgImages[0];
   const openingVideoUrl = (content.plugin as any)?.opening_video || content.plugin?.youtube_link;
   // Determine if openingVideoUrl is a direct video file or youtube link
   const isDirectVideo = openingVideoUrl && (openingVideoUrl.includes('.mp4') || openingVideoUrl.includes('.webm'));
@@ -106,6 +108,16 @@ export default function Theme4({ data }: Theme4Props) {
       setTimeout(() => setShowOpeningText(true), 3000);
     }
   }, [params, searchParams]);
+
+  useEffect(() => {
+    const items = gallery?.items;
+    if (items && items.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentBgIndex((prev) => (prev + 1) % items.length);
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [gallery?.items]);
 
   // Custom Theme Colors (from JSON in DB)
   const customColors = typeof theme?.custom === 'string' && theme.custom.trim().startsWith('{')
@@ -396,10 +408,15 @@ export default function Theme4({ data }: Theme4Props) {
                 <source src={openingVideoUrl} type="video/mp4" />
               </video>
             ) : (
-              <div
-                className="absolute inset-0 w-full h-full bg-cover bg-center"
-                style={{ backgroundImage: `url(${backgroundImage})` }}
-              />
+              <>
+                {bgImages.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out ${idx === currentBgIndex ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ backgroundImage: `url(${img})` }}
+                  />
+                ))}
+              </>
             )}
 
             <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/30" />
@@ -518,7 +535,7 @@ export default function Theme4({ data }: Theme4Props) {
                       </div>
 
                       <ThemeText variant="body" color="gray" className="max-w-md mx-auto">
-                        {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra Pertama dari pasangan' : 'Putri Pertama dari pasangan')}
+                        {isKhitan ? 'Putra Kebanggaan' : (index === 0 ? 'Putra dari pasangan' : 'Putri dari pasangan')}
                       </ThemeText>
 
                       <ThemeText variant="meta" color="white" className="italic max-w-md mx-auto text-lg">
