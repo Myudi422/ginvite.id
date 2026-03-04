@@ -3,7 +3,7 @@
 
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization');
 
 
@@ -23,10 +23,11 @@ $endpointFile = __DIR__ . '/page/' . $action . '.php';
 
 if (file_exists($endpointFile)) {
     include $endpointFile;
-} else {
+}
+else {
     http_response_code(404);
     echo json_encode([
-        'status'  => 'error',
+        'status' => 'error',
         'message' => 'Endpoint not found: ' . $action
     ], JSON_UNESCAPED_UNICODE);
 }

@@ -15,6 +15,7 @@ import {
   TrendingUp,
   Lock,
   ChevronRight,
+  Heart,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getManageData, type ManageData } from '@/app/actions/manage';
@@ -153,7 +154,8 @@ export default function ManagePage() {
     );
   }
 
-  const { view, total_nominal_bank_transfer, jumlah_konfirmasi } = manageData;
+  const { view, total_nominal_bank_transfer, jumlah_konfirmasi, invitation_type } = manageData;
+  const isPernikahan = !invitation_type || invitation_type === 'pernikahan';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
@@ -269,6 +271,30 @@ export default function ManagePage() {
             />
           </div>
         </div>
+
+        {/* Wedding Planner — only for pernikahan */}
+        {isPernikahan && (
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-1">💒 Wedding Planner</p>
+            <button
+              onClick={() => router.push(`/admin/manage/${invitationId}/${slug}/wedding-planner`)}
+              className="group w-full relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-rose-400 p-4 text-left shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full" />
+              <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/10 rounded-full" />
+              <div className="relative flex items-center gap-4">
+                <div className="bg-white/20 rounded-xl p-3 flex-shrink-0">
+                  <Heart className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-white">Wedding Planner</p>
+                  <p className="text-xs text-rose-100 mt-0.5">Budget, vendor, seserahan &amp; lainnya</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-white/60 group-hover:text-white flex-shrink-0 transition-colors" />
+              </div>
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

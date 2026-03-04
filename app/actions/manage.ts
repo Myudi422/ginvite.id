@@ -7,6 +7,7 @@ const SECRET = 'very-secret-key';
 
 export interface ManageData {
   id_content_user: number;
+  invitation_type: string; // 'pernikahan' | 'khitanan'
   view: number;
   total_nominal_bank_transfer: number;
   jumlah_konfirmasi: {
