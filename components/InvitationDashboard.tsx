@@ -13,6 +13,10 @@ import {
   TrashIcon,
   UsersIcon,
   ShieldCheckIcon,
+  XIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MegaphoneIcon,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CreateInvitationPopup from '@/components/CreateInvitationPopup';
@@ -70,6 +74,39 @@ export default function InvitationDashboard({ user, invitations }: Props) {
   const [shareLoading, setShareLoading] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
   const [manageSharesModal, setManageSharesModal] = useState<{ open: boolean; inv?: Invitation }>({ open: false });
+  const [showPromo, setShowPromo] = useState(true);
+  const [promoIdx, setPromoIdx] = useState(0);
+
+  const ANNOUNCEMENTS = [
+    {
+      text: (
+        <>
+          🎤 Butuh <strong>MC daerah Bogor</strong>? Kami siap! Mulai dari <strong>Rp&nbsp;200rb/sesi</strong>, bebas acara apapun.{' '}
+          <a href="https://wa.me/6289654728249?text=Halo,%20saya%20tertarik%20dengan%20layanan%20MC"
+            target="_blank" rel="noopener noreferrer"
+            className="underline underline-offset-2 font-bold hover:opacity-80 transition-opacity">
+            Klik di sini
+          </a>
+        </>
+      ),
+    },
+    {
+      text: (
+        <>
+          Butuh <strong>Jasa Fotografi, Desain, Video Editing </strong>? Kami siap! Harga terjangkau, bebas acara apapun.{' '}
+          <a href="https://wa.me/6289654728249?text=Halo,%20saya%20tertarik%20dengan%20layanan%Papunda"
+            target="_blank" rel="noopener noreferrer"
+            className="underline underline-offset-2 font-bold hover:opacity-80 transition-opacity">
+            Klik di sini
+          </a>
+        </>
+      ),
+    },
+  ];
+
+  const totalPromo = ANNOUNCEMENTS.length;
+  const prevPromo = () => setPromoIdx(i => (i - 1 + totalPromo) % totalPromo);
+  const nextPromo = () => setPromoIdx(i => (i + 1) % totalPromo);
 
   useEffect(() => {
     const close = () => setMenuOpen(null);
@@ -157,6 +194,36 @@ export default function InvitationDashboard({ user, invitations }: Props) {
           </button>
         </div>
       </div>
+
+      {/* ── PROMO BANNER ── */}
+      {showPromo && (
+        <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 text-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex items-center gap-2">
+            <MegaphoneIcon className="h-4 w-4 flex-shrink-0 opacity-90" />
+            <p className="flex-1 text-xs sm:text-sm font-medium leading-snug min-w-0">
+              {ANNOUNCEMENTS[promoIdx].text}
+            </p>
+            {/* Prev / indicator / Next / Close */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button onClick={prevPromo} aria-label="Pengumuman sebelumnya"
+                className="p-1 rounded-full hover:bg-white/20 transition-colors">
+                <ChevronLeftIcon className="h-3.5 w-3.5" />
+              </button>
+              <span className="text-[10px] font-semibold opacity-75 tabular-nums">
+                {promoIdx + 1}/{totalPromo}
+              </span>
+              <button onClick={nextPromo} aria-label="Pengumuman berikutnya"
+                className="p-1 rounded-full hover:bg-white/20 transition-colors">
+                <ChevronRightIcon className="h-3.5 w-3.5" />
+              </button>
+              <button onClick={() => setShowPromo(false)} aria-label="Tutup"
+                className="ml-1 p-1 rounded-full hover:bg-white/20 transition-colors">
+                <XIcon className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
