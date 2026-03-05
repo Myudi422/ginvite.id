@@ -4,6 +4,7 @@ import { useState } from "react";
 import HeroSection from "@/components/sections/HeroSection";
 import FeaturesSection from "@/components/sections/FeaturesSection";
 import ThemesSection from "@/components/sections/ThemesSection";
+import WeddingPlannerSpoiler from "@/components/sections/WeddingPlannerSpoiler";
 import InstructionsSection from "@/components/sections/InstructionsSection";
 import PricingSection from "@/components/sections/PricingSection";
 import FooterSection from "@/components/sections/FooterSection";
@@ -121,6 +122,12 @@ function Header() {
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex items-center space-x-4">
+          <Link
+            href="/wedding-planner"
+            className="text-sm text-rose-600 hover:text-rose-800 font-semibold transition-colors whitespace-nowrap inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-rose-200 hover:bg-rose-50"
+          >
+            💒 Wedding Planner
+          </Link>
           <button
             type="button"
             onClick={() => gtag_report_conversion(navigation[0].href, 'cta_header_wa')}
@@ -171,6 +178,7 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <ThemesSection />
+      <WeddingPlannerSpoiler />
       <TestimonialsSection />
       <InstructionsSection />
       <PricingSection />

@@ -32,7 +32,7 @@ export default function HeroSection() {
   const handleCTAClick = (buttonName: string) => {
     // Track with existing analytics
     trackCTAClick(buttonName, 'hero_section');
-    
+
     // Add Facebook Pixel tracking
     if (typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('track', 'Lead', {
@@ -129,6 +129,13 @@ export default function HeroSection() {
                 Coba buat undangan online <strong className="text-green-700">GRATIS</strong>, 5 menit jadi! <br className="hidden md:block" />
                 Mau dibantu admin? <span className="italic text-orange-600">Gratis Uji Coba</span>, bayar setelah oke.
               </p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {["✅ Gratis Uji Coba", "💒 Termasuk Wedding Planner", "⚡ 5 Menit Jadi"].map((badge) => (
+                  <span key={badge} className="inline-block bg-white border border-pink-200 text-pink-700 text-xs font-medium px-3 py-1 rounded-full shadow-sm">
+                    {badge}
+                  </span>
+                ))}
+              </div>
             </motion.div>
 
             <motion.div

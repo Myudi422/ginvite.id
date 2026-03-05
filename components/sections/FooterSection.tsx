@@ -24,6 +24,7 @@ export default function FooterSection() {
               <li><a href="/undangan-pernikahan" className="hover:text-pink-600 transition-colors">Undangan Pernikahan Digital</a></li>
               <li><a href="/undangan-khitanan" className="hover:text-blue-600 transition-colors">Undangan Khitanan Online</a></li>
               <li><a href="/undangan-ulang-tahun" className="hover:text-purple-600 transition-colors">Undangan Ulang Tahun Digital</a></li>
+              <li><a href="/wedding-planner" className="hover:text-rose-600 transition-colors">💒 Wedding Planner</a></li>
               <li><a href="/admin" className="hover:text-green-600 transition-colors">Buat Undangan Gratis</a></li>
             </ul>
           </div>
@@ -35,20 +36,20 @@ export default function FooterSection() {
           </div>
 
           {/* Kontak Admin */}
-        <div className="flex flex-col items-center sm:items-start">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Hubungi Kami</h3>
-          <div className="space-y-2 text-sm">
-            <p className="text-slate-700">
-              <span className="font-medium">WhatsApp:</span> <a href="https://wa.me/6289654728249" className="text-green-600 hover:text-green-800 transition-colors">+62 896-5472-8249</a>
-            </p>
-            <p className="text-slate-700">
-              <span className="font-medium">Email:</span> <a href="mailto:papundacare@gmail.com" className="text-blue-600 hover:text-blue-800 transition-colors">papundacare@gmail.com</a>
-            </p>
-            <p className="text-slate-700">
-              <span className="font-medium">Website:</span> <a href="https://papunda.com" className="text-pink-600 hover:text-pink-800 transition-colors">papunda.com</a>
-            </p>
+          <div className="flex flex-col items-center sm:items-start">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Hubungi Kami</h3>
+            <div className="space-y-2 text-sm">
+              <p className="text-slate-700">
+                <span className="font-medium">WhatsApp:</span> <a href="https://wa.me/6289654728249" className="text-green-600 hover:text-green-800 transition-colors">+62 896-5472-8249</a>
+              </p>
+              <p className="text-slate-700">
+                <span className="font-medium">Email:</span> <a href="mailto:papundacare@gmail.com" className="text-blue-600 hover:text-blue-800 transition-colors">papundacare@gmail.com</a>
+              </p>
+              <p className="text-slate-700">
+                <span className="font-medium">Website:</span> <a href="https://papunda.com" className="text-pink-600 hover:text-pink-800 transition-colors">papunda.com</a>
+              </p>
+            </div>
           </div>
-        </div>
         </CardContent>
         <Separator />
         <div className="text-center text-sm text-slate-500 py-4">
