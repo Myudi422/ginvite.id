@@ -10,9 +10,10 @@ interface OpeningModalProps {
   qrData?: string;
   onShowQr?: () => void;
   showQrButton?: boolean;
+  bgUrl?: string;
 }
 
-export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQr, showQrButton }: OpeningModalProps) {
+export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQr, showQrButton, bgUrl }: OpeningModalProps) {
   const [showContent, setShowContent] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -39,15 +40,23 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
 
         {/* Video Background */}
         <div className="absolute inset-0 bg-black">
-          <video
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-            onEnded={handleVideoEnd}
-          >
-            <source src="https://ccgnimex.s3.us-east-005.backblazeb2.com/papunda/theme/4/grok-video-82da76ee-5924-4fe3-a778-b31f5e99b359.mp4" type="video/mp4" />
-          </video>
+          {bgUrl && (bgUrl.includes('.mp4') || bgUrl.includes('.webm')) ? (
+            <video
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+              onEnded={handleVideoEnd}
+            >
+              <source src={bgUrl} type="video/mp4" />
+            </video>
+          ) : (
+            <img
+              src={bgUrl || "https://ccgnimex.s3.us-east-005.backblazeb2.com/papunda/theme/4/grok-video-82da76ee-5924-4fe3-a778-b31f5e99b359.mp4"}
+              className="w-full h-full object-cover"
+              alt="Background"
+            />
+          )}
           {/* Dim Overlay when content shows */}
           <div className={`absolute inset-0 bg-black/40 transition-opacity duration-1000 ${showContent ? 'opacity-100' : 'opacity-0'}`} />
         </div>

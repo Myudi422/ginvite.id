@@ -8,7 +8,7 @@ import FooterSection from "@/components/sections/FooterSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 12; // KPK(2,3) = 6, pakai 12 agar pas di mobile (2 col) & desktop (3 col)
 
 interface Theme {
     id: number;
@@ -212,7 +212,7 @@ export default function CatalogPage() {
                 {/* ── GRID ── */}
                 {loading ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-                        {Array.from({ length: 9 }).map((_, i) => (
+                        {Array.from({ length: 12 }).map((_, i) => (
                             <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-pink-50 animate-pulse">
                                 <div className="aspect-[3/4] bg-pink-50" />
                                 <div className="p-2.5 space-y-2">

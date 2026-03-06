@@ -369,8 +369,8 @@ export default function Theme4({ data }: Theme4Props) {
             onClose={handleProfileModalClose}
             selectedProfile={urlParams.toName || "Bapak/Ibu/Saudara/i"}
             qrData={urlParams.toName}
-            onShowQr={() => setShowQr(true)}
             showQrButton={!!plugin?.qrcode && urlParams.toName !== "Bapak/Ibu/Saudara/i"}
+            bgUrl={theme.defaultBgImage1 || backgroundImage}
           />
         )}
 

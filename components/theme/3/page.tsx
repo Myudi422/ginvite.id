@@ -437,11 +437,23 @@ export default function Theme3({ data }: Theme3Props) {
       {/* Landing Page */}
       {!isOpen && (
         <div className="relative min-h-screen w-full overflow-hidden">
-          {/* Background Image - Full Screen */}
-          <div
-            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${backgroundImage})` }}
-          />
+          {/* Background Image / Video - Full Screen */}
+          {backgroundImage && (backgroundImage.includes('.mp4') || backgroundImage.includes('.webm')) ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src={backgroundImage} type="video/mp4" />
+            </video>
+          ) : (
+            <div
+              className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: `url(${backgroundImage})` }}
+            />
+          )}
 
           {/* Gradient Overlay - More solid at bottom */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
