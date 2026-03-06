@@ -845,43 +845,50 @@ export default function Theme3({ data }: Theme3Props) {
                 <NetflixSection>
                   <NetflixHeader>Timeline & Location</NetflixHeader>
                   <div className="space-y-4">
-                    {Object.entries(apiEvents).map(([key, evt], idx) => {
-                      // Support both mapsLink (theme 1) and location_url (theme 3)
-                      const mapsUrl = evt.mapsLink || evt.location_url || '';
-                      const hasMaps = typeof mapsUrl === 'string' && mapsUrl.trim() !== '';
-                      return (
-                        <div key={key} className="flex items-center gap-3">
-                          <div className="relative w-16 h-16 flex items-center justify-center overflow-hidden rounded bg-gray-800">
-                            <img src="/icon-maps.png" alt="Maps" className="w-10 h-10 object-contain" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📍</span>'; }} />
+                    {Object.entries(apiEvents)
+                      .sort(([keyA], [keyB]) => {
+                        const order: Record<string, number> = { pemberkatan: 1, akad: 2, resepsi: 3 };
+                        const weightA = order[keyA.toLowerCase()] || 99;
+                        const weightB = order[keyB.toLowerCase()] || 99;
+                        return weightA - weightB;
+                      })
+                      .map(([key, evt]: any, idx) => {
+                        // Support both mapsLink (theme 1) and location_url (theme 3)
+                        const mapsUrl = evt.mapsLink || evt.location_url || '';
+                        const hasMaps = typeof mapsUrl === 'string' && mapsUrl.trim() !== '';
+                        return (
+                          <div key={key} className="flex items-center gap-3">
+                            <div className="relative w-16 h-16 flex items-center justify-center overflow-hidden rounded bg-gray-800">
+                              <img src="/icon-maps.png" alt="Maps" className="w-10 h-10 object-contain" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📍</span>'; }} />
+                            </div>
+                            <div className="flex-1">
+                              <NetflixText variant="meta" color="white">
+                                {isKhitan ? 'Khitanan' : evt.title || (key === 'pemberkatan' ? 'Pemberkatan' : key === 'resepsi' ? 'Resepsi' : key === 'akad' ? 'Akad Nikah' : (idx === 0 ? 'Akad Nikah' : 'Resepsi'))}
+                              </NetflixText>
+                              <NetflixText variant="caption" color="gray">
+                                {(() => {
+                                  // Format date to Indo style
+                                  try {
+                                    const date = new Date(evt.date);
+                                    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                                    return date.toLocaleDateString('id-ID', options) + ' ' + evt.time;
+                                  } catch {
+                                    return evt.date + ' ' + evt.time;
+                                  }
+                                })()}
+                              </NetflixText>
+                              <NetflixText variant="caption" color="gray">
+                                {evt.location}
+                              </NetflixText>
+                              {hasMaps && (
+                                <div className="mt-1">
+                                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="underline text-blue-400">Lihat Maps</a>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <NetflixText variant="meta" color="white">
-                              {isKhitan ? 'Khitanan' : evt.title || (idx === 0 ? 'Akad Nikah' : 'Resepsi')}
-                            </NetflixText>
-                            <NetflixText variant="caption" color="gray">
-                              {(() => {
-                                // Format date to Indo style
-                                try {
-                                  const date = new Date(evt.date);
-                                  const options = { day: 'numeric', month: 'long', year: 'numeric' };
-                                  return date.toLocaleDateString('id-ID', options) + ' ' + evt.time;
-                                } catch {
-                                  return evt.date + ' ' + evt.time;
-                                }
-                              })()}
-                            </NetflixText>
-                            <NetflixText variant="caption" color="gray">
-                              {evt.location}
-                            </NetflixText>
-                            {hasMaps && (
-                              <div className="mt-1">
-                                <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="underline text-blue-400">Lihat Maps</a>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
 
                   {/* Countdown Timer Section - dibawah Timeline & Location */}

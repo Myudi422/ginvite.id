@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // page/get_manage.php
 
 header('Access-Control-Allow-Origin: *');

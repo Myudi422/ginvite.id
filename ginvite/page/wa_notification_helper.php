@@ -94,7 +94,7 @@ function generateInvitationCreatedMessage($userName, $slug, $category_id, $user_
     $message .= "• Kategori: {$categoryName}\n";
     $message .= "• Nama: {$slug}\n";
     $message .= "• Link: {$invitationUrl}\n\n";
-    $message .= "⚠️ *Undangan masih mode GRATIS dengan fitur terbatas.*\n\n";
+    $message .= "⚠️ *Undangan masih mode GRATIS dengan fitur terbatas. dan akan dihapus jika belum diaktifkan.*\n\n";
     $message .= "💳 *Aktivasi:* Buka Link diatas → diheader akan ada tombol \"aktifkan sekarang\" → klik & payment, otomatis akan terupdate\n\n";
     $message .= "✨ *Manage:* Untuk mengelola undangan, gunakan dashboard kami. login disini : papunda.com/login\n\n";
     $message .= "🤝 Butuh bantuan? Chat kami!\n\n";
