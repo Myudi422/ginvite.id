@@ -58,7 +58,7 @@ export default function MusicPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-100 to-white p-6 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 p-6 md:p-8">
       {/* HEADER */}
       <div className="mb-8">
         <h1
@@ -76,25 +76,21 @@ export default function MusicPage() {
       <UploadMusicForm onUploadSuccess={fetchMusics} />
 
       {/* FILTER & SEARCH (FULL WIDTH, RATA SEJULUR) */}
-      <div className="flex flex-col md:flex-row items-center gap-4 mb-6 w-full">
+      <div className="flex flex-col md:flex-row items-center gap-4 mb-8 w-full">
         {/* Search Input */}
         <input
           type="text"
           placeholder="Cari judul lagu..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          className="flex-1 px-4 py-2 rounded-xl border border-pink-200
-                     focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white/50 backdrop-blur-md
-                     placeholder:text-pink-400 text-pink-600 shadow-sm"
+          className="flex-1 px-4 py-3 rounded-2xl border border-pink-100 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 placeholder:text-pink-300 text-pink-700 transition duration-200 hover:shadow-md"
         />
 
         {/* Kategori Dropdown */}
         <select
           value={filterKategori}
           onChange={(e) => setFilterKategori(e.target.value)}
-          className="flex-1 px-4 py-2 rounded-xl border border-pink-200
-                     focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white/50 backdrop-blur-md
-                     text-pink-600 shadow-sm"
+          className="flex-1 px-4 py-3 rounded-2xl border border-pink-100 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-300 text-pink-700 transition duration-200 hover:shadow-md appearance-none"
         >
           <option value="">Semua Kategori</option>
           {categories.map((cat) => (

@@ -15,28 +15,24 @@ interface MusicCardProps {
 }
 
 export default function MusicCard({ music }: MusicCardProps) {
-  const displayedTitle = music.Nama_lagu.length > 20 ? `${music.Nama_lagu.substring(0, 20)}...` : music.Nama_lagu;
-
   return (
     <div
-      className="bg-white/30 backdrop-blur-md rounded-2xl p-4 relative
-               border border-white/20 shadow-md hover:shadow-lg transition-all
-               hover:border-pink-200 group"
+      className="bg-white rounded-3xl p-6 relative border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between h-full"
     >
-      <h3 className="text-lg font-semibold text-pink-800 mb-2" title={music.Nama_lagu}>
-        {displayedTitle}
-      </h3>
-      <div className="inline-block mb-4">
-        <span className="px-2 py-1 bg-pink-500 text-white rounded-full text-sm">
+      <div className="pr-12">
+        <h3 className="text-lg font-bold text-gray-800 mb-3 group-hover:text-pink-600 transition-colors line-clamp-2" title={music.Nama_lagu}>
+          {music.Nama_lagu}
+        </h3>
+        <span className="inline-flex items-center px-3 py-1 bg-pink-50 text-pink-600 rounded-full text-xs font-bold uppercase tracking-wider">
           {music.kategori}
         </span>
       </div>
       <button
         onClick={() => window.open(music.link_lagu, '_blank')}
-        className="absolute top-4 right-4 text-pink-500 hover:text-pink-600"
+        className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center bg-pink-50 text-pink-500 rounded-2xl hover:bg-gradient-to-br hover:from-pink-500 hover:to-rose-500 hover:text-white transition-all shadow-sm group-hover:shadow-md hover:scale-105"
         title="Putar lagu"
       >
-        <PlayIcon className="h-5 w-5" />
+        <PlayIcon className="h-6 w-6 ml-1" />
       </button>
     </div>
   );

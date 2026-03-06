@@ -96,17 +96,18 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
   };
 
   return (
-    <div className="bg-white/50 backdrop-blur-md rounded-2xl p-6 border border-pink-200 shadow-sm mb-8">
-      <h2 className="text-2xl font-semibold text-pink-800 mb-4">Upload Musik Baru</h2>
+    <div className="relative overflow-hidden bg-white rounded-3xl p-6 md:p-8 border border-pink-100 shadow-sm mb-8">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-400 to-purple-500"></div>
+      <h2 className="text-xl font-bold text-gray-800 mb-6">Upload Musik Baru</h2>
 
       {message && (
-        <div className="mb-4 p-3 rounded-lg text-white bg-pink-500">{message}</div>
+        <div className="mb-6 p-4 rounded-xl text-white bg-gradient-to-r from-pink-400 to-rose-400 shadow-sm font-medium">{message}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Nama Lagu (otomatis terisi dari nama file tetapi bisa diedit) */}
         <div>
-          <label className="block text-pink-700 font-medium mb-1">
+          <label className="block text-pink-700 text-xs font-semibold mb-2 uppercase tracking-wide">
             Nama Lagu <span className="text-red-500">*</span>
           </label>
           <Input
@@ -114,14 +115,14 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
             value={namaLagu}
             onChange={(e) => setNamaLagu(e.target.value)}
             placeholder="Nama file akan muncul otomatis (edit jika perlu)"
-            className="w-full"
+            className="w-full rounded-xl border-pink-200 focus:ring-pink-300 py-6"
             required
           />
         </div>
 
         {/* Kategori (dropdown Shadcn UI) */}
         <div>
-          <label className="block text-pink-700 font-medium mb-1">
+          <label className="block text-pink-700 text-xs font-semibold mb-2 uppercase tracking-wide">
             Kategori <span className="text-red-500">*</span>
           </label>
           <Select
@@ -129,10 +130,10 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
             value={kategori}
             defaultValue=""
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full rounded-xl border-pink-200 focus:ring-pink-300 py-6">
               <SelectValue placeholder="Pilih kategori…" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl border-pink-100">
               <SelectItem value="pernikahan">Pernikahan</SelectItem>
               <SelectItem value="khitanan">Khitanan</SelectItem>
               <SelectItem value="ulang tahun">Ulang Tahun</SelectItem>
@@ -143,18 +144,22 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
 
         {/* File MP3 */}
         <div>
-          <label className="block text-pink-700 font-medium mb-1">
+          <label className="block text-pink-700 text-xs font-semibold mb-2 uppercase tracking-wide">
             File MP3 <span className="text-red-500">*</span>
           </label>
-          <input
-            type="file"
-            accept=".mp3"
-            onChange={handleFileChange}
-            className="w-full text-pink-600 file:mr-4 file:py-2 file:px-4
-                       file:rounded-lg file:border-0 file:text-sm file:font-semibold
-                       file:bg-pink-200 file:text-pink-700 hover:file:bg-pink-300"
-            required
-          />
+          <div className="relative group">
+            <input
+              type="file"
+              accept=".mp3"
+              onChange={handleFileChange}
+              className="w-full text-pink-600 file:mr-4 file:py-3 file:px-6
+                         file:rounded-xl file:border-0 file:text-sm file:font-semibold
+                         file:bg-pink-100 file:text-pink-700 cursor-pointer
+                         hover:file:bg-pink-200 transition-colors bg-pink-50/50 rounded-xl
+                         border border-dashed border-pink-200 p-2"
+              required
+            />
+          </div>
         </div>
 
         {/* Progress Bar (hanya tampil saat sedang upload) */}
@@ -171,7 +176,7 @@ export default function UploadMusicForm({ onUploadSuccess }: UploadMusicFormProp
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-gradient-to-r from-pink-400 to-pink-500 text-white"
+          className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-2xl py-6 text-base font-semibold shadow-md transform transition duration-300 hover:-translate-y-1 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
         >
           {loading ? 'Mengunggah...' : 'Upload Musik'}
         </Button>
