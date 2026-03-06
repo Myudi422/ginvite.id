@@ -37,6 +37,7 @@ const routes: NestedRoute[] = [
       { href: "/panel/music", label: "Music", icon: MusicIcon },
       { href: "/panel/blog-admin", label: "Blog", icon: BookOpenIcon },
       { href: "/panel/theme", label: "Theme", icon: Palette },
+      { href: "/panel/filemanage", label: "File Manager", icon: Clapperboard },
     ],
   },
 ];
