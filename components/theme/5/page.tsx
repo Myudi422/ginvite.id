@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ReactNode } from "react";
 import { useSearchParams, useParams } from "next/navigation";
 import { ThemeData, getFirstEvent, createCalendarUrl } from "@/lib/theme-data";
 import { midtransAction, toggleStatusAction } from "@/app/actions/indexcontent";
@@ -27,7 +27,7 @@ interface Theme5Props {
   data: ThemeData;
 }
 
-const ScrollReveal = ({ children, delay = 0, className = '' }: { children: React.ReactNode, delay?: number, className?: string }) => {
+const ScrollReveal = ({ children, delay = 0, className = '' }: { children: ReactNode, delay?: number, className?: string }) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -414,8 +414,8 @@ export default function Theme5({ data }: Theme5Props) {
         <div className={`fixed inset-x-0 mx-auto max-w-[420px] w-full h-[100dvh] flex flex-col justify-between z-50 transition-transform duration-1000 bg-white overflow-hidden py-6 px-6 ${isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
           {/* Top Title */}
           <div className="w-full text-center relative z-20 mt-4">
-            <h2 className="text-sm font-bold text-[var(--t5-text-primary)]">
-              Wedding Invitation
+            <h2 className="text-sm font-bold text-[var(--t5-text-primary)] uppercase tracking-wider">
+              {isKhitan ? "Walimatul Khitan" : "Wedding Invitation"}
             </h2>
           </div>
 
@@ -532,7 +532,7 @@ export default function Theme5({ data }: Theme5Props) {
             {/* Text Identity */}
             <div className="relative z-30 text-center px-6 mt-20">
               <ThemeText variant="caption" color="white" className="mb-4 tracking-[0.3em] uppercase text-sm font-semibold drop-shadow-md">
-                THE WEDDING OF
+                {isKhitan ? "TASYAKURAN KHITAN" : "THE WEDDING OF"}
               </ThemeText>
 
               {isKhitan ? (
@@ -625,7 +625,7 @@ export default function Theme5({ data }: Theme5Props) {
             </ThemeHeader>
 
             <div className="flex flex-col gap-16 w-full max-w-2xl mx-auto">
-              {children?.map((child, index) => {
+              {(isKhitan ? children?.slice(0, 1) : children)?.map((child, index) => {
                 const hasImage = child.image || child.profile;
 
                 if (!hasImage) {
@@ -712,7 +712,7 @@ export default function Theme5({ data }: Theme5Props) {
                       }}
                     >
                       <ThemeText variant="caption" color="black" className="text-lg font-bold text-[var(--t5-text-primary)]">
-                        {evt.title || (key === 'pemberkatan' ? 'Pemberkatan' : key === 'resepsi' ? 'Resepsi' : key === 'akad' ? 'Akad Nikah' : (idx === 0 ? 'Akad Nikah' : 'Resepsi'))}
+                        {evt.title || (isKhitan ? 'Walimatul Khitan' : key === 'pemberkatan' ? 'Pemberkatan' : key === 'resepsi' ? 'Resepsi' : key === 'akad' ? 'Akad Nikah' : (idx === 0 ? 'Akad Nikah' : 'Resepsi'))}
                       </ThemeText>
 
                       <div className="py-4 border-y border-black/10">
@@ -763,7 +763,7 @@ export default function Theme5({ data }: Theme5Props) {
                       {/* Center: Timer */}
                       <div className="flex-1 w-full text-center space-y-4">
                         <ThemeText variant="caption" color="black" className="tracking-widest uppercase text-xs text-[var(--t5-text-primary)] font-bold">
-                          Counting Down
+                          Menuju Hari Bahagia
                         </ThemeText>
                         <div className="flex justify-center gap-3">
                           {(() => {
@@ -789,10 +789,10 @@ export default function Theme5({ data }: Theme5Props) {
                             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
                             const timeUnits = [
-                              { label: 'Days', value: days },
-                              { label: 'Hours', value: hours },
-                              { label: 'Mins', value: minutes },
-                              { label: 'Secs', value: seconds }
+                              { label: 'Hari', value: days },
+                              { label: 'Jam', value: hours },
+                              { label: 'Menit', value: minutes },
+                              { label: 'Detik', value: seconds }
                             ];
 
                             return timeUnits.map((unit, idx) => (
@@ -817,7 +817,7 @@ export default function Theme5({ data }: Theme5Props) {
                             onClick={() => window.open(calendarUrl, '_blank', 'noopener,noreferrer')}
                             className="w-full px-8 py-3 text-sm"
                           >
-                            Save to Calendar
+                            Simpan ke Kalender
                           </ThemeButton>
                         </div>
                       )}
@@ -836,7 +836,7 @@ export default function Theme5({ data }: Theme5Props) {
             gallery?.items && gallery.items.length > 0 && (
               <ThemeSection id="gallery">
                 <ThemeHeader size="lg" className="mb-8 text-center uppercase tracking-widest text-[var(--t5-text-primary)]">
-                  Our Moments
+                  Momen Bahagia
                 </ThemeHeader>
                 <div className="columns-2 gap-3 space-y-3">
                   {gallery.items.map((item, idx) => (
@@ -858,11 +858,11 @@ export default function Theme5({ data }: Theme5Props) {
             {content?.bank_transfer?.enabled && (
               <div className="mb-8">
                 <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-[var(--t5-text-primary)]">
-                  Wedding Gift
+                  {isKhitan ? "Tanda Kasih" : "Wedding Gift"}
                 </ThemeHeader>
                 <div className="text-center mb-6">
                   <ThemeText color="gray">
-                    Your blessing is enough for us. <br /> However, if you wish to give a gift, we provide a digital wallet.
+                    Doa restu Anda merupakan karunia yang sangat berarti bagi kami. <br /> Namun jika Bapak/Ibu/Saudara/i ingin memberikan tanda kasih, dapat melalui dompet digital berikut:
                   </ThemeText>
                 </div>
 
@@ -885,7 +885,7 @@ export default function Theme5({ data }: Theme5Props) {
 
                   <div className="flex justify-center mb-6">
                     <ThemeButton onClick={() => setShowGiftForm(!showGiftForm)}>
-                      {showGiftForm ? "Hide Account" : "Show Account"}
+                      {showGiftForm ? "Sembunyikan Rekening" : "Tampilkan Rekening"}
                     </ThemeButton>
                   </div>
 
@@ -908,12 +908,12 @@ export default function Theme5({ data }: Theme5Props) {
                       ))}
 
                       {/* Confirmation Form */}
-                      <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10">
-                        <ThemeText variant="caption" color="black" className="text-center mb-4 text-[var(--t5-text-primary)]">Confirmation Form</ThemeText>
+                      <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-black/10">
+                        <ThemeText variant="caption" color="black" className="text-center mb-4 text-[var(--t5-text-primary)] font-bold">Konfirmasi Hadiah</ThemeText>
 
                         <input
                           type="text"
-                          placeholder="Name"
+                          placeholder="Nama"
                           value={namaGift}
                           onChange={e => setNamaGift(e.target.value)}
                           disabled={data.status === "tidak"}
@@ -921,16 +921,16 @@ export default function Theme5({ data }: Theme5Props) {
                         />
                         <input
                           type="text"
-                          placeholder="Amount"
+                          placeholder="Jumlah Transfer"
                           value={formattedJumlahGift}
                           onChange={handleJumlahGiftChange}
                           disabled={data.status === "tidak"}
                           className="w-full bg-zinc-50 border border-black/10 rounded-lg px-4 py-3 text-zinc-900 focus:ring-1 focus:ring-[var(--t5-text-primary)] outline-none disabled:opacity-50"
                         />
                         <ThemeButton variant="outline" className="w-full" disabled={loadingGift || data.status === "tidak"}>
-                          {data.status === "tidak" ? "Free Mode" : loadingGift ? "Sending..." : "Confirm Transfer"}
+                          {data.status === "tidak" ? "Gratis / Trial Mode" : loadingGift ? "Mengirim..." : "Konfirmasi Transfer"}
                         </ThemeButton>
-                        {successGift && <p className="text-green-500 text-center text-sm">Thank you!</p>}
+                        {successGift && <p className="text-green-500 text-center text-sm">Terima kasih atas tanda kasihnya!</p>}
                       </form>
                     </div>
                   )}
@@ -943,7 +943,7 @@ export default function Theme5({ data }: Theme5Props) {
           {content.plugin?.rsvp && (
             <ThemeSection id="rsvp" className="max-w-md mx-auto">
               <ThemeHeader size="lg" className="mb-6 text-center uppercase tracking-widest text-[var(--t5-text-primary)]">
-                RSVP
+                Buku Tamu & RSVP
               </ThemeHeader>
 
               <div className="bg-white shadow-xl border border-black/10 rounded-2xl p-6 relative">
@@ -966,7 +966,7 @@ export default function Theme5({ data }: Theme5Props) {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <input
                     type="text"
-                    placeholder="Name"
+                    placeholder="Nama Anda"
                     value={nama}
                     onChange={e => setNama(e.target.value)}
                     disabled={data.status === "tidak"}
@@ -974,7 +974,7 @@ export default function Theme5({ data }: Theme5Props) {
                   />
                   <input
                     type="text"
-                    placeholder="WhatsApp Number"
+                    placeholder="Nomor WhatsApp"
                     value={wa}
                     onChange={e => setWa(e.target.value)}
                     onKeyPress={handleKeyPressWa}
@@ -987,12 +987,12 @@ export default function Theme5({ data }: Theme5Props) {
                     disabled={data.status === "tidak"}
                     className="w-full bg-zinc-50 border border-black/10 rounded-lg px-4 py-3 text-zinc-900 focus:ring-1 focus:ring-[var(--t5-text-primary)] outline-none disabled:opacity-50 appearance-none"
                   >
-                    <option value="" disabled>Will you attend?</option>
-                    <option value="hadir">Yes, I will attend</option>
-                    <option value="tidak hadir">Sorry, I can't attend</option>
+                    <option value="" disabled>Apakah Anda akan hadir?</option>
+                    <option value="hadir">Ya, Saya akan hadir</option>
+                    <option value="tidak hadir">Maaf, Saya tidak bisa hadir</option>
                   </select>
                   <textarea
-                    placeholder="Wishes & Prayers"
+                    placeholder="Berikan ucapan & doa restu"
                     value={ucapan}
                     onChange={e => setUcapan(e.target.value)}
                     disabled={data.status === "tidak"}
@@ -1000,15 +1000,15 @@ export default function Theme5({ data }: Theme5Props) {
                     className="w-full bg-zinc-50 border border-black/10 rounded-lg px-4 py-3 text-zinc-900 focus:ring-1 focus:ring-[var(--t5-text-primary)] outline-none disabled:opacity-50 resize-none"
                   />
                   <ThemeButton className="w-full" disabled={loading || data.status === "tidak"}>
-                    {data.status === "tidak" ? "Free Mode" : loading ? "Sending..." : "Send RSVP"}
+                    {data.status === "tidak" ? "Gratis / Trial Mode" : loading ? "Mengirim..." : "Kirim RSVP"}
                   </ThemeButton>
-                  {success && <p className="text-green-500 text-center text-sm relative z-20">RSVP Sent successfully!</p>}
+                  {success && <p className="text-green-500 text-center text-sm relative z-20">RSVP Berhasil dikirim!</p>}
                   {error && <p className="text-red-500 text-center text-sm relative z-20">{error}</p>}
                 </form>
 
                 {/* Comments List */}
                 <div className="mt-8 pt-8 border-t border-black/10 space-y-4">
-                  <ThemeText variant="caption" className="mb-4 text-[var(--t5-text-primary)] font-bold">Recent Wishes</ThemeText>
+                  <ThemeText variant="caption" className="mb-4 text-[var(--t5-text-primary)] font-bold">Daftar Ucapan</ThemeText>
                   {rsvpList.slice(0, visibleComments).map((rsvp, idx) => (
                     <div key={idx} className="bg-zinc-50 p-4 rounded-xl border border-black/5 shadow-sm">
                       <div className="flex justify-between items-start mb-2">

@@ -37,3 +37,16 @@ Tema baru (misal Tema 6, dst) harus mengikuti susunan arsitektur bagian konten d
 10. **Wedding Gift**: Area rekening bank/dompet digital yang **wajib menggunakan overlay trial mask** jika data belum lunas.
 11. **RSVP & Wishes**: Formulir kedatangan tamu dan ucapan. Tutup juga dengan overlay trial jika belum dibayar.
 12. **Footer**: Penutup halaman/Credit Aplikasi.
+
+## 5. Kompatibilitas Multi-Event (Pernikahan & Khitanan) Wajib
+Setiap tema yang dibuat **tidak boleh hanya diasumsikan untuk pernikahan**. Aplikasi ini juga melayani pembuatan undangan **Khitanan / Sunatan**.
+- Anda harus selalu mengekstrak variabel `isKhitan` di awal komponen:
+  ```typescript
+  const lowerCategory = (category_type?.name || '').toString().toLowerCase();
+  const isKhitan = lowerCategory.includes('khitan');
+  ```
+- **Conditional Rendering Wajib**:
+  - **Cover & Header**: Jika `isKhitan`, jangan tampilkan simbol `&` (Ampersand). Cukup tampilkan 1 nama anak (`nickname1`). Jika bukan khitan, tampilkan `nickname1 & nickname2`.
+  - **Identitas**: Ubah teks pembuka profil dari "Putra dari" menjadi "Putra/Putri Kebanggaan dari" jika `isKhitan`.
+  - **Quotes**: Gunakan Ayat spesifik Khitanan (contoh: *Q.S An-Najm: 42*) vs nikah (*Q.S Az-Zariyah: 49*).
+  - **Judul Acara**: Gunakan "Walimatul Khitan" / "The Star" daripada "We Are Tying The Knot" / "Akad Nikah".
