@@ -214,7 +214,7 @@ export default function CatalogPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
                         {Array.from({ length: 12 }).map((_, i) => (
                             <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-pink-50 animate-pulse">
-                                <div className="aspect-[3/4] bg-pink-50" />
+                                <div className="aspect-square bg-pink-50" />
                                 <div className="p-2.5 space-y-2">
                                     <div className="h-2.5 bg-pink-50 rounded w-1/2" />
                                     <div className="h-3.5 bg-pink-50 rounded w-3/4" />
@@ -238,8 +238,8 @@ export default function CatalogPage() {
                                     key={theme.id}
                                     className="bg-white rounded-xl sm:rounded-2xl border border-pink-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col group w-full min-w-0"
                                 >
-                                    {/* Image — portrait ratio, not full square */}
-                                    <div className="relative aspect-[3/4] bg-pink-50 overflow-hidden">
+                                    {/* Image — square ratio (1:1) */}
+                                    <div className="relative aspect-square bg-pink-50 overflow-hidden">
                                         <Image
                                             src={theme.image}
                                             alt={theme.name}
