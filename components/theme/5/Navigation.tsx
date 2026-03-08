@@ -1,0 +1,155 @@
+"use client"
+
+import { useState, useEffect } from "react";
+import { Home, Search, Calendar, MapPin, Heart, Gift, BookOpen } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface NavigationProps {
+  activeSection: string;
+  setActiveSection: (section: string) => void;
+  showGallery?: boolean;
+  showRsvp?: boolean;
+  showGift?: boolean;
+}
+
+export default function Navigation({
+  activeSection,
+  setActiveSection,
+  showGallery = true,
+  showRsvp = true,
+  showGift = true,
+}: NavigationProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const navItems = [
+    {
+      id: "home",
+      icon: Home,
+      label: "Home",
+      show: true
+    },
+    {
+      id: "event",
+      icon: Calendar,
+      label: "Event",
+      show: true
+    },
+    {
+      id: "gallery",
+      icon: BookOpen,
+      label: "Gallery",
+      show: showGallery
+    },
+    {
+      id: "gift",
+      icon: Gift,
+      label: "Gift",
+      show: showGift
+    },
+    {
+      id: "rsvp",
+      icon: Heart,
+      label: "RSVP",
+      show: showRsvp
+    },
+  ].filter(item => item.show);
+
+  const handleNavClick = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <>
+      {/* Navigation Bar */}
+      <div className="fixed bottom-6 left-4 right-4 z-40">
+        <div className="max-w-[420px] w-full mx-auto bg-white/90 backdrop-blur-xl border border-black/5 rounded-2xl shadow-2xl">
+          <div className="flex justify-around items-center h-16 px-2">
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={cn(
+                    "relative flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 min-w-[56px]",
+                    isActive ? "text-[var(--t5-text-primary)]" : "text-zinc-400 hover:text-zinc-600"
+                  )}
+                >
+                  <item.icon
+                    size={20}
+                    className={cn(
+                      "transition-transform duration-300",
+                      isActive ? "scale-110" : "scale-100"
+                    )}
+                    strokeWidth={isActive ? 2.5 : 2}
+                  />
+
+                  {isActive && (
+                    <span className="absolute -bottom-1 w-1 h-1 bg-[var(--t5-text-primary)] rounded-full shadow-sm" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom padding to prevent content from being hidden behind nav */}
+      <div className="h-24" />
+    </>
+  );
+}
+
+// Navigation hook
+export function useNavigation() {
+  const [activeSection, setActiveSection] = useState("home");
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const handleScroll = () => {
+      // Throttle scroll for performance
+      if (timeoutId) return;
+
+      timeoutId = setTimeout(() => {
+        const sections = ["home", "event", "gallery", "gift", "rsvp"];
+
+        for (const sectionId of sections.reverse()) {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            // If the element's top crosses the upper third of the screen, it's active
+            if (rect.top <= window.innerHeight / 3) {
+              setActiveSection(sectionId);
+              break;
+            }
+          }
+        }
+        timeoutId = undefined as any;
+      }, 50);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return { activeSection, setActiveSection };
+}
