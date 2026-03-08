@@ -394,7 +394,7 @@ export default function Theme5({ data }: Theme5Props) {
         )}
 
         {/* COVER (Mobile: Full Screen initially then slides up or fades) */}
-        <div className={`fixed inset-x-0 mx-auto max-w-[420px] w-full h-[100dvh] flex flex-col justify-between z-50 transition-transform duration-1000 bg-white overflow-hidden py-8 px-6 ${isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
+        <div className={`fixed inset-x-0 mx-auto max-w-[420px] w-full h-[100dvh] flex flex-col justify-between z-50 transition-transform duration-1000 bg-white overflow-hidden py-6 px-6 ${isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
           {/* Top Title */}
           <div className="w-full text-center relative z-20 mt-4">
             <h2 className="text-sm font-bold text-[var(--t5-text-primary)]">
@@ -402,8 +402,8 @@ export default function Theme5({ data }: Theme5Props) {
             </h2>
           </div>
 
-          {/* Main Image Frame */}
-          <div className="relative w-full aspect-[3/4] max-h-[45vh] mt-6 mb-8 z-20 mx-auto">
+          {/* Main Image Frame (Flexible height on small screens) */}
+          <div className="relative w-full aspect-[3/4] max-h-[35vh] sm:max-h-[40vh] my-4 mx-auto z-20 shrink-0">
             {/* Decorative Circles */}
             <div className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-[#f9efcb] z-30" />
             <div className="absolute -bottom-6 -left-6 w-16 h-16 rounded-full bg-[#d2e0f0] z-30" />
@@ -421,7 +421,7 @@ export default function Theme5({ data }: Theme5Props) {
           </div>
 
           {/* Names */}
-          <div className="relative w-full text-center mb-6 z-20">
+          <div className="relative w-full text-center mb-3 sm:mb-5 z-20 shrink-0">
             {isKhitan ? (
               <h1 className="text-5xl text-[var(--t5-text-primary)]" style={{ fontFamily: 'var(--t5-font-heading)' }}>
                 {nickname1}
@@ -436,7 +436,7 @@ export default function Theme5({ data }: Theme5Props) {
           </div>
 
           {/* Date */}
-          <div className="w-full text-center mb-6 z-20">
+          <div className="w-full text-center mb-4 sm:mb-6 z-20 shrink-0">
             <p className="text-xs font-bold text-[var(--t5-text-primary)]">
               {(() => {
                 try {
@@ -448,8 +448,8 @@ export default function Theme5({ data }: Theme5Props) {
           </div>
 
           {/* Bottom Area: Button + Guest + Decor */}
-          <div className="w-full flex justify-between items-end relative z-20 flex-1 pb-4">
-            <div className="flex flex-col gap-6 w-2/3">
+          <div className="w-full flex justify-between items-end relative z-20 flex-1 min-h-0">
+            <div className="flex flex-col gap-4 sm:gap-6 w-2/3">
               {/* Action Button */}
               {!isOpen && (
                 <button
