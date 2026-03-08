@@ -33,10 +33,11 @@ Tema baru (misal Tema 6, dst) harus mengikuti susunan arsitektur bagian konten d
 6. **Date & Event Details (Resepsi/Akad)**: Detail informasi tempat dan waktu Acara (bisa >1 acara).
 7. **Countdown Timer**: Hitung mundur hari pernikahan.
 8. **Turut Mengundang**: Daftar kerabat kehormatan/orang tua yang mengundang.
-9. **Gallery (Our Moments)**: Kolase foto pengantin.
-10. **Wedding Gift**: Area rekening bank/dompet digital yang **wajib menggunakan overlay trial mask** jika data belum lunas.
-11. **RSVP & Wishes**: Formulir kedatangan tamu dan ucapan. Tutup juga dengan overlay trial jika belum dibayar.
-12. **Footer**: Penutup halaman/Credit Aplikasi.
+9. **Video**: Menampilkan sematan video pre-wedding atau momen spesial. (Render kondisional jika `content.plugin.youtube_link` tersedia)
+10. **Gallery (Our Moments)**: Kolase foto pengantin.
+11. **Wedding Gift**: Area rekening bank/dompet digital yang **wajib menggunakan overlay trial mask** jika data belum lunas.
+12. **RSVP & Wishes**: Formulir kedatangan tamu dan ucapan. Tutup juga dengan overlay trial jika belum dibayar.
+13. **Footer**: Penutup halaman/Credit Aplikasi.
 
 ## 5. Kompatibilitas Multi-Event (Pernikahan & Khitanan) Wajib
 Setiap tema yang dibuat **tidak boleh hanya diasumsikan untuk pernikahan**. Aplikasi ini juga melayani pembuatan undangan **Khitanan / Sunatan**.

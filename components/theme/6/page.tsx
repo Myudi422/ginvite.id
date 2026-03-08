@@ -22,6 +22,7 @@ import themeConfig from './theme.json';
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
 const MusicPlayer = dynamic(() => import('./MusicPlayer'), { ssr: false, loading: () => null });
 const TurutSection = dynamic(() => import('./TurutSection'), { ssr: false, loading: () => null });
+const VideoSection = dynamic(() => import('./VideoSection'), { ssr: false, loading: () => null });
 
 interface Theme6Props {
   data: ThemeData;
@@ -908,6 +909,11 @@ export default function Theme6({ data }: Theme6Props) {
 
           {/* Turut Mengundang */}
           <TurutSection enabled={content?.turut?.enabled} list={content?.turut?.list} />
+
+          {/* Video Section */}
+          {content?.plugin?.youtube_link && (
+            <VideoSection youtubeLink={content.plugin.youtube_link} defaultBgImage1={bgImages[0] || backgroundImage} />
+          )}
 
           {/* Gallery */}
           {
