@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useParams } from "next/navigation";
 import { ThemeData, getFirstEvent, createCalendarUrl } from "@/lib/theme-data";
 import { midtransAction, toggleStatusAction } from "@/app/actions/indexcontent";
@@ -26,6 +26,31 @@ const TurutSection = dynamic(() => import('./TurutSection'), { ssr: false, loadi
 interface Theme5Props {
   data: ThemeData;
 }
+
+const ScrollReveal = ({ children, delay = 0, className = '' }: { children: React.ReactNode, delay?: number, className?: string }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => setIsVisible(true), delay);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [delay]);
+
+  return (
+    <div ref={ref} className={`transition-all duration-700 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} ${className}`}>
+      {children}
+    </div>
+  );
+};
 
 export default function Theme5({ data }: Theme5Props) {
   const cuId = data.content_user_id;
@@ -482,6 +507,52 @@ export default function Theme5({ data }: Theme5Props) {
         {/* MAIN CONTENT */}
         <div className={`w-full min-h-screen relative z-10 transition-all duration-1000 bg-[var(--t5-bg-main)] ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 h-0 overflow-hidden pointer-events-none'}`}>
 
+          {/* Header (Visual Hero) */}
+          <section id="home" className="relative w-full h-[85vh] min-h-[600px] flex flex-col items-center justify-center overflow-hidden bg-[var(--t5-bg-main)]">
+            {/* Background Slideshow */}
+            {bgImages.map((src, idx) => (
+              <div
+                key={idx}
+                className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+                style={{
+                  backgroundImage: `url(${src})`,
+                  opacity: idx === currentBgIndex ? 0.6 : 0,
+                  filter: 'brightness(0.9) contrast(1.1)'
+                }}
+              />
+            ))}
+
+            {/* Dark Mask Gradient Filter */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--t5-bg-main)] via-transparent to-black/30 z-10" />
+
+            {/* Floral Assets */}
+            {assets.flower1 && <img src={assets.flower1} className="absolute top-0 right-0 w-48 opacity-80 z-20 pointer-events-none" alt="" />}
+            {assets.flowerL && <img src={assets.flowerL} className="absolute bottom-10 left-0 w-32 opacity-80 z-20 pointer-events-none" alt="" />}
+
+            {/* Text Identity */}
+            <div className="relative z-30 text-center px-6 mt-20">
+              <ThemeText variant="caption" color="white" className="mb-4 tracking-[0.3em] uppercase text-sm font-semibold drop-shadow-md">
+                THE WEDDING OF
+              </ThemeText>
+
+              {isKhitan ? (
+                <h1 className="text-6xl text-white drop-shadow-lg" style={{ fontFamily: 'var(--t5-font-heading)' }}>
+                  {nickname1}
+                </h1>
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <h1 className="text-6xl text-white drop-shadow-lg leading-none" style={{ fontFamily: 'var(--t5-font-heading)' }}>
+                    {nickname1}
+                  </h1>
+                  <span className="text-4xl text-[var(--t5-text-accent)] font-serif italic drop-shadow-md">&amp;</span>
+                  <h1 className="text-6xl text-white drop-shadow-lg leading-none" style={{ fontFamily: 'var(--t5-font-heading)' }}>
+                    {nickname2}
+                  </h1>
+                </div>
+              )}
+            </div>
+          </section>
+
           {/* Quote Section */}
           <ThemeSection className="text-center relative py-20 px-6">
             <div
@@ -516,7 +587,7 @@ export default function Theme5({ data }: Theme5Props) {
                 {content.our_story.map((item, index) => {
                   const hasImage = item.pictures && item.pictures[0] && item.pictures[0].trim() !== '';
                   return (
-                    <div key={index} className={`relative flex items-center justify-between group is-active`}>
+                    <ScrollReveal key={index} delay={index * 200} className={`relative flex items-center justify-between group is-active`}>
                       {/* Timeline Dot */}
                       <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-[var(--t5-bg-main)] shadow shrink-0 z-10" style={{ borderColor: 'var(--t5-bg-main)' }}>
                         <div className="w-3 h-3 bg-[var(--t5-text-primary)] rounded-full"></div>
@@ -537,7 +608,7 @@ export default function Theme5({ data }: Theme5Props) {
                           {item.description}
                         </ThemeText>
                       </div>
-                    </div>
+                    </ScrollReveal>
                   );
                 })}
               </div>
