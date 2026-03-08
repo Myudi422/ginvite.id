@@ -1,0 +1,32 @@
+{
+    "colors": {
+        "background": {
+            "main": "#f0f4f8",
+            "cover": "#FFFFFF",
+            "decorative_yellow": "#e9f0f7",
+            "decorative_blue": "#d1dbe5"
+        },
+        "text": {
+            "primary": "#4a6fa5",
+            "secondary": "#546e7a",
+            "accent": "#2c3e50",
+            "white": "#FFFFFF"
+        },
+        "borders": {
+            "glass": "rgba(74, 111, 165, 0.2)"
+        },
+        "gradients": {
+            "button": "linear-gradient(to right, #4a6fa5, #355380)"
+        }
+    },
+    "fonts": {
+        "heading": "'Great Vibes', Dancing Script"
+    },
+    "assets": {
+        "flower1": "https://www.wevitation.com/themes/mildness/img/corner-1.png",
+        "flowerL": "https://www.wevitation.com/themes/mildness/img/corner-2.png",
+        "flowerR": "https://www.wevitation.com/themes/mildness/img/flower-1.png",
+        "ellipse1": "https://www.wevitation.com/themes/mildness/img/watercolor-3.png",
+        "ellipse2": "https://www.wevitation.com/themes/mildness/img/watercolor-4.png"
+    }
+}
