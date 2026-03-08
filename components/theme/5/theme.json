@@ -1,0 +1,32 @@
+{
+    "colors": {
+        "background": {
+            "main": "#F5F8FF",
+            "cover": "#FFFFFF",
+            "decorative_yellow": "#f9efcb",
+            "decorative_blue": "#d2e0f0"
+        },
+        "text": {
+            "primary": "#4A719C",
+            "secondary": "#555555",
+            "accent": "#F9EFCB",
+            "white": "#FFFFFF"
+        },
+        "borders": {
+            "glass": "rgba(74, 113, 156, 0.2)"
+        },
+        "gradients": {
+            "button": "linear-gradient(to right, #4A719C, #3b5f87)"
+        }
+    },
+    "fonts": {
+        "heading": "'Dancing Script', cursive"
+    },
+    "assets": {
+        "flower1": "https://www.wevitation.com/themes/bloom-blue/img/flower_1.svg",
+        "flowerL": "https://www.wevitation.com/themes/bloom-blue/img/flower_l.svg",
+        "flowerR": "https://www.wevitation.com/themes/bloom-blue/img/flower_r.svg",
+        "ellipse1": "https://www.wevitation.com/themes/bloom-blue/img/ellipse_1.svg",
+        "ellipse2": "https://www.wevitation.com/themes/bloom-blue/img/ellipse_2.svg"
+    }
+}

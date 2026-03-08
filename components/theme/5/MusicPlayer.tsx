@@ -65,7 +65,7 @@ export default function MusicPlayer({ url, autoPlay = false }: MusicPlayerProps)
       <button
         onClick={togglePlay}
         className={`p-3 rounded-full shadow-xl focus:outline-none transition-all duration-300 transform hover:scale-105 ${isPlaying
-          ? "bg-amber-600/80 hover:bg-amber-600 text-white animate-spin-slow"
+          ? "bg-[var(--t5-text-primary)] hover:bg-[var(--t5-text-primary)]/90 text-white animate-spin-slow"
           : "bg-zinc-800/80 hover:bg-zinc-800 text-gray-400"
           } backdrop-blur-sm border border-white/10`}
         title={isPlaying ? "Pause" : "Play"}

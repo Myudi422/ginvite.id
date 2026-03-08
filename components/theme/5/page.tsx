@@ -16,6 +16,7 @@ import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 import { FaUser, FaWhatsapp, FaComment } from 'react-icons/fa';
 import { FiCopy, FiLock, FiMail } from 'react-icons/fi';
+import themeConfig from './theme.json';
 
 // Dynamic imports
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
@@ -105,7 +106,7 @@ export default function Theme5({ data }: Theme5Props) {
       setShowProfileModal(true);
 
       // Delay showing text in opening
-      setTimeout(() => setShowOpeningText(true), 3000);
+      setTimeout(() => setShowOpeningText(true), 500);
     }
   }, [params, searchParams]);
 
@@ -125,27 +126,18 @@ export default function Theme5({ data }: Theme5Props) {
     ? (() => { try { return JSON.parse((theme as any).custom).theme5 || null; } catch (e) { return null; } })()
     : null;
 
-  // Default Wevitation Bloom Blue fallback assets if JSON is empty
-  const defaultAssets = {
-    flower1: 'https://www.wevitation.com/themes/bloom-blue/img/flower_1.svg',
-    flowerL: 'https://www.wevitation.com/themes/bloom-blue/img/flower_l.svg',
-    flowerR: 'https://www.wevitation.com/themes/bloom-blue/img/flower_r.svg',
-    ellipse1: 'https://www.wevitation.com/themes/bloom-blue/img/ellipse_1.svg',
-    ellipse2: 'https://www.wevitation.com/themes/bloom-blue/img/ellipse_2.svg',
-  };
-
-  const assets = customSettings?.assets || defaultAssets;
+  const assets = customSettings?.assets || themeConfig.assets;
 
   const customStyle = {
-    '--t5-bg-main': customSettings?.colors?.background?.main || '#F5F8FF',
-    '--t5-bg-cover': customSettings?.colors?.background?.cover || '#0d3663',
-    '--t5-text-primary': customSettings?.colors?.text?.primary || '#4A719C',
-    '--t5-text-secondary': customSettings?.colors?.text?.secondary || '#555555',
-    '--t5-text-accent': customSettings?.colors?.text?.accent || '#F9EFCB',
-    '--t5-text-white': customSettings?.colors?.text?.white || '#FFFFFF',
-    '--t5-border-glass': customSettings?.colors?.borders?.glass || 'rgba(74, 113, 156, 0.2)',
-    '--t5-grad-button': customSettings?.colors?.gradients?.button || 'linear-gradient(to right, #4A719C, #3b5f87)',
-    '--t5-font-heading': customSettings?.fonts?.heading || "'Dancing Script', cursive",
+    '--t5-bg-main': customSettings?.colors?.background?.main || themeConfig.colors.background.main,
+    '--t5-bg-cover': customSettings?.colors?.background?.cover || themeConfig.colors.background.cover,
+    '--t5-text-primary': customSettings?.colors?.text?.primary || themeConfig.colors.text.primary,
+    '--t5-text-secondary': customSettings?.colors?.text?.secondary || themeConfig.colors.text.secondary,
+    '--t5-text-accent': customSettings?.colors?.text?.accent || themeConfig.colors.text.accent,
+    '--t5-text-white': customSettings?.colors?.text?.white || themeConfig.colors.text.white,
+    '--t5-border-glass': customSettings?.colors?.borders?.glass || themeConfig.colors.borders.glass,
+    '--t5-grad-button': customSettings?.colors?.gradients?.button || themeConfig.colors.gradients.button,
+    '--t5-font-heading': customSettings?.fonts?.heading || themeConfig.fonts.heading,
   } as React.CSSProperties;
 
   useEffect(() => {
@@ -355,10 +347,10 @@ export default function Theme5({ data }: Theme5Props) {
         {/* Payment Banner */}
         {data.status === "tidak" && isOpen && (
           <div className="fixed top-20 inset-x-0 mx-auto max-w-[420px] z-[60] flex flex-col items-center justify-center gap-2 pointer-events-none px-4">
-            <div className="bg-amber-600/90 backdrop-blur-md text-white py-3 px-4 rounded-xl shadow-2xl pointer-events-auto flex items-center gap-4 w-full border border-amber-400/30">
+            <div className="bg-red-600/90 backdrop-blur-md text-white py-3 px-4 rounded-xl shadow-2xl pointer-events-auto flex items-center gap-4 w-full border border-red-400/30">
               <div className="flex-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-amber-100 mb-0.5">Trial Mode</p>
-                <p className="text-[10px] text-amber-50/80 leading-tight">Aktifkan untuk fitur lengkap & hilangkan watermark.</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-red-100 mb-0.5">Trial Mode</p>
+                <p className="text-[10px] text-red-50/80 leading-tight">Aktifkan untuk fitur lengkap & hilangkan watermark.</p>
               </div>
               <ThemeButton
                 variant="primary"
@@ -405,8 +397,8 @@ export default function Theme5({ data }: Theme5Props) {
           {/* Main Image Frame (Flexible height on small screens) */}
           <div className="relative w-full aspect-[3/4] max-h-[35vh] sm:max-h-[40vh] my-4 mx-auto z-20 shrink-0">
             {/* Decorative Circles */}
-            <div className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-[#f9efcb] z-30" />
-            <div className="absolute -bottom-6 -left-6 w-16 h-16 rounded-full bg-[#d2e0f0] z-30" />
+            <div className="absolute -top-4 -right-4 w-10 h-10 rounded-full z-30" style={{ backgroundColor: themeConfig.colors.background.decorative_yellow }} />
+            <div className="absolute -bottom-6 -left-6 w-16 h-16 rounded-full z-30" style={{ backgroundColor: themeConfig.colors.background.decorative_blue }} />
 
             {/* Image Box */}
             <div className="relative w-full h-full border-[8px] border-[var(--t5-text-primary)] overflow-hidden z-20 bg-zinc-100">
@@ -481,8 +473,8 @@ export default function Theme5({ data }: Theme5Props) {
 
           {/* Floral bottom right (anchored to screen corner) */}
           <div className="absolute -bottom-20 -right-16 w-64 opacity-60 pointer-events-none z-0">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[#d2e0f0] rounded-full -translate-y-8 translate-x-4 mix-blend-multiply opacity-60" />
-            <div className="absolute bottom-0 left-0 w-20 h-20 bg-[#d2e0f0] rounded-full translate-y-4 -translate-x-4 mix-blend-multiply opacity-60" />
+            <div className="absolute top-0 right-0 w-24 h-24 rounded-full -translate-y-8 translate-x-4 mix-blend-multiply opacity-60" style={{ backgroundColor: themeConfig.colors.background.decorative_blue }} />
+            <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full translate-y-4 -translate-x-4 mix-blend-multiply opacity-60" style={{ backgroundColor: themeConfig.colors.background.decorative_blue }} />
             {assets.flowerR && <img src={assets.flowerR} className="w-full h-auto drop-shadow-sm relative z-20" alt="" />}
           </div>
         </div>
@@ -648,7 +640,7 @@ export default function Theme5({ data }: Theme5Props) {
                         borderColor: 'var(--t5-border-glass)'
                       }}
                     >
-                      <ThemeText variant="caption" color="gold" className="text-lg font-bold">
+                      <ThemeText variant="caption" color="black" className="text-lg font-bold text-[var(--t5-text-primary)]">
                         {evt.title || (key === 'pemberkatan' ? 'Pemberkatan' : key === 'resepsi' ? 'Resepsi' : key === 'akad' ? 'Akad Nikah' : (idx === 0 ? 'Akad Nikah' : 'Resepsi'))}
                       </ThemeText>
 
@@ -846,7 +838,7 @@ export default function Theme5({ data }: Theme5Props) {
 
                       {/* Confirmation Form */}
                       <form onSubmit={handleGiftSubmit} className="space-y-4 mt-6 pt-6 border-t border-white/10">
-                        <ThemeText variant="caption" color="gold" className="text-center mb-4">Confirmation Form</ThemeText>
+                        <ThemeText variant="caption" color="black" className="text-center mb-4 text-[var(--t5-text-primary)]">Confirmation Form</ThemeText>
 
                         <input
                           type="text"
