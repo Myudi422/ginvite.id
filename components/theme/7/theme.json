@@ -1,0 +1,35 @@
+{
+    "colors": {
+        "background": {
+            "main": "#FAE9DD",
+            "cover": "#FFFFFF",
+            "decorative_yellow": "#e9f0f7",
+            "decorative_blue": "#d1dbe5"
+        },
+        "text": {
+            "primary": "#A6522B",
+            "secondary": "#E09F74",
+            "accent": "#A6522B",
+            "white": "#FFFFFF"
+        },
+        "borders": {
+            "glass": "rgba(166, 82, 43, 0.2)"
+        },
+        "gradients": {
+            "button": "linear-gradient(to right, #A6522B, #E09F74)"
+        }
+    },
+    "fonts": {
+        "heading": "'laisharegular', serif"
+    },
+    "assets": {
+        "cover_bg_1": "https://app.wevitation.com/storage/v2/cover/00c36738-c228-4c22-ab18-24f15d16c7a7_background_1.png",
+        "cover_bg_2": "https://app.wevitation.com/storage/v2/cover/00c36738-c228-4c22-ab18-24f15d16c7a7_background_2.png",
+        "flower_svg": "https://www.wevitation.com/themes/simple-rustic-2/img/flower.svg",
+        "flower1": "https://www.wevitation.com/themes/mildness/img/corner-1.png",
+        "flowerL": "https://www.wevitation.com/themes/mildness/img/corner-2.png",
+        "flowerR": "https://www.wevitation.com/themes/mildness/img/flower-1.png",
+        "ellipse1": "https://www.wevitation.com/themes/mildness/img/watercolor-3.png",
+        "ellipse2": "https://www.wevitation.com/themes/mildness/img/watercolor-4.png"
+    }
+}
