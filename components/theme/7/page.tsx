@@ -501,59 +501,67 @@ export default function Theme7({ data }: Theme7Props) {
         {/* MAIN CONTENT */}
         <div className={`w-full min-h-screen relative z-10 transition-all duration-1000 bg-[var(--t7-bg-main)] ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 h-0 overflow-hidden pointer-events-none'}`}>
 
-          {/* Header (Visual Hero) */}
-          <section id="home" className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[var(--t7-bg-main)] pt-16 pb-12">
+          {/* Header (Visual Hero) matched to Simple Rustic 2 */}
+          <section id="home" className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[var(--t7-bg-main)] pt-20 pb-16">
 
             {/* Floral Top Center */}
-            {assets.flower_svg && <img src={assets.flower_svg} className="absolute top-8 left-1/2 -translate-x-1/2 w-[280px] opacity-90 pointer-events-none z-10 drop-shadow-sm" alt="" />}
+            {assets.flower_svg && <img src={assets.flower_svg} className="absolute top-0 left-0 w-48 opacity-50 pointer-events-none z-10 -scale-x-100" alt="" />}
+            {assets.flower_svg && <img src={assets.flower_svg} className="absolute top-0 right-0 w-48 opacity-50 pointer-events-none z-10" alt="" />}
 
             {/* Content Container */}
-            <div className="relative z-20 w-full max-w-sm flex flex-col items-center justify-center text-center mt-32 px-6">
-              <ThemeText variant="caption" className="mb-2 tracking-wide text-sm font-semibold text-[var(--t7-text-secondary)] opacity-90">
-                {isKhitan ? "Walimatul Khitan" : "Undangan Pernikahan"}
+            <div className="relative z-20 w-full max-w-sm flex flex-col items-center justify-center text-center px-6 mt-8">
+
+              <ThemeText variant="caption" className="mb-6 tracking-widest text-xs font-bold text-[var(--t7-text-secondary)]">
+                {isKhitan ? "Walimatul Khitan" : "The Wedding Of"}
               </ThemeText>
+
+              {/* Central Frame with Photo (Simple Rustic characteristic) */}
+              <div className="relative group w-full max-w-[14rem] mx-auto mb-8">
+                {assets.flower_svg && (
+                  <img src={assets.flower_svg} className="absolute -bottom-8 -right-8 w-32 opacity-90 z-20 pointer-events-none rotate-180" alt="" />
+                )}
+                <div className="relative w-full aspect-[3/4] rounded-[4rem] rounded-tl-none overflow-hidden border-2 border-[var(--t7-text-primary)] p-1 bg-white shadow-lg">
+                  <div className="w-full h-full rounded-[3.8rem] rounded-tl-none overflow-hidden">
+                    <img src={gallery?.items?.[0] || backgroundImage} alt="Couple" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              </div>
 
               {isKhitan ? (
                 <h1 className="text-5xl text-[var(--t7-text-primary)] my-2" style={{ fontFamily: 'var(--t7-font-heading)' }}>
                   {nickname1}
                 </h1>
               ) : (
-                <div className="flex flex-col items-center gap-1 my-2">
-                  <h1 className="text-5xl text-[var(--t7-text-primary)] leading-none" style={{ fontFamily: 'var(--t7-font-heading)' }}>
+                <div className="flex flex-col items-center gap-2 my-2 w-full">
+                  <h1 className="text-5xl text-[var(--t7-text-primary)] leading-none w-full break-words" style={{ fontFamily: 'var(--t7-font-heading)' }}>
                     {nickname1}
                   </h1>
-                  <span className="text-3xl text-[var(--t7-text-primary)] font-serif italic">&amp;</span>
-                  <h1 className="text-5xl text-[var(--t7-text-primary)] leading-none" style={{ fontFamily: 'var(--t7-font-heading)' }}>
+                  <span className="text-3xl text-[var(--t7-text-secondary)] font-serif italic leading-none">&amp;</span>
+                  <h1 className="text-5xl text-[var(--t7-text-primary)] leading-none w-full break-words" style={{ fontFamily: 'var(--t7-font-heading)' }}>
                     {nickname2}
                   </h1>
                 </div>
               )}
 
-              <div className="my-6">
-                <p className="text-sm text-[var(--t7-text-secondary)] font-medium mb-1">
-                  {(() => {
-                    try {
-                      const d = new Date(firstEvent?.date || Date.now());
-                      return d.toLocaleDateString('id-ID', { weekday: 'long' });
-                    } catch { return 'Sabtu'; }
-                  })()}
-                </p>
-                <p className="text-base text-[var(--t7-text-primary)] font-bold tracking-widest">
+              <div className="my-8 flex items-center justify-center gap-4 w-full px-4">
+                <div className="flex-1 h-px bg-[var(--t7-text-primary)] opacity-30" />
+                <p className="text-base text-[var(--t7-text-primary)] font-bold tracking-[0.2em] uppercase shrink-0">
                   {(() => {
                     try {
                       const d = new Date(firstEvent?.date || Date.now());
                       const day = String(d.getDate()).padStart(2, '0');
                       const mon = String(d.getMonth() + 1).padStart(2, '0');
                       const yr = d.getFullYear();
-                      return `${day} • ${mon} • ${yr}`;
-                    } catch { return '28 • 03 • 2026'; }
+                      return `${day} . ${mon} . ${yr}`;
+                    } catch { return '28 . 03 . 2026'; }
                   })()}
                 </p>
+                <div className="flex-1 h-px bg-[var(--t7-text-primary)] opacity-30" />
               </div>
 
               {/* Countdown inside Card */}
               {eventDate && (
-                <div className="flex justify-center gap-3 mt-2 w-full">
+                <div className="flex justify-center gap-4 mt-2 w-full">
                   {(() => {
                     const now = new Date().getTime();
                     const eventTime = eventDate.getTime();
@@ -568,10 +576,10 @@ export default function Theme7({ data }: Theme7Props) {
                       ];
                       return units.map((unit, idx) => (
                         <div key={idx} className="flex flex-col items-center">
-                          <div className="w-12 h-12 rounded-full bg-[#5d7c9d] text-white flex items-center justify-center text-lg shadow-md font-bold mb-1.5" style={{ fontFamily: 'sans-serif' }}>
+                          <div className="w-12 h-12 rounded-full border border-[var(--t7-text-primary)]/30 bg-white text-[var(--t7-text-primary)] flex items-center justify-center text-lg shadow-sm font-bold mb-2">
                             {String(unit.value).padStart(2, '0')}
                           </div>
-                          <div className="text-[10px] text-[var(--t7-text-secondary)] font-semibold">{unit.label}</div>
+                          <div className="text-[9px] uppercase tracking-widest text-[var(--t7-text-secondary)] font-bold">{unit.label}</div>
                         </div>
                       ));
                     };
