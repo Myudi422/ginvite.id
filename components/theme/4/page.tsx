@@ -16,7 +16,7 @@ import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 import { FaUser, FaWhatsapp, FaComment } from 'react-icons/fa';
 import { FiCopy, FiLock } from 'react-icons/fi';
-
+import Image from 'next/image';
 // Dynamic imports
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
 const MusicPlayer = dynamic(() => import('./MusicPlayer'), { ssr: false, loading: () => null });
@@ -477,10 +477,12 @@ export default function Theme4({ data }: Theme4Props) {
                       <div className="flex flex-row items-start gap-4">
                         <div className="relative w-28 h-20 flex items-center justify-center overflow-hidden rounded-lg bg-zinc-800 shrink-0">
                           {hasImage ? (
-                            <img
+                            <Image
                               src={item.pictures[0]}
                               alt={item.title || `Episode ${index + 1}`}
-                              className="object-cover w-full h-full"
+                              fill
+                              sizes="(max-width: 768px) 150px, 20vw"
+                              className="object-cover"
                             />
                           ) : (
                             <span className="text-3xl">📖</span>
@@ -556,7 +558,7 @@ export default function Theme4({ data }: Theme4Props) {
                     <div className="relative group w-full max-w-[16rem] mx-auto">
                       <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/30 transition-all" />
                       <div className="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden border-2 border-amber-500/20 shadow-2xl">
-                        <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <Image src={child.image || child.profile || ""} alt={child.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
                       </div>
                     </div>
 
@@ -734,9 +736,12 @@ export default function Theme4({ data }: Theme4Props) {
                 <div className="columns-2 gap-3 space-y-3">
                   {gallery.items.map((item, idx) => (
                     <div key={idx} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg border border-white/5 group">
-                      <img
+                      <Image
                         src={item}
                         alt="Gallery"
+                        width={600}
+                        height={600}
+                        sizes="(max-width: 768px) 50vw, 33vw"
                         className="w-full h-auto transform transition-transform duration-700 group-hover:scale-105"
                       />
                     </div>

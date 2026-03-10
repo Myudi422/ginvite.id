@@ -96,16 +96,16 @@ export default function GallerySection({
                   viewport={{ once: true, amount: 0.3 }}
                   custom={idx}
                 >
-                    <div className="relative w-full aspect-[4/5] bg-gray-100" style={{overflow:'hidden'}}>
-                      <Image
-                        src={src}
-                        alt={`Moment ${idx + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(min-width: 1024px) 480px, (min-width: 640px) 360px, 100vw"
-                        loading="lazy"
-                      />
-                    </div>
+                  <div className="relative w-full aspect-[4/5] bg-gray-100" style={{ overflow: 'hidden' }}>
+                    <Image
+                      src={src}
+                      alt={`Moment ${idx + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 480px, (min-width: 640px) 360px, 100vw"
+                      loading="lazy"
+                    />
+                  </div>
                 </motion.button>
               ))}
             </div>
@@ -143,31 +143,26 @@ export default function GallerySection({
           </button>
 
           <div
-            className="p-2 rounded-lg"
+            className="p-2 rounded-lg relative"
             style={{
               backgroundColor: '#fff',
-              maxWidth: '80vw',
-              maxHeight: '80vh',
-              overflow: 'auto',
+              width: '80vw',
+              height: '80vh',
+              overflow: 'hidden',
               boxShadow: `0 6px 12px ${theme.accentColor}44`,
             }}
             onWheel={onWheel}
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={gallery.items[currentIdx]}
-              alt={`Moment ${currentIdx + 1}`}
-              loading="eager"
-              decoding="async"
-              style={{
-                display: 'block',
-                maxWidth: '100%',
-                maxHeight: '100%',
-                transform: `scale(${zoom})`,
-                transition: 'transform 0.1s',
-                objectFit: 'contain',
-              }}
-            />
+            <div style={{ width: '100%', height: '100%', position: 'relative', transform: `scale(${zoom})`, transition: 'transform 0.1s' }}>
+              <Image
+                src={gallery.items[currentIdx]}
+                alt={`Moment ${currentIdx + 1}`}
+                fill
+                sizes="100vw"
+                className="object-contain"
+              />
+            </div>
           </div>
 
           <button

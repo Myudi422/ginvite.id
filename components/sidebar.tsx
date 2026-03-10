@@ -69,7 +69,7 @@ function SidebarContent({ onLinkClick, typeUser }: { onLinkClick?: () => void, t
   };
 
   return (
-    <div className="h-full py-6 px-4 bg-gradient-to-b from-pink-50/30 to-white/20 backdrop-blur-md border-r border-pink-100/30 flex flex-col justify-between">
+    <div className="h-full py-6 px-4 bg-gradient-to-b from-pink-50/90 to-white/90 border-r border-pink-100/30 flex flex-col justify-between">
       <div>
         <Link
           href="/"

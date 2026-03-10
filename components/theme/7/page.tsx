@@ -15,6 +15,7 @@ import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 import { FaUser, FaWhatsapp, FaComment } from 'react-icons/fa';
 import { FiCopy, FiLock, FiMail } from 'react-icons/fi';
+import Image from 'next/image';
 import themeConfig from './theme.json';
 
 // Dynamic imports
@@ -521,8 +522,15 @@ export default function Theme7({ data }: Theme7Props) {
                   <img src={assets.flower_svg} className="absolute -bottom-8 -right-8 w-32 opacity-90 z-20 pointer-events-none rotate-180" alt="" />
                 )}
                 <div className="relative w-full aspect-[3/4] rounded-[4rem] rounded-tl-none overflow-hidden border-2 border-[var(--t7-text-primary)] p-1 bg-white shadow-lg">
-                  <div className="w-full h-full rounded-[3.8rem] rounded-tl-none overflow-hidden">
-                    <img src={gallery?.items?.[0] || backgroundImage} alt="Couple" className="w-full h-full object-cover" />
+                  <div className="relative w-full h-full rounded-[3.8rem] rounded-tl-none overflow-hidden">
+                    <Image
+                      src={gallery?.items?.[0] || backgroundImage}
+                      alt="Couple"
+                      fill
+                      priority
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
                   </div>
                 </div>
               </div>
@@ -639,7 +647,13 @@ export default function Theme7({ data }: Theme7Props) {
                       <div className="w-full bg-[#F5F1EB] rounded-[32px] overflow-hidden shadow-sm border border-[#A6522B]/10 relative text-center">
                         {hasImage && (
                           <div className="w-full aspect-[4/3] relative">
-                            <img src={item.pictures[0]} alt={item.title} className="w-full h-full object-cover" />
+                            <Image
+                              src={item.pictures[0]}
+                              alt={item.title}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover"
+                            />
                             <div className="absolute bottom-0 left-0 w-full h-3/4 bg-gradient-to-t from-[#F5F1EB] via-[#F5F1EB]/80 to-transparent pointer-events-none" />
                           </div>
                         )}
@@ -717,7 +731,13 @@ export default function Theme7({ data }: Theme7Props) {
                     {/* Image Portrait Frame (Rustic Style) */}
                     <div className="relative group w-full max-w-[16rem] mx-auto">
                       <div className="relative w-full aspect-square rounded-[40px] overflow-hidden border-[4px] border-[var(--t7-text-primary)] shadow-md bg-white">
-                        <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                        <Image
+                          src={child.image || child.profile || ""}
+                          alt={child.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
                       </div>
                     </div>
 
@@ -930,10 +950,12 @@ export default function Theme7({ data }: Theme7Props) {
                 <div className="grid grid-cols-2 gap-0 relative z-10 w-full mb-10">
                   {gallery.items.map((item, idx) => (
                     <div key={idx} className="w-full aspect-square relative hover:scale-[1.02] transition-transform duration-500 z-10 hover:z-20">
-                      <img
+                      <Image
                         src={item}
                         alt="Gallery"
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        className="object-cover"
                       />
                     </div>
                   ))}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FaQrcode } from 'react-icons/fa';
+import Image from 'next/image';
 import { ThemeText, ThemeButton } from './ThemeComponents';
 
 interface OpeningModalProps {
@@ -51,9 +52,10 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
               <source src={bgUrl} type="video/mp4" />
             </video>
           ) : (
-            <img
+            <Image
               src={bgUrl || "https://ccgnimex.s3.us-east-005.backblazeb2.com/papunda/theme/4/grok-video-82da76ee-5924-4fe3-a778-b31f5e99b359.mp4"}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
               alt="Background"
             />
           )}

@@ -16,6 +16,7 @@ import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 import { FaUser, FaWhatsapp, FaComment } from 'react-icons/fa';
 import { FiCopy, FiLock, FiMail } from 'react-icons/fi';
+import Image from 'next/image';
 import themeConfig from './theme.json';
 
 // Dynamic imports
@@ -670,7 +671,13 @@ export default function Theme6({ data }: Theme6Props) {
                       <div className="w-full sm:w-[85%] bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[32px] shadow-sm hover:shadow-md transition-shadow border border-white relative text-center">
                         {hasImage && (
                           <div className="w-full aspect-video rounded-2xl overflow-hidden mb-5">
-                            <img src={item.pictures[0]} alt={item.title} className="w-full h-full object-cover" />
+                            <Image
+                              src={item.pictures[0]}
+                              alt={item.title}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover"
+                            />
                           </div>
                         )}
                         <h4 className="text-2xl font-bold text-[var(--t6-text-primary)] mb-3" style={{ fontFamily: 'var(--t6-font-heading)' }}>
@@ -737,7 +744,13 @@ export default function Theme6({ data }: Theme6Props) {
                     {/* Image Circular Frame (Mildness Style) */}
                     <div className="relative group w-full max-w-[14rem] mx-auto">
                       <div className="relative w-full aspect-square rounded-full overflow-hidden border-8 border-white shadow-[0_4px_20px_rgba(74,111,165,0.15)] bg-white">
-                        <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover rounded-full transition-transform duration-700 group-hover:scale-105" />
+                        <Image
+                          src={child.image || child.profile || ""}
+                          alt={child.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          className="object-cover rounded-full transition-transform duration-700 group-hover:scale-105"
+                        />
                       </div>
                     </div>
 
@@ -931,10 +944,12 @@ export default function Theme6({ data }: Theme6Props) {
                     {gallery.items.map((item, idx) => (
                       <div key={idx} className="snap-center shrink-0 w-[280px] sm:w-[320px] rounded-[32px] overflow-hidden shadow-lg border-8 border-white bg-white group hover:-translate-y-2 transition-transform duration-500">
                         <div className="w-full aspect-[4/5] relative">
-                          <img
+                          <Image
                             src={item}
                             alt="Gallery"
-                            className="w-full h-full object-cover rounded-3xl"
+                            fill
+                            sizes="(max-width: 768px) 100vw, 320px"
+                            className="object-cover rounded-3xl"
                           />
                         </div>
                       </div>

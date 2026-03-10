@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FaQrcode } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface NetflixProfileModalProps {
   onClose: (guestName: string) => void;
@@ -49,12 +50,14 @@ export default function NetflixProfileModal({ onClose, selectedProfile, qrData, 
         <div className="flex flex-col items-center gap-4 mb-8">
           {/* Profile Avatar */}
           <div
-            className={`w-32 h-32 rounded-3xl bg-gradient-to-br ${profile.color} shadow-2xl flex items-center justify-center overflow-hidden`}
+            className={`w-32 h-32 relative rounded-3xl bg-gradient-to-br ${profile.color} shadow-2xl flex items-center justify-center overflow-hidden`}
           >
-            <img
+            <Image
               src="/GuestIcon.webp"
               alt="Profile"
-              className="w-full h-full object-cover"
+              fill
+              sizes="128px"
+              className="object-cover"
             />
           </div>
 
