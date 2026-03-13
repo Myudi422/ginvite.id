@@ -2,7 +2,10 @@ import { MetadataRoute } from 'next'
 
 // Force static generation for better performance
 export const dynamic = 'force-static'
-export const revalidate = 3600 // Revalidate every hour
+export const revalidate = 86400 // Revalidate every 24 hours
+
+// Last time static pages were meaningfully updated
+const STATIC_PAGES_UPDATED = new Date('2026-03-13')
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://papunda.com';
@@ -11,74 +14,92 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'weekly',
       priority: 1,
     },
     {
+      url: `${baseUrl}/katalog`,
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/wedding-planner`,
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/formulir`,
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
       url: `${baseUrl}/login`,
-      lastModified: new Date(),
+      lastModified: STATIC_PAGES_UPDATED,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
     {
       url: `${baseUrl}/undangan-khitanan`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/undangan-pernikahan`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/undangan-ulang-tahun`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.8,
     },
-    // SEO optimized pages for popular keywords
+    // SEO optimized landing pages for popular keywords
     {
       url: `${baseUrl}/undangan-digital-gratis`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/undangan-digital-pernikahan`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/undangan-digital-khitanan`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/undangan-digital-ulang-tahun`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/buat-undangan-digital`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/undangan-online`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
+      lastModified: STATIC_PAGES_UPDATED,
+      changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/blog`,
-      lastModified: new Date(),
+      lastModified: STATIC_PAGES_UPDATED,
       changeFrequency: 'daily',
       priority: 0.8,
     },
