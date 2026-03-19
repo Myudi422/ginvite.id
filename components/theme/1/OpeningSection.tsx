@@ -92,18 +92,24 @@ export default function OpeningSection({
       ]
         .filter(src => src) // Filter out null, undefined, and empty strings
         .map((src, i) => (
-          <img
+          <div
             key={i}
-            src={src}
             className={`absolute ${[
-                'top-0 left-0',
-                'top-0 right-0',
-                'bottom-0 left-0',
-                'bottom-0 right-0',
-              ][i % 4] // Gunakan modulo untuk index yang benar setelah filter
+              'top-0 left-0',
+              'top-0 right-0',
+              'bottom-0 left-0',
+              'bottom-0 right-0',
+            ][i % 4] // Gunakan modulo untuk index yang benar setelah filter
               } w-24 h-24 md:w-48 md:h-48 animate-pulse pointer-events-none z-0`}
-            alt=""
-          />
+          >
+            <Image
+              src={src}
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 96px, 192px"
+              alt=""
+            />
+          </div>
         ))}
 
       {/* Main Content */}

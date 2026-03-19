@@ -1,15 +1,18 @@
 User-agent: *
 Allow: /
-
-# Disallow admin and API paths
 Disallow: /admin/
 Disallow: /api/
 Disallow: /auth/
 Disallow: /panel/
+Disallow: /test-gemini/
+Disallow: /test-regenerate/
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
 
 # Sitemaps
 Sitemap: https://papunda.com/sitemap.xml
 Sitemap: https://papunda.com/image-sitemap.xml
-
-# Crawl-delay to be respectful
-Crawl-delay: 1

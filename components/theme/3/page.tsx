@@ -19,6 +19,7 @@ import { submitBankTransfer } from '@/app/actions/bank';
 import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 import { ScrollReveal, fadeUpClass, slideLeftClass, slideRightClass, scaleUpClass, fadeInClass } from "./animations";
+import Image from 'next/image';
 
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
 
@@ -979,7 +980,14 @@ export default function Theme3({ data }: Theme3Props) {
                           <div className="flex flex-row items-start gap-4">
                             <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-800">
                               {hasImage ? (
-                                <img src={story.pictures[0]} alt={story.title || `Episode ${idx + 1}`} className="object-cover w-full h-full" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.innerHTML = '<span style=\'color:white;font-size:2rem\'>📖</span>'; }} />
+                                <Image
+                                  src={story.pictures[0]}
+                                  alt={story.title || `Episode ${idx + 1}`}
+                                  fill
+                                  sizes="(max-width: 768px) 150px, 150px"
+                                  className="object-cover"
+                                  onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span style=\'color:white;font-size:2rem\'>📖</span>'; }}
+                                />
                               ) : (
                                 <span style={{ color: 'white', fontSize: '2rem' }}>📖</span>
                               )}
@@ -1026,7 +1034,7 @@ export default function Theme3({ data }: Theme3Props) {
                       return (
                         <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-800 cursor-pointer" onClick={() => hasImage && setSelectedImage(imgSrc)}>
                           {hasImage ? (
-                            <img src={imgSrc} alt={`Gallery ${idx + 1}`} className="object-cover w-full h-full" />
+                            <Image src={imgSrc || ""} alt={`Gallery ${idx + 1}`} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" />
                           ) : (
                             <div className="flex items-center justify-center w-full h-full">
                               <span className="text-4xl">📷</span>
@@ -1495,7 +1503,9 @@ export default function Theme3({ data }: Theme3Props) {
           <button className="absolute top-4 right-4 text-white text-2xl" onClick={() => setSelectedImage(null)}>
             &times;
           </button>
-          <img src={selectedImage} alt="Gallery" className="max-w-[90vw] max-h-[90vh] object-contain" onClick={(e) => e.stopPropagation()} />
+          <div className="relative w-[90vw] h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <Image src={selectedImage} alt="Gallery" fill sizes="100vw" className="object-contain" />
+          </div>
         </div>
       )}
     </NetflixContainer>

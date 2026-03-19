@@ -122,7 +122,7 @@ interface ThemeTextProps {
   className?: string;
 }
 
-export function ThemeText({ children, variant = 'body', color = 'white', align = 'center', className = '' }: ThemeTextProps) {
+export function ThemeText({ children, variant = 'body', color, align = 'center', className = '' }: ThemeTextProps) {
   const variantClasses = {
     body: 'text-sm leading-relaxed font-light',
     caption: 'text-xs leading-relaxed uppercase tracking-wider',
@@ -130,7 +130,7 @@ export function ThemeText({ children, variant = 'body', color = 'white', align =
     quote: 'text-lg font-serif italic leading-relaxed'
   };
 
-  const colorThemeMap = {
+  const colorThemeMap: Record<string, string> = {
     white: 'var(--t7-text-white, #FFFFFF)',
     gray: 'var(--t7-text-secondary, #555555)',
     gold: 'var(--t7-text-accent, #F9EFCB)',
@@ -146,7 +146,7 @@ export function ThemeText({ children, variant = 'body', color = 'white', align =
   return (
     <p
       className={`${variantClasses[variant]} ${alignClasses[align]} ${className}`}
-      style={{ color: colorThemeMap[color] }}
+      style={color ? { color: colorThemeMap[color] } : undefined}
     >
       {children}
     </p>

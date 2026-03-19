@@ -63,7 +63,7 @@ async function getInvitationData(params: Props["params"]) {
     `&user=${encodeURIComponent(userId)}`,
     `&title=${encodeURIComponent(title)}`,
   ].join("");
-  const res = await fetch(apiUrl, { cache: "no-store" });
+  const res = await fetch(apiUrl, { next: { revalidate: 60 } });
   if (!res.ok) {
     throw new Error(`Gagal load data undangan (status ${res.status})`);
   }
@@ -187,7 +187,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
   console.log("API URL:", apiUrl);
   console.log("Parameters:", { userId, title });
 
-  const res = await fetch(apiUrl, { cache: "no-store" });
+  const res = await fetch(apiUrl, { next: { revalidate: 60 } });
   if (!res.ok) {
     console.error("API Response Status:", res.status);
     try {

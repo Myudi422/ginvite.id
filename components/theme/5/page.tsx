@@ -16,6 +16,7 @@ import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 import { FaUser, FaWhatsapp, FaComment } from 'react-icons/fa';
 import { FiCopy, FiLock, FiMail } from 'react-icons/fi';
+import Image from 'next/image';
 import themeConfig from './theme.json';
 
 // Dynamic imports
@@ -597,8 +598,14 @@ export default function Theme5({ data }: Theme5Props) {
                       {/* Content Card */}
                       <div className="w-[calc(100%-4rem)] bg-white p-6 rounded-2xl shadow-lg border border-black/5 hover:shadow-xl transition-shadow">
                         {hasImage && (
-                          <div className="w-full aspect-video rounded-xl overflow-hidden mb-4">
-                            <img src={item.pictures[0]} alt={item.title} className="w-full h-full object-cover" />
+                          <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative">
+                            <Image
+                              src={item.pictures[0]}
+                              alt={item.title}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover"
+                            />
                           </div>
                         )}
                         <h4 className="text-xl font-bold text-[var(--t5-text-primary)] mb-1" style={{ fontFamily: 'var(--t5-font-heading)' }}>{item.title}</h4>
@@ -661,7 +668,13 @@ export default function Theme5({ data }: Theme5Props) {
                     {/* Image Frame - Arched shape */}
                     <div className="relative group w-full max-w-[14rem] mx-auto">
                       <div className="relative w-full aspect-[3/4] rounded-t-full rounded-b-3xl overflow-hidden border border-[var(--t5-border-glass)] shadow-xl bg-white p-2">
-                        <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover rounded-t-full rounded-b-2xl transition-transform duration-700 group-hover:scale-105" />
+                        <Image
+                          src={child.image || child.profile || ""}
+                          alt={child.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          className="object-cover rounded-t-full rounded-b-2xl transition-transform duration-700 group-hover:scale-105"
+                        />
                       </div>
                     </div>
 
@@ -847,9 +860,12 @@ export default function Theme5({ data }: Theme5Props) {
                 <div className="columns-2 gap-3 space-y-3">
                   {gallery.items.map((item, idx) => (
                     <div key={idx} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg border border-white/5 group">
-                      <img
+                      <Image
                         src={item}
                         alt="Gallery"
+                        width={600}
+                        height={600}
+                        sizes="(max-width: 768px) 50vw, 33vw"
                         className="w-full h-auto transform transition-transform duration-700 group-hover:scale-105"
                       />
                     </div>

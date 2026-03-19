@@ -16,6 +16,7 @@ import QRModal from "@/components/QRModal";
 import dynamic from 'next/dynamic';
 import { FaUser, FaWhatsapp, FaComment } from 'react-icons/fa';
 import { FiCopy, FiLock, FiMail } from 'react-icons/fi';
+import Image from 'next/image';
 import themeConfig from './theme.json';
 
 // Dynamic imports
@@ -658,27 +659,36 @@ export default function Theme6({ data }: Theme6Props) {
                 {content.our_story.map((item, index) => {
                   const hasImage = item.pictures && item.pictures[0] && item.pictures[0].trim() !== '';
                   return (
-                    <ScrollReveal key={index} delay={index * 150} className="relative flex flex-col items-center group is-active">
-                      {/* Date Header */}
-                      {item.date && (
-                        <div className="bg-[var(--t6-bg-main)] px-4 py-1.5 rounded-full border border-[var(--t6-border-glass)] text-xs font-bold text-[var(--t6-text-primary)] mb-4 z-10 shadow-sm">
-                          {item.date}
-                        </div>
-                      )}
-
+                    <ScrollReveal key={index} delay={index * 150} className="w-full flex flex-col items-center group">
                       {/* Content Card */}
-                      <div className="w-full sm:w-[85%] bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-[32px] shadow-sm hover:shadow-md transition-shadow border border-white relative text-center">
+                      <div className="w-full sm:w-[85%] bg-white/70 backdrop-blur-sm rounded-[32px] shadow-sm hover:shadow-md transition-shadow border border-white overflow-hidden text-center">
                         {hasImage && (
-                          <div className="w-full aspect-video rounded-2xl overflow-hidden mb-5">
-                            <img src={item.pictures[0]} alt={item.title} className="w-full h-full object-cover" />
+                          <div className="w-full aspect-video relative">
+                            <Image
+                              src={item.pictures[0]}
+                              alt={item.title}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              className="object-cover"
+                            />
+                            {/* Gradient fade at bottom of image */}
+                            <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-white/80 to-transparent pointer-events-none" />
                           </div>
                         )}
-                        <h4 className="text-2xl font-bold text-[var(--t6-text-primary)] mb-3" style={{ fontFamily: 'var(--t6-font-heading)' }}>
-                          {item.title}
-                        </h4>
-                        <ThemeText variant="body" color="gray" align="center" className="text-sm leading-relaxed text-[var(--t6-text-secondary)] font-medium">
-                          {item.description}
-                        </ThemeText>
+                        {/* Text content */}
+                        <div className={`px-6 pb-7 relative z-10 ${hasImage ? '-mt-6' : 'pt-7'}`}>
+                          {item.date && (
+                            <div className="inline-block bg-[var(--t6-bg-main)] px-4 py-1.5 rounded-full border border-[var(--t6-border-glass)] text-xs font-bold text-[var(--t6-text-primary)] mb-3 shadow-sm">
+                              {item.date}
+                            </div>
+                          )}
+                          <h4 className="text-2xl font-bold text-[var(--t6-text-primary)] mb-3" style={{ fontFamily: 'var(--t6-font-heading)' }}>
+                            {item.title}
+                          </h4>
+                          <ThemeText variant="body" color="gray" align="center" className="text-sm leading-relaxed text-[var(--t6-text-secondary)] font-medium">
+                            {item.description}
+                          </ThemeText>
+                        </div>
                       </div>
 
                       {/* Connector Line (except last item) */}
@@ -737,7 +747,13 @@ export default function Theme6({ data }: Theme6Props) {
                     {/* Image Circular Frame (Mildness Style) */}
                     <div className="relative group w-full max-w-[14rem] mx-auto">
                       <div className="relative w-full aspect-square rounded-full overflow-hidden border-8 border-white shadow-[0_4px_20px_rgba(74,111,165,0.15)] bg-white">
-                        <img src={child.image || child.profile} alt={child.name} className="w-full h-full object-cover rounded-full transition-transform duration-700 group-hover:scale-105" />
+                        <Image
+                          src={child.image || child.profile || ""}
+                          alt={child.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          className="object-cover rounded-full transition-transform duration-700 group-hover:scale-105"
+                        />
                       </div>
                     </div>
 
@@ -931,10 +947,12 @@ export default function Theme6({ data }: Theme6Props) {
                     {gallery.items.map((item, idx) => (
                       <div key={idx} className="snap-center shrink-0 w-[280px] sm:w-[320px] rounded-[32px] overflow-hidden shadow-lg border-8 border-white bg-white group hover:-translate-y-2 transition-transform duration-500">
                         <div className="w-full aspect-[4/5] relative">
-                          <img
+                          <Image
                             src={item}
                             alt="Gallery"
-                            className="w-full h-full object-cover rounded-3xl"
+                            fill
+                            sizes="(max-width: 768px) 100vw, 320px"
+                            className="object-cover rounded-3xl"
                           />
                         </div>
                       </div>

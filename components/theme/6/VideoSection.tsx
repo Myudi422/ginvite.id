@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { ThemeSection, ThemeHeader } from './ThemeComponents';
 
 const ReactPlayer = dynamic(() => import('react-player/youtube'), { ssr: false });
@@ -49,7 +50,9 @@ const VideoSection: React.FC<VideoSectionProps> = ({ youtubeLink, defaultBgImage
                         aria-label="Play video"
                     >
                         {thumbnail ? (
-                            <img src={thumbnail} alt="video preview" className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+                            <div className="absolute inset-0">
+                                <Image src={thumbnail} alt="video preview" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+                            </div>
                         ) : (
                             <div className="absolute inset-0 bg-blue-50" />
                         )}

@@ -12,15 +12,20 @@ const GTM_ID = 'GTM-TBLT72Q4'; // Updated GTM ID
 
 export const metadata: Metadata = {
   title: 'Papunda | Buat Undangan Digital Gratis',
-  description: 'Papunda adalah platform pembuat undangan digital gratis. Uji coba gratis, admin bantu sampai beres, bayar nanti kalau sudah jadi!',
+  description: 'Papunda adalah platform pembuat undangan digital pernikahan, khitanan, dan ulang tahun secara gratis. Uji coba gratis, admin bantu sampai beres, bayar nanti kalau sudah jadi!',
   keywords: [
+    'papunda',
+    'papunda.com',
+    'papunda undangan digital',
     'undangan digital gratis',
+    'undangan digital pernikahan gratis',
     'undangan khitanan digital gratis',
     'undangan nikah digital gratis',
     'undangan aqiqah digital gratis',
-    'digital invitation',
-    'gratis',
-    'Papunda undangan gratis',
+    'undangan ulang tahun digital gratis',
+    'buat undangan digital gratis',
+    'undangan online gratis',
+    'digital invitation indonesia',
   ],
   authors: [
     { name: 'Papunda', url: 'https://papunda.com' },
@@ -28,6 +33,9 @@ export const metadata: Metadata = {
   creator: 'Papunda',
   publisher: 'Papunda',
   metadataBase: new URL('https://papunda.com'),
+  alternates: {
+    canonical: 'https://papunda.com',
+  },
   openGraph: {
     type: 'website',
     locale: 'id_ID',
@@ -40,7 +48,7 @@ export const metadata: Metadata = {
         url: 'https://papunda.com/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Papunda – Undangan Digital Gratis',
+        alt: 'Papunda – Buat Undangan Digital Gratis untuk Pernikahan, Khitanan & Ulang Tahun',
       },
     ],
   },
@@ -153,6 +161,67 @@ export default function RootLayout({
           <iframe src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
             height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
         </noscript>
+
+        {/* JSON-LD Structured Data: Organization + WebSite */}
+        <Script
+          id="schema-org"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                '@id': 'https://papunda.com/#organization',
+                name: 'Papunda',
+                url: 'https://papunda.com',
+                logo: {
+                  '@type': 'ImageObject',
+                  url: 'https://papunda.com/logo.svg',
+                  width: 200,
+                  height: 60,
+                },
+                description: 'Platform pembuat undangan digital gratis untuk pernikahan, khitanan, dan ulang tahun di Indonesia. Buat undangan online dengan mudah dan gratis bersama Papunda.',
+                foundingDate: '2023',
+                address: {
+                  '@type': 'PostalAddress',
+                  addressLocality: 'Ciampea',
+                  addressRegion: 'Jawa Barat',
+                  addressCountry: 'ID',
+                },
+                contactPoint: {
+                  '@type': 'ContactPoint',
+                  telephone: '+62-896-5472-8249',
+                  contactType: 'customer service',
+                  availableLanguage: 'Indonesian',
+                },
+                sameAs: [
+                  'https://www.instagram.com/papunda.id',
+                ],
+              },
+              {
+                '@context': 'https://schema.org',
+                '@type': 'WebSite',
+                '@id': 'https://papunda.com/#website',
+                url: 'https://papunda.com',
+                name: 'Papunda',
+                description: 'Buat undangan digital gratis untuk pernikahan, khitanan, dan ulang tahun',
+                publisher: {
+                  '@id': 'https://papunda.com/#organization',
+                },
+                inLanguage: 'id-ID',
+                potentialAction: {
+                  '@type': 'SearchAction',
+                  target: {
+                    '@type': 'EntryPoint',
+                    urlTemplate: 'https://papunda.com/katalog?q={search_term_string}',
+                  },
+                  'query-input': 'required name=search_term_string',
+                },
+              },
+            ]),
+          }}
+          strategy="beforeInteractive"
+        />
 
         <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
           {children}

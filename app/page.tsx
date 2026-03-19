@@ -1,190 +1,49 @@
-"use client";
+// app/page.tsx - Server Component with homepage-specific metadata
+import type { Metadata } from 'next';
+import HomeClient from './HomeClient';
 
-import { useState } from "react";
-import HeroSection from "@/components/sections/HeroSection";
-import FeaturesSection from "@/components/sections/FeaturesSection";
-import ThemesSection from "@/components/sections/ThemesSection";
-import WeddingPlannerSpoiler from "@/components/sections/WeddingPlannerSpoiler";
-import InstructionsSection from "@/components/sections/InstructionsSection";
-import PricingSection from "@/components/sections/PricingSection";
-import FooterSection from "@/components/sections/FooterSection";
-import SectionCTA from "@/components/sections/SectionCTA";
-import { Toaster } from "@/components/ui/toaster";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import Image from 'next/image';
-import { Menu, X, Phone, BadgeCheck, LogIn } from "lucide-react";
-import Link from "next/link";
-import TestimonialsSection from "@/components/sections/testimoni";
-
-interface NavItem {
-  name: string;
-  href: string;
-  children?: NavItem[];
-}
-
-const navigation: NavItem[] = [
-  { name: "Kontak", href: "https://wa.me/6289654728249" },
-];
-
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link href={href} className="text-sm md:text-base text-pink-700 hover:text-blue-500 transition-colors duration-300">
-      {children}
-    </Link>
-  );
-}
-
-function DropdownMenu({ items }: { items: NavItem[] }) {
-  return (
-    <div className="absolute top-full left-0 bg-white shadow-md rounded-md py-2 min-w-[150px] group-hover:block hidden">
-      {items.map((item) => (
-        <Link key={item.name} href={item.href} className="block px-4 py-2 text-sm md:text-base text-slate-700 hover:bg-slate-100 transition-colors duration-300">
-          {item.name}
-        </Link>
-      ))}
-    </div>
-  );
-}
-
-function Header() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Tambahkan fungsi tracking Google Ads conversion
-  function gtag_report_conversion(url: string, label: string) {
-    // navigation helper: open external links in a new tab, internal with location
-    const navigate = () => {
-      if (typeof url === 'undefined') return;
-      if (/^https?:\/\//.test(url)) {
-        try {
-          window.open(url, '_blank');
-        } catch (e) {
-          window.location.href = url;
-        }
-      } else {
-        window.location.href = url;
-      }
-    };
-
-    if (typeof window === 'undefined') return;
-
-    const isGtagReady = !!(window as any).gtag;
-    if (!isGtagReady) {
-      // if gtag not ready, just navigate
-      navigate();
-      return;
-    }
-
-    // if gtag exists, fire event but ensure navigation even if callback doesn't run
-    let navigated = false;
-    const callback = () => {
-      if (navigated) return;
-      navigated = true;
-      navigate();
-    };
-
-    try {
-      (window as any).gtag('event', 'conversion', {
-        send_to: 'AW-674897184/BcVHCNOC-KkaEKC66MEC',
-        event_label: label,
-        value: 1.0,
-        currency: 'IDR',
-        transaction_id: '',
-        event_callback: callback,
-      });
-    } catch (e) {
-      // fallback if gtag call throws
-      callback();
-    }
-
-    // fallback timeout: navigate after 1s if gtag didn't call back
-    setTimeout(() => {
-      if (!navigated) {
-        navigated = true;
-        navigate();
-      }
-    }, 1000);
-  }
-
-  return (
-    <motion.header
-      className="sticky top-0 z-20 shadow-sm"
-      style={{
-        background: 'rgba(255, 246, 247, 0.8)', // Warna pink dengan sedikit transparansi
-        backdropFilter: 'blur(10px)', // Efek blur
-      }}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
-    >
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-2 md:py-3 flex items-center justify-between">
-        <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
-
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex items-center space-x-4">
-          <Link
-            href="/wedding-planner"
-            className="text-sm text-rose-600 hover:text-rose-800 font-semibold transition-colors whitespace-nowrap inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-rose-200 hover:bg-rose-50"
-          >
-            💒 Wedding Planner
-          </Link>
-          <button
-            type="button"
-            onClick={() => gtag_report_conversion(navigation[0].href, 'cta_header_wa')}
-            className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50"
-          >
-            <Phone className="w-4 h-4 mr-2" />
-            Minta dibuatkan
-          </button>
-          <button
-            type="button"
-            onClick={() => gtag_report_conversion('/admin', 'cta_header_admin')}
-            className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all px-4 py-2 font-semibold whitespace-nowrap inline-flex items-center"
-          >
-            <BadgeCheck className="w-4 h-4 mr-2" />
-            Coba Gratis Sekarang!
-          </button>
-        </nav>
-
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center space-x-2">
-          <button
-            type="button"
-            className="border-2 border-pink-500 text-pink-500 rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center hover:bg-pink-50"
-            aria-label="Hubungi Admin"
-            onClick={() => gtag_report_conversion(navigation[0].href, 'cta_header_wa')}
-          >
-            <Phone className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            className="bg-pink-500 hover:bg-pink-600 text-white rounded-full shadow-md hover:shadow-lg transition-all p-2 font-semibold whitespace-nowrap inline-flex items-center"
-            aria-label="Coba Gratis"
-            onClick={() => gtag_report_conversion('/admin', 'cta_header_admin')}
-          >
-            <LogIn className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    </motion.header>
-  );
-}
+export const metadata: Metadata = {
+  title: 'Papunda | Buat Undangan Digital Gratis – Pernikahan, Khitanan & Ulang Tahun',
+  description: 'Papunda adalah platform undangan digital gratis #1 di Indonesia. Buat undangan pernikahan, khitanan, dan ulang tahun online dalam 5 menit. Uji coba gratis, admin siap bantu!',
+  keywords: [
+    'papunda',
+    'papunda.com',
+    'undangan digital gratis',
+    'buat undangan digital',
+    'undangan pernikahan digital',
+    'undangan online gratis',
+    'undangan digital pernikahan gratis',
+    'undangan digital khitanan gratis',
+    'undangan digital ulang tahun gratis',
+    'platform undangan digital indonesia',
+  ],
+  alternates: {
+    canonical: 'https://papunda.com',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'id_ID',
+    url: 'https://papunda.com',
+    title: 'Papunda | Buat Undangan Digital Gratis',
+    description: 'Platform undangan digital gratis #1 di Indonesia. Buat undangan online untuk pernikahan, khitanan, dan ulang tahun dalam 5 menit. Admin siap bantu hingga selesai!',
+    siteName: 'Papunda',
+    images: [
+      {
+        url: 'https://papunda.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Papunda – Buat Undangan Digital Gratis untuk Pernikahan, Khitanan & Ulang Tahun',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Papunda | Buat Undangan Digital Gratis',
+    description: 'Platform undangan digital gratis #1 di Indonesia. Coba gratis sekarang!',
+    images: ['https://papunda.com/og-image.png'],
+  },
+};
 
 export default function Home() {
-
-  return (
-    <main className="min-h-screen bg-background">
-      <Header />
-      <HeroSection />
-      <FeaturesSection />
-      <ThemesSection />
-      <WeddingPlannerSpoiler />
-      <TestimonialsSection />
-      <InstructionsSection />
-      <PricingSection />
-      <SectionCTA />
-      <FooterSection />
-      <Toaster />
-    </main>
-  );
+  return <HomeClient />;
 }
