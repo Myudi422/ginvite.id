@@ -523,7 +523,7 @@ export default function Theme7({ data }: Theme7Props) {
                 )}
                 <div className="relative w-full aspect-[3/4] rounded-[4rem] rounded-tl-none overflow-hidden border-2 border-[var(--t7-text-primary)] p-1 bg-white shadow-lg">
                   <div className="relative w-full h-full rounded-[3.8rem] rounded-tl-none overflow-hidden">
-                    <Image
+                    <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
                       src={gallery?.items?.[0] || backgroundImage}
                       alt="Couple"
                       fill
@@ -647,7 +647,7 @@ export default function Theme7({ data }: Theme7Props) {
                       <div className="w-full bg-[#F5F1EB] rounded-[32px] overflow-hidden shadow-sm border border-[#A6522B]/10 relative text-center">
                         {hasImage && (
                           <div className="w-full aspect-[4/3] relative">
-                            <Image
+                            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
                               src={item.pictures[0]}
                               alt={item.title}
                               fill
@@ -731,7 +731,7 @@ export default function Theme7({ data }: Theme7Props) {
                     {/* Image Portrait Frame (Rustic Style) */}
                     <div className="relative group w-full max-w-[16rem] mx-auto">
                       <div className="relative w-full aspect-square rounded-[40px] overflow-hidden border-[4px] border-[var(--t7-text-primary)] shadow-md bg-white">
-                        <Image
+                        <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
                           src={child.image || child.profile || ""}
                           alt={child.name}
                           fill
@@ -950,7 +950,7 @@ export default function Theme7({ data }: Theme7Props) {
                 <div className="grid grid-cols-2 gap-0 relative z-10 w-full mb-10">
                   {gallery.items.map((item, idx) => (
                     <div key={idx} className="w-full aspect-square relative hover:scale-[1.02] transition-transform duration-500 z-10 hover:z-20">
-                      <Image
+                      <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
                         src={item}
                         alt="Gallery"
                         fill

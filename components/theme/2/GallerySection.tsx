@@ -80,7 +80,7 @@ export default function GallerySection({ gallery, theme }: GallerySectionProps) 
                   boxShadow: `0 10px 25px -5px rgba(0,0,0,0.4)`
                 }}
               >
-                <Image
+                <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
                   src={image}
                   alt={`Gallery image ${index + 1}`}
                   width={400}
@@ -130,7 +130,7 @@ export default function GallerySection({ gallery, theme }: GallerySectionProps) 
               <X className="w-6 h-6 sm:w-8 sm:h-8" />
             </button>
             <div className="relative w-full h-full flex items-center justify-center">
-              <Image
+              <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
                 src={selectedImage}
                 alt="Gallery image"
                 width={1200}

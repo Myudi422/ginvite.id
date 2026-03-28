@@ -51,7 +51,7 @@ const VideoSection: React.FC<VideoSectionProps> = ({ youtubeLink, defaultBgImage
                     >
                         {thumbnail ? (
                             <div className="absolute inset-0">
-                                <Image src={thumbnail} alt="video preview" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
+                                <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} src={thumbnail} alt="video preview" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" />
                             </div>
                         ) : (
                             <div className="absolute inset-0 bg-blue-50" />

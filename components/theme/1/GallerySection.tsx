@@ -97,7 +97,7 @@ export default function GallerySection({
                   custom={idx}
                 >
                   <div className="relative w-full aspect-[4/5] bg-gray-100" style={{ overflow: 'hidden' }}>
-                    <Image
+                    <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
                       src={src}
                       alt={`Moment ${idx + 1}`}
                       fill
@@ -155,7 +155,7 @@ export default function GallerySection({
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ width: '100%', height: '100%', position: 'relative', transform: `scale(${zoom})`, transition: 'transform 0.1s' }}>
-              <Image
+              <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
                 src={gallery.items[currentIdx]}
                 alt={`Moment ${currentIdx + 1}`}
                 fill

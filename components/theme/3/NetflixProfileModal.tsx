@@ -52,7 +52,7 @@ export default function NetflixProfileModal({ onClose, selectedProfile, qrData, 
           <div
             className={`w-32 h-32 relative rounded-3xl bg-gradient-to-br ${profile.color} shadow-2xl flex items-center justify-center overflow-hidden`}
           >
-            <Image
+            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
               src="/GuestIcon.webp"
               alt="Profile"
               fill

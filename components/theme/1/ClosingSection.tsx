@@ -84,7 +84,7 @@ export default function ClosingSection({
 
        {/* Brand */}
        <div className="mt-4 flex justify-center">
-        <Image src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
+        <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
        </div>
         {/* Footer credit */}
 <p

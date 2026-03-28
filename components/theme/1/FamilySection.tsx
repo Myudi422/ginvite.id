@@ -41,7 +41,7 @@ export default function FamilySection({ childrenData, parents, isWedding, theme,
     >
       {c.profile ? (
         <div className="relative w-full aspect-square">
-          <Image src={c.profile} alt={c.name} fill className="object-cover" />
+          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} src={c.profile} alt={c.name} fill className="object-cover" />
           <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-4 text-center">
             <h3 className="text-xl font-semibold" style={{ color: theme.accentColor }}>
               {c.name}
