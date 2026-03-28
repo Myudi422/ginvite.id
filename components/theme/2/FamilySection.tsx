@@ -55,7 +55,7 @@ export default function FamilySection({
       {person?.profile ? (
         <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
           <div className="relative w-full aspect-square">
-            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+            <Image unoptimized={true} 
               src={person.profile} 
               alt={person.name} 
               fill 

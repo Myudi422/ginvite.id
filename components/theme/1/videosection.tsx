@@ -24,7 +24,7 @@ const VideoSection: React.FC<VideoSectionProps> = ({
         style={{ minHeight: '300px' }}
       >
         {defaultBgImage1 && (
-          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+          <Image unoptimized={true} 
             src={defaultBgImage1}
             alt="Background Video"
             layout="fill"
@@ -44,7 +44,7 @@ const VideoSection: React.FC<VideoSectionProps> = ({
     return (
       <section id="video" className="w-full bg-black overflow-hidden relative" style={{ minHeight: '300px' }}>
         {defaultBgImage1 && (
-          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+          <Image unoptimized={true} 
             src="/1.jpg"
             alt="Background Video Error"
             layout="fill"
@@ -70,7 +70,7 @@ const VideoSection: React.FC<VideoSectionProps> = ({
             >
               <div className="relative w-full h-full">
                 {defaultBgImage1 ? (
-                  <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} src={defaultBgImage1} alt="video preview" fill className="object-cover" />
+                  <Image unoptimized={true} src={defaultBgImage1} alt="video preview" fill className="object-cover" />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">▶</div>
                 )}

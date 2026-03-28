@@ -24,7 +24,7 @@ export default function NetflixStyleImage({
 
   return (
     <div className={`relative ${aspectClass[aspectRatio]} ${className} overflow-hidden rounded`}>
-      <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+      <Image unoptimized={true} 
         src={src}
         alt={alt}
         fill

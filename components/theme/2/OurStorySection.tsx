@@ -157,7 +157,7 @@ export default function OurStorySection({
                       {hasImage && (
                         <div className="rounded-xl overflow-hidden border border-opacity-20 mt-6" style={{ borderColor: theme.accentColor }}>
                           <div className="relative w-full aspect-video">
-                            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                            <Image unoptimized={true} 
                               src={images[0]}
                               alt={story.title}
                               fill

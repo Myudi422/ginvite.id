@@ -664,7 +664,7 @@ export default function Theme6({ data }: Theme6Props) {
                       <div className="w-full sm:w-[85%] bg-white/70 backdrop-blur-sm rounded-[32px] shadow-sm hover:shadow-md transition-shadow border border-white overflow-hidden text-center">
                         {hasImage && (
                           <div className="w-full aspect-video relative">
-                            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                            <Image unoptimized={true} 
                               src={item.pictures[0]}
                               alt={item.title}
                               fill
@@ -747,7 +747,7 @@ export default function Theme6({ data }: Theme6Props) {
                     {/* Image Circular Frame (Mildness Style) */}
                     <div className="relative group w-full max-w-[14rem] mx-auto">
                       <div className="relative w-full aspect-square rounded-full overflow-hidden border-8 border-white shadow-[0_4px_20px_rgba(74,111,165,0.15)] bg-white">
-                        <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                        <Image unoptimized={true} 
                           src={child.image || child.profile || ""}
                           alt={child.name}
                           fill
@@ -947,7 +947,7 @@ export default function Theme6({ data }: Theme6Props) {
                     {gallery.items.map((item, idx) => (
                       <div key={idx} className="snap-center shrink-0 w-[280px] sm:w-[320px] rounded-[32px] overflow-hidden shadow-lg border-8 border-white bg-white group hover:-translate-y-2 transition-transform duration-500">
                         <div className="w-full aspect-[4/5] relative">
-                          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                          <Image unoptimized={true} 
                             src={item}
                             alt="Gallery"
                             fill

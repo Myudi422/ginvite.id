@@ -105,7 +105,7 @@ export default function OurStorySection({
               {/* Image with square aspect and description overlay */}
               {item.pictures && item.pictures[0] && item.pictures[0].trim() !== '' ? (
                 <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-lg">
-                  <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                  <Image unoptimized={true} 
                     src={item.pictures[0]}
                     alt={item.title}
                     fill

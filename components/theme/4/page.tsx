@@ -477,7 +477,7 @@ export default function Theme4({ data }: Theme4Props) {
                       <div className="flex flex-row items-start gap-4">
                         <div className="relative w-28 h-20 flex items-center justify-center overflow-hidden rounded-lg bg-zinc-800 shrink-0">
                           {hasImage ? (
-                            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                            <Image unoptimized={true} 
                               src={item.pictures[0]}
                               alt={item.title || `Episode ${index + 1}`}
                               fill
@@ -558,7 +558,7 @@ export default function Theme4({ data }: Theme4Props) {
                     <div className="relative group w-full max-w-[16rem] mx-auto">
                       <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/30 transition-all" />
                       <div className="relative w-full aspect-[4/5] rounded-[3rem] overflow-hidden border-2 border-amber-500/20 shadow-2xl">
-                        <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} src={child.image || child.profile || ""} alt={child.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <Image unoptimized={true} src={child.image || child.profile || ""} alt={child.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
                       </div>
                     </div>
 
@@ -736,7 +736,7 @@ export default function Theme4({ data }: Theme4Props) {
                 <div className="columns-2 gap-3 space-y-3">
                   {gallery.items.map((item, idx) => (
                     <div key={idx} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg border border-white/5 group">
-                      <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                      <Image unoptimized={true} 
                         src={item}
                         alt="Gallery"
                         width={600}

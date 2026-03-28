@@ -52,7 +52,7 @@ export default function OpeningModal({ onClose, selectedProfile, qrData, onShowQ
               <source src={bgUrl} type="video/mp4" />
             </video>
           ) : (
-            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+            <Image unoptimized={true} 
               src={bgUrl || "https://ccgnimex.s3.us-east-005.backblazeb2.com/papunda/theme/4/grok-video-82da76ee-5924-4fe3-a778-b31f5e99b359.mp4"}
               fill
               className="object-cover"

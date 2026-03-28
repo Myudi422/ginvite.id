@@ -205,7 +205,7 @@ export default function OpeningSection({
       {/* Decorative Elements */}
       {decorations?.topLeft && (
         <div className="absolute top-4 sm:top-6 left-4 sm:left-6 opacity-40 z-5">
-          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+          <Image unoptimized={true} 
             src={decorations.topLeft}
             alt="Decoration"
             width={80}
@@ -216,7 +216,7 @@ export default function OpeningSection({
       )}
       {decorations?.topRight && (
         <div className="absolute top-4 sm:top-6 right-4 sm:right-6 opacity-40 z-5">
-          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+          <Image unoptimized={true} 
             src={decorations.topRight}
             alt="Decoration"
             width={80}

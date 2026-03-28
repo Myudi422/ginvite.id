@@ -110,7 +110,7 @@ export default function ProfileSection({
             transition={{ duration: 1 }}
             className="absolute inset-0 overflow-hidden"
           >
-            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+            <Image unoptimized={true} 
               src={images[currentIndex]}
               alt="Background Gallery"
               layout="fill"
@@ -120,7 +120,7 @@ export default function ProfileSection({
           </motion.div>
         ) : (
           <div className="absolute inset-0 overflow-hidden">
-            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+            <Image unoptimized={true} 
               src={defaultBgImage1}
               alt="Default Background"
               layout="fill"
@@ -134,7 +134,7 @@ export default function ProfileSection({
       {/* Top-left decoration */}
       {topLeftDecoration && (
         <div className="absolute top-0 left-0 z-20">
-          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+          <Image unoptimized={true} 
             src={topLeftDecoration}
             alt="Top Left Decoration"
             width={100}
@@ -146,7 +146,7 @@ export default function ProfileSection({
       {/* Top-right decoration */}
       {topRightDecoration && (
         <div className="absolute top-0 right-0 z-20">
-          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+          <Image unoptimized={true} 
             src={topRightDecoration}
             alt="Top Right Decoration"
             width={100}
@@ -201,7 +201,7 @@ export default function ProfileSection({
       {/* Bottom-left decoration */}
       {bottomLeftDecoration && (
         <div className="absolute bottom-0 left-0 z-20">
-          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+          <Image unoptimized={true} 
             src={bottomLeftDecoration}
             alt="Bottom Left Decoration"
             width={100}
@@ -213,7 +213,7 @@ export default function ProfileSection({
       {/* Bottom-right decoration */}
       {bottomRightDecoration && (
         <div className="absolute bottom-0 right-0 z-20">
-          <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+          <Image unoptimized={true} 
             src={bottomRightDecoration}
             alt="Bottom Right Decoration"
             width={100}

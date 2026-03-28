@@ -980,7 +980,7 @@ export default function Theme3({ data }: Theme3Props) {
                           <div className="flex flex-row items-start gap-4">
                             <div className="relative w-32 h-20 flex items-center justify-center overflow-hidden rounded bg-gray-800">
                               {hasImage ? (
-                                <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                                <Image unoptimized={true} 
                                   src={story.pictures[0]}
                                   alt={story.title || `Episode ${idx + 1}`}
                                   fill
@@ -1034,7 +1034,7 @@ export default function Theme3({ data }: Theme3Props) {
                       return (
                         <div key={idx} className="relative aspect-[3/4] rounded-lg overflow-hidden bg-gray-800 cursor-pointer" onClick={() => hasImage && setSelectedImage(imgSrc)}>
                           {hasImage ? (
-                            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} src={imgSrc || ""} alt={`Gallery ${idx + 1}`} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" />
+                            <Image unoptimized={true} src={imgSrc || ""} alt={`Gallery ${idx + 1}`} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover" />
                           ) : (
                             <div className="flex items-center justify-center w-full h-full">
                               <span className="text-4xl">📷</span>
@@ -1504,7 +1504,7 @@ export default function Theme3({ data }: Theme3Props) {
             &times;
           </button>
           <div className="relative w-[90vw] h-[90vh]" onClick={(e) => e.stopPropagation()}>
-            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} src={selectedImage} alt="Gallery" fill sizes="100vw" className="object-contain" />
+            <Image unoptimized={true} src={selectedImage} alt="Gallery" fill sizes="100vw" className="object-contain" />
           </div>
         </div>
       )}

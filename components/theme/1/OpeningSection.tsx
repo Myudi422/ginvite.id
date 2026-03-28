@@ -102,7 +102,7 @@ export default function OpeningSection({
             ][i % 4] // Gunakan modulo untuk index yang benar setelah filter
               } w-24 h-24 md:w-48 md:h-48 animate-pulse pointer-events-none z-0`}
           >
-            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+            <Image unoptimized={true} 
               src={src}
               fill
               className="object-contain"

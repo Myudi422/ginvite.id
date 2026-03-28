@@ -599,7 +599,7 @@ export default function Theme5({ data }: Theme5Props) {
                       <div className="w-[calc(100%-4rem)] bg-white p-6 rounded-2xl shadow-lg border border-black/5 hover:shadow-xl transition-shadow">
                         {hasImage && (
                           <div className="w-full aspect-video rounded-xl overflow-hidden mb-4 relative">
-                            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                            <Image unoptimized={true} 
                               src={item.pictures[0]}
                               alt={item.title}
                               fill
@@ -668,7 +668,7 @@ export default function Theme5({ data }: Theme5Props) {
                     {/* Image Frame - Arched shape */}
                     <div className="relative group w-full max-w-[14rem] mx-auto">
                       <div className="relative w-full aspect-[3/4] rounded-t-full rounded-b-3xl overflow-hidden border border-[var(--t5-border-glass)] shadow-xl bg-white p-2">
-                        <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                        <Image unoptimized={true} 
                           src={child.image || child.profile || ""}
                           alt={child.name}
                           fill
@@ -860,7 +860,7 @@ export default function Theme5({ data }: Theme5Props) {
                 <div className="columns-2 gap-3 space-y-3">
                   {gallery.items.map((item, idx) => (
                     <div key={idx} className="break-inside-avoid rounded-xl overflow-hidden shadow-lg border border-white/5 group">
-                      <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} 
+                      <Image unoptimized={true} 
                         src={item}
                         alt="Gallery"
                         width={600}

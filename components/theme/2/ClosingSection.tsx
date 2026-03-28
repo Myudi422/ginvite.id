@@ -196,7 +196,7 @@ export default function ClosingSection({
             viewport={{ once: true }}
             className="mt-4 flex justify-center"
           >
-            <Image unoptimized={process.env.NEXT_PUBLIC_UNOPTIMIZE_IMAGES === 'true'} src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
+            <Image unoptimized={true} src="/logo.svg" alt="Papunda Logo" width={120} height={40} />
           </motion.div>
 
           {/* Footer credit */}
