@@ -25,6 +25,7 @@ export default function FooterSection() {
               <li><a href="/undangan-khitanan" className="hover:text-blue-600 transition-colors">Undangan Khitanan Online</a></li>
               <li><a href="/undangan-ulang-tahun" className="hover:text-purple-600 transition-colors">Undangan Ulang Tahun Digital</a></li>
               <li><a href="/wedding-planner" className="hover:text-rose-600 transition-colors">💒 Wedding Planner</a></li>
+              <li><a href="/photo-editing" className="hover:text-pink-600 transition-colors">✨ Jasa Edit Foto</a></li>
               <li><a href="/admin" className="hover:text-green-600 transition-colors">Buat Undangan Gratis</a></li>
             </ul>
           </div>

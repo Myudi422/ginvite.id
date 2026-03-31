@@ -5,6 +5,7 @@ import HeroSection from "@/components/sections/HeroSection";
 import FeaturesSection from "@/components/sections/FeaturesSection";
 import ThemesSection from "@/components/sections/ThemesSection";
 import WeddingPlannerSpoiler from "@/components/sections/WeddingPlannerSpoiler";
+import PhotoEditingSpoiler from "@/components/sections/PhotoEditingSpoiler";
 import InstructionsSection from "@/components/sections/InstructionsSection";
 import PricingSection from "@/components/sections/PricingSection";
 import FooterSection from "@/components/sections/FooterSection";
@@ -128,6 +129,12 @@ function Header() {
           >
             💒 Wedding Planner
           </Link>
+          <Link
+            href="/photo-editing"
+            className="text-sm text-pink-600 hover:text-pink-800 font-semibold transition-colors whitespace-nowrap inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-pink-200 hover:bg-pink-50"
+          >
+            ✨ Jasa Edit Foto
+          </Link>
           <button
             type="button"
             onClick={() => gtag_report_conversion(navigation[0].href, 'cta_header_wa')}
@@ -178,6 +185,7 @@ export default function HomeClient() {
       <FeaturesSection />
       <ThemesSection />
       <WeddingPlannerSpoiler />
+      <PhotoEditingSpoiler />
       <TestimonialsSection />
       <InstructionsSection />
       <PricingSection />
