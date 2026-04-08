@@ -53,11 +53,11 @@ export default function FamilySection({ childrenData, parents, isWedding, theme,
             <p className="text-xs text-gray-500">
               {isWeddingCategory
                 ? (c.order === 'Pengantin Pria'
-                    ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
-                    : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`)
+                  ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
+                  : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`)
                 : (parents.father && parents.mother
-                    ? `Putra/Putri dari ${parents.father} & ${parents.mother}`
-                    : '')}
+                  ? `Putra dari ${parents.father} & ${parents.mother}`
+                  : '')}
             </p>
           </div>
         </div>
@@ -73,11 +73,11 @@ export default function FamilySection({ childrenData, parents, isWedding, theme,
           <p className="text-xs text-gray-500">
             {isWeddingCategory
               ? (c.order === 'Pengantin Pria'
-                  ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
-                  : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`)
+                ? `Putra dari ${parents.groom.father} & ${parents.groom.mother}`
+                : `Putri dari ${parents.bride.father} & ${parents.bride.mother}`)
               : (parents.father && parents.mother
-                  ? `Putra/Putri dari ${parents.father} & ${parents.mother}`
-                  : '')}
+                ? `Putra/Putri dari ${parents.father} & ${parents.mother}`
+                : '')}
           </p>
         </div>
       )}
