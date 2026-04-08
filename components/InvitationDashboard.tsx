@@ -1,7 +1,7 @@
 // components/InvitationDashboard.tsx
 'use client';
 
-import Image from 'next/image';
+
 import { useState, useEffect } from 'react';
 import {
   EllipsisVerticalIcon,
@@ -313,7 +313,7 @@ export default function InvitationDashboard({ user, invitations }: Props) {
                     {/* Avatar */}
                     <div className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 bg-pink-50 border border-pink-100">
                       {inv.avatar_url ? (
-                        <Image
+                        <img
                           src={inv.avatar_url}
                           alt={inv.title}
                           width={48}

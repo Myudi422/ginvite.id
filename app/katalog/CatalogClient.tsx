@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Image from "next/image";
+
 import Link from "next/link";
 import { BadgeCheck, Phone, Eye, Search, LogIn, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
 import FooterSection from "@/components/sections/FooterSection";
@@ -79,7 +79,7 @@ export default function CatalogClient({ initialThemes }: CatalogClientProps) {
             >
                 <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2">
-                        <Image src="/logo.svg" alt="Papunda Logo" width={110} height={36} className="h-9 w-auto" />
+                        <img src="/logo.svg" alt="Papunda Logo" width={110} height={36} className="h-9 w-auto" />
                     </Link>
                     <div className="flex items-center gap-2">
                         <Link
@@ -217,12 +217,11 @@ export default function CatalogClient({ initialThemes }: CatalogClientProps) {
                                 >
                                     {/* Image — square ratio (1:1) */}
                                     <div className="relative aspect-square bg-pink-50 overflow-hidden">
-                                        <Image
+                                        <img
                                             src={theme.image}
                                             alt={theme.name}
-                                            fill
-                                            sizes="(max-width: 640px) 50vw, 33vw"
-                                            className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                                            className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                                            loading="lazy"
                                         />
                                         {/* Hover overlay — preview link */}
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">

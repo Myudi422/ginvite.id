@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, ArrowRight, Phone, Loader2 } from "lucide-react";
-import Image from 'next/image';
+
 import Link from 'next/link';
 import { motion } from "framer-motion";
 import { FaSms } from "react-icons/fa";
@@ -95,12 +95,11 @@ export default function ThemesSection() {
               >
                 <Card className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 h-full flex flex-col bg-white">
                   <div className="relative aspect-[3/4] overflow-hidden bg-slate-100">
-                    <Image
+                    <img
                       src={theme.image}
                       alt={theme.name}
-                      fill
-                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
                       <Link href={getPreviewUrl(theme.localId)} target="_blank" className="w-full">
