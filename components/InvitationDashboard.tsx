@@ -296,9 +296,9 @@ export default function InvitationDashboard({ user, invitations }: Props) {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map(inv => {
-              const expiredInfo = getExpiredInfo(inv.expired);
-              const isOwner = inv.access_type !== 'shared';
               const isActive = inv.status === 1;
+              const expiredInfo = isActive ? null : getExpiredInfo(inv.expired);
+              const isOwner = inv.access_type !== 'shared';
 
               return (
                 <div

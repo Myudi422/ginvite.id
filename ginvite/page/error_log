@@ -1,0 +1,173 @@
+[13-Mar-2026 01:00:30 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 14
+[13-Mar-2026 01:00:30 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 15
+[13-Mar-2026 01:00:30 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 16
+[13-Mar-2026 01:00:30 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 17
+[13-Mar-2026 15:38:30 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[01-Apr-2026 00:22:33 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[01-Apr-2026 00:22:38 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[01-Apr-2026 00:24:12 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[01-Apr-2026 02:58:25 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[01-Apr-2026 02:58:30 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[01-Apr-2026 02:58:46 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[01-Apr-2026 02:58:51 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[01-Apr-2026 02:58:53 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[04-Apr-2026 12:32:51 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[04-Apr-2026 12:33:14 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[04-Apr-2026 12:33:26 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[04-Apr-2026 12:33:29 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[04-Apr-2026 12:35:18 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[04-Apr-2026 12:35:24 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[04-Apr-2026 12:37:31 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[04-Apr-2026 12:37:36 UTC] PHP Fatal error:  Uncaught InvalidArgumentException: Found 1 error while validating the input provided for the DeleteObject operation:
+[Key] expected string length to be >= 1, but found string length of 0 in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php:65
+Stack trace:
+#0 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Middleware.php(88): Aws\Api\Validator->validate('DeleteObject', Object(Aws\Api\StructureShape), Array)
+#1 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(645): Aws\Middleware::Aws\{closure}(Object(Aws\Command), NULL)
+#2 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(668): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#3 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(602): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#4 /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/S3/S3Client.php(621): Aws\S3\S3Client::Aws\S3\{closure}(Object(Aws\Command), NULL)
+#5 /home/iqdyjeaz/public_html/ in /home/iqdyjeaz/public_html/vendor/aws/aws-sdk-php/src/Api/Validator.php on line 65
+[06-Apr-2026 14:13:31 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 14
+[06-Apr-2026 14:13:31 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 15
+[06-Apr-2026 14:13:31 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 16
+[06-Apr-2026 14:13:31 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 17
+[06-Apr-2026 14:13:33 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 14
+[06-Apr-2026 14:13:33 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 15
+[06-Apr-2026 14:13:33 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 16
+[06-Apr-2026 14:13:33 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 17
+[06-Apr-2026 14:13:45 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 14
+[06-Apr-2026 14:13:45 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 15
+[06-Apr-2026 14:13:45 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 16
+[06-Apr-2026 14:13:45 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 17
+[06-Apr-2026 14:15:13 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 14
+[06-Apr-2026 14:15:13 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 15
+[06-Apr-2026 14:15:13 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 16
+[06-Apr-2026 14:15:13 UTC] PHP Warning:  Cannot modify header information - headers already sent by (output started at /home/iqdyjeaz/public_html/v2/android/ginvite/db.php:1) in /home/iqdyjeaz/public_html/v2/android/ginvite/page/delete_invitation.php on line 17

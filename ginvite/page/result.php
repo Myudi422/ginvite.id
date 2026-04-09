@@ -29,12 +29,12 @@ if (!$userId || !$title) {
     error(400, 'Parameter user (atau user_id) dan title wajib');
 }
 
-// 2) Validasi user & expired
-$stmt = $pdo->prepare("SELECT id AS uid, first_name, pictures_url FROM users WHERE id = ? AND expired > NOW()");
+// 2) Validasi user EXISTS — tanpa cek expired di sini
+$stmt = $pdo->prepare("SELECT id AS uid, first_name, pictures_url FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$user) {
-    error(404, 'User tidak ditemukan atau sudah expired');
+    error(404, 'User tidak ditemukan');
 }
 
 // 3) Ambil content_user sesuai user_id + title
@@ -49,8 +49,23 @@ $cu = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$cu) {
     error(404, 'Undangan tidak ditemukan untuk user ini');
 }
+// 4) Cek expired dari content_user
+//    - Status = 1 (aktif/sudah bayar) → expired DIABAIKAN, selalu bisa dibuka
+//    - Status = 0 (trial) → cek content_user.expired
+if ((int)$cu['status'] !== 1) {
+    if (!empty($cu['expired']) && strtotime($cu['expired']) < time()) {
+        http_response_code(200);
+        echo json_encode([
+            'status'          => 'expired',           // ← bukan 'error' lagi
+            'message'         => 'Masa percobaan undangan sudah habis. Silakan aktifkan.',
+            'content_user_id' => (int) $cu['id'],     // ← dikirim ke frontend untuk Midtrans
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
 
-// 4) Parse content JSON
+
+// 5) Parse content JSON
 $userContent = json_decode($cu['content'], true);
 if (!is_array($userContent)) {
     error(500, 'Gagal mem-parsing data content');
@@ -61,7 +76,6 @@ unset($userContent['event']);
 
 // Tentukan agama berdasarkan quoteCategory
 // Hanya rename 'akad' → 'pemberkatan' kalau kategori mengandung kata "kristen"
-// Kategori lain (Islam, Global, kosong) tetap pakai key 'akad'
 $quoteCategory = strtolower(trim($userContent['quoteCategory'] ?? ''));
 $isKristen = strpos($quoteCategory, 'kristen') !== false;
 if ($isKristen && isset($eventData['akad'])) {
@@ -69,7 +83,7 @@ if ($isKristen && isset($eventData['akad'])) {
     unset($eventData['akad']);
 }
 
-// 5) Ambil template dan nama kategori berdasarkan category_type
+// 6) Ambil template dan nama kategori berdasarkan category_type
 $templateCategoryId = (int) $cu['category_id'];
 $stmt = $pdo->prepare("SELECT content_template, name AS category_type_name FROM category_type WHERE id = ?");
 $stmt->execute([$templateCategoryId]);
@@ -81,14 +95,14 @@ $templateJson = $templateRow['content_template'];
 $categoryTypeName = $templateRow['category_type_name'];
 $template = json_decode($templateJson, true);
 
-// 6) Merge template + userContent, sisipkan ID untuk frontend
+// 7) Merge template + userContent, sisipkan ID untuk frontend
 $content = array_merge($template, $userContent);
 $content['our_story'] = $content['our_story'] ?? [];
 $content['themeCategoryTemplate'] = $templateCategoryId;
 $content['themeCategory'] = (int) $cu['kategory_theme_id'];
 $content['theme'] = (int) $cu['theme_id'];
 
-// 7) Ambil data theme berdasarkan theme_id
+// 8) Ambil data theme berdasarkan theme_id
 $themeId = (int) $cu['theme_id'];
 $stmt = $pdo->prepare("SELECT * FROM theme WHERE id = ?");
 $stmt->execute([$themeId]);
@@ -101,36 +115,36 @@ $fontColor = $content['font']['color'] ?? [];
 $textColor = (!empty($fontColor['text_color']) ? $fontColor['text_color'] : $theme['text_color']);
 $accentColor = (!empty($fontColor['accent_color']) ? $fontColor['accent_color'] : $theme['accent_color']);
 
-// 8) Bangun response JSON\ n
+// 9) Bangun response JSON
 $result = [
     'user' => [
-        'id' => $user['uid'],
-        'first_name' => $user['first_name'],
+        'id'           => $user['uid'],
+        'first_name'   => $user['first_name'],
         'pictures_url' => $user['pictures_url'],
     ],
     'category_type' => [
-        'id' => $templateCategoryId,
+        'id'   => $templateCategoryId,
         'name' => $categoryTypeName,
     ],
     'theme' => [
-        'idtheme' => $theme['id'],
-        'textColor' => $textColor,
-        'accentColor' => $accentColor,
-        'defaultBgImage' => $theme['default_bg_image'],
-        'background' => $theme['background'] ?? '',
+        'idtheme'       => $theme['id'],
+        'textColor'     => $textColor,
+        'accentColor'   => $accentColor,
+        'defaultBgImage'  => $theme['default_bg_image'],
+        'background'      => $theme['background'] ?? '',
         'defaultBgImage1' => $theme['default_bg_image1'],
-        'custom' => $theme['custom'] ?? null,
+        'custom'          => $theme['custom'] ?? null,
     ],
     'decorations' => [
-        'topLeft' => $theme['decorations_top_left'],
-        'topRight' => $theme['decorations_top_right'],
-        'bottomLeft' => $theme['decorations_bottom_left'],
+        'topLeft'     => $theme['decorations_top_left'],
+        'topRight'    => $theme['decorations_top_right'],
+        'bottomLeft'  => $theme['decorations_bottom_left'],
         'bottomRight' => $theme['decorations_bottom_right'],
     ],
     'content_user_id' => (int) $cu['id'],
-    'content' => $content,
-    'event' => $eventData,
-    'status' => $cu['status_teks'],
+    'content'         => $content,
+    'event'           => $eventData,
+    'status'          => $cu['status_teks'],
 ];
 
 echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);

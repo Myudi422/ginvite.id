@@ -12,7 +12,7 @@ export default function Page() {
       {/* BG image full di mobile, half di desktop */}
       <div className="absolute inset-0 md:relative md:w-1/2">
         <Image
-          src="cincin.jpg"
+          src="/cincin.jpg"
           alt="Login - Buat Undangan Gratis"
           fill
           className="object-cover"
@@ -42,7 +42,7 @@ export default function Page() {
             </svg>
           </Link>
           <Image
-            src="logo.svg"
+            src="/logo.svg"
             alt="Logo Cincin"
             width={150}
             height={100}
