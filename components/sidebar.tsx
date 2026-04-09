@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette, LayoutDashboardIcon, MessageSquareWarning, Clapperboard, BookOpenIcon } from "lucide-react" // Import MusicIcon
+import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette, LayoutDashboardIcon, MessageSquareWarning, Clapperboard, BookOpenIcon, MessageCircle } from "lucide-react" // Import MusicIcon
 import { useState } from "react"; // Import useState
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -38,6 +38,7 @@ const routes: NestedRoute[] = [
       { href: "/panel/blog-admin", label: "Blog", icon: BookOpenIcon },
       { href: "/panel/theme", label: "Theme", icon: Palette },
       { href: "/panel/filemanage", label: "File Manager", icon: Clapperboard },
+      { href: "/panel/crm", label: "CRM & WA", icon: MessageCircle },
     ],
   },
 ];
