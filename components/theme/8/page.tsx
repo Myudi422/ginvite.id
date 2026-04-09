@@ -50,10 +50,10 @@ export default function Theme8({ data }: Theme8Props) {
   const firstEvent = apiEvents && Object.values(apiEvents)[0] ? (Object.values(apiEvents)[0] as any) : null;
   const weddingDateFormatted = firstEvent?.date
     ? new Date(firstEvent.date).toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    })
     : "";
 
   useEffect(() => {
@@ -118,7 +118,7 @@ export default function Theme8({ data }: Theme8Props) {
       {!isOpen && (
         <div className="relative min-h-screen">
           <PlasmicComponent
-            component="Theme8Opening"
+            component="tes"
             componentProps={commonProps}
           >
             {/* Ini akan muncul jika komponen Theme8Opening tidak ditemukan atau kosong */}
