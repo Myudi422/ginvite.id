@@ -1,6 +1,8 @@
 // app/undangan/[userId]/[title]/page.tsx
 import type { Metadata } from "next";
+import type { Viewport } from "next";
 import React from "react";
+import PaymentRequired from "./PaymentRequired";
 
 interface Params {
   userId: string;
@@ -177,7 +179,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [image],
       creator: "@papunda_id",
     },
-    viewport: "width=device-width, initial-scale=1",
     metadataBase: new URL("https://papunda.com"),
     other: {
       "article:author": "Papunda",
@@ -190,6 +191,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   };
 }
+
+// Viewport export terpisah (Next.js 14+)
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 //
 
@@ -235,7 +242,24 @@ export default async function InvitationPage({ params, searchParams }: Props) {
     fetchError = err.message || "Terjadi kesalahan koneksi. Silakan coba lagi.";
   }
 
-  // Tampilkan halaman error yang ramah pengguna jika fetch gagal
+  // Cek status dari API response
+  // 1. Status 'expired' → tampilkan halaman pembayaran Midtrans
+  if (!fetchError && data && data.status === 'expired') {
+    const contentUserId = data.content_user_id || 0;
+    return (
+      <PaymentRequired
+        userId={userId}
+        title={title}
+        contentUserId={contentUserId}
+      />
+    );
+  }
+
+  // 2. Status 'error' → tampilkan pesan error dari API
+  if (!fetchError && data && data.status === 'error' && data.message) {
+    fetchError = data.message;
+  }
+
   if (fetchError || !data || !data.content) {
     const message = fetchError || "Data undangan tidak valid atau tidak ditemukan.";
     console.error("Showing error page:", message);
