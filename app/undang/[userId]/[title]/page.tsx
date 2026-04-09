@@ -348,7 +348,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
   const categoryId = data.content.themeCategory;
 
   // Validasi categoryId — harus angka dalam range tema yang tersedia
-  const VALID_THEME_IDS = ['1', '2', '3', '4', '5', '6', '7'];
+  const VALID_THEME_IDS = ['1', '2', '3', '4', '5', '6', '7', '8'];
   const safeThemeId = VALID_THEME_IDS.includes(String(categoryId)) ? String(categoryId) : '1';
 
   // Dinamis import komponen tema berdasarkan kategori (folder theme)
