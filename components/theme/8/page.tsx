@@ -8,7 +8,6 @@ import {
 } from "@plasmicapp/loader-nextjs";
 import { PLASMIC } from "@/plasmic-init";
 import dynamic from "next/dynamic";
-import OpeningSection from "@/components/theme/1/OpeningSection";
 import QRModal from "@/components/QRModal";
 
 // Lazy-load MusicPlayer agar tidak menyebabkan hydration error
@@ -114,33 +113,19 @@ export default function Theme8({ data }: Theme8Props) {
         coverImage={gallery?.items?.[0] || theme?.defaultBgImage1 || ""}
       />
 
-      {/* Halaman pembuka - Mencoba render 'Theme8Opening' dari Plasmic, fallback ke standar jika belum ada */}
+      {/* Halaman pembuka - Render 'Opening2' dari Plasmic */}
       {!isOpen && (
-        <div className="relative min-h-screen">
+        <div className="relative w-full min-h-screen overflow-x-hidden">
           <PlasmicComponent
-            component="Opening2"
+            component="NewPage"
             componentProps={commonProps}
-          >
-            {/* Ini akan muncul jika komponen Theme8Opening tidak ditemukan atau kosong */}
-            <OpeningSection
-              opening={{ ...opening, to: toName }}
-              gallery={gallery}
-              decorations={decorations}
-              theme={theme}
-              isWedding={isWedding}
-              childrenData={children}
-              onOpen={() => setIsOpen(true)}
-              onShowQr={() => setShowQr(true)}
-              plugin={content?.plugin}
-              category_type={category_type}
-            />
-          </PlasmicComponent>
+          />
         </div>
       )}
 
-      {/* Halaman utama undangan - Render dari Plasmic (jika halaman Theme8 ada) */}
+      {/* Halaman utama undangan - Render 'Theme8' dari Plasmic */}
       {isOpen && (
-        <div className="relative min-h-screen">
+        <div className="relative w-full min-h-screen overflow-x-hidden">
           {musicEnabled && (
             <MusicPlayer url={musicUrl} autoPlay accentColor={theme?.accentColor} />
           )}

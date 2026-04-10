@@ -63,13 +63,13 @@ export default function MusicPlayer({ url, autoPlay = false, accentColor = "#c80
 
   return (
     <div className="fixed top-4 right-4 z-50">
-  <audio ref={audioRef} src={url} preload="metadata" loop />
+      <audio ref={audioRef} src={url} preload="metadata" loop />
       <button
         onClick={togglePlay}
         className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 focus:outline-none"
       >
-        {isPlaying ? 
-          <Pause className="h-6 w-6" style={{ color: accentColor }} /> : 
+        {isPlaying ?
+          <Pause className="h-6 w-6" style={{ color: accentColor }} /> :
           <Play className="h-6 w-6" style={{ color: accentColor }} />
         }
       </button>
