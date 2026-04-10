@@ -142,7 +142,7 @@ export default function Theme8({ data }: Theme8Props) {
             <MusicPlayer url={musicUrl} autoPlay accentColor={theme?.accentColor} />
           )}
           <PlasmicComponent
-            component="Theme8"
+            component="WeddingPage"
             componentProps={{
               ...commonProps,
               galleryImages: gallery?.items || [],
