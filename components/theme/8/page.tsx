@@ -55,15 +55,18 @@ export default function Theme8({ data }: Theme8Props) {
     })
     : "";
 
+  // Adjust loading timing and cleanup
   useEffect(() => {
     if (typeof window !== "undefined") {
       (window as any).__GINVITE_DATA__ = data;
       (window as any).__GINVITE_TO__ = toName;
     }
 
-    const t = setTimeout(() => setIsLoading(false), 800);
+    const t = setTimeout(() => setIsLoading(false), 1200);
+
     document.body.style.overflowX = "hidden";
     document.body.style.overflowY = isOpen ? "auto" : "hidden";
+
     return () => {
       document.body.style.overflowX = "auto";
       document.body.style.overflowY = "auto";
@@ -71,13 +74,7 @@ export default function Theme8({ data }: Theme8Props) {
     };
   }, [isOpen, data, toName]);
 
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
-        <div className="animate-pulse text-gray-400 text-sm">Memuat undangan…</div>
-      </div>
-    );
-  }
+  const themeColor = theme?.accentColor || "#c9a96e";
 
   const commonProps = {
     data,
@@ -93,7 +90,7 @@ export default function Theme8({ data }: Theme8Props) {
     eventLabel: isKhitan ? "Walimatul Khitan" : "Wedding Invitation",
     eventSubtitle: isKhitan ? "Khitannya" : "The Wedding Of",
     parentLabel: isKhitan ? "Putra dari" : "Putra/i dari",
-    themeColor: theme?.accentColor || "#c9a96e",
+    themeColor: themeColor,
     coverImage:
       gallery?.items?.[0] ||
       theme?.defaultBgImage1 ||
@@ -104,6 +101,19 @@ export default function Theme8({ data }: Theme8Props) {
 
   return (
     <PlasmicRootProvider loader={PLASMIC}>
+      {/* Loading Overlay - Fixed Blank White with Smooth Fade out */}
+      <div
+        className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white transition-opacity duration-1000 ease-in-out ${isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+      >
+        <div className="flex flex-col items-center">
+          <div
+            className="w-12 h-12 border-2 border-slate-100 border-t-slate-400 rounded-full animate-spin mb-6"
+            style={{ borderTopColor: themeColor }}
+          />
+        </div>
+      </div>
+
       <QRModal
         show={showQr}
         onClose={() => setShowQr(false)}
@@ -157,3 +167,4 @@ export default function Theme8({ data }: Theme8Props) {
     </PlasmicRootProvider>
   );
 }
+
