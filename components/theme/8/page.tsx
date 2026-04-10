@@ -118,7 +118,7 @@ export default function Theme8({ data }: Theme8Props) {
       {!isOpen && (
         <div className="relative min-h-screen">
           <PlasmicComponent
-            component="NewPage"
+            component="Opening2"
             componentProps={commonProps}
           >
             {/* Ini akan muncul jika komponen Theme8Opening tidak ditemukan atau kosong */}
