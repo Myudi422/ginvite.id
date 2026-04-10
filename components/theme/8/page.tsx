@@ -126,6 +126,7 @@ export default function Theme8({ data }: Theme8Props) {
       gallery?.items?.[0] ||
       theme?.defaultBgImage1 ||
       "/images/default-wedding.jpg",
+    showQrPlugin: !!searchParams?.get("to") && !!content?.plugin?.qrcode, // Hanya muncul jika ada ?to=... di URL dan plugin aktif
     onOpen: () => setIsOpen(true),
     onShowQr: () => setShowQr(true),
   };
