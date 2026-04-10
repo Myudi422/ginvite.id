@@ -10,6 +10,32 @@ import { PLASMIC } from "@/plasmic-init";
 import dynamic from "next/dynamic";
 import QRModal from "@/components/QRModal";
 
+// Add global styles for Plasmic responsiveness
+const GlobalStyles = () => (
+  <style jsx global>{`
+    body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .plasmic_page_wrapper {
+      width: 100% !important;
+      min-height: 100dvh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      background-color: transparent !important;
+    }
+    /* Memaksa elemen pertama Plasmic untuk memenuhi layar */
+    .plasmic_page_wrapper > div:first-child {
+      flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 100dvh !important;
+      width: 100% !important;
+    }
+  `}</style>
+);
+
 // Lazy-load MusicPlayer agar tidak menyebabkan hydration error
 const MusicPlayer = dynamic(
   () =>
@@ -64,8 +90,13 @@ export default function Theme8({ data }: Theme8Props) {
 
     const t = setTimeout(() => setIsLoading(false), 1200);
 
+    // Reset body spacing to ensure full bleed
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
     document.body.style.overflowX = "hidden";
     document.body.style.overflowY = isOpen ? "auto" : "hidden";
+    // Optional: match body bg with theme to hide any gaps
+    document.body.style.backgroundColor = "#fff";
 
     return () => {
       document.body.style.overflowX = "auto";
@@ -101,6 +132,7 @@ export default function Theme8({ data }: Theme8Props) {
 
   return (
     <PlasmicRootProvider loader={PLASMIC}>
+      <GlobalStyles />
       {/* Loading Overlay - Fixed Blank White with Smooth Fade out */}
       <div
         className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white transition-opacity duration-1000 ease-in-out ${isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -127,22 +159,24 @@ export default function Theme8({ data }: Theme8Props) {
 
       {/* Halaman pembuka - Render 'Opening2' dari Plasmic */}
       {!isOpen && (
-        <div className="relative w-full min-h-screen overflow-x-hidden">
+        <div className="relative w-full min-h-[100dvh] overflow-x-hidden flex flex-col">
           <PlasmicComponent
             component="NewPage"
             componentProps={commonProps}
+            className="flex-1 w-full"
           />
         </div>
       )}
 
       {/* Halaman utama undangan - Render 'Theme8' dari Plasmic */}
       {isOpen && (
-        <div className="relative w-full max-w-full min-h-screen overflow-x-hidden">
+        <div className="relative w-full min-h-[100dvh] overflow-x-hidden flex flex-col">
           {musicEnabled && (
             <MusicPlayer url={musicUrl} autoPlay accentColor={theme?.accentColor} />
           )}
           <PlasmicComponent
             component="WeddingPage"
+            className="flex-1 w-full"
             componentProps={{
               ...commonProps,
               galleryImages: gallery?.items || [],
