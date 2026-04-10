@@ -62,9 +62,11 @@ export default function Theme8({ data }: Theme8Props) {
     }
 
     const t = setTimeout(() => setIsLoading(false), 800);
-    document.body.style.overflow = isOpen ? "auto" : "hidden";
+    document.body.style.overflowX = "hidden";
+    document.body.style.overflowY = isOpen ? "auto" : "hidden";
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflowX = "auto";
+      document.body.style.overflowY = "auto";
       clearTimeout(t);
     };
   }, [isOpen, data, toName]);
@@ -125,7 +127,7 @@ export default function Theme8({ data }: Theme8Props) {
 
       {/* Halaman utama undangan - Render 'Theme8' dari Plasmic */}
       {isOpen && (
-        <div className="relative w-full min-h-screen overflow-x-hidden">
+        <div className="relative w-full max-w-full min-h-screen overflow-x-hidden">
           {musicEnabled && (
             <MusicPlayer url={musicUrl} autoPlay accentColor={theme?.accentColor} />
           )}
