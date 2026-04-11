@@ -60,7 +60,13 @@ export default function Theme8({ data }: Theme8Props) {
     searchParams?.get("to") || data?.content?.opening?.to || "Bapak/Ibu/Saudara/i";
 
   const { content, theme, decorations, category_type, event: apiEvents } = data || {};
-  const { music, opening, gallery, children, quote, our_story } = content || {};
+
+  // Destructure flag-flag aktif/nonaktif dari API
+  const { 
+    music, opening, gallery, children, quote, our_story,
+    quote_enabled, gallery_enabled, our_story_enabled 
+  } = content || {};
+
   const musicUrl = music?.url || "";
   const musicEnabled = music?.enabled || false;
 
@@ -153,6 +159,12 @@ export default function Theme8({ data }: Theme8Props) {
     daysLeft: timeLeft.days,
     hoursLeft: timeLeft.hours,
     minutesLeft: timeLeft.minutes,
+    // Prop Quote (Kutipan) - Sekarang Taat pada Saklar API
+    quote: typeof quote === "string" ? quote : quote?.text || quote?.quote || "",
+    quoteSource: quote?.source || "",
+    quoteEnabled: !!quote_enabled, 
+    galleryEnabled: !!gallery_enabled,
+    storyEnabled: !!our_story_enabled,
     isWedding,
     isKhitan,
     eventLabel: isKhitan ? "Walimatul Khitan" : "Wedding Invitation",

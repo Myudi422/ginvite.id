@@ -58,6 +58,7 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | `isWedding` | Bernilai `true` jika kategori pernikahan |
 | `isKhitan` | Bernilai `true` jika kategori khitanan |
 | `showQrPlugin` | Bernilai `true` jika fitur QR aktif & link dipersonalisasi (?to=...) |
+| `quoteEnabled` | Bernilai `true` jika data kutipan/quotes tersedia |
 
 ---
 
