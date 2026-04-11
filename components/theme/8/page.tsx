@@ -107,6 +107,38 @@ export default function Theme8({ data }: Theme8Props) {
 
   const themeColor = theme?.accentColor || "#c9a96e";
 
+  const countdownDateRaw = firstEvent?.date 
+    ? `${firstEvent.date}T${firstEvent.time || "09:00:00"}` 
+    : "";
+
+  const [timeLeft, setTimeLeft] = useState({ days: "00", hours: "00", minutes: "00" });
+
+  useEffect(() => {
+    if (!countdownDateRaw) return;
+    
+    const targetDate = new Date(countdownDateRaw);
+    const updateTimer = () => {
+      const now = new Date();
+      const diff = targetDate.getTime() - now.getTime();
+      
+      if (diff > 0) {
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        
+        setTimeLeft({
+          days: String(d).padStart(2, '0'),
+          hours: String(h).padStart(2, '0'),
+          minutes: String(m).padStart(2, '0')
+        });
+      }
+    };
+
+    updateTimer();
+    const timerId = setInterval(updateTimer, 1000);
+    return () => clearInterval(timerId);
+  }, [countdownDateRaw]);
+
   const commonProps = {
     data,
     toName,
@@ -116,6 +148,11 @@ export default function Theme8({ data }: Theme8Props) {
     nickname1,
     nickname2,
     weddingDate: weddingDateFormatted,
+    countdownDate: countdownDateRaw,
+    // Prop teks untuk bind langsung ke elemen Text di Plasmic
+    daysLeft: timeLeft.days,
+    hoursLeft: timeLeft.hours,
+    minutesLeft: timeLeft.minutes,
     isWedding,
     isKhitan,
     eventLabel: isKhitan ? "Walimatul Khitan" : "Wedding Invitation",
