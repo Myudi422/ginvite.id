@@ -37,6 +37,11 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | :--- | :--- | :--- |
 | `weddingDate` | Tanggal acara (format rapi) | 28 Maret 2026 |
 | `calendarUrl` | Link Google Calendar | https://google.com/... |
+| `countdownDate` | Tanggal untuk timer (ISO format) | 2026-03-28T09:00:00 |
+| `daysLeft` | Sisa hari (teks) | 12 |
+| `hoursLeft` | Sisa jam (teks) | 05 |
+| `minutesLeft` | Sisa menit (teks) | 45 |
+
 | `invitationText` | Kata pengantar undangan | Tanpa mengurangi rasa hormat... |
 
 | `quote` | Teks kutipan/ayat | Dan di antara tanda-tanda... |
@@ -55,6 +60,8 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | :--- | :--- |
 | `isWedding` | Bernilai `true` jika kategori pernikahan |
 | `isKhitan` | Bernilai `true` jika kategori khitanan |
+| `showQrPlugin` | Bernilai `true` jika fitur QR aktif & link dipersonalisasi (?to=...) |
+| `quoteEnabled` | Bernilai `true` jika data kutipan/quotes tersedia |
 
 ---
 
@@ -65,6 +72,32 @@ Agar desain kamu bisa dibuka, daftarkan prop ini di komponen **`Theme8Opening`**
 
 Pada tombol di desain kamu:
 - **Interactions** -> **On click** -> **Trigger component event** -> **onOpen**.
+
+## 📱 Interaction: Tombol Scan QR
+Daftarkan prop ini di komponen **`NewPage`** atau **`WeddingPage`**:
+- **Name**: `onShowQr`
+- **Type**: `Function`
+
+Pada tombol/icon QR di desain kamu:
+- **Visibility** -> Bind ke prop **`showQrPlugin`**.
+- **Interactions** -> **On click** -> **Trigger component event** -> **onShowQr**.
+
+---
+
+## ⌛ Komponen: Countdown Timer
+1. Tekan `Ctrl + I` di Plasmic Studio, cari komponen **`CountdownTimer`**.
+2. Masukkan ke dalam desain.
+3. Di panel kanan (Props), bind **`targetDate`** ke prop **`countdownDate`**.
+4. Gunakan `accentColor`, `numberClassName`, dan `labelClassName` untuk mengatur tampilan (mendukung class Tailwind).
+
+---
+
+## 📏 Tips: Full Screen & Responsive
+Agar desain menutup seluruh layar tanpa sisa putih/hitam:
+1. Pilih **Root Box** (elemen paling atas).
+2. **Width**: Set ke `Stretch` (100%).
+3. **Height**: Set ke `Hug` (Content) dan **Min-Height**: `100vh`.
+4. Jika menggunakan **Position: Free** pada background: Pastikan elemen background tersebut di-**Pin** ke 4 sisi (Top, Right, Bottom, Left) dengan offset `0`.
 
 ---
 

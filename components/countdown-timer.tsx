@@ -27,7 +27,8 @@ export default function CountdownTimer({
   useEffect(() => {
     let timerId: ReturnType<typeof setInterval>;
     const update = () => {
-      const delta = targetDate.getTime() - Date.now();
+      const dateObj = typeof targetDate === 'string' ? new Date(targetDate) : targetDate;
+      const delta = dateObj.getTime() - Date.now();
       if (delta > 0) {
         setTimeLeft({
           days: Math.floor(delta / 86400000),
