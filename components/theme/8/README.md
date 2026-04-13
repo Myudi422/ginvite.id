@@ -51,6 +51,8 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | Prop Name | Type | Deskripsi |
 | :--- | :--- | :--- |
 | `coverImage` | Text (URL) | URL foto utama untuk sampul |
+| `groomProfile`| Text (URL) | URL foto pengantin pria |
+| `brideProfile`| Text (URL) | URL foto pengantin wanita |
 | `themeColor` | Text (Hex) | Warna tema (#A6522B) |
 | `galleryImages`| Object (Array)| Digunakan untuk komponen Galeri |
 | `story` | Object (Array)| Data untuk timeline perjalanan cinta |
@@ -62,6 +64,25 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | `isKhitan` | Bernilai `true` jika kategori khitanan |
 | `showQrPlugin` | Bernilai `true` jika fitur QR aktif & link dipersonalisasi (?to=...) |
 | `quoteEnabled` | Bernilai `true` jika data kutipan/quotes tersedia |
+| `hasGroomProfile`| Bernilai `true` jika foto pengantin pria tersedia |
+| `hasBrideProfile`| Bernilai `true` jika foto pengantin wanita tersedia |
+| `hasAnyProfile`  | Bernilai `true` jika salah satu atau kedua pengantin punya foto |
+
+---
+
+## 🖼️ Cara Menampilkan/Menyembunyikan Foto Profil
+Jika kamu ingin mendukung desain dengan/tanpa foto (seperti pada screenshot):
+
+### Opsi A: Menggunakan Visibility (Paling Mudah)
+1. Pilih elemen **Image** atau **Container foto** di Plasmic Studio.
+2. Pada panel kanan, cari bagian **Visibility**.
+3. Klik ikon petir (Dynamic Value) -> Pilih **`hasGroomProfile`** (untuk pria) atau **`hasBrideProfile`** (untuk wanita).
+4. Klik pada elemen Gambarnya sendiri, lalu bind **`Src`** ke prop **`groomProfile`** atau **`brideProfile`**.
+
+### Opsi B: Menggunakan Variant
+1. Buat variant di komponen kamu, misalnya `withImage` (boolean variant).
+2. Bind aktivasi variant tersebut ke prop **`hasGroomProfile`** atau **`hasBrideProfile`**.
+3. Atur desain di dalam variant tersebut (munculkan foto, atur layout).
 
 ---
 

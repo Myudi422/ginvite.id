@@ -246,7 +246,21 @@ export default function Theme8({ data }: Theme8Props) {
 
     onOpen: () => setIsOpen(true),
     onShowQr: () => setShowQr(true),
+    groomProfile: children?.[0]?.profile || "",
+    brideProfile: children?.[1]?.profile || "",
+    hasGroomProfile: !!(children?.[0]?.profile && children[0].profile.trim() !== ""),
+    hasBrideProfile: !!(children?.[1]?.profile && children[1].profile.trim() !== ""),
+    hasAnyProfile: !!((children?.[0]?.profile && children[0].profile.trim() !== "") || (children?.[1]?.profile && children[1].profile.trim() !== "")),
   };
+
+  // Debug Logging
+  useEffect(() => {
+    console.log("[Theme 8 Debug] Profile Data:", {
+      groomProfile: children?.[0]?.profile,
+      brideProfile: children?.[1]?.profile,
+      hasAnyProfile: commonProps.hasAnyProfile
+    });
+  }, [children, commonProps.hasAnyProfile]);
 
   return (
     <PlasmicRootProvider loader={PLASMIC}>
@@ -305,6 +319,7 @@ export default function Theme8({ data }: Theme8Props) {
               brideName: children?.[1]?.name || "",
               groomInstagram: children?.[0]?.instagram || "",
               brideInstagram: children?.[1]?.instagram || "",
+              brideProfile: children?.[1]?.profile || "",
               groomFather: data?.parents?.groom?.father || "",
               groomMother: data?.parents?.groom?.mother || "",
               brideFather: data?.parents?.bride?.father || "",
