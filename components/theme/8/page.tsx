@@ -46,7 +46,30 @@ export default function Theme8({ data }: Theme8Props) {
   const nickname2 = children?.[1]?.nickname || children?.[1]?.name || "";
   const coupleNickname = [nickname1, nickname2].filter(Boolean).join(" & ");
 
-  const firstEvent = apiEvents && Object.values(apiEvents)[0] ? (Object.values(apiEvents)[0] as any) : null;
+  const eventsList = Object.entries(apiEvents ?? {})
+    .map(([key, ev]: [string, any]) => {
+      return ev ? {
+        key: key,
+        title: ev.title || key.charAt(0).toUpperCase() + key.slice(1),
+        date: ev.date || '',
+        time: ev.time || '',
+        location: ev.location || '',
+        mapsLink: ev.mapsLink || '',
+      } : null;
+    })
+    .filter(Boolean) as any[];
+
+  const sortedEvents = [...eventsList].sort((a, b) => {
+    try {
+      const dateA = new Date(`${a.date}T${a.time}`);
+      const dateB = new Date(`${b.date}T${b.time}`);
+      return dateA.getTime() - dateB.getTime();
+    } catch (error) {
+      return 0;
+    }
+  });
+
+  const firstEvent = sortedEvents[0];
   const weddingDateFormatted = firstEvent?.date
     ? new Date(firstEvent.date).toLocaleDateString("id-ID", {
       day: "numeric",
@@ -54,6 +77,44 @@ export default function Theme8({ data }: Theme8Props) {
       year: "numeric",
     })
     : "";
+
+  // Google Calendar Integration logic from Theme 1
+  let calendarUrl = '';
+  let eventDate: Date | null = null;
+  if (firstEvent?.date && firstEvent?.time) {
+    try {
+      eventDate = new Date(`${firstEvent.date}T${firstEvent.time}`);
+    } catch (error) {
+      eventDate = null;
+    }
+  }
+
+  if (firstEvent && eventDate) {
+    const start = eventDate.toISOString().replace(/-|:|\.\d+/g, '');
+    const endDate = new Date(eventDate.getTime() + 3600000); // 1 hour duration
+    const end = endDate.toISOString().replace(/-|:|\.\d+/g, '');
+
+    const eventDetails = sortedEvents.map(ev =>
+      `${ev.title}: ${ev.date} ${ev.time} @ ${ev.location} (${ev.mapsLink})`
+    ).join('\n');
+
+    let titleText = `Undangan Pernikahan - ${coupleNickname}`;
+    let detailsText = `Kami dari papunda.com bermaksud mengundang Anda di acara ini. Merupakan suatu kehormatan dan kebahagiaan bagi pihak mengundang, apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu pada hari :\n${eventDetails}`;
+
+    if (isKhitan) {
+      const rawChild = children?.[0]?.name || children?.[0]?.nickname || coupleNickname || '';
+      const firstChildName = rawChild ? rawChild.split('&')[0].trim() : '';
+      const childName = firstChildName.replace(/\s*\&.*$/g, '').trim();
+      titleText = `Undangan Khitanan${childName ? ' - ' + childName : ''}`;
+      detailsText = `Kami mengundang Anda untuk menghadiri acara khitanan${childName ? ' ' + childName : ''}. Merupakan suatu kehormatan apabila Bapak/Ibu/Saudara/i berkenan hadir dan mendoakan. \n${eventDetails}`;
+    }
+
+    calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&dates=${start}/${end}` +
+      `&text=${encodeURIComponent(titleText)}` +
+      `&details=${encodeURIComponent(detailsText)}` +
+      `&location=${encodeURIComponent(firstEvent.location)}`;
+  }
+
 
   // Adjust loading timing and cleanup
   useEffect(() => {
@@ -91,10 +152,16 @@ export default function Theme8({ data }: Theme8Props) {
     eventSubtitle: isKhitan ? "Khitannya" : "The Wedding Of",
     parentLabel: isKhitan ? "Putra dari" : "Putra/i dari",
     themeColor: themeColor,
+    calendarUrl: calendarUrl,
     coverImage:
       gallery?.items?.[0] ||
       theme?.defaultBgImage1 ||
       "/images/default-wedding.jpg",
+    onSaveCalendar: () => {
+      if (calendarUrl) {
+        window.open(calendarUrl, "_blank");
+      }
+    },
     onOpen: () => setIsOpen(true),
     onShowQr: () => setShowQr(true),
   };

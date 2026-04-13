@@ -36,7 +36,9 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | Prop Name | Deskripsi | Contoh Isi |
 | :--- | :--- | :--- |
 | `weddingDate` | Tanggal acara (format rapi) | 28 Maret 2026 |
+| `calendarUrl` | Link Google Calendar | https://google.com/... |
 | `invitationText` | Kata pengantar undangan | Tanpa mengurangi rasa hormat... |
+
 | `quote` | Teks kutipan/ayat | Dan di antara tanda-tanda... |
 | `quoteSource` | Sumber kutipan | QS Ar-Rum: 21 |
 
