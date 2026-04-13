@@ -73,7 +73,7 @@ export default function Theme8({ data }: Theme8Props) {
   // Additional data mapping inspired by Theme 7
   const lowerCategory = (category_type?.name || "").toString().toLowerCase();
   const isKhitan = lowerCategory.includes("khitan");
-  const isWedding = !!data?.parents?.groom;
+  const isWedding = !!content?.parents?.groom;
   const nickname1 = children?.[0]?.nickname || children?.[0]?.name || "";
   const nickname2 = children?.[1]?.nickname || children?.[1]?.name || "";
   const coupleNickname = [nickname1, nickname2].filter(Boolean).join(" & ");
@@ -251,6 +251,10 @@ export default function Theme8({ data }: Theme8Props) {
     hasGroomProfile: !!(children?.[0]?.profile && children[0].profile.trim() !== ""),
     hasBrideProfile: !!(children?.[1]?.profile && children[1].profile.trim() !== ""),
     hasAnyProfile: !!((children?.[0]?.profile && children[0].profile.trim() !== "") || (children?.[1]?.profile && children[1].profile.trim() !== "")),
+    
+    // Combined Parent Props
+    groomParentText: `${isKhitan ? "Putra dari" : "Putra dari"} ${content?.parents?.groom?.father || ""}${content?.parents?.groom?.father && content?.parents?.groom?.mother ? " & " : ""}${content?.parents?.groom?.mother || ""}`.trim(),
+    brideParentText: `${isKhitan ? "Putra dari" : "Putri dari"} ${content?.parents?.bride?.father || ""}${content?.parents?.bride?.father && content?.parents?.bride?.mother ? " & " : ""}${content?.parents?.bride?.mother || ""}`.trim(),
   };
 
   // Debug Logging
@@ -320,10 +324,10 @@ export default function Theme8({ data }: Theme8Props) {
               groomInstagram: children?.[0]?.instagram || "",
               brideInstagram: children?.[1]?.instagram || "",
               brideProfile: children?.[1]?.profile || "",
-              groomFather: data?.parents?.groom?.father || "",
-              groomMother: data?.parents?.groom?.mother || "",
-              brideFather: data?.parents?.bride?.father || "",
-              brideMother: data?.parents?.bride?.mother || "",
+              groomFather: content?.parents?.groom?.father || "",
+              groomMother: content?.parents?.groom?.mother || "",
+              brideFather: content?.parents?.bride?.father || "",
+              brideMother: content?.parents?.bride?.mother || "",
               story: our_story || [],
               events: apiEvents || {},
               categoryType: category_type?.name || "pernikahan",

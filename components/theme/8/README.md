@@ -31,6 +31,8 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | `parentLabel` | "Putra/i dari..." / "Putra dari..." | Otomatis pilih sesuai kategori |
 | `groomInstagram` | Username Instagram pria | @yudi_digital |
 | `brideInstagram` | Username Instagram wanita | @syifa_wedding |
+| `groomParentText` | Teks gabungan orang tua pria | Putra dari Bapak A & Ibu B |
+| `brideParentText` | Teks gabungan orang tua wanita | Putri dari Bapak C & Ibu D |
 
 ### 2. Waktu & Konten (Type: Text)
 | Prop Name | Deskripsi | Contoh Isi |
