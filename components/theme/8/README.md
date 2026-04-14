@@ -59,7 +59,30 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | `galleryImages`| Object (Array)| Digunakan untuk komponen Galeri |
 | `story` | Object (Array)| Data untuk timeline perjalanan cinta |
 
-### 4. Logic & Visibility (Type: Toggle / Boolean)
+### 4. Event & Lokasi (Helper untuk Visibility)
+Gunakan prop `has...` untuk mengatur **Visibility** box acara agar otomatis sembunyi jika data tidak ada.
+
+| Prop Name | Type | Deskripsi |
+| :--- | :--- | :--- |
+| `hasAkad` | Toggle | `true` jika data Akad ada |
+| `akadTitle` | Text | Judul acara (contoh: "Akad Nikah") |
+| `akadDate` | Text | Tanggal (contoh: "12 April 2026") |
+| `akadTime` | Text | Jam (contoh: "08:00 - Selesai") |
+| `akadLocation` | Text | Alamat lokasi |
+| `akadMaps` | Text | Link Google Maps |
+| | | |
+| `hasResepsi` | Toggle | `true` jika data Resepsi ada |
+| `resepsiTitle` | Text | Judul acara (contoh: "Resepsi") |
+| `resepsiDate` | Text | Tanggal |
+| `resepsiTime` | Text | Jam |
+| `resepsiLocation`| Text | Alamat lokasi |
+| `resepsiMaps` | Text | Link Google Maps |
+| | | |
+| `hasPemberkatan`| Toggle | `true` jika data Pemberkatan ada |
+| `hasUnduhMantu` | Toggle | `true` jika data Unduh Mantu ada |
+| `hasKhitanEvent`| Toggle | `true` jika data Khitanan ada |
+
+### 5. Logic & Visibility (Type: Toggle / Boolean)
 | Prop Name | Deskripsi |
 | :--- | :--- |
 | `isWedding` | Bernilai `true` jika kategori pernikahan |

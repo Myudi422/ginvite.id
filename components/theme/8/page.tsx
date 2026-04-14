@@ -255,6 +255,75 @@ export default function Theme8({ data }: Theme8Props) {
     // Combined Parent Props
     groomParentText: `${isKhitan ? "Putra dari" : "Putra dari"} ${content?.parents?.groom?.father || ""}${content?.parents?.groom?.father && content?.parents?.groom?.mother ? " & " : ""}${content?.parents?.groom?.mother || ""}`.trim(),
     brideParentText: `${isKhitan ? "Putra dari" : "Putri dari"} ${content?.parents?.bride?.father || ""}${content?.parents?.bride?.father && content?.parents?.bride?.mother ? " & " : ""}${content?.parents?.bride?.mother || ""}`.trim(),
+
+    // --- Helper Event Props ---
+    ...(() => {
+      const formatEvDate = (d?: string) => {
+        if (!d) return "";
+        try {
+          return new Date(d).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          });
+        } catch (e) { return d; }
+      };
+
+      const getEv = (key: string) => {
+        const ev = apiEvents?.[key];
+        return {
+          exists: !!ev,
+          title: ev?.title || "",
+          date: formatEvDate(ev?.date),
+          time: ev?.time || "",
+          location: ev?.location || "",
+          maps: ev?.mapsLink || ""
+        };
+      };
+
+      const akad = getEv("akad");
+      const resepsi = getEv("resepsi");
+      const pemberkatan = getEv("pemberkatan");
+      const unduhMantu = getEv("unduh_mantu");
+      const khitan = getEv("khitanan") || getEv("walimatul_khitan");
+
+      return {
+        hasAkad: akad.exists,
+        akadTitle: akad.title || "Akad Nikah",
+        akadDate: akad.date,
+        akadTime: akad.time,
+        akadLocation: akad.location,
+        akadMaps: akad.maps,
+
+        hasResepsi: resepsi.exists,
+        resepsiTitle: resepsi.title || "Resepsi",
+        resepsiDate: resepsi.date,
+        resepsiTime: resepsi.time,
+        resepsiLocation: resepsi.location,
+        resepsiMaps: resepsi.maps,
+
+        hasPemberkatan: pemberkatan.exists,
+        pemberkatanTitle: pemberkatan.title || "Pemberkatan",
+        pemberkatanDate: pemberkatan.date,
+        pemberkatanTime: pemberkatan.time,
+        pemberkatanLocation: pemberkatan.location,
+        pemberkatanMaps: pemberkatan.maps,
+
+        hasUnduhMantu: unduhMantu.exists,
+        unduhMantuTitle: unduhMantu.title || "Unduh Mantu",
+        unduhMantuDate: unduhMantu.date,
+        unduhMantuTime: unduhMantu.time,
+        unduhMantuLocation: unduhMantu.location,
+        unduhMantuMaps: unduhMantu.maps,
+
+        hasKhitanEvent: khitan.exists,
+        khitanTitle: khitan.title || "Walimatul Khitan",
+        khitanDate: khitan.date,
+        khitanTime: khitan.time,
+        khitanLocation: khitan.location,
+        khitanMaps: khitan.maps,
+      };
+    })(),
   };
 
   // Debug Logging
