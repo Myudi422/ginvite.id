@@ -285,7 +285,8 @@ export default function Theme8({ data }: Theme8Props) {
       const resepsi = getEv("resepsi");
       const pemberkatan = getEv("pemberkatan");
       const unduhMantu = getEv("unduh_mantu");
-      const khitan = getEv("khitanan") || getEv("walimatul_khitan");
+      let khitan = getEv("khitanan");
+      if (!khitan.exists) khitan = getEv("walimatul_khitan");
 
       return {
         hasAkad: akad.exists,
@@ -294,6 +295,7 @@ export default function Theme8({ data }: Theme8Props) {
         akadTime: akad.time,
         akadLocation: akad.location,
         akadMaps: akad.maps,
+        onAkadMaps: () => { if (akad.maps) window.open(akad.maps, "_blank"); },
 
         hasResepsi: resepsi.exists,
         resepsiTitle: resepsi.title || "Resepsi",
@@ -301,6 +303,7 @@ export default function Theme8({ data }: Theme8Props) {
         resepsiTime: resepsi.time,
         resepsiLocation: resepsi.location,
         resepsiMaps: resepsi.maps,
+        onResepsiMaps: () => { if (resepsi.maps) window.open(resepsi.maps, "_blank"); },
 
         hasPemberkatan: pemberkatan.exists,
         pemberkatanTitle: pemberkatan.title || "Pemberkatan",
@@ -308,6 +311,7 @@ export default function Theme8({ data }: Theme8Props) {
         pemberkatanTime: pemberkatan.time,
         pemberkatanLocation: pemberkatan.location,
         pemberkatanMaps: pemberkatan.maps,
+        onPemberkatanMaps: () => { if (pemberkatan.maps) window.open(pemberkatan.maps, "_blank"); },
 
         hasUnduhMantu: unduhMantu.exists,
         unduhMantuTitle: unduhMantu.title || "Unduh Mantu",
@@ -315,6 +319,7 @@ export default function Theme8({ data }: Theme8Props) {
         unduhMantuTime: unduhMantu.time,
         unduhMantuLocation: unduhMantu.location,
         unduhMantuMaps: unduhMantu.maps,
+        onUnduhMantuMaps: () => { if (unduhMantu.maps) window.open(unduhMantu.maps, "_blank"); },
 
         hasKhitanEvent: khitan.exists,
         khitanTitle: khitan.title || "Walimatul Khitan",
@@ -322,6 +327,7 @@ export default function Theme8({ data }: Theme8Props) {
         khitanTime: khitan.time,
         khitanLocation: khitan.location,
         khitanMaps: khitan.maps,
+        onKhitanMaps: () => { if (khitan.maps) window.open(khitan.maps, "_blank"); },
       };
     })(),
   };

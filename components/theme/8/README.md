@@ -130,6 +130,16 @@ Pada tombol/icon QR di desain kamu:
 
 ---
 
+## 🗺️ Interaction: Google Maps
+Agar tombol lokasi bisa membuka Maps, daftarkan prop ini (sesuai kebutuhan acara):
+- **Name**: `onAkadMaps`, `onResepsiMaps`, `onPemberkatanMaps`, `onUnduhMantuMaps`, atau `onKhitanMaps`
+- **Type**: `Function`
+
+Pada tombol "Buka Peta" di desain kamu:
+- **Interactions** -> **On click** -> **Trigger component event** -> Pilih sesuai acara (misal: `onAkadMaps`).
+
+---
+
 ## ⌛ Komponen: Countdown Timer
 1. Tekan `Ctrl + I` di Plasmic Studio, cari komponen **`CountdownTimer`**.
 2. Masukkan ke dalam desain.
