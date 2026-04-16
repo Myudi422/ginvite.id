@@ -57,13 +57,14 @@ Tema 8 adalah tema khusus yang didesain secara visual menggunakan **Plasmic Stud
 | `brideProfile`| Text (URL) | URL foto pengantin wanita |
 | `themeColor` | Text (Hex) | Warna tema (#A6522B) |
 | `galleryImages`| Object (Array)| Digunakan untuk komponen Galeri |
-| `story` | Object (Array)| Data untuk timeline perjalanan cinta |
+| `story` | Object (Array)| Data untuk timeline perjalanan cinta (Detail di bawah) |
 
 ### 4. Event & Lokasi (Helper untuk Visibility)
 Gunakan prop `has...` untuk mengatur **Visibility** box acara agar otomatis sembunyi jika data tidak ada.
 
 | Prop Name | Type | Deskripsi |
 | :--- | :--- | :--- |
+| `hasStory` | Toggle | `true` jika fitur Love Story aktif & ada datanya |
 | `hasAkad` | Toggle | `true` jika data Akad ada |
 | `akadTitle` | Text | Judul acara (contoh: "Akad Nikah") |
 | `akadDate` | Text | Tanggal (contoh: "12 April 2026") |
@@ -154,6 +155,24 @@ Agar desain menutup seluruh layar tanpa sisa putih/hitam:
 2. **Width**: Set ke `Stretch` (100%).
 3. **Height**: Set ke `Hug` (Content) dan **Min-Height**: `100vh`.
 4. Jika menggunakan **Position: Free** pada background: Pastikan elemen background tersebut di-**Pin** ke 4 sisi (Top, Right, Bottom, Left) dengan offset `0`.
+
+---
+
+---
+
+## 📖 Struktur Data: Our Story
+Jika kamu menggunakan komponen **Repeater** atau **List** di Plasmic untuk menampilkan perjalanan cinta, hubungkan ke prop **`story`**. Setiap item di dalam array tersebut memiliki struktur:
+
+| Field Name | Type | Deskripsi |
+| :--- | :--- | :--- |
+| `title` | Text | Judul cerita (contoh: "Pertama Bertemu") |
+| `description` | Text | Isi cerita / detail kejadian |
+| `pictures` | Array | Daftar foto untuk cerita tersebut (Gunakan `pictures[0]` jika hanya butuh satu) |
+
+**Tips Plasmic**:
+1. Gunakan elemen **Repeater**.
+2. Bind **Items** ke prop **`story`**.
+3. Di dalam item, bind elemen Judul ke `item.title` dan Deskripsi ke `item.description`.
 
 ---
 

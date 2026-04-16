@@ -226,6 +226,7 @@ export default function Theme8({ data }: Theme8Props) {
     quoteEnabled: !!quote_enabled, 
     galleryEnabled: !!gallery_enabled,
     storyEnabled: !!our_story_enabled,
+    hasStory: !!our_story_enabled && (our_story?.length ?? 0) > 0,
     isWedding,
     isKhitan,
     eventLabel: isKhitan ? "Walimatul Khitan" : "Wedding Invitation",
