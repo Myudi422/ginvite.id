@@ -3,6 +3,7 @@
 export type EventType = 'pernikahan' | 'ulang_tahun' | 'khitanan' | 'custom';
 
 export type SectionType =
+  | 'opening'
   | 'hero'
   | 'countdown'
   | 'couple'
@@ -24,6 +25,7 @@ export interface BuilderSection {
   label: string;
   visible: boolean;
   order: number;
+  group?: 'opening' | 'inner'; // Halaman Opening vs Halaman Dalam
   props: Record<string, unknown>;  // section-specific data
 }
 
@@ -53,6 +55,19 @@ export interface BuilderPage {
 }
 
 // ── Section Prop Interfaces ───────────────────────────────────────────────────
+
+export interface OpeningProps {
+  title: string;          // e.g., "The Wedding Of", "Walimatul Khitan"
+  name_primary: string;
+  name_secondary: string;
+  names_size: number;
+  greeting_text: string;  // e.g., "Tanpa Mengurangi Rasa Hormat..."
+  to_label: string;       // e.g., "Kepada Yth. Bapak/Ibu/Saudara/i"
+  button_text: string;    // e.g., "Buka Undangan"
+  bg_image: string;
+  overlay_opacity: number;
+  show_qr: boolean;
+}
 
 export interface HeroProps {
   bg_image: string;

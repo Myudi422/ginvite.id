@@ -5,6 +5,7 @@ import { useBuilder } from './BuilderContext';
 import { XIcon, SettingsIcon } from 'lucide-react';
 
 // Section-specific editors
+import OpeningEditor from './editors/OpeningEditor';
 import HeroEditor from './editors/HeroEditor';
 import CountdownEditor from './editors/CountdownEditor';
 import CoupleEditor from './editors/CoupleEditor';
@@ -22,6 +23,7 @@ import SocialLinksEditor from './editors/SocialLinksEditor';
 import type { SectionType } from './types';
 
 const EDITORS: Record<SectionType, React.ComponentType<{ props: Record<string, unknown>; onChange: (p: Record<string, unknown>) => void }>> = {
+  opening: OpeningEditor,
   hero: HeroEditor,
   countdown: CountdownEditor,
   couple: CoupleEditor,

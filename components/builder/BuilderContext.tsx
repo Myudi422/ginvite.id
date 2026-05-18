@@ -22,6 +22,10 @@ type Action =
   | { type: 'UPDATE_SECTION_PROPS'; id: string; props: Record<string, unknown> }
   | { type: 'TOGGLE_SECTION_VISIBILITY'; id: string }
   | { type: 'MOVE_SECTION'; fromIdx: number; toIdx: number }
+  | { type: 'MOVE_SECTION_UP'; id: string }
+  | { type: 'MOVE_SECTION_DOWN'; id: string }
+  | { type: 'REORDER_GROUP'; group: 'opening' | 'inner'; ids: string[] }
+  | { type: 'CHANGE_SECTION_GROUP'; id: string; group: 'opening' | 'inner' }
   | { type: 'ADD_SECTION'; section: BuilderSection }
   | { type: 'REMOVE_SECTION'; id: string }
   | { type: 'DUPLICATE_SECTION'; id: string }
@@ -82,6 +86,78 @@ function reducer(state: BuilderState, action: Action): BuilderState {
       return updatePageHistory(state, { ...state.page, sections: reordered });
     }
 
+    case 'MOVE_SECTION_UP': {
+      const sections = [...state.page.sections].sort((a, b) => a.order - b.order);
+      const idx = sections.findIndex(s => s.id === action.id);
+      if (idx === -1) return state;
+      const targetGroup = sections[idx].group || 'inner';
+      // Cari elemen sebelumnya yang ada di grup yang sama
+      let prevIdx = idx - 1;
+      while (prevIdx >= 0 && (sections[prevIdx].group || 'inner') !== targetGroup) {
+        prevIdx--;
+      }
+      if (prevIdx >= 0) {
+        const temp = sections[idx].order;
+        sections[idx].order = sections[prevIdx].order;
+        sections[prevIdx].order = temp;
+      }
+      sections.sort((a, b) => a.order - b.order).forEach((s, i) => s.order = i);
+      return updatePageHistory(state, { ...state.page, sections });
+    }
+
+    case 'MOVE_SECTION_DOWN': {
+      const sections = [...state.page.sections].sort((a, b) => a.order - b.order);
+      const idx = sections.findIndex(s => s.id === action.id);
+      if (idx === -1) return state;
+      const targetGroup = sections[idx].group || 'inner';
+      // Cari elemen setelahnya yang ada di grup yang sama
+      let nextIdx = idx + 1;
+      while (nextIdx < sections.length && (sections[nextIdx].group || 'inner') !== targetGroup) {
+        nextIdx++;
+      }
+      if (nextIdx < sections.length) {
+        const temp = sections[idx].order;
+        sections[idx].order = sections[nextIdx].order;
+        sections[nextIdx].order = temp;
+      }
+      sections.sort((a, b) => a.order - b.order).forEach((s, i) => s.order = i);
+      return updatePageHistory(state, { ...state.page, sections });
+    }
+
+    case 'REORDER_GROUP': {
+      // Reorder items within the same group based on the provided IDs array.
+      // Other groups remain untouched in their relative order.
+      const sections = [...state.page.sections].sort((a, b) => a.order - b.order);
+      const groupSections = sections.filter(s => (s.group || 'inner') === action.group);
+      const otherSections = sections.filter(s => (s.group || 'inner') !== action.group);
+      
+      // Sort groupSections based on the action.ids order
+      groupSections.sort((a, b) => {
+        const indexA = action.ids.indexOf(a.id);
+        const indexB = action.ids.indexOf(b.id);
+        return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+      });
+      
+      const newSections = [...otherSections, ...groupSections].sort((a, b) => a.order - b.order);
+      // We need to preserve the visual order by just assigning new sequential orders
+      // Wait, if we want to preserve inter-group mixing (if any), it's complex.
+      // Easiest is to assign orders such that groupSections follow their new relative order.
+      const originalGroupOrders = groupSections.map(s => s.order).sort((a, b) => a - b);
+      groupSections.forEach((s, i) => {
+        s.order = originalGroupOrders[i];
+      });
+      
+      sections.sort((a, b) => a.order - b.order).forEach((s, i) => s.order = i);
+      return updatePageHistory(state, { ...state.page, sections });
+    }
+
+    case 'CHANGE_SECTION_GROUP': {
+      const sections = state.page.sections.map(s =>
+        s.id === action.id ? { ...s, group: action.group } : s
+      );
+      return updatePageHistory(state, { ...state.page, sections });
+    }
+
     case 'ADD_SECTION': {
       const sections = [...state.page.sections, { ...action.section, order: state.page.sections.length }];
       const stateWithHistory = updatePageHistory(state, { ...state.page, sections });
@@ -111,6 +187,7 @@ function reducer(state: BuilderState, action: Action): BuilderState {
         label: newLabel,
         visible: original.visible,
         order: original.order + 1,
+        group: original.group || 'inner',
         props: JSON.parse(JSON.stringify(original.props || {})),
       };
       
@@ -204,6 +281,7 @@ function reducer(state: BuilderState, action: Action): BuilderState {
           label: s.label || s.type,
           visible: s.visible !== false,
           order: i,
+          group: s.group || (s.type === 'opening' ? 'opening' : 'inner'),
           props: s.props || {},
         })),
       };
@@ -225,7 +303,11 @@ interface BuilderContextValue {
   updateSectionProps: (id: string, props: Record<string, unknown>) => void;
   toggleSectionVisibility: (id: string) => void;
   moveSection: (fromIdx: number, toIdx: number) => void;
-  addSection: (type: SectionType, label: string, props?: Record<string, unknown>) => void;
+  moveSectionUp: (id: string) => void;
+  moveSectionDown: (id: string) => void;
+  reorderGroup: (group: 'opening' | 'inner', newOrderedIds: string[]) => void;
+  changeSectionGroup: (id: string, group: 'opening' | 'inner') => void;
+  addSection: (type: SectionType, label: string, props?: Record<string, unknown>, group?: 'opening' | 'inner') => void;
   removeSection: (id: string) => void;
   duplicateSection: (id: string) => void;
   updateSectionLabel: (id: string, label: string) => void;
@@ -263,14 +345,19 @@ export function BuilderProvider({
   const updateSectionProps = useCallback((id: string, props: Record<string, unknown>) => dispatch({ type: 'UPDATE_SECTION_PROPS', id, props }), []);
   const toggleSectionVisibility = useCallback((id: string) => dispatch({ type: 'TOGGLE_SECTION_VISIBILITY', id }), []);
   const moveSection = useCallback((fromIdx: number, toIdx: number) => dispatch({ type: 'MOVE_SECTION', fromIdx, toIdx }), []);
+  const moveSectionUp = useCallback((id: string) => dispatch({ type: 'MOVE_SECTION_UP', id }), []);
+  const moveSectionDown = useCallback((id: string) => dispatch({ type: 'MOVE_SECTION_DOWN', id }), []);
+  const reorderGroup = useCallback((group: 'opening' | 'inner', ids: string[]) => dispatch({ type: 'REORDER_GROUP', group, ids }), []);
+  const changeSectionGroup = useCallback((id: string, group: 'opening' | 'inner') => dispatch({ type: 'CHANGE_SECTION_GROUP', id, group }), []);
 
-  const addSection = useCallback((type: SectionType, label: string, props: Record<string, unknown> = {}) => {
+  const addSection = useCallback((type: SectionType, label: string, props: Record<string, unknown> = {}, group?: 'opening' | 'inner') => {
     const section: BuilderSection = {
       id: makeId(),
       type,
       label,
       visible: true,
       order: 0,
+      group: group || (type === 'opening' ? 'opening' : 'inner'),
       props,
     };
     dispatch({ type: 'ADD_SECTION', section });
@@ -313,7 +400,7 @@ export function BuilderProvider({
   }, [state.page, userId]);
 
   return (
-    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save }}>
+    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save }}>
       {children}
     </BuilderContext.Provider>
   );

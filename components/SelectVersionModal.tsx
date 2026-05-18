@@ -76,20 +76,20 @@ export default function SelectVersionModal({ userId, onClose, onInvitationCreate
             </div>
           </button>
 
-          {/* Versi Baru - Builder (Coming Soon) */}
+          {/* Versi Baru - Builder */}
           <button
-            disabled
-            className="w-full text-left p-4 rounded-2xl border-2 border-gray-150 bg-gray-50/50 opacity-70 cursor-not-allowed transition-all relative overflow-hidden group"
+            onClick={() => setStep('builder')}
+            className="w-full text-left p-4 rounded-2xl border-2 border-gray-100 hover:border-pink-200 hover:bg-pink-50/50 transition-all group relative overflow-hidden"
           >
             <div className="absolute top-3 right-3">
-              <span className="text-[10px] bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold">Segera Hadir ⏳</span>
+              <span className="text-[10px] bg-pink-100 text-pink-600 px-2.5 py-0.5 rounded-full font-bold">Baru ✨</span>
             </div>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gray-200 flex items-center justify-center flex-shrink-0">
-                <SparklesIcon className="h-6 w-6 text-gray-400" />
+              <div className="w-12 h-12 rounded-2xl bg-gray-100 group-hover:bg-pink-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                <SparklesIcon className="h-6 w-6 text-gray-400 group-hover:text-pink-500 transition-colors" />
               </div>
               <div className="flex-1 min-w-0 pr-10">
-                <p className="font-bold text-gray-500 text-sm">Versi Baru — Page Builder</p>
+                <p className="font-bold text-gray-800 text-sm group-hover:text-pink-600 transition-colors">Versi Baru — Page Builder</p>
                 <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Drag & drop builder visual. Atur setiap seksi, warna, font, dan konten bebas untuk semua jenis acara.</p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {['Pernikahan', 'Ulang Tahun', 'Khitanan', 'Custom'].map(t => (

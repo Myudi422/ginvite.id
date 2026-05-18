@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import { useBuilder } from './BuilderContext';
 import type { BuilderSection, SectionType } from './types';
@@ -9,10 +8,11 @@ import {
   LayoutIcon, ClockIcon, UsersIcon, CalendarIcon, ImageIcon,
   BookOpenIcon, CheckSquareIcon, GiftIcon, MapPinIcon, MusicIcon,
   MessageSquareIcon, TypeIcon, MinusIcon, LinkIcon, PaletteIcon,
-  SettingsIcon, CopyIcon,
+  SettingsIcon, CopyIcon, ArrowRightIcon, ArrowLeftIcon, PlayCircleIcon
 } from 'lucide-react';
 
 const SECTION_META: Record<SectionType, { icon: React.ElementType; color: string }> = {
+  opening: { icon: PlayCircleIcon, color: '#f43f5e' },
   hero: { icon: LayoutIcon, color: '#e879a0' },
   countdown: { icon: ClockIcon, color: '#8b5cf6' },
   couple: { icon: UsersIcon, color: '#ec4899' },
@@ -30,6 +30,7 @@ const SECTION_META: Record<SectionType, { icon: React.ElementType; color: string
 };
 
 const ADD_SECTIONS: Array<{ type: SectionType; label: string }> = [
+  { type: 'opening', label: 'Sampul Depan' },
   { type: 'text_block', label: 'Teks Bebas' },
   { type: 'divider', label: 'Pemisah' },
   { type: 'gallery', label: 'Galeri Foto' },
@@ -44,19 +45,174 @@ const ADD_SECTIONS: Array<{ type: SectionType; label: string }> = [
 ];
 
 export default function SectionPanel() {
-  const { state, selectSection, toggleSectionVisibility, moveSection, removeSection, addSection, duplicateSection } = useBuilder();
+  const { 
+    state, selectSection, toggleSectionVisibility, 
+    moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup,
+    removeSection, addSection, duplicateSection 
+  } = useBuilder();
   const { page, selectedSectionId } = state;
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [activeTab, setActiveTab] = useState<'sections' | 'style'>('sections');
-  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
-  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+  
+  // Drag state using IDs
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const sections = [...page.sections].sort((a, b) => a.order - b.order);
+  const openingSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) === 'opening');
+  const innerSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) !== 'opening');
 
   function handleAdd(type: SectionType, label: string) {
-    addSection(type, label, {});
+    const targetGroup = type === 'opening' ? 'opening' : 'inner';
+    addSection(type, label, {}, targetGroup);
     setShowAddMenu(false);
   }
+
+  function handleDrop(targetId: string, group: 'opening' | 'inner') {
+    if (!draggedId || draggedId === targetId) {
+      setDraggedId(null);
+      setDragOverId(null);
+      return;
+    }
+    const groupList = group === 'opening' ? openingSections : innerSections;
+    const oldIndex = groupList.findIndex(s => s.id === draggedId);
+    const newIndex = groupList.findIndex(s => s.id === targetId);
+    
+    if (oldIndex !== -1 && newIndex !== -1) {
+      // Reorder within the same group
+      const newIds = groupList.map(s => s.id);
+      newIds.splice(oldIndex, 1);
+      newIds.splice(newIndex, 0, draggedId);
+      reorderGroup(group, newIds);
+    }
+    setDraggedId(null);
+    setDragOverId(null);
+  }
+
+  const renderSectionItem = (section: BuilderSection, isOpeningGroup: boolean) => {
+    const meta = SECTION_META[section.type] || { icon: LayoutIcon, color: '#000' };
+    const Icon = meta.icon;
+    const isSelected = section.id === selectedSectionId;
+    const isDragging = section.id === draggedId;
+    const isDragOver = section.id === dragOverId;
+
+    return (
+      <div
+        key={section.id}
+        draggable
+        onDragStart={(e) => {
+          setDraggedId(section.id);
+          e.dataTransfer.effectAllowed = 'move';
+        }}
+        onDragEnd={() => {
+          setDraggedId(null);
+          setDragOverId(null);
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (draggedId !== section.id && (isOpeningGroup ? openingSections : innerSections).some(s => s.id === draggedId)) {
+            setDragOverId(section.id);
+          }
+        }}
+        onDragLeave={() => {
+          if (dragOverId === section.id) {
+            setDragOverId(null);
+          }
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          handleDrop(section.id, isOpeningGroup ? 'opening' : 'inner');
+        }}
+        className={`group flex flex-col gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${
+          isSelected
+            ? 'border-pink-200 bg-pink-50 shadow-sm'
+            : isDragOver
+            ? 'border-dashed border-pink-400 bg-pink-50/30 scale-[1.02]'
+            : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
+        } ${isDragging ? 'opacity-40 scale-95 border-dashed border-pink-300' : ''}`}
+        onClick={() => selectSection(section.id)}
+      >
+        <div className="flex items-center gap-2 w-full">
+          {/* Drag handle */}
+          <GripVerticalIcon className="h-3.5 w-3.5 text-gray-300 flex-shrink-0 cursor-grab active:cursor-grabbing" />
+
+          {/* Icon */}
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: meta.color + '18' }}>
+            <Icon className="h-3.5 w-3.5" style={{ color: meta.color }} />
+          </div>
+
+          {/* Label */}
+          <span className={`flex-1 text-xs font-medium truncate ${isSelected ? 'text-pink-700' : 'text-gray-700'} ${!section.visible ? 'opacity-40 line-through' : ''}`}>
+            {section.label}
+          </span>
+
+          {/* Core Actions */}
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              className="p-1 rounded-lg hover:bg-white transition-colors"
+              onClick={(e) => { e.stopPropagation(); moveSectionUp(section.id); }}
+              title="Naik"
+            >
+              <ChevronUpIcon className="h-3 w-3 text-gray-400" />
+            </button>
+            <button
+              className="p-1 rounded-lg hover:bg-white transition-colors"
+              onClick={(e) => { e.stopPropagation(); moveSectionDown(section.id); }}
+              title="Turun"
+            >
+              <ChevronDownIcon className="h-3 w-3 text-gray-400" />
+            </button>
+            <button
+              className="p-1 rounded-lg hover:bg-white transition-colors"
+              onClick={(e) => { e.stopPropagation(); toggleSectionVisibility(section.id); }}
+              title={section.visible ? 'Sembunyikan' : 'Tampilkan'}
+            >
+              {section.visible
+                ? <EyeIcon className="h-3 w-3 text-gray-400" />
+                : <EyeOffIcon className="h-3 w-3 text-gray-300" />}
+            </button>
+            <button
+              className="p-1 rounded-lg hover:bg-red-50 transition-colors"
+              onClick={(e) => { e.stopPropagation(); if (confirm(`Hapus seksi "${section.label}"?`)) removeSection(section.id); }}
+              title="Hapus"
+            >
+              <Trash2Icon className="h-3 w-3 text-red-400" />
+            </button>
+          </div>
+        </div>
+
+        {/* Extended Actions (Show only when selected to avoid clutter) */}
+        {isSelected && (
+          <div className="flex items-center justify-between border-t border-pink-100 pt-2 mt-1">
+            <button
+              className="flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium text-pink-600 hover:bg-pink-100 transition-colors"
+              onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }}
+            >
+              <CopyIcon className="h-3 w-3" /> Salin
+            </button>
+            
+            {isOpeningGroup ? (
+              section.type !== 'opening' && (
+                <button
+                  className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium text-gray-500 hover:bg-gray-200 transition-colors"
+                  onClick={(e) => { e.stopPropagation(); changeSectionGroup(section.id, 'inner'); }}
+                >
+                  Ke Halaman Dalam <ArrowRightIcon className="h-3 w-3" />
+                </button>
+              )
+            ) : (
+              <button
+                className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium text-gray-500 hover:bg-gray-200 transition-colors"
+                onClick={(e) => { e.stopPropagation(); changeSectionGroup(section.id, 'opening'); }}
+              >
+                <ArrowLeftIcon className="h-3 w-3" /> Ke Halaman Opening
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="h-full min-h-0 flex flex-col bg-white border-r border-gray-100 w-full md:w-72 md:min-w-[260px] select-none">
@@ -80,121 +236,49 @@ export default function SectionPanel() {
 
       {activeTab === 'sections' ? (
         <>
-          {/* Section List */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
-            {sections.map((section, idx) => {
-              const meta = SECTION_META[section.type];
-              const Icon = meta.icon;
-              const isSelected = section.id === selectedSectionId;
-              const isDragging = idx === draggedIdx;
-              const isDragOver = idx === dragOverIdx;
+          {/* Section List (Grouped) */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-4">
+            
+            {/* GROUP: OPENING */}
+            <div>
+              <div className="flex items-center gap-2 mb-2 px-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-pink-500"></div>
+                <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Halaman Opening (Sampul)</h3>
+              </div>
+              <div className="space-y-1.5">
+                {openingSections.length === 0 && (
+                  <p className="text-xs text-gray-400 italic px-2 py-1">Belum ada seksi.</p>
+                )}
+                {openingSections.map(section => renderSectionItem(section, true))}
+              </div>
+            </div>
 
-              return (
-                <div
-                  key={section.id}
-                  draggable
-                  onDragStart={(e) => {
-                    setDraggedIdx(idx);
-                    e.dataTransfer.effectAllowed = 'move';
-                  }}
-                  onDragEnd={() => {
-                    setDraggedIdx(null);
-                    setDragOverIdx(null);
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    if (draggedIdx !== idx) {
-                      setDragOverIdx(idx);
-                    }
-                  }}
-                  onDragLeave={() => {
-                    if (dragOverIdx === idx) {
-                      setDragOverIdx(null);
-                    }
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (draggedIdx !== null && draggedIdx !== idx) {
-                      moveSection(draggedIdx, idx);
-                    }
-                    setDraggedIdx(null);
-                    setDragOverIdx(null);
-                  }}
-                  className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${
-                    isSelected
-                      ? 'border-pink-200 bg-pink-50 shadow-sm'
-                      : isDragOver
-                      ? 'border-dashed border-pink-400 bg-pink-50/30 scale-[1.02]'
-                      : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
-                  } ${isDragging ? 'opacity-40 scale-95 border-dashed border-pink-300' : ''}`}
-                  onClick={() => selectSection(section.id)}
-                >
-                  {/* Drag handle */}
-                  <GripVerticalIcon className="h-3.5 w-3.5 text-gray-300 flex-shrink-0 cursor-grab active:cursor-grabbing" />
+            <div className="h-px bg-gray-100 w-full my-2"></div>
 
-                  {/* Icon */}
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: meta.color + '18' }}>
-                    <Icon className="h-3.5 w-3.5" style={{ color: meta.color }} />
-                  </div>
+            {/* GROUP: DALAM */}
+            <div>
+              <div className="flex items-center gap-2 mb-2 px-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Halaman Dalam (Isi)</h3>
+              </div>
+              <div className="space-y-1.5">
+                {innerSections.length === 0 && (
+                  <p className="text-xs text-gray-400 italic px-2 py-1">Belum ada seksi.</p>
+                )}
+                {innerSections.map(section => renderSectionItem(section, false))}
+              </div>
+            </div>
 
-                  {/* Label */}
-                  <span className={`flex-1 text-xs font-medium truncate ${isSelected ? 'text-pink-700' : 'text-gray-700'} ${!section.visible ? 'opacity-40 line-through' : ''}`}>
-                    {section.label}
-                  </span>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      className="p-1 rounded-lg hover:bg-white transition-colors"
-                      onClick={(e) => { e.stopPropagation(); moveSection(idx, Math.max(0, idx - 1)); }}
-                      title="Naik"
-                    >
-                      <ChevronUpIcon className="h-3 w-3 text-gray-400" />
-                    </button>
-                    <button
-                      className="p-1 rounded-lg hover:bg-white transition-colors"
-                      onClick={(e) => { e.stopPropagation(); moveSection(idx, Math.min(sections.length - 1, idx + 1)); }}
-                      title="Turun"
-                    >
-                      <ChevronDownIcon className="h-3 w-3 text-gray-400" />
-                    </button>
-                    <button
-                      className="p-1 rounded-lg hover:bg-white transition-colors"
-                      onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }}
-                      title="Salin Seksi"
-                    >
-                      <CopyIcon className="h-3 w-3 text-gray-400 hover:text-pink-500" />
-                    </button>
-                    <button
-                      className="p-1 rounded-lg hover:bg-white transition-colors"
-                      onClick={(e) => { e.stopPropagation(); toggleSectionVisibility(section.id); }}
-                      title={section.visible ? 'Sembunyikan' : 'Tampilkan'}
-                    >
-                      {section.visible
-                        ? <EyeIcon className="h-3 w-3 text-gray-400" />
-                        : <EyeOffIcon className="h-3 w-3 text-gray-300" />}
-                    </button>
-                    <button
-                      className="p-1 rounded-lg hover:bg-red-50 transition-colors"
-                      onClick={(e) => { e.stopPropagation(); if (confirm(`Hapus seksi "${section.label}"?`)) removeSection(section.id); }}
-                      title="Hapus"
-                    >
-                      <Trash2Icon className="h-3 w-3 text-red-400" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
           </div>
 
           {/* Add Section */}
-          <div className="p-3 border-t border-gray-100 relative">
+          <div className="p-3 border-t border-gray-100 relative bg-white">
             <button
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-pink-50 hover:bg-pink-100 border border-pink-100 text-pink-600 font-semibold text-xs transition-all"
               onClick={() => setShowAddMenu(!showAddMenu)}
             >
               <PlusIcon className="h-3.5 w-3.5" />
-              Tambah Seksi
+              Tambah Seksi Baru
             </button>
             {showAddMenu && (
               <div className="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50">

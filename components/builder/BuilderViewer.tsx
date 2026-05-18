@@ -4,6 +4,7 @@ import React from 'react';
 import type { BuilderPage, BuilderSection } from '@/components/builder/types';
 
 // Section renderers (reuse dari builder)
+import OpeningPreview from '@/components/builder/previews/OpeningPreview';
 import HeroPreview from '@/components/builder/previews/HeroPreview';
 import CountdownPreview from '@/components/builder/previews/CountdownPreview';
 import CouplePreview from '@/components/builder/previews/CouplePreview';
@@ -23,10 +24,11 @@ interface Props {
   page: BuilderPage;
 }
 
-function SectionRenderer({ section, style }: { section: BuilderSection; style: Record<string, string | number> }) {
+function SectionRenderer({ section, style, onOpen }: { section: BuilderSection; style: Record<string, string | number>; onOpen?: () => void }) {
   const props = section.props as Record<string, unknown>;
   if (!section.visible) return null;
   switch (section.type) {
+    case 'opening':       return <OpeningPreview props={props} style={style} onOpen={onOpen} />;
     case 'hero':          return <HeroPreview props={props} style={style} />;
     case 'countdown':     return <CountdownPreview props={props} style={style} />;
     case 'couple':        return <CouplePreview props={props} style={style} />;
@@ -46,8 +48,42 @@ function SectionRenderer({ section, style }: { section: BuilderSection; style: R
 }
 
 export default function BuilderViewer({ page }: Props) {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setIsLoaded(true), 1200); // 1.2s loading screen
+    return () => clearTimeout(timer);
+  }, []);
+
   const sections = [...(page.sections || [])].sort((a, b) => a.order - b.order);
   const style = page.style as unknown as Record<string, string | number>;
+
+  const openingSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) === 'opening');
+  const innerSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) !== 'opening');
+
+  // Jika tidak ada halaman opening, langsung anggap terbuka
+  if (!isOpen && openingSections.length === 0) {
+    setIsOpen(true);
+  }
+
+  const sectionsToRender = isOpen ? innerSections : openingSections;
+
+  if (!isLoaded) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center transition-opacity duration-1000"
+        style={{ backgroundColor: page.style.bg_color }}
+      >
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto" style={{ borderColor: page.style.accent_color }}></div>
+          <p className="mt-4 animate-pulse text-sm" style={{ color: page.style.text_color, fontFamily: `'${page.style.font_body}', sans-serif` }}>
+            Memuat Undangan...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -63,24 +99,26 @@ export default function BuilderViewer({ page }: Props) {
         className="mx-auto"
         style={{ maxWidth: `${page.style.page_width || 700}px` }}
       >
-        {sections.map(section => (
-          <SectionRenderer key={section.id} section={section} style={style} />
+        {sectionsToRender.map(section => (
+          <SectionRenderer key={section.id} section={section} style={style} onOpen={() => setIsOpen(true)} />
         ))}
 
-        {/* Footer */}
-        <div className="py-6 text-center">
-          <p className="text-[11px] text-gray-300">
-            Dibuat dengan ❤️ oleh{' '}
-            <a
-              href="https://papunda.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:opacity-70 transition-opacity"
-            >
-              papunda.com
-            </a>
-          </p>
-        </div>
+        {/* Footer hanya tampil jika sudah terbuka */}
+        {isOpen && (
+          <div className="py-6 text-center">
+            <p className="text-[11px] text-gray-300">
+              Dibuat dengan ❤️ oleh{' '}
+              <a
+                href="https://papunda.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:opacity-70 transition-opacity"
+              >
+                papunda.com
+              </a>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

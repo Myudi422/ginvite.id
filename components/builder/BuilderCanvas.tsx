@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useBuilder } from './BuilderContext';
 import type { BuilderSection } from './types';
 
 // ── Section Preview Renderers ─────────────────────────────────────────────────
+import OpeningPreview from './previews/OpeningPreview';
 import HeroPreview from './previews/HeroPreview';
 import CountdownPreview from './previews/CountdownPreview';
 import CouplePreview from './previews/CouplePreview';
@@ -23,6 +24,7 @@ import SocialLinksPreview from './previews/SocialLinksPreview';
 function SectionRenderer({ section, style }: { section: BuilderSection; style: Record<string, string | number> }) {
   const props = section.props as Record<string, unknown>;
   switch (section.type) {
+    case 'opening': return <OpeningPreview props={props} style={style} />;
     case 'hero': return <HeroPreview props={props} style={style} />;
     case 'countdown': return <CountdownPreview props={props} style={style} />;
     case 'couple': return <CouplePreview props={props} style={style} />;
@@ -51,20 +53,55 @@ export default function BuilderCanvas() {
   const sections = [...page.sections].sort((a, b) => a.order - b.order);
   const style = page.style as unknown as Record<string, string | number>;
 
+  const [viewMode, setViewMode] = useState<'all' | 'opening' | 'inner'>('all');
+
+  const visibleSections = sections.filter(s => {
+    const group = s.group || (s.type === 'hero' ? 'opening' : 'inner');
+    if (viewMode === 'all') return true;
+    return group === viewMode;
+  });
+
   return (
     // Outer: fills remaining flex space, scrolls vertically
-    <div className="flex-1 min-h-0 overflow-y-auto bg-gray-100 py-8 px-4">
+    <div className="flex-1 min-h-0 overflow-y-auto bg-gray-100 py-6 px-4 flex flex-col">
+      
+      {/* ── View Toggle ── */}
+      <div className="flex justify-center mb-6 flex-shrink-0 sticky top-0 z-50">
+        <div className="bg-white p-1 rounded-xl shadow-md border border-gray-200 flex items-center gap-1">
+          <button 
+            onClick={() => setViewMode('opening')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'opening' ? 'bg-pink-500 text-white shadow' : 'text-gray-500 hover:bg-gray-50'}`}
+          >
+            Sampul Depan
+          </button>
+          <button 
+            onClick={() => setViewMode('inner')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'inner' ? 'bg-blue-500 text-white shadow' : 'text-gray-500 hover:bg-gray-50'}`}
+          >
+            Isi Undangan
+          </button>
+          <div className="w-px h-4 bg-gray-200 mx-1"></div>
+          <button 
+            onClick={() => setViewMode('all')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'all' ? 'bg-gray-800 text-white shadow' : 'text-gray-500 hover:bg-gray-50'}`}
+          >
+            Tampilkan Semua
+          </button>
+        </div>
+      </div>
+
       {/* Phone-like frame — centered, max width, clips corners */}
       <div
-        className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8"
+        className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8 flex-shrink-0 w-full"
         style={{
           maxWidth: `${page.style.page_width}px`,
+          minHeight: '800px',
           backgroundColor: page.style.bg_color,
           color: page.style.text_color,
           fontFamily: `'${page.style.font_body}', sans-serif`,
         }}
       >
-        {sections.map(section => {
+        {visibleSections.map(section => {
           const isSelected = section.id === selectedSectionId;
           return (
             <div
