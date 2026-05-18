@@ -50,13 +50,23 @@ function SectionRenderer({ section, style }: { section: BuilderSection; style: R
 export default function BuilderCanvas() {
   const { state, selectSection } = useBuilder();
   const { page, selectedSectionId } = state;
-  const sections = [...page.sections].sort((a, b) => a.order - b.order);
   const style = page.style as unknown as Record<string, string | number>;
 
   const [viewMode, setViewMode] = useState<'all' | 'opening' | 'inner'>('all');
 
+  // Sort sections by group first (opening always on top), then by order
+  const sections = [...page.sections].sort((a, b) => {
+    const groupA = a.group || (a.type === 'opening' ? 'opening' : 'inner');
+    const groupB = b.group || (b.type === 'opening' ? 'opening' : 'inner');
+    
+    if (groupA !== groupB) {
+      return groupA === 'opening' ? -1 : 1;
+    }
+    return a.order - b.order;
+  });
+
   const visibleSections = sections.filter(s => {
-    const group = s.group || (s.type === 'hero' ? 'opening' : 'inner');
+    const group = s.group || (s.type === 'opening' ? 'opening' : 'inner');
     if (viewMode === 'all') return true;
     return group === viewMode;
   });
