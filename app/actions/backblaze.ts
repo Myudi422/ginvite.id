@@ -48,9 +48,16 @@ export async function uploadImageToBackblaze(
     method: 'POST',
     body: formData,
   });
-  const json: UploadResult = await res.json();
-  if (!json.success || !json.url) {
-    throw new Error(json.message || 'Gagal mengunggah gambar');
+  const text = await res.text();
+  try {
+    const json: UploadResult = JSON.parse(text);
+    if (!json.success || !json.url) {
+      throw new Error(json.message || 'Gagal mengunggah gambar');
+    }
+    return json.url;
+  } catch (err) {
+    console.error("Backblaze upload returned non-JSON:", text.substring(0, 500));
+    throw new Error('Server merespons dengan format tidak valid (HTML/Error).');
   }
   return json.url;
 }
@@ -68,9 +75,15 @@ export async function deleteImageFromBackblaze(imageUrl: string): Promise<void> 
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
   });
-  const json: DeleteResult = await res.json();
-  if (!json.success) {
-    throw new Error(json.message || 'Gagal menghapus gambar');
+  const text = await res.text();
+  try {
+    const json: DeleteResult = JSON.parse(text);
+    if (!json.success) {
+      throw new Error(json.message || 'Gagal menghapus gambar');
+    }
+  } catch (err) {
+    console.error("Backblaze delete returned non-JSON:", text.substring(0, 500));
+    throw new Error('Server merespons dengan format tidak valid (HTML/Error).');
   }
 }
 

@@ -13,6 +13,14 @@ export default function HeroPreview({ props, style }: PreviewProps) {
   const nameSecondary = props.name_secondary   as string  || '';
   const showScrollHint= (props.show_scroll_hint as boolean) ?? true;
 
+  // ── Text Customizer Options ──────────────────────────────────────────────
+  const greetingSize  = (props.greeting_size   as number) ?? 12;
+  const namesSize     = (props.names_size      as number) ?? 36;
+  const textAnim      = props.text_anim        as string  || 'none';
+  const textAnimDur   = (props.text_anim_duration as number) ?? 1;
+  const alignV        = props.align_vertical   as string  || 'center';
+  const alignH        = props.align_horizontal as string  || 'center';
+
   // ── Background Configuration ─────────────────────────────────────────────
   const bgType        = props.bg_type         as string  ?? 'single';
   const bgImage       = props.bg_image        as string  || '';
@@ -20,17 +28,33 @@ export default function HeroPreview({ props, style }: PreviewProps) {
   const bgSlideEffect = props.bg_slide_effect as string  ?? 'fade';
   const bgSlideSpeed  = (props.bg_slide_speed  as number)  ?? 5;
   const bgBlur        = (props.bg_blur        as number)  ?? 0;
+  
+  const bgColor       = props.bg_color        as string  || '';
+  const bgColor2      = props.bg_color2       as string  || '#9333ea';
+  const bgAngle       = (props.bg_angle       as number)  ?? 135;
+  const bgSolidColor  = props.bg_solid_color  as string  || '';
 
   // Slideshow active index state
   const [activeIdx, setActiveIdx] = useState(0);
 
+  // Resolve legacy background type ('single' / 'multi') dynamically
+  let resolvedBgType = bgType;
+  if (resolvedBgType === 'single') {
+    resolvedBgType = bgImage ? 'image' : 'gradient';
+  } else if (resolvedBgType === 'multi') {
+    resolvedBgType = 'image';
+  }
+
+  // Resolve image mode (single photo vs slideshow)
+  const bgImageMode = props.bg_image_mode as string || (bgType === 'multi' ? 'multi' : 'single');
+
   useEffect(() => {
-    if (bgType !== 'multi' || bgImages.length <= 1) return;
+    if (resolvedBgType !== 'image' || bgImageMode !== 'multi' || bgImages.length <= 1) return;
     const interval = setInterval(() => {
       setActiveIdx(prev => (prev + 1) % bgImages.length);
     }, bgSlideSpeed * 1000);
     return () => clearInterval(interval);
-  }, [bgType, bgImages.length, bgSlideSpeed]);
+  }, [resolvedBgType, bgImageMode, bgImages.length, bgSlideSpeed]);
 
   // ── Height ───────────────────────────────────────────────────────────────
   const rawHeight = props.height as string ?? '480';
@@ -101,92 +125,122 @@ export default function HeroPreview({ props, style }: PreviewProps) {
 
   // ── Render Background Layers ─────────────────────────────────────────────
   const renderBackgrounds = () => {
-    // 1. Tipe Slideshow
-    if (bgType === 'multi' && bgImages.length > 0) {
-      return bgImages.map((imgUrl, idx) => {
-        const isActive = idx === activeIdx;
-        let slideStyle: React.CSSProperties = {
+    // 1. SOLID COLOR MODE
+    if (resolvedBgType === 'solid') {
+      const color = bgSolidColor || (style.accent_color as string) || '#e879a0';
+      return (
+        <div 
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: color,
+            borderRadius,
+          }}
+        />
+      );
+    }
+
+    // 2. GRADIENT MODE
+    if (resolvedBgType === 'gradient') {
+      const color1 = bgColor || (style.accent_color as string) || '#e879a0';
+      const color2 = bgColor2;
+      return (
+        <div 
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(${bgAngle}deg, ${color1} 0%, ${color2} 100%)`,
+            borderRadius,
+          }}
+        />
+      );
+    }
+
+    // 3. IMAGE MODE
+    if (resolvedBgType === 'image') {
+      // 3a. Slideshow (Multi) mode
+      if (bgImageMode === 'multi' && bgImages.length > 0) {
+        return bgImages.map((imgUrl, idx) => {
+          const isActive = idx === activeIdx;
+          let slideStyle: React.CSSProperties = {
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url(${imgUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            borderRadius,
+          };
+
+          if (bgBlur > 0) {
+            slideStyle = {
+              ...slideStyle,
+              filter: `blur(${bgBlur}px)`,
+              transform: 'scale(1.05)',
+            };
+          }
+
+          if (bgSlideEffect === 'fade') {
+            slideStyle = {
+              ...slideStyle,
+              opacity: isActive ? 1 : 0,
+              transition: 'opacity 1.2s ease-in-out',
+              zIndex: isActive ? 1 : 0,
+            };
+          } else if (bgSlideEffect === 'slide') {
+            const offset = (idx - activeIdx) * 100;
+            slideStyle = {
+              ...slideStyle,
+              transform: `translateX(${offset}%) ${bgBlur > 0 ? 'scale(1.05)' : ''}`,
+              transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+              zIndex: 1,
+            };
+          } else if (bgSlideEffect === 'zoom') {
+            slideStyle = {
+              ...slideStyle,
+              opacity: isActive ? 1 : 0,
+              transition: 'opacity 1.5s ease-in-out',
+              zIndex: isActive ? 1 : 0,
+            };
+          }
+
+          const slideClassName = (bgSlideEffect === 'zoom' && isActive) ? 'animate-ken-burns' : '';
+
+          return (
+            <div 
+              key={idx}
+              className={slideClassName}
+              style={slideStyle}
+            />
+          );
+        });
+      }
+
+      // 3b. Single Image mode
+      if (bgImage) {
+        let imageStyle: React.CSSProperties = {
           position: 'absolute',
           inset: 0,
-          backgroundImage: `url(${imgUrl})`,
+          backgroundImage: `url(${bgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           borderRadius,
         };
 
-        // Tambah blur jika ada
         if (bgBlur > 0) {
-          slideStyle = {
-            ...slideStyle,
+          imageStyle = {
+            ...imageStyle,
             filter: `blur(${bgBlur}px)`,
-            transform: 'scale(1.05)', // hilangkan tepi putih blur
+            transform: 'scale(1.05)',
           };
         }
 
-        // Terapkan Efek Transisi Slideshow
-        if (bgSlideEffect === 'fade') {
-          slideStyle = {
-            ...slideStyle,
-            opacity: isActive ? 1 : 0,
-            transition: 'opacity 1.2s ease-in-out',
-            zIndex: isActive ? 1 : 0,
-          };
-        } else if (bgSlideEffect === 'slide') {
-          // Hitung translasi per slide
-          const offset = (idx - activeIdx) * 100;
-          slideStyle = {
-            ...slideStyle,
-            transform: `translateX(${offset}%) ${bgBlur > 0 ? 'scale(1.05)' : ''}`,
-            transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-            zIndex: 1,
-          };
-        } else if (bgSlideEffect === 'zoom') {
-          // Ken Burns Zoom effect
-          slideStyle = {
-            ...slideStyle,
-            opacity: isActive ? 1 : 0,
-            transition: 'opacity 1.5s ease-in-out',
-            zIndex: isActive ? 1 : 0,
-          };
-        }
-
-        const slideClassName = (bgSlideEffect === 'zoom' && isActive) ? 'animate-ken-burns' : '';
-
-        return (
-          <div 
-            key={idx}
-            className={slideClassName}
-            style={slideStyle}
-          />
-        );
-      });
-    }
-
-    // 2. Tipe Single Image
-    if (bgImage) {
-      let imageStyle: React.CSSProperties = {
-        position: 'absolute',
-        inset: 0,
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        borderRadius,
-      };
-
-      if (bgBlur > 0) {
-        imageStyle = {
-          ...imageStyle,
-          filter: `blur(${bgBlur}px)`,
-          transform: 'scale(1.05)',
-        };
+        return <div style={imageStyle} />;
       }
-
-      return <div style={imageStyle} />;
     }
 
-    // 3. Fallback Gradient (Jika tidak ada foto sama sekali)
+    // Fallback: Default Gradient
     return (
       <div 
         style={{
@@ -201,7 +255,9 @@ export default function HeroPreview({ props, style }: PreviewProps) {
 
   return (
     <div
-      className="relative flex flex-col items-center justify-center text-center overflow-hidden"
+      className={`relative flex flex-col overflow-hidden ${
+        alignV === 'top' ? 'justify-start pt-20 pb-8' : alignV === 'bottom' ? 'justify-end pt-8 pb-20' : 'justify-center py-16'
+      }`}
       style={{ 
         minHeight, 
         borderRadius,
@@ -225,6 +281,25 @@ export default function HeroPreview({ props, style }: PreviewProps) {
           from { transform: scale(1) ${bgBlur > 0 ? 'blur(' + bgBlur + 'px)' : ''}; }
           to { transform: scale(1.15) ${bgBlur > 0 ? 'blur(' + bgBlur + 'px)' : ''}; }
         }
+        
+        /* Text entrance animations */
+        @keyframes textFade {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes textSlideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes textZoom {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes textTracking {
+          from { opacity: 0; letter-spacing: 0.1em; }
+          to { opacity: 1; }
+        }
+
         .hero-overlay-anim-fade {
           animation: heroOverlayFade ${overlaySpeed}s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
@@ -236,6 +311,20 @@ export default function HeroPreview({ props, style }: PreviewProps) {
         }
         .animate-ken-burns {
           animation: kenBurnsEffect ${bgSlideSpeed + 1}s ease-out forwards;
+        }
+
+        /* Text Animation Classes */
+        .text-anim-fade {
+          animation: textFade ${textAnimDur}s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .text-anim-slide-up {
+          animation: textSlideUp ${textAnimDur}s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .text-anim-zoom {
+          animation: textZoom ${textAnimDur}s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .text-anim-tracking {
+          animation: textTracking ${textAnimDur}s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
       `}</style>
 
@@ -251,18 +340,36 @@ export default function HeroPreview({ props, style }: PreviewProps) {
         />
       )}
 
-      {/* Content */}
-      <div className="relative px-8 py-16 flex flex-col items-center gap-4 w-full z-10">
-        <p className="text-xs tracking-[0.3em] text-white/70 uppercase">{greeting}</p>
+      {/* Content Container (Key changes on content, alignment, or anim triggers remount to preview transition instantly) */}
+      <div 
+        key={`${textAnim}-${textAnimDur}-${greeting}-${namePrimary}-${nameSecondary}-${alignV}-${alignH}`}
+        className={`relative flex flex-col gap-4 w-full z-10 ${
+          alignH === 'left' ? 'items-start text-left pl-12 pr-6' : alignH === 'right' ? 'items-end text-right pr-12 pl-6' : 'items-center text-center px-8'
+        } ${textAnim !== 'none' ? `text-anim-${textAnim}` : ''}`}
+      >
+        <p 
+          className="tracking-[0.3em] text-white/70 uppercase"
+          style={{ fontSize: `${greetingSize}px` }}
+        >
+          {greeting}
+        </p>
 
         <h1
-          className="text-4xl leading-tight text-white font-bold"
-          style={{ fontFamily: `'${style.font_heading || 'Playfair Display'}', serif` }}
+          className="leading-tight text-white font-bold"
+          style={{ 
+            fontFamily: `'${style.font_heading || 'Playfair Display'}', serif`,
+            fontSize: `${namesSize}px`
+          }}
         >
           {namePrimary}
           {nameSecondary && (
             <>
-              <span className="block text-white/60 text-2xl my-1 font-normal">&amp;</span>
+              <span 
+                className="block text-white/60 my-1 font-normal"
+                style={{ fontSize: `${Math.round(namesSize * 0.65)}px` }}
+              >
+                &amp;
+              </span>
               {nameSecondary}
             </>
           )}

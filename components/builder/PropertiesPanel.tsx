@@ -46,7 +46,7 @@ export default function PropertiesPanel() {
 
   if (!section) {
     return (
-      <div className="w-80 min-w-[280px] h-full min-h-0 border-l border-gray-100 bg-white flex flex-col items-center justify-center gap-3 p-6">
+      <div className="w-full md:w-80 md:min-w-[280px] h-full min-h-0 border-l border-gray-100 bg-white flex flex-col items-center justify-center gap-3 p-6">
         <div className="w-14 h-14 rounded-2xl bg-pink-50 flex items-center justify-center">
           <SettingsIcon className="h-6 w-6 text-pink-300" />
         </div>
@@ -58,7 +58,7 @@ export default function PropertiesPanel() {
   const Editor = EDITORS[section.type];
 
   return (
-    <div className="w-80 min-w-[280px] h-full min-h-0 border-l border-gray-100 bg-white flex flex-col">
+    <div className="w-full md:w-80 md:min-w-[280px] h-full min-h-0 border-l border-gray-100 bg-white flex flex-col">
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
         <div className="flex-1">

@@ -1,6 +1,9 @@
 // components/builder/ui/EditorFields.tsx
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
+import { uploadImageToBackblaze, deleteImageFromBackblaze } from '@/app/actions/backblaze';
+import { useBuilder } from '../BuilderContext';
+import { Loader2, UploadCloud, Trash2 } from 'lucide-react';
 
 // ── FieldGroup ────────────────────────────────────────────────────────────────
 export function FieldGroup({ children }: { children: React.ReactNode }) {
@@ -138,6 +141,134 @@ export function ItemCard({ title, onRemove, children }: { title: string; onRemov
         <button onClick={onRemove} className="text-red-400 hover:text-red-600 text-xs font-bold transition-colors">✕</button>
       </div>
       <div className="p-3 space-y-3">{children}</div>
+    </div>
+  );
+}
+
+// ── Image Upload Field ────────────────────────────────────────────────────────
+export function ImageUploadField({
+  value,
+  onChange,
+  placeholder = "https://...",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  const { state } = useBuilder();
+  const userId = state.page?.user_id;
+  
+  // Jika page.id tidak tersedia (karena ini Builder yang berbasis slug, bukan id numerik),
+  // kita berikan fallback angka unik acak agar script PHP tidak menolaknya (intval(id) == 0).
+  const invitationId = state.page?.id || Math.floor(Math.random() * 100000) + 1;
+
+  const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!userId) {
+      alert("Error: Missing userId in builder context.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const url = await uploadImageToBackblaze(formData, userId, invitationId);
+      
+      // Hapus gambar lama jika ada dan berasal dari server kita (biar hemat storage)
+      if (value && (value.includes('backblaze') || value.includes('s3') || value.includes('ccgnimex'))) {
+        try {
+          await deleteImageFromBackblaze(value);
+        } catch (delErr) {
+          console.warn("Gagal menghapus gambar lama saat me-replace:", delErr);
+        }
+      }
+
+      onChange(url);
+    } catch (err: any) {
+      alert(err.message || 'Gagal mengunggah gambar');
+    } finally {
+      setUploading(false);
+      e.target.value = ''; // reset input
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!value) return;
+    
+    // Check if it's a Backblaze URL. If not, just clear it.
+    if (!value.includes('backblaze') && !value.includes('s3')) {
+      onChange('');
+      return;
+    }
+    
+    if (!window.confirm('Hapus gambar ini dari server penyimpanan?')) return;
+
+    setDeleting(true);
+    try {
+      await deleteImageFromBackblaze(value);
+      onChange('');
+    } catch (err: any) {
+      alert(err.message || 'Gagal menghapus gambar');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <div className="flex-1 relative">
+          <input
+            type="text"
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            placeholder={placeholder}
+            className="w-full px-3 py-2 pr-10 rounded-xl border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-200 bg-white"
+            disabled={uploading || deleting}
+          />
+          
+          <label 
+            title="Unggah Foto Baru"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-pink-500 hover:bg-pink-50 cursor-pointer rounded-lg transition-colors"
+          >
+            {uploading ? (
+              <Loader2 className="w-4 h-4 animate-spin text-pink-500" />
+            ) : (
+              <UploadCloud className="w-4 h-4" />
+            )}
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              onChange={handleFileChange}
+              disabled={uploading || deleting}
+            />
+          </label>
+        </div>
+
+        {value && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={uploading || deleting}
+            className="p-2 border border-red-100 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-700 transition-colors disabled:opacity-50 flex-shrink-0"
+            title="Hapus gambar"
+          >
+            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+          </button>
+        )}
+      </div>
+      {(uploading || deleting) && (
+        <span className="text-[10px] text-pink-500 font-medium animate-pulse ml-1">
+          {uploading ? 'Mengunggah ke server...' : 'Menghapus dari server...'}
+        </span>
+      )}
     </div>
   );
 }

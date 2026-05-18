@@ -59,7 +59,7 @@ export default function SectionPanel() {
   }
 
   return (
-    <div className="h-full min-h-0 flex flex-col bg-white border-r border-gray-100 w-72 min-w-[260px] select-none">
+    <div className="h-full min-h-0 flex flex-col bg-white border-r border-gray-100 w-full md:w-72 md:min-w-[260px] select-none">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-gray-100">
         <div className="flex gap-1 bg-gray-100 rounded-xl p-1">
