@@ -9,7 +9,7 @@ import {
   LayoutIcon, ClockIcon, UsersIcon, CalendarIcon, ImageIcon,
   BookOpenIcon, CheckSquareIcon, GiftIcon, MapPinIcon, MusicIcon,
   MessageSquareIcon, TypeIcon, MinusIcon, LinkIcon, PaletteIcon,
-  SettingsIcon,
+  SettingsIcon, CopyIcon,
 } from 'lucide-react';
 
 const SECTION_META: Record<SectionType, { icon: React.ElementType; color: string }> = {
@@ -44,10 +44,12 @@ const ADD_SECTIONS: Array<{ type: SectionType; label: string }> = [
 ];
 
 export default function SectionPanel() {
-  const { state, selectSection, toggleSectionVisibility, moveSection, removeSection, addSection } = useBuilder();
+  const { state, selectSection, toggleSectionVisibility, moveSection, removeSection, addSection, duplicateSection } = useBuilder();
   const { page, selectedSectionId } = state;
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [activeTab, setActiveTab] = useState<'sections' | 'style'>('sections');
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   const sections = [...page.sections].sort((a, b) => a.order - b.order);
 
@@ -84,16 +86,51 @@ export default function SectionPanel() {
               const meta = SECTION_META[section.type];
               const Icon = meta.icon;
               const isSelected = section.id === selectedSectionId;
+              const isDragging = idx === draggedIdx;
+              const isDragOver = idx === dragOverIdx;
+
               return (
                 <div
                   key={section.id}
-                  className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${isSelected
-                    ? 'border-pink-200 bg-pink-50 shadow-sm'
-                    : 'border-transparent hover:border-gray-200 hover:bg-gray-50'}`}
+                  draggable
+                  onDragStart={(e) => {
+                    setDraggedIdx(idx);
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                  onDragEnd={() => {
+                    setDraggedIdx(null);
+                    setDragOverIdx(null);
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    if (draggedIdx !== idx) {
+                      setDragOverIdx(idx);
+                    }
+                  }}
+                  onDragLeave={() => {
+                    if (dragOverIdx === idx) {
+                      setDragOverIdx(null);
+                    }
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (draggedIdx !== null && draggedIdx !== idx) {
+                      moveSection(draggedIdx, idx);
+                    }
+                    setDraggedIdx(null);
+                    setDragOverIdx(null);
+                  }}
+                  className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${
+                    isSelected
+                      ? 'border-pink-200 bg-pink-50 shadow-sm'
+                      : isDragOver
+                      ? 'border-dashed border-pink-400 bg-pink-50/30 scale-[1.02]'
+                      : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
+                  } ${isDragging ? 'opacity-40 scale-95 border-dashed border-pink-300' : ''}`}
                   onClick={() => selectSection(section.id)}
                 >
                   {/* Drag handle */}
-                  <GripVerticalIcon className="h-3.5 w-3.5 text-gray-300 flex-shrink-0 cursor-grab" />
+                  <GripVerticalIcon className="h-3.5 w-3.5 text-gray-300 flex-shrink-0 cursor-grab active:cursor-grabbing" />
 
                   {/* Icon */}
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: meta.color + '18' }}>
@@ -120,6 +157,13 @@ export default function SectionPanel() {
                       title="Turun"
                     >
                       <ChevronDownIcon className="h-3 w-3 text-gray-400" />
+                    </button>
+                    <button
+                      className="p-1 rounded-lg hover:bg-white transition-colors"
+                      onClick={(e) => { e.stopPropagation(); duplicateSection(section.id); }}
+                      title="Salin Seksi"
+                    >
+                      <CopyIcon className="h-3 w-3 text-gray-400 hover:text-pink-500" />
                     </button>
                     <button
                       className="p-1 rounded-lg hover:bg-white transition-colors"

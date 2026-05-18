@@ -39,7 +39,7 @@ const EDITORS: Record<SectionType, React.ComponentType<{ props: Record<string, u
 };
 
 export default function PropertiesPanel() {
-  const { state, selectSection, updateSectionProps } = useBuilder();
+  const { state, selectSection, updateSectionProps, updateSectionLabel } = useBuilder();
   const { page, selectedSectionId } = state;
 
   const section = page.sections.find(s => s.id === selectedSectionId);
@@ -75,14 +75,28 @@ export default function PropertiesPanel() {
 
       {/* Editor Content */}
       <div className="flex-1 overflow-y-auto">
-        {Editor ? (
-          <Editor
-            props={section.props}
-            onChange={(newProps) => updateSectionProps(section.id, newProps)}
+        {/* Section Label (Name) Editor */}
+        <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+          <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-1">Nama Seksi</label>
+          <input
+            type="text"
+            value={section.label}
+            onChange={(e) => updateSectionLabel(section.id, e.target.value)}
+            className="w-full px-3 py-2 text-xs rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-200 text-gray-700 bg-white font-medium"
+            placeholder="Contoh: Pemisah Acara"
           />
-        ) : (
-          <div className="p-6 text-center text-xs text-gray-400">Editor untuk tipe ini belum tersedia.</div>
-        )}
+        </div>
+
+        <div className="mt-2">
+          {Editor ? (
+            <Editor
+              props={section.props}
+              onChange={(newProps) => updateSectionProps(section.id, newProps)}
+            />
+          ) : (
+            <div className="p-6 text-center text-xs text-gray-400">Editor untuk tipe ini belum tersedia.</div>
+          )}
+        </div>
       </div>
     </div>
   );

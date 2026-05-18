@@ -8,6 +8,11 @@ import PropertiesPanel from './PropertiesPanel';
 import {
   SaveIcon, ExternalLinkIcon, ArrowLeftIcon,
   Loader2Icon, CheckIcon, AlertCircleIcon,
+  Undo2 as UndoIcon,
+  Redo2 as RedoIcon,
+  RotateCcw as RotateCcwIcon,
+  Download as DownloadIcon,
+  Upload as UploadIcon,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -23,9 +28,69 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 };
 
 export default function BuilderDashboard({ userId }: Props) {
-  const { state, save } = useBuilder();
-  const { page, isDirty, saving, saveError } = state;
+  const { state, save, undo, redo, resetPage, importPage } = useBuilder();
+  const { page, isDirty, saving, saveError, past, future } = state;
   const router = useRouter();
+
+  function handleExport() {
+    try {
+      const exportData = {
+        style: page.style,
+        sections: page.sections,
+      };
+      const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+        JSON.stringify(exportData, null, 2)
+      )}`;
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', jsonString);
+      downloadAnchor.setAttribute('download', `ginvite_builder_${page.slug}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch {
+      alert('Gagal mengekspor desain.');
+    }
+  }
+
+  function handleImportClick() {
+    const fileInput = document.getElementById('import-builder-file') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  }
+
+  function handleImportChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (!parsed || typeof parsed !== 'object') {
+          alert('Format file JSON tidak valid.');
+          return;
+        }
+        if (!parsed.sections || !parsed.style) {
+          alert('File JSON tidak mengandung data desain builder (sections/style) yang valid.');
+          return;
+        }
+        if (confirm('Apakah Anda yakin ingin mengimpor desain ini? Ini akan menggantikan seluruh layout dan gaya saat ini (dapat dibatalkan dengan tombol Undo).')) {
+          importPage(parsed);
+          e.target.value = '';
+        }
+      } catch {
+        alert('Gagal membaca file JSON.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function handleReset() {
+    if (confirm('Apakah Anda yakin ingin menyetel ulang (reset) seluruh halaman ini ke template awal? Semua seksi kustom dan perubahan Anda saat ini akan dihapus (dapat dibatalkan dengan tombol Undo).')) {
+      resetPage();
+    }
+  }
 
   return (
     <div className="h-full flex flex-col bg-gray-50 overflow-hidden">
@@ -80,6 +145,67 @@ export default function BuilderDashboard({ userId }: Props) {
               Gagal simpan
             </span>
           )}
+        </div>
+
+        {/* Undo, Redo, Reset, Import, Export Group */}
+        <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 rounded-xl p-1 flex-shrink-0">
+          {/* Undo */}
+          <button
+            onClick={undo}
+            disabled={past.length === 0}
+            className="p-1.5 rounded-lg text-gray-500 hover:text-pink-600 hover:bg-white active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            title="Batal (Undo)"
+          >
+            <UndoIcon className="h-4 w-4" />
+          </button>
+          
+          {/* Redo */}
+          <button
+            onClick={redo}
+            disabled={future.length === 0}
+            className="p-1.5 rounded-lg text-gray-500 hover:text-pink-600 hover:bg-white active:scale-95 disabled:opacity-30 disabled:pointer-events-none transition-all"
+            title="Ulangi (Redo)"
+          >
+            <RedoIcon className="h-4 w-4" />
+          </button>
+
+          <div className="w-px h-4 bg-gray-250 mx-0.5" />
+
+          {/* Export */}
+          <button
+            onClick={handleExport}
+            className="p-1.5 rounded-lg text-gray-500 hover:text-pink-600 hover:bg-white active:scale-95 transition-all"
+            title="Ekspor Desain (JSON)"
+          >
+            <DownloadIcon className="h-4 w-4" />
+          </button>
+
+          {/* Import */}
+          <button
+            onClick={handleImportClick}
+            className="p-1.5 rounded-lg text-gray-500 hover:text-pink-600 hover:bg-white active:scale-95 transition-all"
+            title="Impor Desain (JSON)"
+          >
+            <UploadIcon className="h-4 w-4" />
+          </button>
+          <input
+            type="file"
+            id="import-builder-file"
+            accept=".json"
+            onChange={handleImportChange}
+            className="hidden"
+          />
+
+          <div className="w-px h-4 bg-gray-250 mx-0.5" />
+
+          {/* Reset */}
+          <button
+            onClick={handleReset}
+            className="p-1.5 rounded-lg text-gray-500 hover:text-red-500 hover:bg-red-50 active:scale-95 transition-all"
+            title="Reset Halaman ke Template Awal"
+          >
+            <RotateCcwIcon className="h-4 w-4" />
+          </button>
         </div>
 
         {/* Preview link */}

@@ -76,24 +76,24 @@ export default function SelectVersionModal({ userId, onClose, onInvitationCreate
             </div>
           </button>
 
-          {/* Versi Baru - Builder */}
+          {/* Versi Baru - Builder (Coming Soon) */}
           <button
-            onClick={() => setStep('builder')}
-            className="w-full text-left p-4 rounded-2xl border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-purple-50 hover:border-pink-400 hover:shadow-md transition-all group relative overflow-hidden"
+            disabled
+            className="w-full text-left p-4 rounded-2xl border-2 border-gray-150 bg-gray-50/50 opacity-70 cursor-not-allowed transition-all relative overflow-hidden group"
           >
             <div className="absolute top-3 right-3">
-              <span className="text-[10px] bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-0.5 rounded-full font-bold">NEW ✨</span>
+              <span className="text-[10px] bg-amber-500 text-white px-2.5 py-0.5 rounded-full font-bold">Segera Hadir ⏳</span>
             </div>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                <SparklesIcon className="h-6 w-6 text-white" />
+              <div className="w-12 h-12 rounded-2xl bg-gray-200 flex items-center justify-center flex-shrink-0">
+                <SparklesIcon className="h-6 w-6 text-gray-400" />
               </div>
               <div className="flex-1 min-w-0 pr-10">
-                <p className="font-bold text-gray-800 text-sm">Versi Baru — Page Builder</p>
-                <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">Drag & drop builder visual. Atur setiap seksi, warna, font, dan konten bebas untuk semua jenis acara.</p>
+                <p className="font-bold text-gray-500 text-sm">Versi Baru — Page Builder</p>
+                <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Drag & drop builder visual. Atur setiap seksi, warna, font, dan konten bebas untuk semua jenis acara.</p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {['Pernikahan', 'Ulang Tahun', 'Khitanan', 'Custom'].map(t => (
-                    <span key={t} className="text-[10px] bg-white/80 text-pink-600 border border-pink-200 px-2 py-0.5 rounded-full font-medium">{t}</span>
+                    <span key={t} className="text-[10px] bg-white text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full font-medium">{t}</span>
                   ))}
                 </div>
               </div>
