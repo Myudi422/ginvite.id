@@ -20,29 +20,34 @@ import {
   CalendarIcon,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import CreateInvitationPopup from '@/components/CreateInvitationPopup';
+import SelectVersionModal from '@/components/SelectVersionModal';
 import ManageSharesModal from '@/components/ManageSharesModal';
 
 type User = { userId: number; email: string };
 interface Invitation {
   id: number;
   user_id: number;
-  title: string;
+  title: string;         // slug/URL key — untuk routing
+  display_title?: string; // nama tampilan — diisi khusus untuk builder
   status: number;
   event_date: string;
   avatar_url: string;
   preview_url: string;
+  edit_url?: string;
   category_type: string;
   expired: string;
   access_type?: 'owner' | 'shared';
+  source?: 'legacy' | 'builder';
 }
 interface Props { user: User; slides?: string[]; invitations: Invitation[] }
 
 // ─── Category label only (no rainbow colors) ───
 function getCategoryLabel(type: string) {
   switch (type) {
-    case 'pernikahan': return '💒 Pernikahan';
-    case 'khitanan': return '🎉 Khitanan';
+    case 'pernikahan':  return '💒 Pernikahan';
+    case 'khitanan':    return '🎉 Khitanan';
+    case 'ulang_tahun': return '🎂 Ulang Tahun';
+    case 'custom':      return '✨ Custom';
     default: return `✨ ${type}`;
   }
 }
@@ -328,7 +333,7 @@ export default function InvitationDashboard({ user, invitations }: Props) {
                     {/* Title + meta */}
                     <div className="min-w-0 flex-1">
                       <h2 className="font-semibold text-gray-800 text-sm leading-tight truncate">
-                        {inv.title}
+                        {inv.display_title || inv.title}
                       </h2>
                       <p className="text-xs text-gray-400 mt-0.5">{getCategoryLabel(inv.category_type)}</p>
                     </div>
@@ -362,6 +367,13 @@ export default function InvitationDashboard({ user, invitations }: Props) {
                       <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-pink-400' : 'bg-gray-400'}`} />
                       {isActive ? 'Aktif' : 'Draft'}
                     </span>
+
+                    {/* Builder badge */}
+                    {inv.source === 'builder' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-600 border border-purple-200">
+                        ✨ Builder
+                      </span>
+                    )}
 
                     {inv.access_type === 'shared' && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-pink-50 text-pink-500 border border-pink-100">
@@ -404,19 +416,38 @@ export default function InvitationDashboard({ user, invitations }: Props) {
 
                     <div className="flex-1 grid grid-cols-2 gap-2">
                       <button
-                        onClick={() => router.push(`/admin/formulir/${inv.user_id}/${inv.title}`)}
+                        onClick={() => {
+                          const url = inv.edit_url
+                            ? `/${inv.edit_url}`
+                            : inv.source === 'builder'
+                            ? `/admin/builder/${inv.user_id}/${inv.title}`
+                            : `/admin/formulir/${inv.user_id}/${inv.title}`;
+                          router.push(url);
+                        }}
                         className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-50 hover:bg-pink-100 border border-pink-100 transition-all text-pink-600 font-semibold text-xs"
                       >
                         <PencilIcon className="h-3.5 w-3.5" />
                         Edit
                       </button>
-                      <button
-                        onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
-                        className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold text-xs transition-all shadow-sm"
-                      >
-                        <SettingsIcon className="h-3.5 w-3.5" />
-                        Manage
-                      </button>
+                      {inv.source !== 'builder' ? (
+                        <button
+                          onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
+                          className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold text-xs transition-all shadow-sm"
+                        >
+                          <SettingsIcon className="h-3.5 w-3.5" />
+                          Manage
+                        </button>
+                      ) : (
+                        <a
+                          href={`/${inv.preview_url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-semibold text-xs transition-all shadow-sm"
+                        >
+                          <ExternalLinkIcon className="h-3.5 w-3.5" />
+                          Preview
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -472,10 +503,13 @@ export default function InvitationDashboard({ user, invitations }: Props) {
 
       {/* ── POPUPS ── */}
       {isCreatePopupOpen && (
-        <CreateInvitationPopup
+        <SelectVersionModal
           userId={user.userId}
           onClose={() => setIsCreatePopupOpen(false)}
           onInvitationCreated={slug => router.push(`/admin/formulir/${user.userId}/${slug}`)}
+          onBuilderCreated={(slug, eventType, pageTitle) =>
+            router.push(`/admin/builder/${user.userId}/${slug}?event_type=${encodeURIComponent(eventType)}&page_title=${encodeURIComponent(pageTitle)}`)
+          }
         />
       )}
 

@@ -125,45 +125,74 @@ $sql = <<<SQL
 SELECT DISTINCT
     c.id,
     c.user_id,
-    c.title,
+    CONVERT(c.title USING utf8mb4) COLLATE utf8mb4_unicode_ci AS title,
+    NULL COLLATE utf8mb4_unicode_ci AS display_title,
     c.status,
     c.waktu_acara AS event_date,
     c.expired,
-    t.image_theme AS avatar_url,
-    ct.name AS category_type,
+    CONVERT(t.image_theme USING utf8mb4) COLLATE utf8mb4_unicode_ci AS avatar_url,
+    CONVERT(ct.name USING utf8mb4) COLLATE utf8mb4_unicode_ci AS category_type,
     CASE 
-        WHEN c.user_id = ? THEN 'owner'
-        ELSE 'shared'
-    END as access_type
+        WHEN c.user_id = ? THEN 'owner' COLLATE utf8mb4_unicode_ci
+        ELSE 'shared' COLLATE utf8mb4_unicode_ci
+    END AS access_type,
+    'legacy' COLLATE utf8mb4_unicode_ci AS source
 FROM content_user AS c
 JOIN theme AS t ON c.theme_id = t.id
 JOIN category_type AS ct ON c.category_id = ct.id
 LEFT JOIN invitation_shares AS s ON c.id = s.invitation_id
 WHERE c.user_id = ? 
    OR (s.shared_email = ? AND (s.can_edit = 1 OR s.can_manage = 1))
-ORDER BY c.waktu_acara DESC
+
+UNION ALL
+
+SELECT
+    bp.id,
+    bp.user_id,
+    bp.slug COLLATE utf8mb4_unicode_ci AS title,
+    bp.page_title COLLATE utf8mb4_unicode_ci AS display_title,
+    bp.status,
+    NULL AS event_date,
+    bp.expired,
+    NULL AS avatar_url,
+    bp.event_type COLLATE utf8mb4_unicode_ci AS category_type,
+    'owner' COLLATE utf8mb4_unicode_ci AS access_type,
+    'builder' COLLATE utf8mb4_unicode_ci AS source
+FROM builder_pages AS bp
+WHERE bp.user_id = ?
+
+ORDER BY event_date DESC
 SQL;
 
 try {
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$user_id, $user_id, $userEmail]);
+    $stmt->execute([$user_id, $user_id, $userEmail, $user_id]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Tambahkan preview_url ke setiap item
+    // Tambahkan preview_url & edit_url ke setiap item
     foreach ($rows as &$row) {
-        $slugTitle = urlencode(strtolower(str_replace(' ', '-', $row['title'])));
-        $row['preview_url'] = "undang/{$row['user_id']}/{$slugTitle}";
+        if ($row['source'] === 'builder') {
+            // title = slug (URL-safe), display_title = nama tampilan
+            $row['preview_url'] = "undang/{$row['user_id']}/{$row['title']}";
+            $row['edit_url']    = "admin/builder/{$row['user_id']}/{$row['title']}";
+            $row['slug']        = $row['title'];
+        } else {
+            $slugTitle = urlencode(strtolower(str_replace(' ', '-', $row['title'])));
+            $row['preview_url'] = "undang/{$row['user_id']}/{$slugTitle}";
+            $row['edit_url']    = "admin/formulir/{$row['user_id']}/{$row['title']}";
+            $row['slug']        = $slugTitle;
+        }
     }
 
     echo json_encode([
         'status' => 'success',
-        'data' => $rows,
+        'data'   => $rows,
     ], JSON_UNESCAPED_UNICODE);
 }
 catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([
-        'status' => 'error',
+        'status'  => 'error',
         'message' => 'Database error: ' . $e->getMessage()
     ], JSON_UNESCAPED_UNICODE);
 }

@@ -51,6 +51,7 @@
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tanstack/react-table": "^8.21.3",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.9.0",
     "backblaze-b2": "^1.7.0",
@@ -100,6 +101,7 @@
     "supabase": "^2.22.6",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^14.0.0",
     "vaul": "^0.9.6",
     "zod": "^3.24.1"
   },

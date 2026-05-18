@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import type { Viewport } from "next";
 import React from "react";
 import PaymentRequired from "./PaymentRequired";
+import BuilderViewer from "@/components/builder/BuilderViewer";
+import type { BuilderPage } from "@/components/builder/types";
 
 interface Params {
   userId: string;
@@ -202,6 +204,49 @@ export const viewport: Viewport = {
 
 export default async function InvitationPage({ params, searchParams }: Props) {
   const { userId, title } = await params;
+
+  // ── 1. Cek apakah ini undangan builder ───────────────────────────────────
+  // builder_get_public.php selalu mengembalikan HTTP 200 dengan field 'status'
+  let isBuilderNotFound = false;
+  try {
+    const builderRes = await fetch(
+      `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get_public.php?user_id=${encodeURIComponent(userId)}&slug=${encodeURIComponent(title)}`,
+      { next: { revalidate: 60 } }
+    );
+
+    // Selalu coba parse JSON jika ada response (ok atau tidak)
+    let builderJson: Record<string, unknown> | null = null;
+    try { builderJson = await builderRes.json(); } catch { /* abaikan */ }
+
+    if (builderJson) {
+      // Berhasil → render BuilderViewer
+      if (builderJson.status === 'success' && builderJson.type === 'builder' && builderJson.data) {
+        return <BuilderViewer page={builderJson.data as BuilderPage} />;
+      }
+
+      // Kedaluwarsa → tampilkan pesan
+      if (builderJson.status === 'expired') {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-pink-50 p-6 text-center">
+            <div>
+              <p className="text-5xl mb-4">⏳</p>
+              <h1 className="text-xl font-bold text-gray-700 mb-2">Undangan Kedaluwarsa</h1>
+              <p className="text-gray-500 text-sm">Undangan ini sudah melewati masa aktif.</p>
+            </div>
+          </div>
+        );
+      }
+
+      // not_found → biarkan jatuh ke flow legacy (mungkin ini undangan lama)
+      if (builderJson.status === 'not_found') {
+        isBuilderNotFound = true;
+      }
+    }
+  } catch {
+    // Network error → lanjut ke flow legacy
+  }
+
+  // ── 2. Flow lama (formulir / tema) ───────────────────────────────────────
   const apiUrl = [
     "https://ccgnimex.my.id/v2/android/ginvite/index.php",
     `?action=result`,
