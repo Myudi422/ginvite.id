@@ -78,10 +78,8 @@ export interface OpeningProps {
   bg_image: string;
   overlay_opacity: number;
   show_qr: boolean;
-  bg_type?: 'solid' | 'gradient' | 'image' | 'slideshow' | 'video';
-  bg_video_url?: string;
-  bg_video_start?: number;
-  bg_video_end?: number;
+  bg_type?: 'solid' | 'gradient' | 'image' | 'slideshow';
+  layout_template?: 'classic' | 'modern_split' | 'card_glass' | 'elegant_bottom' | 'netflix_style' | 'royal_vintage' | 'minimal_top' | 'block_asymmetric' | 'luxury_magazine';
   bg_color?: string;
   bg_color2?: string;
   bg_image_blur?: number;
@@ -95,6 +93,7 @@ export interface OpeningProps {
   overlay_opacity2?: number;
   overlay_gradient_angle?: number;
   bg_new_uploaded_images?: string[];
+  animation_preset?: 'none' | 'fade_in' | 'fade_up' | 'fade_down' | 'zoom_in' | 'tracking_wide' | 'slide_left' | 'slide_right' | 'blur_reveal' | 'bounce_soft';
 }
 
 export interface HeroProps {

@@ -20,6 +20,23 @@ export default function OpeningEditor({ props, onChange }: P) {
     settings: false,
   });
 
+  const presets = [
+    'THE WEDDING OF',
+    'WALIMATUL KHITAN',
+    'HAPPY BIRTHDAY',
+    'GRADUATION PARTY',
+    'GRAND OPENING',
+    'SPECIAL EVENT'
+  ];
+
+  const [selectedSelectValue, setSelectedSelectValue] = useState<string>(() => {
+    const currentTitle = (typedProps.title || '').trim().toUpperCase();
+    if (presets.includes(currentTitle)) {
+      return currentTitle;
+    }
+    return 'custom';
+  });
+
   const toggleGroup = (key: string) => setOpenGroups(prev => ({ ...prev, [key]: !prev[key] }));
 
   const renderHeader = (key: string, title: string, Icon: React.ComponentType<{ className?: string }>) => {
@@ -34,8 +51,8 @@ export default function OpeningEditor({ props, onChange }: P) {
           <Icon className="w-3.5 h-3.5 text-gray-400" />
           <span className="tracking-wider uppercase">{title}</span>
         </div>
-        <ChevronDown 
-          className="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ease-in-out" 
+        <ChevronDown
+          className="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ease-in-out"
           style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
         />
       </button>
@@ -49,27 +66,90 @@ export default function OpeningEditor({ props, onChange }: P) {
         {renderHeader('text', 'Teks & Label', Type)}
         {openGroups.text && (
           <div className="p-3 bg-white border border-gray-100 rounded-2xl space-y-4 shadow-sm">
-            <Field label="Teks Judul Acara">
-              <Input 
-                value={typedProps.title || ''} 
-                onChange={v => set('title', v)} 
-                placeholder="Misal: The Wedding Of" 
+            <Field label="Template Layout Sampul">
+              <Select
+                value={typedProps.layout_template || 'classic'}
+                onChange={v => set('layout_template', v)}
+                options={[
+                  { value: 'classic', label: 'Classic Symmetrical Stack' },
+                  { value: 'modern_split', label: 'Modern Asymmetrical Split' },
+                  { value: 'card_glass', label: 'Glassmorphism Floating Card' },
+                  { value: 'elegant_bottom', label: 'Minimalistic Bottom Anchor' },
+                  { value: 'netflix_style', label: 'Netflix Cinematic Style' },
+                  { value: 'royal_vintage', label: 'Royal Vintage / Classic Ornate' },
+                  { value: 'minimal_top', label: 'Minimalistic Top Anchor' },
+                  { value: 'block_asymmetric', label: 'Asymmetric Block Accent' },
+                  { value: 'luxury_magazine', label: 'Luxury Editorial Magazine Cover' },
+                ]}
               />
             </Field>
 
+            <Field label="Animasi Masuk Teks">
+              <Select
+                value={typedProps.animation_preset || 'none'}
+                onChange={v => set('animation_preset', v)}
+                options={[
+                  { value: 'none', label: 'Tanpa Animasi (Statis)' },
+                  { value: 'fade_in', label: '✨ Smooth Fade In' },
+                  { value: 'fade_up', label: '🚀 Elegant Fade Up' },
+                  { value: 'fade_down', label: '⬇️ Smooth Fade Down' },
+                  { value: 'zoom_in', label: '🔍 Gentle Zoom In' },
+                  { value: 'tracking_wide', label: '🎬 Cinematic Letter Expansion' },
+                  { value: 'slide_left', label: '⬅️ Slide In Left' },
+                  { value: 'slide_right', label: '➡️ Slide In Right' },
+                  { value: 'blur_reveal', label: '🌫️ Soft Focus Blur Reveal' },
+                  { value: 'bounce_soft', label: '🎈 Soft Elastic Bounce' },
+                ]}
+              />
+            </Field>
+
+            {/* Teks Judul Acara Dropdown & Custom Input */}
+            <div className="space-y-2">
+              <Field label="Pilihan Acara (Teks Judul)">
+                <Select
+                  value={selectedSelectValue}
+                  onChange={v => {
+                    setSelectedSelectValue(v);
+                    if (v !== 'custom') {
+                      set('title', v);
+                    }
+                  }}
+                  options={[
+                    { value: 'THE WEDDING OF', label: 'The Wedding Of' },
+                    { value: 'WALIMATUL KHITAN', label: 'Walimatul Khitan' },
+                    { value: 'HAPPY BIRTHDAY', label: 'Happy Birthday' },
+                    { value: 'GRADUATION PARTY', label: 'Graduation Party' },
+                    { value: 'GRAND OPENING', label: 'Grand Opening' },
+                    { value: 'SPECIAL EVENT', label: 'Special Event' },
+                    { value: 'custom', label: '✏️ Kustom / Tulis Sendiri' },
+                  ]}
+                />
+              </Field>
+
+              {selectedSelectValue === 'custom' && (
+                <div className="pt-1">
+                  <Input
+                    value={typedProps.title || ''}
+                    onChange={v => set('title', v)}
+                    placeholder="Ketik judul acara kustom Anda..."
+                  />
+                </div>
+              )}
+            </div>
+
             <Field label="Nama Pengantin Utama / Acara">
-              <Input 
-                value={typedProps.name_primary || ''} 
-                onChange={v => set('name_primary', v)} 
-                placeholder="Misal: Romeo" 
+              <Input
+                value={typedProps.name_primary || ''}
+                onChange={v => set('name_primary', v)}
+                placeholder="Misal: Romeo"
               />
             </Field>
 
             <Field label="Nama Pengantin Kedua (Opsional)">
-              <Input 
-                value={typedProps.name_secondary || ''} 
-                onChange={v => set('name_secondary', v)} 
-                placeholder="Misal: Juliet" 
+              <Input
+                value={typedProps.name_secondary || ''}
+                onChange={v => set('name_secondary', v)}
+                placeholder="Misal: Juliet"
               />
             </Field>
 
@@ -92,18 +172,18 @@ export default function OpeningEditor({ props, onChange }: P) {
             </Field>
 
             <Field label="Label Tujuan / Kepada">
-              <Input 
-                value={typedProps.to_label || ''} 
-                onChange={v => set('to_label', v)} 
-                placeholder="Misal: Kepada Yth. Bapak/Ibu/Saudara/i" 
+              <Input
+                value={typedProps.to_label || ''}
+                onChange={v => set('to_label', v)}
+                placeholder="Misal: Kepada Yth. Bapak/Ibu/Saudara/i"
               />
             </Field>
 
             <Field label="Teks Tombol Masuk">
-              <Input 
-                value={typedProps.button_text || ''} 
-                onChange={v => set('button_text', v)} 
-                placeholder="Misal: Buka Undangan" 
+              <Input
+                value={typedProps.button_text || ''}
+                onChange={v => set('button_text', v)}
+                placeholder="Misal: Buka Undangan"
               />
             </Field>
           </div>
@@ -124,7 +204,6 @@ export default function OpeningEditor({ props, onChange }: P) {
                   { value: 'gradient', label: 'Gradasi Warna' },
                   { value: 'image', label: 'Foto Single' },
                   { value: 'slideshow', label: 'Foto Slideshow' },
-                  { value: 'video', label: 'Video YouTube' },
                 ]}
               />
             </Field>
@@ -155,46 +234,11 @@ export default function OpeningEditor({ props, onChange }: P) {
               </div>
             )}
 
-            {typedProps.bg_type === 'video' && (
-              <div className="space-y-4">
-                <Field 
-                  label="Link / ID Video YouTube" 
-                  hint="Dukungan link lengkap, link pendek (youtu.be), embed, maupun 11 digit ID video secara langsung."
-                >
-                  <Input
-                    value={typedProps.bg_video_url || ''}
-                    onChange={v => set('bg_video_url', v)}
-                    placeholder="Contoh: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                  />
-                </Field>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Detik Mulai (Start)">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={typedProps.bg_video_start === undefined ? '' : typedProps.bg_video_start}
-                      onChange={v => set('bg_video_start', v === '' ? undefined : parseInt(v))}
-                      placeholder="Detik (e.g. 10)"
-                    />
-                  </Field>
-                  <Field label="Detik Selesai (End)">
-                    <Input
-                      type="number"
-                      min={0}
-                      value={typedProps.bg_video_end === undefined ? '' : typedProps.bg_video_end}
-                      onChange={v => set('bg_video_end', v === '' ? undefined : parseInt(v))}
-                      placeholder="Detik (e.g. 45)"
-                    />
-                  </Field>
-                </div>
-              </div>
-            )}
-
             {(typedProps.bg_type === 'image' || !typedProps.bg_type) && (
               <Field label="Foto Background Sampul">
-                <ImagePicker 
-                  value={typedProps.bg_image || ''} 
-                  onChange={v => set('bg_image', v)} 
+                <ImagePicker
+                  value={typedProps.bg_image || ''}
+                  onChange={v => set('bg_image', v)}
                 />
               </Field>
             )}
@@ -260,7 +304,7 @@ export default function OpeningEditor({ props, onChange }: P) {
                         )}
                       </div>
                     ))}
-                    
+
                     {(typedProps.bg_slideshow_images || []).length < 3 ? (
                       <button
                         type="button"
@@ -330,7 +374,7 @@ export default function OpeningEditor({ props, onChange }: P) {
 
             <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-4 mt-2">
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kustomisasi Overlay</p>
-              
+
               <Field label="Tipe Overlay">
                 <Select
                   value={typedProps.overlay_type || 'solid'}
@@ -411,7 +455,7 @@ export default function OpeningEditor({ props, onChange }: P) {
                   </div>
                 </div>
               )}
-              
+
               <p className="text-[10px] text-gray-400 mt-1">
                 Overlay membantu meredupkan latar belakang agar teks undangan kontras dan lebih mudah terbaca.
               </p>
