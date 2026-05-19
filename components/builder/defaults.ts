@@ -62,10 +62,6 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
       id: makeId(), type: 'quote', label: 'Kutipan', visible: true, order: 9,
       props: { text: '"Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu..."', source: 'QS. Ar-Rum: 21' },
     },
-    {
-      id: makeId(), type: 'music', label: 'Musik Latar', visible: false, order: 10,
-      props: { url: '', autoplay: true },
-    },
   ],
 
   ulang_tahun: [
@@ -108,10 +104,6 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     {
       id: makeId(), type: 'quote', label: 'Pesan Ucapan', visible: true, order: 7,
       props: { text: '"Semoga panjang umur, sehat selalu, dan bahagia selamanya!"', source: '' },
-    },
-    {
-      id: makeId(), type: 'music', label: 'Musik Latar', visible: false, order: 8,
-      props: { url: '', autoplay: true },
     },
   ],
 
@@ -156,10 +148,6 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
       id: makeId(), type: 'quote', label: 'Kutipan / Doa', visible: true, order: 7,
       props: { text: '"Sesungguhnya anak adalah anugerah terindah dari Allah SWT."', source: '' },
     },
-    {
-      id: makeId(), type: 'music', label: 'Musik Latar', visible: false, order: 8,
-      props: { url: '', autoplay: true },
-    },
   ],
 
   custom: [
@@ -199,10 +187,6 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: false, order: 6,
       props: { enabled: false, deadline: '' },
     },
-    {
-      id: makeId(), type: 'music', label: 'Musik Latar', visible: false, order: 7,
-      props: { url: '', autoplay: true },
-    },
   ],
 };
 
@@ -226,6 +210,10 @@ export function makeDefaultPage(opts: {
       font_body: 'Montserrat',
       font_heading: 'Playfair Display',
       page_width: 700,
+      music_enabled: false,
+      music_url: '',
+      music_autoplay: true,
+      nav_enabled: true,
     },
     sections: DEFAULT_SECTIONS[event_type].map((s, i) => ({ ...s, id: makeId(), order: i })),
   };

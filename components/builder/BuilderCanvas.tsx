@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useBuilder } from './BuilderContext';
 import type { BuilderSection } from './types';
+import BuilderNavigation from './ui/BuilderNavigation';
 
 // ── Section Preview Renderers ─────────────────────────────────────────────────
 import OpeningPreview from './previews/OpeningPreview';
@@ -116,6 +117,7 @@ export default function BuilderCanvas() {
           return (
             <div
               key={section.id}
+              id={`section-${section.id}`}
               className={`relative cursor-pointer transition-all ${!section.visible ? 'opacity-30' : ''}`}
               onClick={() => selectSection(section.id)}
             >
@@ -145,6 +147,22 @@ export default function BuilderCanvas() {
           <p className="text-[10px] text-gray-300">papunda.com</p>
         </div>
       </div>
+
+      {page.style.nav_enabled !== false && viewMode !== 'opening' && (
+        <BuilderNavigation 
+          items={visibleSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps'].includes(s.type))).map(s => {
+            const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));
+            return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
+          })}
+          bgColor={page.style.nav_bg_color as string}
+          bgColor2={page.style.nav_bg_color2 as string}
+          bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
+          bgOpacity={page.style.nav_bg_opacity as number}
+          activeColor={page.style.nav_active_color as string}
+          inactiveColor={page.style.nav_inactive_color as string}
+          accentColor={page.style.accent_color as string} 
+        />
+      )}
     </div>
   );
 }

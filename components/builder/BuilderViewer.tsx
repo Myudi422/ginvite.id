@@ -2,6 +2,8 @@
 
 import React from 'react';
 import type { BuilderPage, BuilderSection } from '@/components/builder/types';
+import MusicPlayer from '@/components/MusicPlayer';
+import BuilderNavigation from '@/components/builder/ui/BuilderNavigation';
 
 // Section renderers (reuse dari builder)
 import OpeningPreview from '@/components/builder/previews/OpeningPreview';
@@ -100,7 +102,9 @@ export default function BuilderViewer({ page }: Props) {
         style={{ maxWidth: `${page.style.page_width || 700}px` }}
       >
         {sectionsToRender.map(section => (
-          <SectionRenderer key={section.id} section={section} style={style} onOpen={() => setIsOpen(true)} />
+          <div key={section.id} id={`section-${section.id}`}>
+            <SectionRenderer section={section} style={style} onOpen={() => setIsOpen(true)} />
+          </div>
         ))}
 
         {/* Footer hanya tampil jika sudah terbuka */}
@@ -120,6 +124,30 @@ export default function BuilderViewer({ page }: Props) {
           </div>
         )}
       </div>
+      
+      {isOpen && page.style.music_enabled && page.style.music_url && (
+        <MusicPlayer 
+          url={page.style.music_url} 
+          autoPlay={page.style.music_autoplay} 
+          accentColor={page.style.accent_color} 
+        />
+      )}
+      
+      {page.style.nav_enabled !== false && isOpen && (
+        <BuilderNavigation 
+          items={innerSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps'].includes(s.type))).map(s => {
+            const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));
+            return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
+          })}
+          bgColor={page.style.nav_bg_color as string}
+          bgColor2={page.style.nav_bg_color2 as string}
+          bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
+          bgOpacity={page.style.nav_bg_opacity as number}
+          activeColor={page.style.nav_active_color as string}
+          inactiveColor={page.style.nav_inactive_color as string}
+          accentColor={page.style.accent_color as string} 
+        />
+      )}
     </div>
   );
 }

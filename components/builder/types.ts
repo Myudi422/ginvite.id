@@ -45,6 +45,17 @@ export interface BuilderPage {
     font_body: string;
     font_heading: string;
     page_width: number; // default 700
+    music_enabled?: boolean;
+    music_url?: string;
+    music_autoplay?: boolean;
+    nav_enabled?: boolean;
+    nav_items?: { id: string; icon: string }[];
+    nav_bg_type?: 'solid' | 'gradient';
+    nav_bg_color?: string;
+    nav_bg_color2?: string;
+    nav_bg_opacity?: number;
+    nav_active_color?: string;
+    nav_inactive_color?: string;
   };
 
   sections: BuilderSection[];
