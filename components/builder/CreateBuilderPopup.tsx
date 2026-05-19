@@ -134,7 +134,7 @@ export default function CreateBuilderPopup({ userId, onClose, onCreated }: Props
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-gray-700">Slug / URL Undangan *</label>
               <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-pink-200">
-                <span className="px-3 py-2.5 bg-gray-50 text-xs text-gray-400 border-r border-gray-200 flex-shrink-0">papunda.com/</span>
+                <span className="px-3 py-2.5 bg-gray-50 text-xs text-gray-400 border-r border-gray-200 flex-shrink-0">papunda.com/undang/id/</span>
                 <input
                   type="text"
                   value={slug}

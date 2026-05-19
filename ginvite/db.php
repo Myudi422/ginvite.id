@@ -1,4 +1,3 @@
-
 <?php
 $host = '163.223.227.37';
 $db = 'iqdyjeaz_papunda';
@@ -15,8 +14,7 @@ $options = [
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
-}
-catch (PDOException $e) {
+} catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     exit;
