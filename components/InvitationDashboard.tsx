@@ -429,25 +429,13 @@ export default function InvitationDashboard({ user, invitations }: Props) {
                         <PencilIcon className="h-3.5 w-3.5" />
                         Edit
                       </button>
-                      {inv.source !== 'builder' ? (
-                        <button
-                          onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
-                          className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold text-xs transition-all shadow-sm"
-                        >
-                          <SettingsIcon className="h-3.5 w-3.5" />
-                          Manage
-                        </button>
-                      ) : (
-                        <a
-                          href={`/${inv.preview_url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-semibold text-xs transition-all shadow-sm"
-                        >
-                          <ExternalLinkIcon className="h-3.5 w-3.5" />
-                          Preview
-                        </a>
-                      )}
+                      <button
+                        onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
+                        className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold text-xs transition-all shadow-sm"
+                      >
+                        <SettingsIcon className="h-3.5 w-3.5" />
+                        Manage
+                      </button>
                     </div>
                   </div>
                 </div>

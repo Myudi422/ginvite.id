@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Home, Calendar, BookOpen, Gift, Heart, MapPin, Users, Clock, MessageSquare, Music, Star, Camera, Coffee, Info, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,31 @@ const TYPE_ICONS: Record<string, LucideIcon> = {
   maps: MapPin, couple: Users, countdown: Clock, our_story: BookOpen, quote: MessageSquare,
   Home, Calendar, BookOpen, Gift, Heart, MapPin, Users, Clock, MessageSquare, Music, Star, Camera, Coffee, Info
 };
+
+function normalizeHex(hex: string): string {
+  if (!hex) return '';
+  let clean = hex.trim();
+  if (!clean.startsWith('#')) {
+    clean = '#' + clean;
+  }
+  // Expand short hex e.g. #fff to #ffffff
+  if (clean.length === 4) {
+    const r = clean[1];
+    const g = clean[2];
+    const b = clean[3];
+    return `#${r}${r}${g}${g}${b}${b}`;
+  }
+  if (clean.length === 5) {
+    const r = clean[1];
+    const g = clean[2];
+    const b = clean[3];
+    return `#${r}${r}${g}${g}${b}${b}`;
+  }
+  if (clean.length > 7) {
+    return clean.slice(0, 7);
+  }
+  return clean;
+}
 
 export default function BuilderNavigation({ 
   items, 
@@ -75,15 +100,26 @@ export default function BuilderNavigation({
 
   const opacityHex = Math.round(((bgOpacity ?? 80) / 100) * 255).toString(16).padStart(2, '0');
   
-  let navBg = `${bgColor}${opacityHex}`;
+  const cleanBgColor = normalizeHex(bgColor);
+  const cleanBgColor2 = normalizeHex(bgColor2);
+
+  let navStyle: React.CSSProperties = {};
   if (bgType === 'gradient') {
-    navBg = `linear-gradient(to right, ${bgColor}${opacityHex}, ${bgColor2}${opacityHex})`;
+    navStyle = {
+      backgroundImage: `linear-gradient(to right, ${cleanBgColor}${opacityHex}, ${cleanBgColor2}${opacityHex})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+    };
+  } else {
+    navStyle = {
+      backgroundColor: `${cleanBgColor}${opacityHex}`,
+    };
   }
 
   return (
     <>
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full px-4 z-[999] pointer-events-none" style={{ maxWidth: '700px' }}>
-        <div className="max-w-md mx-auto backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl pointer-events-auto" style={{ background: navBg }}>
+        <div className="max-w-md mx-auto backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden pointer-events-auto" style={navStyle}>
           <div className="flex justify-around items-center h-16 px-2 overflow-x-auto no-scrollbar gap-1">
             {items.map((item) => {
               const isActive = activeId === item.id;

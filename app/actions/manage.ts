@@ -15,6 +15,7 @@ export interface ManageData {
     tidak_hadir: number;
   };
   QR: boolean;
+  source?: 'builder' | 'legacy';
 }
 
 export async function getManageData(userId: string, title: string): Promise<ManageData> {

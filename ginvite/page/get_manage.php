@@ -33,8 +33,18 @@ try {
     $stmt_content_user->execute([$user_id, $title]);
     $content_user_data = $stmt_content_user->fetch(PDO::FETCH_ASSOC);
 
+    $is_builder = false;
     if (!$content_user_data) {
-        error(404, 'Data content_user tidak ditemukan.');
+        // Coba cari di builder_pages
+        $sql_builder = "SELECT id, page_data AS content, event_type, page_title FROM builder_pages WHERE user_id = ? AND slug = ?";
+        $stmt_builder = $pdo->prepare($sql_builder);
+        $stmt_builder->execute([$user_id, $title]);
+        $content_user_data = $stmt_builder->fetch(PDO::FETCH_ASSOC);
+        if ($content_user_data) {
+            $is_builder = true;
+        } else {
+            error(404, 'Data undangan tidak ditemukan.');
+        }
     }
 
     $content_user_id  = $content_user_data['id'];
@@ -42,18 +52,23 @@ try {
     $content_data     = json_decode($content_json_str, true);
     if (!is_array($content_data)) $content_data = [];
 
-    // Deteksi tipe undangan dari key di event{}
-    // Khitanan punya event.khitanan, pernikahan punya event.resepsi atau event.akad
-    // Fallback: cek quoteCategory
-    $invitation_type = 'pernikahan';
-    $event_keys = isset($content_data['event']) ? array_keys($content_data['event']) : [];
-    if (in_array('khitanan', $event_keys)) {
-        $invitation_type = 'khitanan';
-    } elseif (!empty($event_keys) && !in_array('resepsi', $event_keys) && !in_array('akad', $event_keys)) {
-        // Event ada tapi bukan resepsi/akad -> kemungkinan khitanan
-        $quote_cat = strtolower(isset($content_data['quoteCategory']) ? $content_data['quoteCategory'] : '');
-        if ($quote_cat === 'khitanan') {
+    // Deteksi tipe undangan
+    if ($is_builder) {
+        $invitation_type = $content_user_data['event_type'] ?? 'pernikahan';
+        if ($invitation_type === 'custom') {
+            $invitation_type = 'pernikahan';
+        }
+    } else {
+        $invitation_type = 'pernikahan';
+        $event_keys = isset($content_data['event']) ? array_keys($content_data['event']) : [];
+        if (in_array('khitanan', $event_keys)) {
             $invitation_type = 'khitanan';
+        } elseif (!empty($event_keys) && !in_array('resepsi', $event_keys) && !in_array('akad', $event_keys)) {
+            // Event ada tapi bukan resepsi/akad -> kemungkinan khitanan
+            $quote_cat = strtolower(isset($content_data['quoteCategory']) ? $content_data['quoteCategory'] : '');
+            if ($quote_cat === 'khitanan') {
+                $invitation_type = 'khitanan';
+            }
         }
     }
 
@@ -70,9 +85,9 @@ try {
             $checkShare = $pdo->prepare("
                 SELECT can_manage
                 FROM invitation_shares
-                WHERE invitation_id = ? AND shared_email = ?
+                WHERE invitation_id = ? AND shared_email = ? AND invitation_type = ?
             ");
-            $checkShare->execute([$content_user_id, $current_user_email]);
+            $checkShare->execute([$content_user_id, $current_user_email, $is_builder ? 'builder' : 'legacy']);
             $share = $checkShare->fetch();
             if ($share && $share['can_manage']) {
                 $hasAccess = true;
@@ -116,10 +131,14 @@ try {
     $total_nominal = isset($bt['total_nominal']) ? $bt['total_nominal'] : 0;
 
     // View count
-    $stmt = $pdo->prepare("SELECT view FROM content_user WHERE id = ?");
-    $stmt->execute([$content_user_id]);
-    $vr = $stmt->fetch(PDO::FETCH_ASSOC);
-    $view_data = isset($vr['view']) ? $vr['view'] : null;
+    if ($is_builder) {
+        $view_data = 0;
+    } else {
+        $stmt = $pdo->prepare("SELECT view FROM content_user WHERE id = ?");
+        $stmt->execute([$content_user_id]);
+        $vr = $stmt->fetch(PDO::FETCH_ASSOC);
+        $view_data = isset($vr['view']) ? $vr['view'] : null;
+    }
 
     echo json_encode([
         'status' => 'success',
@@ -133,6 +152,7 @@ try {
                 'tidak_hadir' => (int)$jumlah_tidak_hadir,
             ],
             'QR' => $QR,
+            'source'                     => $is_builder ? 'builder' : 'legacy',
         ]
     ], JSON_UNESCAPED_UNICODE);
 

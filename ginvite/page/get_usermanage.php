@@ -27,14 +27,24 @@ if (!$user_id || $title === '') {
 }
 
 try {
-    // Ambil id dari tabel content_user
+    // Ambil id dari tabel content_user atau builder_pages
     $sql_content_user = "SELECT id FROM content_user WHERE user_id = ? AND title = ?";
     $stmt_content_user = $pdo->prepare($sql_content_user);
     $stmt_content_user->execute([$user_id, $title]);
     $content_user_data = $stmt_content_user->fetch(PDO::FETCH_ASSOC);
     
+    $is_builder = false;
     if (!$content_user_data) {
-        error(404, 'Data content_user tidak ditemukan.');
+        // Coba cari di builder_pages
+        $sql_builder = "SELECT id FROM builder_pages WHERE user_id = ? AND slug = ?";
+        $stmt_builder = $pdo->prepare($sql_builder);
+        $stmt_builder->execute([$user_id, $title]);
+        $content_user_data = $stmt_builder->fetch(PDO::FETCH_ASSOC);
+        if ($content_user_data) {
+            $is_builder = true;
+        } else {
+            error(404, 'Data undangan tidak ditemukan.');
+        }
     }
     
     $content_user_id = $content_user_data['id'];

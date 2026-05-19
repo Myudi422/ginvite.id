@@ -34,9 +34,36 @@ export default async function BuilderPage({
   const urlUserId = parseInt(params.userId, 10);
   const slug = params.slug;
 
-  // ── 2. Validasi kepemilikan: userId di URL harus cocok dengan user login ──
-  // Jika tidak cocok, alihkan ke /admin (sama seperti pola formulir)
-  if (isNaN(urlUserId) || loggedInUserId !== urlUserId) {
+  // ── 2. Validasi kepemilikan atau share akses ──
+  let hasAccess = false;
+  if (!isNaN(urlUserId)) {
+    if (loggedInUserId === urlUserId) {
+      hasAccess = true;
+    } else {
+      try {
+        const checkRes = await fetch(
+          `${API}/index.php?action=get_invitations&user_id=${loggedInUserId}`,
+          { cache: 'no-store' }
+        );
+        if (checkRes.ok) {
+          const checkJson = await checkRes.json();
+          if (checkJson.status === 'success' && Array.isArray(checkJson.data)) {
+            hasAccess = checkJson.data.some(
+              (inv: any) =>
+                inv.source === 'builder' &&
+                inv.user_id === urlUserId &&
+                inv.title === slug &&
+                inv.access_type === 'shared'
+            );
+          }
+        }
+      } catch (err) {
+        console.error('Error checking share access:', err);
+      }
+    }
+  }
+
+  if (!hasAccess) {
     return redirect('/admin');
   }
 
@@ -44,7 +71,7 @@ export default async function BuilderPage({
   let page: BuilderPage | null = null;
   try {
     const res = await fetch(
-      `${API}/page/builder_get.php?user_id=${loggedInUserId}&slug=${encodeURIComponent(slug)}`,
+      `${API}/page/builder_get.php?user_id=${urlUserId}&slug=${encodeURIComponent(slug)}`,
       { cache: 'no-store' }
     );
     if (res.ok) {

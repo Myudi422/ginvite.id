@@ -154,7 +154,7 @@ export default function ManagePage() {
     );
   }
 
-  const { view, total_nominal_bank_transfer, jumlah_konfirmasi, invitation_type } = manageData;
+  const { view, total_nominal_bank_transfer, jumlah_konfirmasi, invitation_type, source } = manageData;
   const isPernikahan = !invitation_type || invitation_type === 'pernikahan';
 
   return (
@@ -209,7 +209,7 @@ export default function ManagePage() {
         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl">
           <Calendar className="h-5 w-5 flex-shrink-0 mt-0.5" />
           <p className="text-sm">
-            Untuk mengaktifkan plugin yang terkunci, silahkan ubah di <strong>Edit Formulir</strong> dan lakukan pembayaran.
+            Untuk mengaktifkan plugin yang terkunci, silahkan ubah di <strong>{source === 'builder' ? "Edit Builder" : "Edit Formulir"}</strong> dan lakukan pembayaran.
           </p>
         </div>
 
@@ -219,9 +219,14 @@ export default function ManagePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <ActionButton
               icon={ClipboardList}
-              label="Edit Formulir"
-              sublabel="Ubah data, tema, dan konten undangan"
-              onClick={() => router.push(`/admin/formulir/${invitationId}/${slug}`)}
+              label={source === 'builder' ? "Edit Builder" : "Edit Formulir"}
+              sublabel={source === 'builder' ? "Ubah tata letak, desain, dan komponen grid" : "Ubah data, tema, dan konten undangan"}
+              onClick={() => {
+                const url = source === 'builder'
+                  ? `/admin/builder/${invitationId}/${slug}`
+                  : `/admin/formulir/${invitationId}/${slug}`;
+                router.push(url);
+              }}
             />
             <ActionButton
               icon={User}

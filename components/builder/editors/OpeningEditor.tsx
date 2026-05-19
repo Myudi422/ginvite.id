@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Field, FieldGroup, Input, ImageUploadField } from '../ui/EditorFields';
+import ImagePicker from '../ui/ImagePicker';
 import { ChevronDown, Type, Image as ImageIcon, Settings } from 'lucide-react';
 import type { OpeningProps } from '../types';
 
@@ -112,7 +113,7 @@ export default function OpeningEditor({ props, onChange }: P) {
         {openGroups.bg && (
           <div className="p-3 bg-white border border-gray-100 rounded-2xl space-y-4 shadow-sm">
             <Field label="Foto Background Sampul">
-              <ImageUploadField 
+              <ImagePicker 
                 value={typedProps.bg_image || ''} 
                 onChange={v => set('bg_image', v)} 
               />

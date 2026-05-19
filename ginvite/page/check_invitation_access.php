@@ -23,13 +23,36 @@ if (!$invitation_id || !$user_email) {
 }
 
 try {
+    // Detect type
+    $checkLegacy = $pdo->prepare("SELECT id FROM content_user WHERE id = ?");
+    $checkLegacy->execute([$invitation_id]);
+    $isLegacy = (bool)$checkLegacy->fetch();
+
+    $isBuilder = false;
+    if (!$isLegacy) {
+        $checkBuilder = $pdo->prepare("SELECT id FROM builder_pages WHERE id = ?");
+        $checkBuilder->execute([$invitation_id]);
+        $isBuilder = (bool)$checkBuilder->fetch();
+    }
+
+    $invitation_type = $isBuilder ? 'builder' : 'legacy';
+
     // Check if user is owner
-    $checkOwner = $pdo->prepare("
-        SELECT c.user_id 
-        FROM content_user c 
-        JOIN users u ON c.user_id = u.id 
-        WHERE c.id = ? AND u.email = ?
-    ");
+    if ($isBuilder) {
+        $checkOwner = $pdo->prepare("
+            SELECT bp.user_id 
+            FROM builder_pages bp 
+            JOIN users u ON bp.user_id = u.id 
+            WHERE bp.id = ? AND u.email = ?
+        ");
+    } else {
+        $checkOwner = $pdo->prepare("
+            SELECT c.user_id 
+            FROM content_user c 
+            JOIN users u ON c.user_id = u.id 
+            WHERE c.id = ? AND u.email = ?
+        ");
+    }
     $checkOwner->execute([$invitation_id, $user_email]);
     $owner = $checkOwner->fetch();
     
@@ -48,9 +71,9 @@ try {
     $checkShare = $pdo->prepare("
         SELECT can_edit, can_manage 
         FROM invitation_shares 
-        WHERE invitation_id = ? AND shared_email = ?
+        WHERE invitation_id = ? AND invitation_type = ? AND shared_email = ?
     ");
-    $checkShare->execute([$invitation_id, $user_email]);
+    $checkShare->execute([$invitation_id, $invitation_type, $user_email]);
     $share = $checkShare->fetch();
     
     if ($share) {

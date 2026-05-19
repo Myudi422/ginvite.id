@@ -128,8 +128,8 @@ SELECT DISTINCT
     CONVERT(c.title USING utf8mb4) COLLATE utf8mb4_unicode_ci AS title,
     NULL COLLATE utf8mb4_unicode_ci AS display_title,
     c.status,
-    c.waktu_acara AS event_date,
-    c.expired,
+    CONVERT(c.waktu_acara USING utf8mb4) COLLATE utf8mb4_unicode_ci AS event_date,
+    CONVERT(c.expired USING utf8mb4) COLLATE utf8mb4_unicode_ci AS expired,
     CONVERT(t.image_theme USING utf8mb4) COLLATE utf8mb4_unicode_ci AS avatar_url,
     CONVERT(ct.name USING utf8mb4) COLLATE utf8mb4_unicode_ci AS category_type,
     CASE 
@@ -140,33 +140,38 @@ SELECT DISTINCT
 FROM content_user AS c
 JOIN theme AS t ON c.theme_id = t.id
 JOIN category_type AS ct ON c.category_id = ct.id
-LEFT JOIN invitation_shares AS s ON c.id = s.invitation_id
+LEFT JOIN invitation_shares AS s ON c.id = s.invitation_id AND s.invitation_type = 'legacy'
 WHERE c.user_id = ? 
    OR (s.shared_email = ? AND (s.can_edit = 1 OR s.can_manage = 1))
 
 UNION ALL
 
-SELECT
+SELECT DISTINCT
     bp.id,
     bp.user_id,
-    bp.slug COLLATE utf8mb4_unicode_ci AS title,
-    bp.page_title COLLATE utf8mb4_unicode_ci AS display_title,
+    CONVERT(bp.slug USING utf8mb4) COLLATE utf8mb4_unicode_ci AS title,
+    CONVERT(bp.page_title USING utf8mb4) COLLATE utf8mb4_unicode_ci AS display_title,
     bp.status,
-    NULL AS event_date,
-    bp.expired,
-    NULL AS avatar_url,
-    bp.event_type COLLATE utf8mb4_unicode_ci AS category_type,
-    'owner' COLLATE utf8mb4_unicode_ci AS access_type,
+    NULL COLLATE utf8mb4_unicode_ci AS event_date,
+    CONVERT(bp.expired USING utf8mb4) COLLATE utf8mb4_unicode_ci AS expired,
+    NULL COLLATE utf8mb4_unicode_ci AS avatar_url,
+    CONVERT(bp.event_type USING utf8mb4) COLLATE utf8mb4_unicode_ci AS category_type,
+    CASE 
+        WHEN bp.user_id = ? THEN 'owner' COLLATE utf8mb4_unicode_ci
+        ELSE 'shared' COLLATE utf8mb4_unicode_ci
+    END AS access_type,
     'builder' COLLATE utf8mb4_unicode_ci AS source
 FROM builder_pages AS bp
+LEFT JOIN invitation_shares AS s ON bp.id = s.invitation_id AND s.invitation_type = 'builder'
 WHERE bp.user_id = ?
+   OR (s.shared_email = ? AND (s.can_edit = 1 OR s.can_manage = 1))
 
 ORDER BY event_date DESC
 SQL;
 
 try {
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$user_id, $user_id, $userEmail, $user_id]);
+    $stmt->execute([$user_id, $user_id, $userEmail, $user_id, $user_id, $userEmail]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Tambahkan preview_url & edit_url ke setiap item
