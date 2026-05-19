@@ -78,6 +78,11 @@ export interface OpeningProps {
   bg_image: string;
   overlay_opacity: number;
   show_qr: boolean;
+  bg_type?: 'solid' | 'gradient' | 'image';
+  bg_color?: string;
+  bg_color2?: string;
+  bg_image_blur?: number;
+  bg_image_grayscale?: boolean;
 }
 
 export interface HeroProps {

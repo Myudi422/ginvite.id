@@ -18,6 +18,11 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
   const bgImage = typedProps.bg_image || '';
   const overlayOpacity = typedProps.overlay_opacity ?? 50;
   const showQr = typedProps.show_qr ?? true;
+  const bgType = typedProps.bg_type || 'image';
+  const bgColor = typedProps.bg_color || '';
+  const bgColor2 = typedProps.bg_color2 || '';
+  const bgImageBlur = typedProps.bg_image_blur ?? 0;
+  const bgImageGrayscale = typedProps.bg_image_grayscale ?? false;
 
   const namePrimary = typedProps.name_primary || 'Nama Pengantin';
   const nameSecondary = typedProps.name_secondary || '';
@@ -41,11 +46,31 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
         backgroundColor: style.bg_color as string || '#ffffff',
       }}
     >
-      {/* Background Image */}
-      {bgImage && (
+      {/* Background Layer */}
+      {bgType === 'solid' && (
         <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${bgImage})` }}
+          className="absolute inset-0"
+          style={{ backgroundColor: bgColor || '#ffffff' }}
+        />
+      )}
+
+      {bgType === 'gradient' && (
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            backgroundImage: `linear-gradient(135deg, ${bgColor || '#ff7e5f'}, ${bgColor2 || '#feb47b'})` 
+          }}
+        />
+      )}
+
+      {(bgType === 'image' && bgImage) && (
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-all duration-300"
+          style={{ 
+            backgroundImage: `url(${bgImage})`,
+            filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
+            transform: bgImageBlur > 0 ? 'scale(1.1)' : 'scale(1)'
+          }}
         />
       )}
 

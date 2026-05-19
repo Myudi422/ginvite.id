@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Field, FieldGroup, Input, ImageUploadField } from '../ui/EditorFields';
+import { Field, FieldGroup, Input, ImageUploadField, ColorInput, Select, Toggle } from '../ui/EditorFields';
 import ImagePicker from '../ui/ImagePicker';
 import { ChevronDown, Type, Image as ImageIcon, Settings } from 'lucide-react';
 import type { OpeningProps } from '../types';
@@ -112,12 +112,78 @@ export default function OpeningEditor({ props, onChange }: P) {
         {renderHeader('bg', 'Latar Belakang', ImageIcon)}
         {openGroups.bg && (
           <div className="p-3 bg-white border border-gray-100 rounded-2xl space-y-4 shadow-sm">
-            <Field label="Foto Background Sampul">
-              <ImagePicker 
-                value={typedProps.bg_image || ''} 
-                onChange={v => set('bg_image', v)} 
+            <Field label="Tipe Latar Belakang">
+              <Select
+                value={typedProps.bg_type || 'image'}
+                onChange={v => set('bg_type', v)}
+                options={[
+                  { value: 'solid', label: 'Warna Solid' },
+                  { value: 'gradient', label: 'Gradasi Warna' },
+                  { value: 'image', label: 'Foto / Gambar' },
+                ]}
               />
             </Field>
+
+            {typedProps.bg_type === 'solid' && (
+              <Field label="Warna Latar Belakang">
+                <ColorInput
+                  value={typedProps.bg_color || '#ffffff'}
+                  onChange={v => set('bg_color', v)}
+                />
+              </Field>
+            )}
+
+            {typedProps.bg_type === 'gradient' && (
+              <div className="space-y-4">
+                <Field label="Warna Gradasi 1">
+                  <ColorInput
+                    value={typedProps.bg_color || '#ff7e5f'}
+                    onChange={v => set('bg_color', v)}
+                  />
+                </Field>
+                <Field label="Warna Gradasi 2">
+                  <ColorInput
+                    value={typedProps.bg_color2 || '#feb47b'}
+                    onChange={v => set('bg_color2', v)}
+                  />
+                </Field>
+              </div>
+            )}
+
+            {(typedProps.bg_type === 'image' || !typedProps.bg_type) && (
+              <div className="space-y-4">
+                <Field label="Foto Background Sampul">
+                  <ImagePicker 
+                    value={typedProps.bg_image || ''} 
+                    onChange={v => set('bg_image', v)} 
+                  />
+                </Field>
+
+                {typedProps.bg_image && (
+                  <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-4">
+                    <Field label={`Efek Blur: ${typedProps.bg_image_blur ?? 0}px`}>
+                      <input
+                        type="range" min={0} max={20} step={1}
+                        value={typedProps.bg_image_blur ?? 0}
+                        onChange={e => set('bg_image_blur', parseInt(e.target.value))}
+                        className="w-full accent-pink-500 cursor-pointer"
+                      />
+                    </Field>
+
+                    <div className="flex items-center justify-between py-1">
+                      <div>
+                        <p className="text-xs font-semibold text-gray-700">Hitam & Putih (Black & White)</p>
+                        <p className="text-[10px] text-gray-400">Ubah foto menjadi grayscale</p>
+                      </div>
+                      <Toggle
+                        checked={typedProps.bg_image_grayscale ?? false}
+                        onChange={v => set('bg_image_grayscale', v)}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <Field label={`Kegelapan Overlay: ${typedProps.overlay_opacity ?? 50}%`}>
               <input
@@ -127,7 +193,7 @@ export default function OpeningEditor({ props, onChange }: P) {
                 className="w-full accent-pink-500 cursor-pointer"
               />
               <p className="text-[10px] text-gray-400 mt-1">
-                Fungsinya untuk meredupkan foto agar teks undangan lebih mudah terbaca.
+                Fungsinya untuk meredupkan foto/warna agar teks undangan lebih mudah terbaca.
               </p>
             </Field>
           </div>

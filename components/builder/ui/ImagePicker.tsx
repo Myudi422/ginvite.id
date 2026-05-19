@@ -99,7 +99,7 @@ export default function ImagePicker({
   const fetchRecentImages = async () => {
     setLoadingRecent(true);
     try {
-      const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_list.php");
+      const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_list.php?prefix=background/");
       if (!res.ok) throw new Error("Gagal mengambil data");
       const data = await res.json();
       if (data.success && data.files) {
@@ -455,7 +455,7 @@ interface FileManagerModalProps {
 function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModalProps) {
   const [files, setFiles] = useState<FileItem[]>([]);
   const [folders, setFolders] = useState<FolderItem[]>([]);
-  const [currentPrefix, setCurrentPrefix] = useState("");
+  const [currentPrefix, setCurrentPrefix] = useState("background/");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [tempSelected, setTempSelected] = useState<string>(selectedValue);
@@ -494,17 +494,21 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
   };
 
   const navigateUp = () => {
-    if (!currentPrefix) return;
+    if (currentPrefix === "background/") return;
     const parts = currentPrefix.split('/').filter(Boolean);
     parts.pop();
-    const newPrefix = parts.length > 0 ? parts.join('/') + '/' : '';
-    setCurrentPrefix(newPrefix);
+    const newPrefix = parts.length > 0 ? parts.join('/') + '/' : 'background/';
+    if (!newPrefix.startsWith("background/")) {
+      setCurrentPrefix("background/");
+    } else {
+      setCurrentPrefix(newPrefix);
+    }
   };
 
   // Breadcrumbs builder
   const breadcrumbs = [];
-  let pathBuilder = "";
-  const parts = currentPrefix.split('/').filter(Boolean);
+  let pathBuilder = "background/";
+  const parts = currentPrefix.replace(/^background\//, '').split('/').filter(Boolean);
   for (const part of parts) {
     pathBuilder += part + '/';
     breadcrumbs.push({ name: part, path: pathBuilder });
@@ -554,10 +558,10 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
           {/* Breadcrumbs */}
           <div className="flex items-center text-xs font-semibold text-gray-600 overflow-x-auto whitespace-nowrap py-1">
             <button
-              onClick={() => navigateToFolder('')}
+              onClick={() => navigateToFolder('background/')}
               className="hover:text-pink-600 transition-colors flex items-center text-pink-500"
             >
-              <Folder className="w-3.5 h-3.5 mr-1 text-pink-400" /> Root
+              <Folder className="w-3.5 h-3.5 mr-1 text-pink-400" /> Background
             </button>
             {breadcrumbs.map((crumb, idx) => (
               <React.Fragment key={crumb.path}>
@@ -613,7 +617,7 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
             <div className="flex flex-col items-center justify-center h-64 text-gray-400">
               <Folder className="w-16 h-16 mb-3 text-gray-200" />
               <p className="text-sm font-medium">Folder ini tidak memiliki file gambar.</p>
-              {currentPrefix && (
+              {currentPrefix !== "background/" && (
                 <button
                   onClick={navigateUp}
                   className="text-pink-500 hover:text-pink-600 font-bold text-xs mt-2 flex items-center gap-1"
@@ -626,10 +630,10 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
             <div className="space-y-4">
 
               {/* Render Back Button & Folders in List Format */}
-              {(currentPrefix || filteredFolders.length > 0) && (
+              {(currentPrefix !== "background/" || filteredFolders.length > 0) && (
                 <div className="space-y-2">
                   {/* Back Folder Button if nested */}
-                  {currentPrefix && (
+                  {currentPrefix !== "background/" && (
                     <div
                       onClick={navigateUp}
                       className="flex items-center gap-3 p-3 bg-gray-50/50 hover:bg-pink-50/20 rounded-2xl border border-dashed border-gray-200 hover:border-pink-300 cursor-pointer transition-all group"
@@ -672,7 +676,7 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
               {sortedFiles.length > 0 && (
                 <div>
                   {/* Label/Header section for photos only if folders were present */}
-                  {(currentPrefix || filteredFolders.length > 0) && (
+                  {(currentPrefix !== "background/" || filteredFolders.length > 0) && (
                     <div className="flex items-center gap-2 mb-3">
                       <div className="h-[1px] flex-1 bg-gray-100" />
                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider px-2">Galeri Foto</span>
