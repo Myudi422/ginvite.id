@@ -30,6 +30,40 @@ const formatBytes = (bytes: number, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
+// Helper fetch with timeout & auto retry (reconnection)
+const fetchWithRetry = async (
+  url: string | URL,
+  options: RequestInit = {},
+  maxRetries = 3,
+  delayMs = 1000
+): Promise<Response> => {
+  let lastError: any;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout per attempt
+
+    try {
+      const res = await fetch(url, {
+        ...options,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      return res;
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      lastError = err;
+      console.warn(`[ImagePicker API] Attempt ${attempt} failed: ${err.message || err}. Retrying...`);
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, delayMs * attempt)); // incremental delay (1s, 2s, 3s...)
+      }
+    }
+  }
+  throw lastError || new Error("Failed after max retries");
+};
+
 interface FileItem {
   type: 'file';
   name: string;
@@ -69,6 +103,7 @@ export default function ImagePicker({
   const [deleting, setDeleting] = useState(false);
   const [recentImages, setRecentImages] = useState<FileItem[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(false);
+  const [recentError, setRecentError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -98,9 +133,9 @@ export default function ImagePicker({
 
   const fetchRecentImages = async () => {
     setLoadingRecent(true);
+    setRecentError(null);
     try {
-      const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_list.php?prefix=background/");
-      if (!res.ok) throw new Error("Gagal mengambil data");
+      const res = await fetchWithRetry("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_list.php?prefix=background/");
       const data = await res.json();
       if (data.success && data.files) {
         // Filter only images and sort by last modified descending
@@ -111,9 +146,12 @@ export default function ImagePicker({
           new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime()
         );
         setRecentImages(sorted.slice(0, 6)); // take top 6
+      } else {
+        throw new Error(data.message || "Gagal memproses data");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Gagal memuat gambar terbaru:", err);
+      setRecentError("Gagal memuat");
     } finally {
       setLoadingRecent(false);
     }
@@ -364,13 +402,28 @@ export default function ImagePicker({
 
             {/* Quick Select / Recent Images */}
             <div>
-              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-2">Gambar Baru Diunggah</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Gambar Baru Diunggah</p>
+                {recentError && (
+                  <button
+                    type="button"
+                    onClick={fetchRecentImages}
+                    className="text-[9px] font-bold text-pink-500 hover:text-pink-600 flex items-center gap-0.5"
+                    title="Coba muat ulang"
+                  >
+                    <RefreshCw className="w-2.5 h-2.5 animate-spin-once" />
+                    Coba Lagi
+                  </button>
+                )}
+              </div>
               {loadingRecent ? (
                 <div className="grid grid-cols-3 gap-2">
                   {[...Array(3)].map((_, i) => (
                     <div key={i} className="aspect-square bg-white border border-gray-100 rounded-lg animate-pulse" />
                   ))}
                 </div>
+              ) : recentError ? (
+                <p className="text-[10px] text-gray-400 italic">Koneksi terputus. Silakan klik Coba Lagi.</p>
               ) : recentImages.length === 0 ? (
                 <p className="text-[10px] text-gray-400 italic">Belum ada gambar tersimpan di File Manager.</p>
               ) : (
@@ -460,6 +513,7 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
   const [folders, setFolders] = useState<FolderItem[]>([]);
   const [currentPrefix, setCurrentPrefix] = useState("background/");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [tempSelected, setTempSelected] = useState<string>(selectedValue);
 
@@ -469,19 +523,22 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
 
   const fetchFiles = async (prefix: string) => {
     setLoading(true);
+    setError(null);
     try {
       const url = new URL("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_list.php");
       if (prefix) url.searchParams.append("prefix", prefix);
 
-      const res = await fetch(url.toString());
-      if (!res.ok) throw new Error("Gagal memuat list file");
+      const res = await fetchWithRetry(url.toString());
       const data = await res.json();
       if (data.success) {
         setFiles(data.files || []);
         setFolders(data.folders || []);
+      } else {
+        throw new Error(data.message || "Gagal memproses data");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setError("Gagal menghubungi server penyimpanan. Koneksi lambat atau server sedang sibuk.");
     } finally {
       setLoading(false);
     }
@@ -615,6 +672,20 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
                   <div key={i} className="aspect-square bg-gray-50 border border-gray-100 rounded-2xl animate-pulse" />
                 ))}
               </div>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500 text-center px-4">
+              <RefreshCw className="w-12 h-12 mb-3 text-pink-400 animate-spin-once" />
+              <p className="text-sm font-bold text-gray-700">Gagal Menghubungkan</p>
+              <p className="text-xs text-gray-400 max-w-sm mt-1 mb-4">{error}</p>
+              <button
+                type="button"
+                onClick={() => fetchFiles(currentPrefix)}
+                className="flex items-center gap-1.5 px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Coba Hubungkan Kembali
+              </button>
             </div>
           ) : (filteredFolders.length === 0 && sortedFiles.length === 0) ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-400">

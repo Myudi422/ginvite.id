@@ -5,6 +5,7 @@ import ImagePicker from '../ui/ImagePicker';
 import { deleteImageFromBackblaze } from '@/app/actions/backblaze';
 import { ChevronDown, Type, Image as ImageIcon, Settings, Trash2 } from 'lucide-react';
 import type { OpeningProps } from '../types';
+import GradientAngleWheel from '../ui/GradientAngleWheel';
 
 interface P { props: Record<string, unknown>; onChange: (p: Record<string, unknown>) => void; }
 
@@ -123,6 +124,7 @@ export default function OpeningEditor({ props, onChange }: P) {
                   { value: 'gradient', label: 'Gradasi Warna' },
                   { value: 'image', label: 'Foto Single' },
                   { value: 'slideshow', label: 'Foto Slideshow' },
+                  { value: 'video', label: 'Video YouTube' },
                 ]}
               />
             </Field>
@@ -150,6 +152,41 @@ export default function OpeningEditor({ props, onChange }: P) {
                     onChange={v => set('bg_color2', v)}
                   />
                 </Field>
+              </div>
+            )}
+
+            {typedProps.bg_type === 'video' && (
+              <div className="space-y-4">
+                <Field 
+                  label="Link / ID Video YouTube" 
+                  hint="Dukungan link lengkap, link pendek (youtu.be), embed, maupun 11 digit ID video secara langsung."
+                >
+                  <Input
+                    value={typedProps.bg_video_url || ''}
+                    onChange={v => set('bg_video_url', v)}
+                    placeholder="Contoh: https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                  />
+                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Detik Mulai (Start)">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={typedProps.bg_video_start === undefined ? '' : typedProps.bg_video_start}
+                      onChange={v => set('bg_video_start', v === '' ? undefined : parseInt(v))}
+                      placeholder="Detik (e.g. 10)"
+                    />
+                  </Field>
+                  <Field label="Detik Selesai (End)">
+                    <Input
+                      type="number"
+                      min={0}
+                      value={typedProps.bg_video_end === undefined ? '' : typedProps.bg_video_end}
+                      onChange={v => set('bg_video_end', v === '' ? undefined : parseInt(v))}
+                      placeholder="Detik (e.g. 45)"
+                    />
+                  </Field>
+                </div>
               </div>
             )}
 
@@ -224,16 +261,22 @@ export default function OpeningEditor({ props, onChange }: P) {
                       </div>
                     ))}
                     
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newImages = [...(typedProps.bg_slideshow_images || []), ''];
-                        set('bg_slideshow_images', newImages);
-                      }}
-                      className="w-full py-2.5 rounded-xl border border-dashed border-pink-200 text-pink-500 font-bold text-xs hover:bg-pink-50 transition-all flex items-center justify-center gap-1.5"
-                    >
-                      + Tambah Foto Slideshow
-                    </button>
+                    {(typedProps.bg_slideshow_images || []).length < 3 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newImages = [...(typedProps.bg_slideshow_images || []), ''];
+                          set('bg_slideshow_images', newImages);
+                        }}
+                        className="w-full py-2.5 rounded-xl border border-dashed border-pink-200 text-pink-500 font-bold text-xs hover:bg-pink-50 transition-all flex items-center justify-center gap-1.5"
+                      >
+                        + Tambah Foto Slideshow
+                      </button>
+                    ) : (
+                      <p className="text-[10px] text-gray-400 font-medium italic text-center py-1 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        Batas maksimal slideshow tercapai (Maksimal 3 foto).
+                      </p>
+                    )}
                   </div>
                 </Field>
 
@@ -357,6 +400,14 @@ export default function OpeningEditor({ props, onChange }: P) {
                         className="w-full accent-pink-500 cursor-pointer"
                       />
                     </Field>
+                  </div>
+
+                  <div className="p-2.5 bg-white border border-gray-100 rounded-xl space-y-3 shadow-sm">
+                    <p className="text-[10px] font-bold text-pink-500 uppercase tracking-wider">Arah & Sudut Gradasi</p>
+                    <GradientAngleWheel
+                      value={typedProps.overlay_gradient_angle ?? 180}
+                      onChange={v => set('overlay_gradient_angle', v)}
+                    />
                   </div>
                 </div>
               )}

@@ -2,6 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import type { OpeningProps } from '../types';
 
+// Helper to extract 11-character YouTube video ID
+const getYouTubeId = (url: string): string => {
+  if (!url) return '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : url.trim();
+};
+
 interface PreviewProps {
   props: Record<string, unknown>;
   style: Record<string, string | number>;
@@ -99,6 +107,46 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
         />
       )}
 
+      {bgType === 'video' && getYouTubeId(typedProps.bg_video_url || '') && (() => {
+        const videoId = getYouTubeId(typedProps.bg_video_url || '');
+        let videoSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&iv_load_policy=3&playsinline=1&enablejsapi=1`;
+        if (typedProps.bg_video_start !== undefined) videoSrc += `&start=${typedProps.bg_video_start}`;
+        if (typedProps.bg_video_end !== undefined) videoSrc += `&end=${typedProps.bg_video_end}`;
+
+        return (
+          <>
+            <div 
+              className="absolute inset-0 overflow-hidden pointer-events-none"
+              style={{
+                filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
+                zIndex: 0,
+              }}
+            >
+              <iframe
+                src={videoSrc}
+                className="absolute top-1/2 left-1/2 pointer-events-none"
+                style={{
+                  transform: 'translate(-50%, -50%) scale(1.35)',
+                  width: '100vw',
+                  height: '56.25vw',
+                  minHeight: '100dvh',
+                  minWidth: '177.77dvh',
+                  pointerEvents: 'none',
+                }}
+                frameBorder="0"
+                allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            {/* Absolute touch blocker over the iframe to prevent any browser controls */}
+            <div 
+              className="absolute inset-0 bg-transparent cursor-default"
+              style={{ pointerEvents: 'auto', zIndex: 1 }}
+            />
+          </>
+        );
+      })()}
+
       {bgType === 'gradient' && (
         <div 
           className="absolute inset-0"
@@ -174,7 +222,7 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{ 
-            backgroundImage: `linear-gradient(180deg, ${getHexWithOpacity(overlayColor, overlayOpacity)}, ${getHexWithOpacity(overlayColor2, overlayOpacity2)})`
+            backgroundImage: `linear-gradient(${typedProps.overlay_gradient_angle ?? 180}deg, ${getHexWithOpacity(overlayColor, overlayOpacity)}, ${getHexWithOpacity(overlayColor2, overlayOpacity2)})`
           }}
         />
       ) : (
