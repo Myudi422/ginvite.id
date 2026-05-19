@@ -18,6 +18,9 @@ import {
   ChevronRightIcon,
   MegaphoneIcon,
   CalendarIcon,
+  AlertTriangle,
+  RefreshCw,
+  MessageCircle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import SelectVersionModal from '@/components/SelectVersionModal';
@@ -39,7 +42,7 @@ interface Invitation {
   access_type?: 'owner' | 'shared';
   source?: 'legacy' | 'builder';
 }
-interface Props { user: User; slides?: string[]; invitations: Invitation[] }
+interface Props { user: User; slides?: string[]; invitations: Invitation[]; error?: string | null }
 
 // ─── Category label only (no rainbow colors) ───
 function getCategoryLabel(type: string) {
@@ -64,7 +67,7 @@ function getExpiredInfo(expiredDate: string | null) {
   return { text: `${diffDays} hari lagi`, urgent: diffDays <= 3 };
 }
 
-export default function InvitationDashboard({ user, invitations }: Props) {
+export default function InvitationDashboard({ user, invitations, error = null }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
@@ -228,220 +231,270 @@ export default function InvitationDashboard({ user, invitations }: Props) {
       )}
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
-
-        {/* ── STATS ── */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { label: 'Total', value: invitations.length },
-            { label: 'Aktif', value: invitations.filter(i => i.status === 1).length },
-            { label: 'Draft', value: invitations.filter(i => i.status !== 1).length },
-          ].map(s => (
-            <div key={s.label} className="bg-white border border-pink-100 rounded-2xl p-4 text-center shadow-sm">
-              <p className="text-2xl font-bold text-pink-500">{s.value}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
+        {error ? (
+          <div className="bg-white border border-pink-100 rounded-3xl p-6 sm:p-10 shadow-md text-center max-w-xl mx-auto space-y-6">
+            <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto shadow-inner animate-pulse">
+              <AlertTriangle className="w-10 h-10 text-rose-500" />
             </div>
-          ))}
-        </div>
+            
+            <div className="space-y-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">
+                Koneksi API Terganggu
+              </h2>
+              <p className="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+                Sistem mendeteksi adanya kendala jabat tangan SSL (Cloudflare 525) atau respon API lambat. Kami telah mencoba menghubungkan kembali otomatis beberapa kali, tetapi koneksi origin masih gagal.
+              </p>
+            </div>
 
-        {/* ── SEARCH ── */}
-        <div className="relative">
-          <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
-          <input
-            type="text"
-            placeholder="Cari undangan..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-200 bg-white shadow-sm text-sm text-gray-700 placeholder:text-gray-300"
-          />
-        </div>
+            {/* Diagnostik teknis */}
+            <div className="bg-pink-50/50 border border-pink-100/50 rounded-2xl p-4 text-left space-y-2">
+              <p className="text-xs font-semibold text-pink-600 uppercase tracking-widest">Detail Diagnostik:</p>
+              <p className="text-xs font-mono text-gray-600 break-all leading-relaxed">
+                {error}
+              </p>
+            </div>
 
-        {/* ── PANDUAN MINI ── */}
-        <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm">
-          <p className="text-[11px] font-semibold text-gray-300 mb-3 uppercase tracking-widest">Panduan Cepat</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { icon: PencilIcon, label: 'Edit', desc: 'Ubah nama, foto, tema, dan info acara' },
-              { icon: SettingsIcon, label: 'Manage', desc: 'Lihat tamu RSVP, gift, QR & rundown' },
-              { icon: EllipsisVerticalIcon, label: 'Menu (⋮)', desc: 'Bagikan undangan atau hapus' },
-            ].map(g => (
-              <div key={g.label} className="flex items-start gap-3">
-                <div className="bg-pink-50 rounded-xl p-2 flex-shrink-0">
-                  <g.icon className="h-4 w-4 text-pink-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-700">{g.label}</p>
-                  <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{g.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── GRID UNDANGAN ── */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-5xl mb-4">{search ? '🔍' : '🎀'}</div>
-            <p className="text-base font-semibold text-gray-600">
-              {search ? 'Tidak ada hasil' : 'Belum ada undangan'}
-            </p>
-            <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
-              {search
-                ? `Tidak ditemukan undangan dengan kata "${search}"`
-                : 'Klik tombol "Buat Undangan" di atas untuk mulai membuat undangan pertamamu!'}
-            </p>
-            {!search && (
+            <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
               <button
-                onClick={() => setIsCreatePopupOpen(true)}
-                className="mt-5 inline-flex items-center gap-2 py-2.5 px-6 bg-pink-500 hover:bg-pink-600 text-white rounded-xl shadow-sm font-semibold text-sm transition-all"
+                onClick={() => {
+                  const btn = document.getElementById('retry-btn');
+                  if (btn) btn.classList.add('animate-spin');
+                  window.location.reload();
+                }}
+                className="group flex items-center justify-center py-3 px-6 bg-pink-500 hover:bg-pink-600 text-white rounded-xl font-semibold text-sm transition-all duration-200 gap-2 shadow-md hover:shadow-lg active:scale-[0.98]"
               >
-                <PlusIcon className="h-4 w-4" /> Buat Undangan Sekarang
+                <RefreshCw id="retry-btn" className="w-4 h-4 transition-transform duration-500 group-hover:rotate-180" />
+                Hubungkan Kembali (Coba Lagi)
               </button>
-            )}
+
+              <a
+                href={`https://wa.me/6289654728249?text=Halo%20Admin,%20saya%20mendapatkan%20Cloudflare%20Error%20525%20atau%20kegagalan%20SSL%20pada%20dashboard%20admin%20Papunda.%20Pesan%20Error:%20${encodeURIComponent(error)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center py-3 px-6 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl font-semibold text-sm transition-all duration-200 gap-2 active:scale-[0.98]"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Laporkan ke Admin
+              </a>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map(inv => {
-              const isActive = inv.status === 1;
-              const expiredInfo = isActive ? null : getExpiredInfo(inv.expired);
-              const isOwner = inv.access_type !== 'shared';
-
-              return (
-                <div
-                  key={inv.id}
-                  className="bg-white rounded-2xl border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
-                >
-                  {/* ── Card Header ── */}
-                  <div className="relative p-4 flex items-center gap-3 overflow-hidden">
-                    {/* Left accent */}
-                    <div className="absolute left-0 top-4 bottom-4 w-0.5 bg-pink-300 rounded-r-full" />
-
-                    {/* Avatar */}
-                    <div className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 bg-pink-50 border border-pink-100">
-                      {inv.avatar_url ? (
-                        <img
-                          src={inv.avatar_url}
-                          alt={inv.title}
-                          width={48}
-                          height={48}
-                          className="object-cover h-full w-full"
-                        />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center text-xl">💌</div>
-                      )}
-                    </div>
-
-                    {/* Title + meta */}
-                    <div className="min-w-0 flex-1">
-                      <h2 className="font-semibold text-gray-800 text-sm leading-tight truncate">
-                        {inv.display_title || inv.title}
-                      </h2>
-                      <p className="text-xs text-gray-400 mt-0.5">{getCategoryLabel(inv.category_type)}</p>
-                    </div>
-
-                    {/* Menu button */}
-                    {isOwner && (
-                      <div className="flex-shrink-0">
-                        <button
-                          className="p-1.5 rounded-lg hover:bg-pink-50 text-gray-400 hover:text-gray-600 transition-colors"
-                          onClick={e => {
-                            e.stopPropagation();
-                            if (menuOpen?.id === inv.id) { setMenuOpen(null); return; }
-                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                            setMenuOpen({ id: inv.id, top: rect.bottom + 6, right: window.innerWidth - rect.right });
-                          }}
-                          aria-label="Opsi"
-                        >
-                          <EllipsisVerticalIcon className="h-4 w-4" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* ── Status & Tags ── */}
-                  <div className="px-4 pb-3 flex items-center gap-1.5 flex-wrap">
-                    {/* Status badge */}
-                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${isActive
-                      ? 'bg-pink-50 text-pink-600 border border-pink-200'
-                      : 'bg-gray-50 text-gray-500 border border-gray-200'
-                      }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-pink-400' : 'bg-gray-400'}`} />
-                      {isActive ? 'Aktif' : 'Draft'}
-                    </span>
-
-                    {/* Builder badge */}
-                    {inv.source === 'builder' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-600 border border-purple-200">
-                        ✨ Builder
-                      </span>
-                    )}
-
-                    {inv.access_type === 'shared' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-pink-50 text-pink-500 border border-pink-100">
-                        🤝 Shared
-                      </span>
-                    )}
-
-                    {expiredInfo && (
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${expiredInfo.urgent
-                        ? 'bg-red-50 text-red-500 border-red-200'
-                        : 'bg-pink-50 text-pink-500 border-pink-100'
-                        }`}>
-                        ⏳ {expiredInfo.text}
-                      </span>
-                    )}
-
-                    {inv.event_date && !inv.event_date.startsWith('0000') && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-50 text-gray-400 border border-gray-100">
-                        <CalendarIcon className="h-2.5 w-2.5" />
-                        {new Date(inv.event_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* ── Divider ── */}
-                  <div className="mx-4 border-t border-pink-50" />
-
-                  {/* ── Card Footer / Actions ── */}
-                  <div className="p-3 flex items-center gap-2">
-                    {/* Preview link */}
-                    <a
-                      href={`/${inv.preview_url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-shrink-0 p-2 rounded-lg hover:bg-pink-50 text-gray-400 hover:text-pink-500 transition-colors"
-                      title="Lihat tampilan undangan"
-                    >
-                      <ExternalLinkIcon className="h-4 w-4" />
-                    </a>
-
-                    <div className="flex-1 grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => {
-                          const url = inv.edit_url
-                            ? `/${inv.edit_url}`
-                            : inv.source === 'builder'
-                            ? `/admin/builder/${inv.user_id}/${inv.title}`
-                            : `/admin/formulir/${inv.user_id}/${inv.title}`;
-                          router.push(url);
-                        }}
-                        className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-50 hover:bg-pink-100 border border-pink-100 transition-all text-pink-600 font-semibold text-xs"
-                      >
-                        <PencilIcon className="h-3.5 w-3.5" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
-                        className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold text-xs transition-all shadow-sm"
-                      >
-                        <SettingsIcon className="h-3.5 w-3.5" />
-                        Manage
-                      </button>
-                    </div>
-                  </div>
+          <>
+            {/* ── STATS ── */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: 'Total', value: invitations.length },
+                { label: 'Aktif', value: invitations.filter(i => i.status === 1).length },
+                { label: 'Draft', value: invitations.filter(i => i.status !== 1).length },
+              ].map(s => (
+                <div key={s.label} className="bg-white border border-pink-100 rounded-2xl p-4 text-center shadow-sm">
+                  <p className="text-2xl font-bold text-pink-500">{s.value}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+
+            {/* ── SEARCH ── */}
+            <div className="relative">
+              <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
+              <input
+                type="text"
+                placeholder="Cari undangan..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-pink-100 focus:outline-none focus:ring-2 focus:ring-pink-200 bg-white shadow-sm text-sm text-gray-700 placeholder:text-gray-300"
+              />
+            </div>
+
+            {/* ── PANDUAN MINI ── */}
+            <div className="bg-white border border-pink-100 rounded-2xl p-4 shadow-sm">
+              <p className="text-[11px] font-semibold text-gray-300 mb-3 uppercase tracking-widest">Panduan Cepat</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { icon: PencilIcon, label: 'Edit', desc: 'Ubah nama, foto, tema, dan info acara' },
+                  { icon: SettingsIcon, label: 'Manage', desc: 'Lihat tamu RSVP, gift, QR & rundown' },
+                  { icon: EllipsisVerticalIcon, label: 'Menu (⋮)', desc: 'Bagikan undangan atau hapus' },
+                ].map(g => (
+                  <div key={g.label} className="flex items-start gap-3">
+                    <div className="bg-pink-50 rounded-xl p-2 flex-shrink-0">
+                      <g.icon className="h-4 w-4 text-pink-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-700">{g.label}</p>
+                      <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{g.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── GRID UNDANGAN ── */}
+            {filtered.length === 0 ? (
+              <div className="text-center py-20">
+                <div className="text-5xl mb-4">{search ? '🔍' : '🎀'}</div>
+                <p className="text-base font-semibold text-gray-600">
+                  {search ? 'Tidak ada hasil' : 'Belum ada undangan'}
+                </p>
+                <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
+                  {search
+                    ? `Tidak ditemukan undangan dengan kata "${search}"`
+                    : 'Klik tombol "Buat Undangan" di atas untuk mulai membuat undangan pertamamu!'}
+                </p>
+                {!search && (
+                  <button
+                    onClick={() => setIsCreatePopupOpen(true)}
+                    className="mt-5 inline-flex items-center gap-2 py-2.5 px-6 bg-pink-500 hover:bg-pink-600 text-white rounded-xl shadow-sm font-semibold text-sm transition-all"
+                  >
+                    <PlusIcon className="h-4 w-4" /> Buat Undangan Sekarang
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filtered.map(inv => {
+                  const isActive = inv.status === 1;
+                  const expiredInfo = isActive ? null : getExpiredInfo(inv.expired);
+                  const isOwner = inv.access_type !== 'shared';
+
+                  return (
+                    <div
+                      key={inv.id}
+                      className="bg-white rounded-2xl border border-pink-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
+                    >
+                      {/* ── Card Header ── */}
+                      <div className="relative p-4 flex items-center gap-3 overflow-hidden">
+                        {/* Left accent */}
+                        <div className="absolute left-0 top-4 bottom-4 w-0.5 bg-pink-300 rounded-r-full" />
+
+                        {/* Avatar */}
+                        <div className="h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 bg-pink-50 border border-pink-100">
+                          {inv.avatar_url ? (
+                            <img
+                              src={inv.avatar_url}
+                              alt={inv.title}
+                              width={48}
+                              height={48}
+                              className="object-cover h-full w-full"
+                            />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center text-xl">💌</div>
+                          )}
+                        </div>
+
+                        {/* Title + meta */}
+                        <div className="min-w-0 flex-1">
+                          <h2 className="font-semibold text-gray-800 text-sm leading-tight truncate">
+                            {inv.display_title || inv.title}
+                          </h2>
+                          <p className="text-xs text-gray-400 mt-0.5">{getCategoryLabel(inv.category_type)}</p>
+                        </div>
+
+                        {/* Menu button */}
+                        {isOwner && (
+                          <div className="flex-shrink-0">
+                            <button
+                              className="p-1.5 rounded-lg hover:bg-pink-50 text-gray-400 hover:text-gray-600 transition-colors"
+                              onClick={e => {
+                                e.stopPropagation();
+                                if (menuOpen?.id === inv.id) { setMenuOpen(null); return; }
+                                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                                setMenuOpen({ id: inv.id, top: rect.bottom + 6, right: window.innerWidth - rect.right });
+                              }}
+                              aria-label="Opsi"
+                            >
+                              <EllipsisVerticalIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* ── Status & Tags ── */}
+                      <div className="px-4 pb-3 flex items-center gap-1.5 flex-wrap">
+                        {/* Status badge */}
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${isActive
+                          ? 'bg-pink-50 text-pink-600 border border-pink-200'
+                          : 'bg-gray-50 text-gray-500 border border-gray-200'
+                          }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-pink-400' : 'bg-gray-400'}`} />
+                          {isActive ? 'Aktif' : 'Draft'}
+                        </span>
+
+                        {/* Builder badge */}
+                        {inv.source === 'builder' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-purple-50 text-purple-600 border border-purple-200">
+                            ✨ Builder
+                          </span>
+                        )}
+
+                        {inv.access_type === 'shared' && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-pink-50 text-pink-500 border border-pink-100">
+                            🤝 Shared
+                          </span>
+                        )}
+
+                        {expiredInfo && (
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${expiredInfo.urgent
+                            ? 'bg-red-50 text-red-500 border-red-200'
+                            : 'bg-pink-50 text-pink-500 border-pink-100'
+                            }`}>
+                            ⏳ {expiredInfo.text}
+                          </span>
+                        )}
+
+                        {inv.event_date && !inv.event_date.startsWith('0000') && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-50 text-gray-400 border border-gray-100">
+                            <CalendarIcon className="h-2.5 w-2.5" />
+                            {new Date(inv.event_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* ── Divider ── */}
+                      <div className="mx-4 border-t border-pink-50" />
+
+                      {/* ── Card Footer / Actions ── */}
+                      <div className="p-3 flex items-center gap-2">
+                        {/* Preview link */}
+                        <a
+                          href={`/${inv.preview_url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0 p-2 rounded-lg hover:bg-pink-50 text-gray-400 hover:text-pink-500 transition-colors"
+                          title="Lihat tampilan undangan"
+                        >
+                          <ExternalLinkIcon className="h-4 w-4" />
+                        </a>
+
+                        <div className="flex-1 grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => {
+                              const url = inv.edit_url
+                                ? `/${inv.edit_url}`
+                                : inv.source === 'builder'
+                                ? `/admin/builder/${inv.user_id}/${inv.title}`
+                                : `/admin/formulir/${inv.user_id}/${inv.title}`;
+                              router.push(url);
+                            }}
+                            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-50 hover:bg-pink-100 border border-pink-100 transition-all text-pink-600 font-semibold text-xs"
+                          >
+                            <PencilIcon className="h-3.5 w-3.5" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => router.push(`/admin/manage/${inv.user_id}/${inv.title}`)}
+                            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-semibold text-xs transition-all shadow-sm"
+                          >
+                            <SettingsIcon className="h-3.5 w-3.5" />
+                            Manage
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
 

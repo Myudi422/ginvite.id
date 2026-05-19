@@ -1,4 +1,6 @@
 // next.config.mjs
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 import WebpackObfuscator from 'webpack-obfuscator';
 import path from 'path';
 
