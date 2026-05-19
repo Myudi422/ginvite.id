@@ -532,7 +532,7 @@ function PluginPanel() {
                   <select 
                     className="w-full px-2 py-1.5 text-[10px] rounded-lg border border-gray-200 focus:outline-none focus:border-indigo-300 bg-white"
                     value={page.style.nav_bg_type || 'solid'}
-                    onChange={e => updateStyle({ nav_bg_type: e.target.value })}
+                    onChange={e => updateStyle({ nav_bg_type: e.target.value as 'solid' | 'gradient' })}
                   >
                     <option value="solid">Warna Solid</option>
                     <option value="gradient">Gradasi</option>
