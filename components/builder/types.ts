@@ -90,6 +90,7 @@ export interface OpeningProps {
   overlay_color?: string;
   overlay_color2?: string;
   overlay_opacity2?: number;
+  bg_new_uploaded_images?: string[];
 }
 
 export interface HeroProps {

@@ -47,7 +47,7 @@ interface FolderItem {
 
 interface ImagePickerProps {
   value: string;
-  onChange: (url: string) => void;
+  onChange: (url: string, isNewUpload?: boolean) => void;
   label?: string;
   placeholder?: string;
 }
@@ -74,7 +74,7 @@ export default function ImagePicker({
 
   // Helper to change URL and reset uploaded session status
   const handleUrlChange = (url: string) => {
-    onChange(url);
+    onChange(url, false);
     setUploadedInSession(false);
   };
 
@@ -143,7 +143,7 @@ export default function ImagePicker({
         }
       }
 
-      onChange(url);
+      onChange(url, true);
       setUploadedInSession(true);
     } catch (err: any) {
       alert(err.message || 'Gagal mengunggah gambar');
@@ -156,8 +156,10 @@ export default function ImagePicker({
   const handleDelete = async () => {
     if (!value) return;
 
-    // Check if it's a Backblaze URL. If not, just clear it.
-    if (!value.includes('backblaze') && !value.includes('s3') && !value.includes('ccgnimex.my.id')) {
+    // Check if it's a Backblaze/S3/ccgnimex URL and was newly uploaded in this session.
+    // If it was chosen from the File Manager or pasted, just clear it.
+    const isNewUpload = uploadedInSession;
+    if (!isNewUpload || (!value.includes('backblaze') && !value.includes('s3') && !value.includes('ccgnimex'))) {
       handleUrlChange('');
       return;
     }
@@ -230,8 +232,9 @@ export default function ImagePicker({
               {value && (
                 <button
                   type="button"
-                  onClick={() => handleUrlChange('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-red-500 rounded-lg"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-red-500 rounded-lg disabled:opacity-50"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -259,8 +262,9 @@ export default function ImagePicker({
                   </a>
                   <button
                     type="button"
-                    onClick={() => handleUrlChange('')}
-                    className="p-1.5 bg-white rounded-lg text-red-500 hover:text-red-700 transition-colors"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="p-1.5 bg-white rounded-lg text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -309,18 +313,17 @@ export default function ImagePicker({
                 </div>
               </div>
             ) : (
-              <div>
+              <div className="relative">
                 <input
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   accept="image/*"
                   className="hidden"
-                  id="image-picker-upload"
                   disabled={uploading}
                 />
-                <label
-                  htmlFor="image-picker-upload"
+                <div
+                  onClick={() => !uploading && fileInputRef.current?.click()}
                   className={`flex flex-col items-center justify-center py-6 border-2 border-dashed rounded-xl cursor-pointer bg-white hover:bg-pink-50/30 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : 'border-gray-200 hover:border-pink-300'
                     }`}
                 >
@@ -336,7 +339,7 @@ export default function ImagePicker({
                       <p className="text-[10px] text-gray-400 mt-0.5">Format JPG, PNG, WEBP max 5MB</p>
                     </>
                   )}
-                </label>
+                </div>
               </div>
             )}
             {deleting && (

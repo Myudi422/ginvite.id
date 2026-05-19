@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Field, FieldGroup, Input, ImageUploadField, ColorInput, Select, Toggle } from '../ui/EditorFields';
 import ImagePicker from '../ui/ImagePicker';
+import { deleteImageFromBackblaze } from '@/app/actions/backblaze';
 import { ChevronDown, Type, Image as ImageIcon, Settings, Trash2 } from 'lucide-react';
 import type { OpeningProps } from '../types';
 
@@ -10,6 +11,7 @@ interface P { props: Record<string, unknown>; onChange: (p: Record<string, unkno
 export default function OpeningEditor({ props, onChange }: P) {
   const typedProps = props as unknown as OpeningProps;
   const set = (key: keyof OpeningProps, val: unknown) => onChange({ ...props, [key]: val });
+
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     text: true,
@@ -169,25 +171,56 @@ export default function OpeningEditor({ props, onChange }: P) {
                         <div className="flex-1 min-w-0">
                           <ImagePicker
                             value={imgUrl}
-                            onChange={(v) => {
+                            onChange={(v, isNew) => {
                               const newImages = [...(typedProps.bg_slideshow_images || [])];
                               newImages[idx] = v;
-                              set('bg_slideshow_images', newImages);
+
+                              if (isNew) {
+                                const newUploaded = [...(typedProps.bg_new_uploaded_images || [])];
+                                newUploaded.push(v);
+                                onChange({
+                                  ...props,
+                                  bg_slideshow_images: newImages,
+                                  bg_new_uploaded_images: newUploaded
+                                });
+                              } else {
+                                set('bg_slideshow_images', newImages);
+                              }
                             }}
                             label={`Foto #${idx + 1}`}
                           />
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newImages = (typedProps.bg_slideshow_images || []).filter((_, i) => i !== idx);
-                            set('bg_slideshow_images', newImages);
-                          }}
-                          className="p-2.5 text-red-500 hover:text-red-700 bg-white border border-gray-100 rounded-xl flex-shrink-0 transition-colors"
-                          title="Hapus Foto"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {!imgUrl && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const slideUrl = imgUrl;
+                              const newUploadedList = typedProps.bg_new_uploaded_images || [];
+                              const isNew = newUploadedList.includes(slideUrl);
+
+                              if (slideUrl && isNew) {
+                                try {
+                                  await deleteImageFromBackblaze(slideUrl);
+                                } catch (err) {
+                                  console.warn("Gagal menghapus gambar dari server:", err);
+                                }
+                              }
+
+                              const newImages = (typedProps.bg_slideshow_images || []).filter((_, i) => i !== idx);
+                              const updatedUploaded = newUploadedList.filter(u => u !== slideUrl);
+
+                              onChange({
+                                ...props,
+                                bg_slideshow_images: newImages,
+                                bg_new_uploaded_images: updatedUploaded
+                              });
+                            }}
+                            className="p-2.5 text-red-500 hover:text-red-700 bg-white border border-gray-100 rounded-xl flex-shrink-0 transition-colors"
+                            title="Hapus Foto"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     ))}
                     
