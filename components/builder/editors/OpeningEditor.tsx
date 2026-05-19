@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Field, FieldGroup, Input, ImageUploadField, ColorInput, Select, Toggle } from '../ui/EditorFields';
 import ImagePicker from '../ui/ImagePicker';
-import { ChevronDown, Type, Image as ImageIcon, Settings } from 'lucide-react';
+import { ChevronDown, Type, Image as ImageIcon, Settings, Trash2 } from 'lucide-react';
 import type { OpeningProps } from '../types';
 
 interface P { props: Record<string, unknown>; onChange: (p: Record<string, unknown>) => void; }
@@ -119,7 +119,8 @@ export default function OpeningEditor({ props, onChange }: P) {
                 options={[
                   { value: 'solid', label: 'Warna Solid' },
                   { value: 'gradient', label: 'Gradasi Warna' },
-                  { value: 'image', label: 'Foto / Gambar' },
+                  { value: 'image', label: 'Foto Single' },
+                  { value: 'slideshow', label: 'Foto Slideshow' },
                 ]}
               />
             </Field>
@@ -151,51 +152,186 @@ export default function OpeningEditor({ props, onChange }: P) {
             )}
 
             {(typedProps.bg_type === 'image' || !typedProps.bg_type) && (
+              <Field label="Foto Background Sampul">
+                <ImagePicker 
+                  value={typedProps.bg_image || ''} 
+                  onChange={v => set('bg_image', v)} 
+                />
+              </Field>
+            )}
+
+            {typedProps.bg_type === 'slideshow' && (
               <div className="space-y-4">
-                <Field label="Foto Background Sampul">
-                  <ImagePicker 
-                    value={typedProps.bg_image || ''} 
-                    onChange={v => set('bg_image', v)} 
+                <Field label="Daftar Foto Slideshow">
+                  <div className="space-y-3">
+                    {(typedProps.bg_slideshow_images || []).map((imgUrl, idx) => (
+                      <div key={idx} className="flex gap-2 items-center bg-gray-50/50 p-2.5 rounded-2xl border border-gray-100">
+                        <div className="flex-1 min-w-0">
+                          <ImagePicker
+                            value={imgUrl}
+                            onChange={(v) => {
+                              const newImages = [...(typedProps.bg_slideshow_images || [])];
+                              newImages[idx] = v;
+                              set('bg_slideshow_images', newImages);
+                            }}
+                            label={`Foto #${idx + 1}`}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newImages = (typedProps.bg_slideshow_images || []).filter((_, i) => i !== idx);
+                            set('bg_slideshow_images', newImages);
+                          }}
+                          className="p-2.5 text-red-500 hover:text-red-700 bg-white border border-gray-100 rounded-xl flex-shrink-0 transition-colors"
+                          title="Hapus Foto"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newImages = [...(typedProps.bg_slideshow_images || []), ''];
+                        set('bg_slideshow_images', newImages);
+                      }}
+                      className="w-full py-2.5 rounded-xl border border-dashed border-pink-200 text-pink-500 font-bold text-xs hover:bg-pink-50 transition-all flex items-center justify-center gap-1.5"
+                    >
+                      + Tambah Foto Slideshow
+                    </button>
+                  </div>
+                </Field>
+
+                <Field label="Pilihan Animasi Slideshow">
+                  <Select
+                    value={typedProps.bg_slideshow_animation || 'fade'}
+                    onChange={v => set('bg_slideshow_animation', v)}
+                    options={[
+                      { value: 'fade', label: 'Fade (Pudar)' },
+                      { value: 'zoom', label: 'Zoom (Ken Burns Effect)' },
+                      { value: 'slide', label: 'Slide (Geser)' },
+                    ]}
                   />
                 </Field>
 
-                {typedProps.bg_image && (
-                  <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-4">
-                    <Field label={`Efek Blur: ${typedProps.bg_image_blur ?? 0}px`}>
-                      <input
-                        type="range" min={0} max={20} step={1}
-                        value={typedProps.bg_image_blur ?? 0}
-                        onChange={e => set('bg_image_blur', parseInt(e.target.value))}
-                        className="w-full accent-pink-500 cursor-pointer"
-                      />
-                    </Field>
-
-                    <div className="flex items-center justify-between py-1">
-                      <div>
-                        <p className="text-xs font-semibold text-gray-700">Hitam & Putih (Black & White)</p>
-                        <p className="text-[10px] text-gray-400">Ubah foto menjadi grayscale</p>
-                      </div>
-                      <Toggle
-                        checked={typedProps.bg_image_grayscale ?? false}
-                        onChange={v => set('bg_image_grayscale', v)}
-                      />
-                    </div>
-                  </div>
-                )}
+                <Field label={`Durasi per Slide: ${typedProps.bg_slideshow_duration ?? 5} detik`}>
+                  <input
+                    type="range" min={2} max={10} step={1}
+                    value={typedProps.bg_slideshow_duration ?? 5}
+                    onChange={e => set('bg_slideshow_duration', parseInt(e.target.value))}
+                    className="w-full accent-pink-500 cursor-pointer"
+                  />
+                </Field>
               </div>
             )}
 
-            <Field label={`Kegelapan Overlay: ${typedProps.overlay_opacity ?? 50}%`}>
-              <input
-                type="range" min={0} max={100} step={5}
-                value={typedProps.overlay_opacity ?? 50}
-                onChange={e => set('overlay_opacity', parseInt(e.target.value))}
-                className="w-full accent-pink-500 cursor-pointer"
-              />
+            {(typedProps.bg_type === 'image' || typedProps.bg_type === 'slideshow' || !typedProps.bg_type) && (
+              <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-4 mt-2">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Efek Foto Latar Belakang</p>
+                <Field label={`Efek Blur: ${typedProps.bg_image_blur ?? 0}px`}>
+                  <input
+                    type="range" min={0} max={20} step={1}
+                    value={typedProps.bg_image_blur ?? 0}
+                    onChange={e => set('bg_image_blur', parseInt(e.target.value))}
+                    className="w-full accent-pink-500 cursor-pointer"
+                  />
+                </Field>
+
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-700">Hitam & Putih (Black & White)</p>
+                    <p className="text-[10px] text-gray-400">Ubah foto menjadi grayscale</p>
+                  </div>
+                  <Toggle
+                    checked={typedProps.bg_image_grayscale ?? false}
+                    onChange={v => set('bg_image_grayscale', v)}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-4 mt-2">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kustomisasi Overlay</p>
+              
+              <Field label="Tipe Overlay">
+                <Select
+                  value={typedProps.overlay_type || 'solid'}
+                  onChange={v => set('overlay_type', v)}
+                  options={[
+                    { value: 'solid', label: 'Warna Solid' },
+                    { value: 'gradient', label: 'Gradasi Warna' },
+                  ]}
+                />
+              </Field>
+
+              {/* Solid Overlay Settings */}
+              {(typedProps.overlay_type === 'solid' || !typedProps.overlay_type) && (
+                <div className="space-y-4">
+                  <Field label="Warna Overlay">
+                    <ColorInput
+                      value={typedProps.overlay_color || '#000000'}
+                      onChange={v => set('overlay_color', v)}
+                    />
+                  </Field>
+
+                  <Field label={`Kegelapan Overlay: ${typedProps.overlay_opacity ?? 50}%`}>
+                    <input
+                      type="range" min={0} max={100} step={5}
+                      value={typedProps.overlay_opacity ?? 50}
+                      onChange={e => set('overlay_opacity', parseInt(e.target.value))}
+                      className="w-full accent-pink-500 cursor-pointer"
+                    />
+                  </Field>
+                </div>
+              )}
+
+              {/* Gradient Overlay Settings */}
+              {typedProps.overlay_type === 'gradient' && (
+                <div className="space-y-4">
+                  <div className="p-2.5 bg-white border border-gray-100 rounded-xl space-y-3 shadow-sm">
+                    <p className="text-[10px] font-bold text-pink-500 uppercase tracking-wider">Gradasi Titik Awal (Atas)</p>
+                    <Field label="Warna Awal">
+                      <ColorInput
+                        value={typedProps.overlay_color || '#000000'}
+                        onChange={v => set('overlay_color', v)}
+                      />
+                    </Field>
+                    <Field label={`Kegelapan Awal: ${typedProps.overlay_opacity ?? 50}%`}>
+                      <input
+                        type="range" min={0} max={100} step={5}
+                        value={typedProps.overlay_opacity ?? 50}
+                        onChange={e => set('overlay_opacity', parseInt(e.target.value))}
+                        className="w-full accent-pink-500 cursor-pointer"
+                      />
+                    </Field>
+                  </div>
+
+                  <div className="p-2.5 bg-white border border-gray-100 rounded-xl space-y-3 shadow-sm">
+                    <p className="text-[10px] font-bold text-pink-500 uppercase tracking-wider">Gradasi Titik Akhir (Bawah)</p>
+                    <Field label="Warna Akhir">
+                      <ColorInput
+                        value={typedProps.overlay_color2 || '#000000'}
+                        onChange={v => set('overlay_color2', v)}
+                      />
+                    </Field>
+                    <Field label={`Kegelapan Akhir: ${typedProps.overlay_opacity2 ?? 0}%`}>
+                      <input
+                        type="range" min={0} max={100} step={5}
+                        value={typedProps.overlay_opacity2 ?? 0}
+                        onChange={e => set('overlay_opacity2', parseInt(e.target.value))}
+                        className="w-full accent-pink-500 cursor-pointer"
+                      />
+                    </Field>
+                  </div>
+                </div>
+              )}
+              
               <p className="text-[10px] text-gray-400 mt-1">
-                Fungsinya untuk meredupkan foto/warna agar teks undangan lebih mudah terbaca.
+                Overlay membantu meredupkan latar belakang agar teks undangan kontras dan lebih mudah terbaca.
               </p>
-            </Field>
+            </div>
           </div>
         )}
       </div>

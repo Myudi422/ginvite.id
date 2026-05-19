@@ -18,11 +18,49 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
   const bgImage = typedProps.bg_image || '';
   const overlayOpacity = typedProps.overlay_opacity ?? 50;
   const showQr = typedProps.show_qr ?? true;
+  const overlayType = typedProps.overlay_type || 'solid';
+  const overlayColor = typedProps.overlay_color || '#000000';
+  const overlayColor2 = typedProps.overlay_color2 || '#000000';
+  const overlayOpacity2 = typedProps.overlay_opacity2 ?? 0;
+
+  // Helper to convert hex to hex-alpha
+  const getHexWithOpacity = (hex: string, opacityPercent: number): string => {
+    if (!hex) return '';
+    let clean = hex.trim();
+    if (!clean.startsWith('#')) {
+      clean = '#' + clean;
+    }
+    if (clean.length === 4) {
+      const r = clean[1];
+      const g = clean[2];
+      const b = clean[3];
+      clean = `#${r}${r}${g}${g}${b}${b}`;
+    }
+    if (clean.length > 7) {
+      clean = clean.slice(0, 7);
+    }
+    const opacityHex = Math.round((opacityPercent / 100) * 255).toString(16).padStart(2, '0');
+    return `${clean}${opacityHex}`;
+  };
   const bgType = typedProps.bg_type || 'image';
   const bgColor = typedProps.bg_color || '';
   const bgColor2 = typedProps.bg_color2 || '';
   const bgImageBlur = typedProps.bg_image_blur ?? 0;
   const bgImageGrayscale = typedProps.bg_image_grayscale ?? false;
+  const slideshowImages = typedProps.bg_slideshow_images || [];
+  const slideshowAnimation = typedProps.bg_slideshow_animation || 'fade';
+  const slideshowDuration = typedProps.bg_slideshow_duration ?? 5;
+
+  const [activeSlide, setActiveSlide] = useState(0);
+  const validSlides = slideshowImages.filter(Boolean);
+
+  useEffect(() => {
+    if (bgType !== 'slideshow' || validSlides.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveSlide(prev => (prev + 1) % validSlides.length);
+    }, slideshowDuration * 1000);
+    return () => clearInterval(interval);
+  }, [bgType, validSlides.length, slideshowDuration]);
 
   const namePrimary = typedProps.name_primary || 'Nama Pengantin';
   const nameSecondary = typedProps.name_secondary || '';
@@ -46,6 +84,13 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
         backgroundColor: style.bg_color as string || '#ffffff',
       }}
     >
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes kenburns {
+          0% { transform: scale(1.02); }
+          100% { transform: scale(1.15); }
+        }
+      `}} />
+
       {/* Background Layer */}
       {bgType === 'solid' && (
         <div 
@@ -74,11 +119,73 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
         />
       )}
 
+      {bgType === 'slideshow' && validSlides.map((slideUrl, idx) => {
+        const isActive = idx === activeSlide;
+        const isPrevious = idx === (activeSlide - 1 + validSlides.length) % validSlides.length;
+        
+        let transformStr = 'scale(1)';
+        let opacityVal = 0;
+        let animationStr = undefined;
+        
+        if (slideshowAnimation === 'fade') {
+          opacityVal = isActive ? 1 : 0;
+          if (bgImageBlur > 0) {
+            transformStr = 'scale(1.1)';
+          }
+        } else if (slideshowAnimation === 'zoom') {
+          opacityVal = isActive ? 1 : 0;
+          if (isActive) {
+            animationStr = `kenburns ${slideshowDuration + 1}s ease-in-out infinite alternate`;
+          }
+          if (bgImageBlur > 0) {
+            transformStr = 'scale(1.1)';
+          }
+        } else if (slideshowAnimation === 'slide') {
+          opacityVal = isActive ? 1 : 0;
+          if (isActive) {
+            transformStr = bgImageBlur > 0 ? 'translateX(0) scale(1.1)' : 'translateX(0)';
+          } else if (isPrevious) {
+            transformStr = bgImageBlur > 0 ? 'translateX(-100%) scale(1.1)' : 'translateX(-100%)';
+          } else {
+            transformStr = bgImageBlur > 0 ? 'translateX(100%) scale(1.1)' : 'translateX(100%)';
+          }
+        }
+
+        return (
+          <div 
+            key={idx}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${slideUrl})`,
+              opacity: opacityVal,
+              transform: transformStr,
+              animation: animationStr,
+              filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
+              transition: slideshowAnimation === 'slide' 
+                ? 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1), opacity 1000ms ease-in-out' 
+                : 'opacity 1000ms ease-in-out, transform 1000ms ease-in-out'
+            }}
+          />
+        );
+      })}
+
       {/* Overlay */}
-      <div 
-        className="absolute inset-0 bg-black pointer-events-none"
-        style={{ opacity: overlayOpacity / 100 }}
-      />
+      {overlayType === 'gradient' ? (
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ 
+            backgroundImage: `linear-gradient(180deg, ${getHexWithOpacity(overlayColor, overlayOpacity)}, ${getHexWithOpacity(overlayColor2, overlayOpacity2)})`
+          }}
+        />
+      ) : (
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ 
+            backgroundColor: overlayColor,
+            opacity: overlayOpacity / 100 
+          }}
+        />
+      )}
 
       {/* Content */}
       <div className="relative z-10 w-full max-w-sm mx-auto flex flex-col items-center gap-6">
