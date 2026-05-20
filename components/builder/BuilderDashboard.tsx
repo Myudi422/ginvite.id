@@ -5,6 +5,7 @@ import { useBuilder } from './BuilderContext';
 import SectionPanel from './SectionPanel';
 import BuilderCanvas from './BuilderCanvas';
 import PropertiesPanel from './PropertiesPanel';
+import ReconnectingOverlay from './ui/ReconnectingOverlay';
 import {
   SaveIcon, ExternalLinkIcon, ArrowLeftIcon,
   Loader2Icon, CheckIcon, AlertCircleIcon,
@@ -32,8 +33,8 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 };
 
 export default function BuilderDashboard({ userId }: Props) {
-  const { state, save, undo, redo, resetPage, importPage } = useBuilder();
-  const { page, isDirty, saving, saveError, past, future, selectedSectionId } = state;
+  const { state, save, undo, redo, resetPage, importPage, retryLoad } = useBuilder();
+  const { page, isDirty, saving, saveError, past, future, selectedSectionId, connectionError, isLoading } = state;
   const router = useRouter();
 
   const [mobileTab, setMobileTab] = React.useState<'sections' | 'canvas' | 'properties'>('canvas');
@@ -107,6 +108,9 @@ export default function BuilderDashboard({ userId }: Props) {
 
   return (
     <div className="h-full flex flex-col bg-gray-50 overflow-hidden">
+      {connectionError && (
+        <ReconnectingOverlay isLoading={isLoading} onRetry={retryLoad} />
+      )}
       {/* ── Topbar ── */}
       <header className="h-14 flex items-center justify-between px-4 bg-white border-b border-gray-100 shadow-sm flex-shrink-0 z-30 relative">
         <div className="flex items-center gap-4 min-w-0">

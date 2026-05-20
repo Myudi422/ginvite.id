@@ -13,6 +13,9 @@ type BuilderState = {
   saveError: string | null;
   past: BuilderPage[];
   future: BuilderPage[];
+  isLoading: boolean;
+  connectionError: boolean;
+  serverLoadFailed: boolean;
 };
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -38,7 +41,10 @@ type Action =
   | { type: 'UNDO' }
   | { type: 'REDO' }
   | { type: 'RESET_PAGE' }
-  | { type: 'IMPORT_PAGE'; payload: any };
+  | { type: 'IMPORT_PAGE'; payload: any }
+  | { type: 'FETCH_START' }
+  | { type: 'FETCH_SUCCESS'; payload: BuilderPage }
+  | { type: 'FETCH_FAILURE' };
 
 // ── History Helper ────────────────────────────────────────────────────────────
 function updatePageHistory(state: BuilderState, newPage: BuilderPage): BuilderState {
@@ -60,6 +66,24 @@ function reducer(state: BuilderState, action: Action): BuilderState {
   switch (action.type) {
     case 'SET_PAGE':
       return { ...state, page: action.payload, isDirty: false, past: [], future: [] };
+
+    case 'FETCH_START':
+      return { ...state, isLoading: true, connectionError: false };
+
+    case 'FETCH_SUCCESS':
+      return {
+        ...state,
+        page: action.payload,
+        isLoading: false,
+        connectionError: false,
+        serverLoadFailed: false,
+        isDirty: false,
+        past: [],
+        future: [],
+      };
+
+    case 'FETCH_FAILURE':
+      return { ...state, isLoading: false, connectionError: true };
 
     case 'SELECT_SECTION':
       return { ...state, selectedSectionId: action.id };
@@ -318,6 +342,7 @@ interface BuilderContextValue {
   resetPage: () => void;
   importPage: (data: any) => void;
   save: () => Promise<void>;
+  retryLoad: () => Promise<void>;
 }
 
 const BuilderContext = createContext<BuilderContextValue | null>(null);
@@ -325,10 +350,12 @@ const BuilderContext = createContext<BuilderContextValue | null>(null);
 export function BuilderProvider({
   initialPage,
   userId,
+  serverLoadFailed = false,
   children,
 }: {
   initialPage: BuilderPage;
   userId: number;
+  serverLoadFailed?: boolean;
   children: React.ReactNode;
 }) {
   const [state, dispatch] = useReducer(reducer, {
@@ -339,6 +366,9 @@ export function BuilderProvider({
     saveError: null,
     past: [],
     future: [],
+    isLoading: false,
+    connectionError: serverLoadFailed,
+    serverLoadFailed: serverLoadFailed,
   });
 
   const selectSection = useCallback((id: string | null) => dispatch({ type: 'SELECT_SECTION', id }), []);
@@ -399,8 +429,41 @@ export function BuilderProvider({
     }
   }, [state.page, userId]);
 
+  const retryLoad = useCallback(async () => {
+    dispatch({ type: 'FETCH_START' });
+    try {
+      const res = await fetch(
+        `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get.php?user_id=${userId}&slug=${encodeURIComponent(state.page.slug)}`,
+        { cache: 'no-store' }
+      );
+      if (res.ok) {
+        const json = await res.json();
+        if (json.status === 'success') {
+          if (json.data) {
+            dispatch({ type: 'FETCH_SUCCESS', payload: json.data as BuilderPage });
+          } else {
+            // Halaman baru / data belum ada di server, aman pakai state saat ini
+            dispatch({ type: 'FETCH_SUCCESS', payload: state.page });
+          }
+        } else {
+          dispatch({ type: 'FETCH_FAILURE' });
+        }
+      } else {
+        dispatch({ type: 'FETCH_FAILURE' });
+      }
+    } catch {
+      dispatch({ type: 'FETCH_FAILURE' });
+    }
+  }, [userId, state.page.slug, state.page]);
+
+  React.useEffect(() => {
+    if (serverLoadFailed) {
+      retryLoad();
+    }
+  }, [serverLoadFailed, retryLoad]);
+
   return (
-    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save }}>
+    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad }}>
       {children}
     </BuilderContext.Provider>
   );
