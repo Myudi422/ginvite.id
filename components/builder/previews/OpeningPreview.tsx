@@ -79,7 +79,7 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
 
   return (
     <div
-      className="relative flex flex-col items-center justify-center p-6 text-center overflow-hidden min-h-[100dvh]"
+      className="relative flex flex-col items-center justify-center p-6 text-center overflow-hidden min-h-screen min-h-[100dvh]"
       style={{
         backgroundColor: style.bg_color as string || '#ffffff',
       }}
