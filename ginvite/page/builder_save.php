@@ -82,6 +82,24 @@ if ($stmt->rowCount() === 0) {
     ]);
 }
 
+// Perbarui status penggunaan gambar di builder_images
+try {
+    $imgStmt = $pdo->prepare("SELECT id, file_url FROM builder_images WHERE user_id = ?");
+    $imgStmt->execute([$user_id]);
+    $trackedImages = $imgStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!empty($trackedImages)) {
+        foreach ($trackedImages as $img) {
+            // Jika URL gambar ada di dalam JSON halaman yang disimpan, tandai is_used = 1, jika tidak tandai 0
+            $isUsed = (strpos($pageJson, $img['file_url']) !== false) ? 1 : 0;
+            $upStmt = $pdo->prepare("UPDATE builder_images SET is_used = ? WHERE id = ?");
+            $upStmt->execute([$isUsed, $img['id']]);
+        }
+    }
+} catch (Exception $e) {
+    // Fail-safe: jangan gagalkan proses simpan jika pencatatan gambar gagal
+}
+
 echo json_encode([
     'status'  => 'success',
     'message' => 'Halaman builder berhasil disimpan.',

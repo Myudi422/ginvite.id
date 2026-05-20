@@ -79,7 +79,7 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
 
   return (
     <div
-      className="relative flex flex-col items-center justify-center p-6 text-center overflow-hidden min-h-[100dvh]"
+      className="relative flex flex-col items-center justify-center p-6 text-center overflow-hidden min-h-screen min-h-[100dvh]"
       style={{
         backgroundColor: style.bg_color as string || '#ffffff',
       }}
@@ -463,8 +463,11 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
 
                   {/* Gigantic Cinematic Title */}
                   <h2 
-                    className={`text-4xl sm:text-5xl font-black text-white leading-tight uppercase tracking-tighter drop-shadow-[0_3px_6px_rgba(0,0,0,0.9)] ${getAnimClass(2)}`.trim()}
-                    style={{ fontFamily: style.font_heading ? `'${style.font_heading}', sans-serif` : 'Impact, sans-serif' }}
+                    className={`font-black text-white leading-tight uppercase tracking-tighter drop-shadow-[0_3px_6px_rgba(0,0,0,0.9)] ${getAnimClass(2)}`.trim()}
+                    style={{ 
+                      fontFamily: style.font_heading ? `'${style.font_heading}', sans-serif` : 'Impact, sans-serif',
+                      fontSize: `${namesSize}px`
+                    }}
                   >
                     {namePrimary}
                     {nameSecondary && ` & ${nameSecondary}`}
@@ -633,8 +636,11 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
                   </span>
                   
                   <h2 
-                    className="text-4xl sm:text-5xl font-black text-white leading-none tracking-tighter uppercase drop-shadow"
-                    style={{ fontFamily: style.font_heading ? `'${style.font_heading}', sans-serif` : 'sans-serif' }}
+                    className="font-black text-white leading-none tracking-tighter uppercase drop-shadow"
+                    style={{ 
+                      fontFamily: style.font_heading ? `'${style.font_heading}', sans-serif` : 'sans-serif',
+                      fontSize: `${namesSize}px`
+                    }}
                   >
                     {namePrimary}
                     {nameSecondary && ` & ${nameSecondary}`}

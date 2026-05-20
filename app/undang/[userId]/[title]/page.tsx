@@ -96,9 +96,179 @@ async function getInvitationData(userId: string, title: string) {
   }
 }
 
+// --- Helper: bangun displayName aman untuk builder
+function getBuilderDisplayName(builderPage: any): string {
+  // 1. Coba dari section 'couple'
+  const coupleSection = builderPage.sections?.find((s: any) => s.type === 'couple' && s.visible);
+  if (coupleSection?.props) {
+    const pA = coupleSection.props.person_a?.nickname || coupleSection.props.person_a?.name;
+    const pB = coupleSection.props.person_b?.nickname || coupleSection.props.person_b?.name;
+    if (pA && pB) {
+      return `${pA} & ${pB}`;
+    } else if (pA) {
+      return pA;
+    } else if (pB) {
+      return pB;
+    }
+  }
+
+  // 2. Coba dari section 'opening' atau 'hero'
+  const openingSection = builderPage.sections?.find((s: any) => s.type === 'opening' && s.visible);
+  if (openingSection?.props) {
+    const p = openingSection.props.name_primary;
+    const s = openingSection.props.name_secondary;
+    if (p && s) {
+      return `${p} & ${s}`;
+    } else if (p) {
+      return p;
+    }
+  }
+
+  const heroSection = builderPage.sections?.find((s: any) => s.type === 'hero' && s.visible);
+  if (heroSection?.props) {
+    const p = heroSection.props.name_primary;
+    const s = heroSection.props.name_secondary;
+    if (p && s) {
+      return `${p} & ${s}`;
+    } else if (p) {
+      return p;
+    }
+  }
+
+  // 3. Fallback ke page_title atau title
+  if (builderPage.page_title) {
+    return builderPage.page_title;
+  }
+
+  try {
+    return decodeURIComponent(builderPage.title).replace(/-/g, " ");
+  } catch {
+    return builderPage.title ? builderPage.title.replace(/-/g, " ") : "";
+  }
+}
+
+// --- Helper: ambil foto utama untuk builder
+function getBuilderImage(builderPage: any): string | null {
+  // 1. Coba dari gallery
+  const gallerySection = builderPage.sections?.find((s: any) => s.type === 'gallery' && s.visible);
+  if (gallerySection?.props?.images?.length) {
+    const firstImg = gallerySection.props.images[0];
+    if (firstImg && typeof firstImg === 'string' && firstImg.startsWith('https://')) {
+      return firstImg;
+    }
+  }
+
+  // 2. Coba dari couple section
+  const coupleSection = builderPage.sections?.find((s: any) => s.type === 'couple' && s.visible);
+  if (coupleSection?.props) {
+    const photoA = coupleSection.props.person_a?.photo;
+    if (photoA && typeof photoA === 'string' && photoA.startsWith('https://')) {
+      return photoA;
+    }
+    const photoB = coupleSection.props.person_b?.photo;
+    if (photoB && typeof photoB === 'string' && photoB.startsWith('https://')) {
+      return photoB;
+    }
+  }
+
+  // 3. Coba dari hero section
+  const heroSection = builderPage.sections?.find((s: any) => s.type === 'hero' && s.visible);
+  if (heroSection?.props) {
+    const couplePhoto = heroSection.props.couple_photo;
+    if (couplePhoto && typeof couplePhoto === 'string' && couplePhoto.startsWith('https://')) {
+      return couplePhoto;
+    }
+    const bgImage = heroSection.props.bg_image;
+    if (bgImage && typeof bgImage === 'string' && bgImage.startsWith('https://')) {
+      return bgImage;
+    }
+  }
+
+  // 4. Coba dari opening section
+  const openingSection = builderPage.sections?.find((s: any) => s.type === 'opening' && s.visible);
+  if (openingSection?.props) {
+    const bgImage = openingSection.props.bg_image;
+    if (bgImage && typeof bgImage === 'string' && bgImage.startsWith('https://')) {
+      return bgImage;
+    }
+  }
+
+  return null;
+}
+
 // Metadata dinamis
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { userId, title } = await params;
+
+  // 1. Cek apakah ini undangan builder
+  let builderData: any = null;
+  try {
+    const builderRes = await fetch(
+      `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get_public.php?user_id=${encodeURIComponent(userId)}&slug=${encodeURIComponent(title)}`,
+      { next: { revalidate: 60 } }
+    );
+    let builderJson: Record<string, unknown> | null = null;
+    try { builderJson = await builderRes.json(); } catch { /* abaikan */ }
+    if (builderJson && builderJson.status === 'success' && builderJson.type === 'builder' && builderJson.data) {
+      builderData = builderJson.data;
+    }
+  } catch (err) {
+    console.error("Error fetching builder metadata:", err);
+  }
+
+  if (builderData) {
+    const displayName = getBuilderDisplayName(builderData);
+    let image = getBuilderImage(builderData);
+
+    if (!image) {
+      image = "https://papunda.com/og-default.jpg";
+    }
+
+    const pageTitle = `Undangan Digital | ${displayName}`;
+    const desc = `Undangan Digital untuk ${displayName}`;
+    const url = `https://papunda.com/undang/${userId}/${title}`;
+
+    return {
+      title: pageTitle,
+      description: desc,
+      openGraph: {
+        title: pageTitle,
+        description: desc,
+        url,
+        siteName: "Papunda - Undangan Digital",
+        images: [
+          {
+            url: image,
+            width: 1200,
+            height: 630,
+            alt: `Undangan Digital ${displayName}`,
+            type: "image/jpeg",
+          },
+        ],
+        type: "website",
+        locale: "id_ID",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: pageTitle,
+        description: desc,
+        images: [image],
+        creator: "@papunda_id",
+      },
+      metadataBase: new URL("https://papunda.com"),
+      other: {
+        "article:author": "Papunda",
+        "og:image": image,
+        "og:image:width": "1200",
+        "og:image:height": "630",
+        "og:image:type": "image/jpeg",
+        "twitter:image": image,
+        "twitter:card": "summary_large_image",
+      },
+    };
+  }
+
+  // 2. Flow legacy (data lama)
   let data: any = null;
   try {
     data = await getInvitationData(userId, title);

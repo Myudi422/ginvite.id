@@ -49,14 +49,70 @@ function SectionRenderer({ section, style, onOpen }: { section: BuilderSection; 
   }
 }
 
+const preloadImages = (urls: string[]): Promise<void[]> => {
+  return Promise.all(
+    urls.map(
+      (url) =>
+        new Promise<void>((resolve) => {
+          if (!url) {
+            resolve();
+            return;
+          }
+          const img = new Image();
+          img.src = url;
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // Tetap jalan meskipun gambar gagal diload
+        })
+    )
+  );
+};
+
 export default function BuilderViewer({ page }: Props) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 1200); // 1.2s loading screen
-    return () => clearTimeout(timer);
-  }, []);
+    // 1. Kumpulkan semua url gambar kritis yang harus di-preload terlebih dahulu
+    const criticalImages: string[] = [];
+    
+    // Gambar dari opening section
+    const opening = page.sections?.find(s => s.type === 'opening');
+    if (opening?.props) {
+      const props = opening.props as any;
+      if (props.bg_image) criticalImages.push(props.bg_image as string);
+      if (Array.isArray(props.bg_slideshow_images)) {
+        props.bg_slideshow_images.forEach((img: any) => {
+          if (img) criticalImages.push(img as string);
+        });
+      }
+    }
+    
+    // Gambar dari hero section
+    const hero = page.sections?.find(s => s.type === 'hero');
+    if (hero?.props) {
+      const props = hero.props as any;
+      if (props.bg_image) criticalImages.push(props.bg_image as string);
+      if (props.couple_photo) criticalImages.push(props.couple_photo as string);
+    }
+
+    // Gambar dari couple section
+    const couple = page.sections?.find(s => s.type === 'couple');
+    if (couple?.props) {
+      const props = couple.props as any;
+      if (props.person_a?.photo) criticalImages.push(props.person_a.photo as string);
+      if (props.person_b?.photo) criticalImages.push(props.person_b.photo as string);
+    }
+
+    const uniqueImages = Array.from(new Set(criticalImages.filter(Boolean)));
+
+    // Gabungkan minimal loading time 1.2s dan proses preloading gambar
+    const minTimeout = new Promise(resolve => setTimeout(resolve, 1200));
+    const imagePreloader = preloadImages(uniqueImages);
+
+    Promise.all([minTimeout, imagePreloader]).then(() => {
+      setIsLoaded(true);
+    });
+  }, [page]);
 
   const sections = [...(page.sections || [])].sort((a, b) => a.order - b.order);
   const style = page.style as unknown as Record<string, string | number>;
@@ -74,7 +130,7 @@ export default function BuilderViewer({ page }: Props) {
   if (!isLoaded) {
     return (
       <div 
-        className="min-h-screen flex items-center justify-center transition-opacity duration-1000"
+        className="min-h-screen min-h-[100dvh] flex items-center justify-center transition-opacity duration-1000"
         style={{ backgroundColor: page.style.bg_color }}
       >
         <div className="text-center">
@@ -89,7 +145,7 @@ export default function BuilderViewer({ page }: Props) {
 
   return (
     <div
-      className="min-h-screen"
+      className="min-h-screen min-h-[100dvh]"
       style={{
         backgroundColor: page.style.bg_color,
         color: page.style.text_color,

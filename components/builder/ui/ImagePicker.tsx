@@ -92,7 +92,7 @@ export default function ImagePicker({
   label = 'Foto Background',
   placeholder = 'https://...'
 }: ImagePickerProps) {
-  const { state } = useBuilder();
+  const { state, registerUploadedImage } = useBuilder();
   const userId = state.page?.user_id;
   const invitationId = state.page?.id || Math.floor(Math.random() * 100000) + 1;
 
@@ -183,6 +183,7 @@ export default function ImagePicker({
 
       onChange(url, true);
       setUploadedInSession(true);
+      registerUploadedImage(url);
     } catch (err: any) {
       alert(err.message || 'Gagal mengunggah gambar');
     } finally {

@@ -69,6 +69,7 @@ export default async function BuilderPage({
 
   // ── 3. Load data builder page dari backend ────────────────────────────────
   let page: BuilderPage | null = null;
+  let serverLoadFailed = false;
   try {
     const res = await fetch(
       `${API}/page/builder_get.php?user_id=${urlUserId}&slug=${encodeURIComponent(slug)}`,
@@ -76,12 +77,19 @@ export default async function BuilderPage({
     );
     if (res.ok) {
       const json = await res.json();
-      if (json.status === 'success' && json.data) {
-        page = json.data as BuilderPage;
+      if (json.status === 'success') {
+        if (json.data) {
+          page = json.data as BuilderPage;
+        }
+      } else {
+        serverLoadFailed = true;
       }
+    } else {
+      serverLoadFailed = true;
     }
-  } catch {
-    // fallback ke default di bawah
+  } catch (err) {
+    console.error('Error loading builder page from API:', err);
+    serverLoadFailed = true;
   }
 
   // ── 4. Jika belum ada, buat default dari query params CreateBuilderPopup ──
@@ -100,7 +108,7 @@ export default async function BuilderPage({
   }
 
   return (
-    <BuilderProvider initialPage={page} userId={loggedInUserId}>
+    <BuilderProvider initialPage={page} userId={loggedInUserId} serverLoadFailed={serverLoadFailed}>
       <BuilderDashboard userId={loggedInUserId} />
     </BuilderProvider>
   );

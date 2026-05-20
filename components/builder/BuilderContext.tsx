@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useCallback, useReducer } from 'react';
 import type { BuilderPage, BuilderSection, SectionType } from './types';
 import { makeId, makeDefaultPage } from './defaults';
+import { deleteImageFromBackblaze } from '@/app/actions/backblaze';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 type BuilderState = {
@@ -13,6 +14,10 @@ type BuilderState = {
   saveError: string | null;
   past: BuilderPage[];
   future: BuilderPage[];
+  isLoading: boolean;
+  connectionError: boolean;
+  serverLoadFailed: boolean;
+  sessionUploadedImages: string[];
 };
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -34,11 +39,16 @@ type Action =
   | { type: 'UPDATE_PAGE_META'; meta: Partial<Pick<BuilderPage, 'page_title' | 'event_type'>> }
   | { type: 'SET_SAVING'; saving: boolean }
   | { type: 'SET_SAVE_ERROR'; error: string | null }
-  | { type: 'MARK_CLEAN' }
+  | { type: 'MARK_CLEAN'; payload?: BuilderPage }
   | { type: 'UNDO' }
   | { type: 'REDO' }
   | { type: 'RESET_PAGE' }
-  | { type: 'IMPORT_PAGE'; payload: any };
+  | { type: 'IMPORT_PAGE'; payload: any }
+  | { type: 'FETCH_START' }
+  | { type: 'FETCH_SUCCESS'; payload: BuilderPage }
+  | { type: 'FETCH_FAILURE' }
+  | { type: 'REGISTER_UPLOADED_IMAGE'; url: string }
+  | { type: 'CLEAR_UPLOADED_IMAGES' };
 
 // ── History Helper ────────────────────────────────────────────────────────────
 function updatePageHistory(state: BuilderState, newPage: BuilderPage): BuilderState {
@@ -60,6 +70,24 @@ function reducer(state: BuilderState, action: Action): BuilderState {
   switch (action.type) {
     case 'SET_PAGE':
       return { ...state, page: action.payload, isDirty: false, past: [], future: [] };
+
+    case 'FETCH_START':
+      return { ...state, isLoading: true, connectionError: false };
+
+    case 'FETCH_SUCCESS':
+      return {
+        ...state,
+        page: action.payload,
+        isLoading: false,
+        connectionError: false,
+        serverLoadFailed: false,
+        isDirty: false,
+        past: [],
+        future: [],
+      };
+
+    case 'FETCH_FAILURE':
+      return { ...state, isLoading: false, connectionError: true };
 
     case 'SELECT_SECTION':
       return { ...state, selectedSectionId: action.id };
@@ -226,8 +254,13 @@ function reducer(state: BuilderState, action: Action): BuilderState {
     case 'SET_SAVE_ERROR':
       return { ...state, saveError: action.error };
 
-    case 'MARK_CLEAN':
+    case 'MARK_CLEAN': {
+      const savedPage = action.payload;
+      if (savedPage && JSON.stringify(state.page) !== JSON.stringify(savedPage)) {
+        return state;
+      }
       return { ...state, isDirty: false };
+    }
 
     case 'UNDO': {
       if (state.past.length === 0) return state;
@@ -263,6 +296,21 @@ function reducer(state: BuilderState, action: Action): BuilderState {
         page_title: state.page.page_title,
       });
       return updatePageHistory(state, defaultPage);
+    }
+
+    case 'REGISTER_UPLOADED_IMAGE': {
+      if (state.sessionUploadedImages.includes(action.url)) return state;
+      return {
+        ...state,
+        sessionUploadedImages: [...state.sessionUploadedImages, action.url]
+      };
+    }
+
+    case 'CLEAR_UPLOADED_IMAGES': {
+      return {
+        ...state,
+        sessionUploadedImages: []
+      };
     }
 
     case 'IMPORT_PAGE': {
@@ -318,6 +366,8 @@ interface BuilderContextValue {
   resetPage: () => void;
   importPage: (data: any) => void;
   save: () => Promise<void>;
+  retryLoad: () => Promise<void>;
+  registerUploadedImage: (url: string) => void;
 }
 
 const BuilderContext = createContext<BuilderContextValue | null>(null);
@@ -325,10 +375,12 @@ const BuilderContext = createContext<BuilderContextValue | null>(null);
 export function BuilderProvider({
   initialPage,
   userId,
+  serverLoadFailed = false,
   children,
 }: {
   initialPage: BuilderPage;
   userId: number;
+  serverLoadFailed?: boolean;
   children: React.ReactNode;
 }) {
   const [state, dispatch] = useReducer(reducer, {
@@ -339,6 +391,10 @@ export function BuilderProvider({
     saveError: null,
     past: [],
     future: [],
+    isLoading: false,
+    connectionError: serverLoadFailed,
+    serverLoadFailed: serverLoadFailed,
+    sessionUploadedImages: [],
   });
 
   const selectSection = useCallback((id: string | null) => dispatch({ type: 'SELECT_SECTION', id }), []);
@@ -371,36 +427,133 @@ export function BuilderProvider({
   
   const undo = useCallback(() => dispatch({ type: 'UNDO' }), []);
   const redo = useCallback(() => dispatch({ type: 'REDO' }), []);
-  const resetPage = useCallback(() => dispatch({ type: 'RESET_PAGE' }), []);
+  
+  const resetPage = useCallback(async () => {
+    const imagesToDelete = [...state.sessionUploadedImages];
+    if (imagesToDelete.length > 0) {
+      Promise.all(
+        imagesToDelete.map(async (url) => {
+          try {
+            await deleteImageFromBackblaze(url);
+            console.log("Successfully deleted uploaded image on page reset:", url);
+          } catch (err) {
+            console.warn("Failed to delete image on page reset:", url, err);
+          }
+        })
+      );
+    }
+    dispatch({ type: 'RESET_PAGE' });
+    dispatch({ type: 'CLEAR_UPLOADED_IMAGES' });
+  }, [state.sessionUploadedImages]);
+
+  const registerUploadedImage = useCallback((url: string) => dispatch({ type: 'REGISTER_UPLOADED_IMAGE', url }), []);
+
   const importPage = useCallback((data: any) => dispatch({ type: 'IMPORT_PAGE', payload: data }), []);
 
   const save = useCallback(async () => {
+    const pageToSave = state.page;
     dispatch({ type: 'SET_SAVING', saving: true });
     dispatch({ type: 'SET_SAVE_ERROR', error: null });
-    try {
-      const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/builder_save.php',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(state.page),
+
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    let attempt = 0;
+
+    while (true) {
+      attempt++;
+      try {
+        if (attempt > 1) {
+          dispatch({
+            type: 'SET_SAVE_ERROR',
+            error: `Koneksi lambat/terputus. Mencoba menghubungkan kembali (Percobaan ke-${attempt})...`,
+          });
         }
-      );
-      const json = await res.json();
-      if (json.status === 'success') {
-        dispatch({ type: 'MARK_CLEAN' });
-      } else {
-        dispatch({ type: 'SET_SAVE_ERROR', error: json.message || 'Gagal menyimpan.' });
+
+        // Gunakan AbortController untuk mendeteksi API yang gantung / tidak merespon dalam 8 detik
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const res = await fetch(
+          'https://ccgnimex.my.id/v2/android/ginvite/page/builder_save.php',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pageToSave),
+            signal: controller.signal,
+          }
+        );
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const json = await res.json();
+        if (json.status === 'success') {
+          dispatch({ type: 'MARK_CLEAN', payload: pageToSave });
+          dispatch({ type: 'CLEAR_UPLOADED_IMAGES' });
+          dispatch({ type: 'SET_SAVE_ERROR', error: null });
+          dispatch({ type: 'SET_SAVING', saving: false });
+          break; // Berhasil menyimpan, keluar dari loop!
+        } else {
+          throw new Error(json.message || 'Gagal menyimpan.');
+        }
+      } catch (err: any) {
+        console.warn(`Percobaan simpan ke-${attempt} gagal:`, err);
+        
+        let errorMessage = 'Gagal menyimpan, cek koneksi internet.';
+        if (err.name === 'AbortError') {
+          errorMessage = 'API tidak merespon (Timeout).';
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        
+        dispatch({
+          type: 'SET_SAVE_ERROR',
+          error: `${errorMessage} Mencoba menghubungkan kembali (Percobaan ke-${attempt})...`,
+        });
+
+        // Tunggu 3 detik sebelum mencoba lagi
+        await delay(3000);
       }
-    } catch {
-      dispatch({ type: 'SET_SAVE_ERROR', error: 'Gagal menyimpan, cek koneksi internet.' });
-    } finally {
-      dispatch({ type: 'SET_SAVING', saving: false });
     }
   }, [state.page, userId]);
 
+  const retryLoad = useCallback(async () => {
+    dispatch({ type: 'FETCH_START' });
+    try {
+      const res = await fetch(
+        `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get.php?user_id=${userId}&slug=${encodeURIComponent(state.page.slug)}`,
+        { cache: 'no-store' }
+      );
+      if (res.ok) {
+        const json = await res.json();
+        if (json.status === 'success') {
+          if (json.data) {
+            dispatch({ type: 'FETCH_SUCCESS', payload: json.data as BuilderPage });
+          } else {
+            // Halaman baru / data belum ada di server, aman pakai state saat ini
+            dispatch({ type: 'FETCH_SUCCESS', payload: state.page });
+          }
+        } else {
+          dispatch({ type: 'FETCH_FAILURE' });
+        }
+      } else {
+        dispatch({ type: 'FETCH_FAILURE' });
+      }
+    } catch {
+      dispatch({ type: 'FETCH_FAILURE' });
+    }
+  }, [userId, state.page.slug, state.page]);
+
+  React.useEffect(() => {
+    if (serverLoadFailed) {
+      retryLoad();
+    }
+  }, [serverLoadFailed, retryLoad]);
+
   return (
-    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save }}>
+    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad, registerUploadedImage }}>
       {children}
     </BuilderContext.Provider>
   );
