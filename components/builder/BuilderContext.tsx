@@ -39,7 +39,7 @@ type Action =
   | { type: 'UPDATE_PAGE_META'; meta: Partial<Pick<BuilderPage, 'page_title' | 'event_type'>> }
   | { type: 'SET_SAVING'; saving: boolean }
   | { type: 'SET_SAVE_ERROR'; error: string | null }
-  | { type: 'MARK_CLEAN' }
+  | { type: 'MARK_CLEAN'; payload?: BuilderPage }
   | { type: 'UNDO' }
   | { type: 'REDO' }
   | { type: 'RESET_PAGE' }
@@ -254,8 +254,13 @@ function reducer(state: BuilderState, action: Action): BuilderState {
     case 'SET_SAVE_ERROR':
       return { ...state, saveError: action.error };
 
-    case 'MARK_CLEAN':
+    case 'MARK_CLEAN': {
+      const savedPage = action.payload;
+      if (savedPage && JSON.stringify(state.page) !== JSON.stringify(savedPage)) {
+        return state;
+      }
       return { ...state, isDirty: false };
+    }
 
     case 'UNDO': {
       if (state.past.length === 0) return state;
@@ -446,28 +451,71 @@ export function BuilderProvider({
   const importPage = useCallback((data: any) => dispatch({ type: 'IMPORT_PAGE', payload: data }), []);
 
   const save = useCallback(async () => {
+    const pageToSave = state.page;
     dispatch({ type: 'SET_SAVING', saving: true });
     dispatch({ type: 'SET_SAVE_ERROR', error: null });
-    try {
-      const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/builder_save.php',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(state.page),
+
+    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    let attempt = 0;
+
+    while (true) {
+      attempt++;
+      try {
+        if (attempt > 1) {
+          dispatch({
+            type: 'SET_SAVE_ERROR',
+            error: `Koneksi lambat/terputus. Mencoba menghubungkan kembali (Percobaan ke-${attempt})...`,
+          });
         }
-      );
-      const json = await res.json();
-      if (json.status === 'success') {
-        dispatch({ type: 'MARK_CLEAN' });
-        dispatch({ type: 'CLEAR_UPLOADED_IMAGES' });
-      } else {
-        dispatch({ type: 'SET_SAVE_ERROR', error: json.message || 'Gagal menyimpan.' });
+
+        // Gunakan AbortController untuk mendeteksi API yang gantung / tidak merespon dalam 8 detik
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const res = await fetch(
+          'https://ccgnimex.my.id/v2/android/ginvite/page/builder_save.php',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pageToSave),
+            signal: controller.signal,
+          }
+        );
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const json = await res.json();
+        if (json.status === 'success') {
+          dispatch({ type: 'MARK_CLEAN', payload: pageToSave });
+          dispatch({ type: 'CLEAR_UPLOADED_IMAGES' });
+          dispatch({ type: 'SET_SAVE_ERROR', error: null });
+          dispatch({ type: 'SET_SAVING', saving: false });
+          break; // Berhasil menyimpan, keluar dari loop!
+        } else {
+          throw new Error(json.message || 'Gagal menyimpan.');
+        }
+      } catch (err: any) {
+        console.warn(`Percobaan simpan ke-${attempt} gagal:`, err);
+        
+        let errorMessage = 'Gagal menyimpan, cek koneksi internet.';
+        if (err.name === 'AbortError') {
+          errorMessage = 'API tidak merespon (Timeout).';
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        
+        dispatch({
+          type: 'SET_SAVE_ERROR',
+          error: `${errorMessage} Mencoba menghubungkan kembali (Percobaan ke-${attempt})...`,
+        });
+
+        // Tunggu 3 detik sebelum mencoba lagi
+        await delay(3000);
       }
-    } catch {
-      dispatch({ type: 'SET_SAVE_ERROR', error: 'Gagal menyimpan, cek koneksi internet.' });
-    } finally {
-      dispatch({ type: 'SET_SAVING', saving: false });
     }
   }, [state.page, userId]);
 

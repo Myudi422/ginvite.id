@@ -148,9 +148,9 @@ export default function BuilderDashboard({ userId }: Props) {
               </span>
             )}
             {saving && (
-              <span className="flex items-center gap-1.5 text-[11px] text-gray-500">
+              <span className={`flex items-center gap-1.5 text-[11px] ${saveError ? 'text-amber-500 font-medium' : 'text-gray-500'}`} title={saveError || undefined}>
                 <Loader2Icon className="h-3.5 w-3.5 animate-spin" />
-                Menyimpan...
+                {saveError ? 'Menghubungkan kembali...' : 'Menyimpan...'}
               </span>
             )}
             {!isDirty && !saving && (
@@ -159,7 +159,7 @@ export default function BuilderDashboard({ userId }: Props) {
                 Tersimpan
               </span>
             )}
-            {saveError && (
+            {saveError && !saving && (
               <span className="flex items-center gap-1.5 text-[11px] text-red-500" title={saveError}>
                 <AlertCircleIcon className="h-3.5 w-3.5" />
                 Gagal
