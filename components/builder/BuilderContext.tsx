@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useCallback, useReducer } from 'react';
 import type { BuilderPage, BuilderSection, SectionType } from './types';
 import { makeId, makeDefaultPage } from './defaults';
+import { deleteImageFromBackblaze } from '@/app/actions/backblaze';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 type BuilderState = {
@@ -16,6 +17,7 @@ type BuilderState = {
   isLoading: boolean;
   connectionError: boolean;
   serverLoadFailed: boolean;
+  sessionUploadedImages: string[];
 };
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -44,7 +46,9 @@ type Action =
   | { type: 'IMPORT_PAGE'; payload: any }
   | { type: 'FETCH_START' }
   | { type: 'FETCH_SUCCESS'; payload: BuilderPage }
-  | { type: 'FETCH_FAILURE' };
+  | { type: 'FETCH_FAILURE' }
+  | { type: 'REGISTER_UPLOADED_IMAGE'; url: string }
+  | { type: 'CLEAR_UPLOADED_IMAGES' };
 
 // ── History Helper ────────────────────────────────────────────────────────────
 function updatePageHistory(state: BuilderState, newPage: BuilderPage): BuilderState {
@@ -289,6 +293,21 @@ function reducer(state: BuilderState, action: Action): BuilderState {
       return updatePageHistory(state, defaultPage);
     }
 
+    case 'REGISTER_UPLOADED_IMAGE': {
+      if (state.sessionUploadedImages.includes(action.url)) return state;
+      return {
+        ...state,
+        sessionUploadedImages: [...state.sessionUploadedImages, action.url]
+      };
+    }
+
+    case 'CLEAR_UPLOADED_IMAGES': {
+      return {
+        ...state,
+        sessionUploadedImages: []
+      };
+    }
+
     case 'IMPORT_PAGE': {
       const data = action.payload;
       if (!data || typeof data !== 'object') return state;
@@ -343,6 +362,7 @@ interface BuilderContextValue {
   importPage: (data: any) => void;
   save: () => Promise<void>;
   retryLoad: () => Promise<void>;
+  registerUploadedImage: (url: string) => void;
 }
 
 const BuilderContext = createContext<BuilderContextValue | null>(null);
@@ -369,6 +389,7 @@ export function BuilderProvider({
     isLoading: false,
     connectionError: serverLoadFailed,
     serverLoadFailed: serverLoadFailed,
+    sessionUploadedImages: [],
   });
 
   const selectSection = useCallback((id: string | null) => dispatch({ type: 'SELECT_SECTION', id }), []);
@@ -401,7 +422,27 @@ export function BuilderProvider({
   
   const undo = useCallback(() => dispatch({ type: 'UNDO' }), []);
   const redo = useCallback(() => dispatch({ type: 'REDO' }), []);
-  const resetPage = useCallback(() => dispatch({ type: 'RESET_PAGE' }), []);
+  
+  const resetPage = useCallback(async () => {
+    const imagesToDelete = [...state.sessionUploadedImages];
+    if (imagesToDelete.length > 0) {
+      Promise.all(
+        imagesToDelete.map(async (url) => {
+          try {
+            await deleteImageFromBackblaze(url);
+            console.log("Successfully deleted uploaded image on page reset:", url);
+          } catch (err) {
+            console.warn("Failed to delete image on page reset:", url, err);
+          }
+        })
+      );
+    }
+    dispatch({ type: 'RESET_PAGE' });
+    dispatch({ type: 'CLEAR_UPLOADED_IMAGES' });
+  }, [state.sessionUploadedImages]);
+
+  const registerUploadedImage = useCallback((url: string) => dispatch({ type: 'REGISTER_UPLOADED_IMAGE', url }), []);
+
   const importPage = useCallback((data: any) => dispatch({ type: 'IMPORT_PAGE', payload: data }), []);
 
   const save = useCallback(async () => {
@@ -419,6 +460,7 @@ export function BuilderProvider({
       const json = await res.json();
       if (json.status === 'success') {
         dispatch({ type: 'MARK_CLEAN' });
+        dispatch({ type: 'CLEAR_UPLOADED_IMAGES' });
       } else {
         dispatch({ type: 'SET_SAVE_ERROR', error: json.message || 'Gagal menyimpan.' });
       }
@@ -463,7 +505,7 @@ export function BuilderProvider({
   }, [serverLoadFailed, retryLoad]);
 
   return (
-    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad }}>
+    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad, registerUploadedImage }}>
       {children}
     </BuilderContext.Provider>
   );

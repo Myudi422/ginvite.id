@@ -155,7 +155,7 @@ export function ImageUploadField({
   onChange: (v: string) => void;
   placeholder?: string;
 }) {
-  const { state } = useBuilder();
+  const { state, registerUploadedImage } = useBuilder();
   const userId = state.page?.user_id;
   
   // Jika page.id tidak tersedia (karena ini Builder yang berbasis slug, bukan id numerik),
@@ -190,6 +190,7 @@ export function ImageUploadField({
       }
 
       onChange(url);
+      registerUploadedImage(url);
     } catch (err: any) {
       alert(err.message || 'Gagal mengunggah gambar');
     } finally {

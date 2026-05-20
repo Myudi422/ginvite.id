@@ -63,7 +63,10 @@ function uploadToBackblaze($file, $userId, $id) {
             'ACL'=>'public-read',
         ]);
 
-        return $result['ObjectURL'];
+        return [
+            'url' => $result['ObjectURL'],
+            'key' => $key
+        ];
     } catch (AwsException $e) {
         return "Error: ".$e->getMessage();
     }
@@ -85,10 +88,22 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['image'])) {
         exit;
     }
 
-    $url = uploadToBackblaze($file, $userId, $id);
-    if (strpos($url,'Error:')===0) {
-        echo json_encode(['success'=>false,'message'=>$url]);
+    $res = uploadToBackblaze($file, $userId, $id);
+    if (is_string($res) && strpos($res,'Error:')===0) {
+        echo json_encode(['success'=>false,'message'=>$res]);
         exit;
+    }
+
+    $url = $res['url'];
+    $key = $res['key'];
+
+    // Simpan data unggahan sementara ke tabel builder_images
+    try {
+        require_once '../db.php';
+        $stmt = $pdo->prepare("INSERT INTO builder_images (user_id, file_url, object_key, is_used) VALUES (?, ?, ?, 0)");
+        $stmt->execute([$userId, $url, $key]);
+    } catch (Exception $e) {
+        // Abaikan jika pencatatan database gagal agar upload tetap berhasil
     }
 
     echo json_encode(['success'=>true,'url'=>$url]);

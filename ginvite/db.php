@@ -21,15 +21,18 @@ try {
         if (!$checkCol->fetch()) {
             try {
                 $pdo->exec("ALTER TABLE invitation_shares ADD COLUMN invitation_type VARCHAR(20) DEFAULT 'legacy' AFTER invitation_id");
-            } catch (Exception $ex) {}
-            
+            } catch (Exception $ex) {
+            }
+
             try {
                 $pdo->exec("ALTER TABLE invitation_shares DROP INDEX unique_share");
-            } catch (Exception $ex) {}
-            
+            } catch (Exception $ex) {
+            }
+
             try {
                 $pdo->exec("ALTER TABLE invitation_shares ADD UNIQUE KEY unique_share (invitation_id, shared_email, invitation_type)");
-            } catch (Exception $ex) {}
+            } catch (Exception $ex) {
+            }
         }
     } catch (Exception $e) {
         // Abaikan jika tabel belum dibuat

@@ -11,7 +11,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
   pernikahan: [
     {
       id: makeId(), type: 'opening', label: 'Sampul Depan', visible: true, order: 0, group: 'opening',
-      props: { title: 'The Wedding Of', name_primary: 'Nama Pengantin Pria', name_secondary: 'Nama Pengantin Wanita', names_size: 36, greeting_text: 'Tanpa Mengurangi Rasa Hormat, Kami Mengundang', to_label: 'Kepada Yth. Bapak/Ibu/Saudara/i', button_text: 'Buka Undangan', bg_image: '', overlay_opacity: 50, show_qr: false, layout_template: 'classic' },
+      props: { title: 'The Wedding Of', name_primary: 'Nama Pengantin Pria', name_secondary: 'Nama Pengantin Wanita', names_size: 36, greeting_text: 'Tanpa Mengurangi Rasa Hormat, Kami Mengundang', to_label: 'Kepada Yth. Bapak/Ibu/Saudara/i', button_text: 'Buka Undangan', bg_type: 'solid', bg_color: '#7e0758', bg_image: '', overlay_opacity: 0, show_qr: false, layout_template: 'classic' },
     },
     {
       id: makeId(), type: 'hero', label: 'Hero / Cover Dalam', visible: true, order: 1, group: 'inner',
@@ -67,7 +67,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
   ulang_tahun: [
     {
       id: makeId(), type: 'opening', label: 'Sampul Depan', visible: true, order: 0, group: 'opening',
-      props: { title: 'You Are Invited', name_primary: 'Nama Pemilik Acara', name_secondary: '', names_size: 36, greeting_text: 'Tanpa Mengurangi Rasa Hormat, Kami Mengundang', to_label: 'Kepada Yth. Bapak/Ibu/Saudara/i', button_text: 'Buka Undangan', bg_image: '', overlay_opacity: 50, show_qr: false, layout_template: 'classic' },
+      props: { title: 'You Are Invited', name_primary: 'Nama Pemilik Acara', name_secondary: '', names_size: 36, greeting_text: 'Tanpa Mengurangi Rasa Hormat, Kami Mengundang', to_label: 'Kepada Yth. Bapak/Ibu/Saudara/i', button_text: 'Buka Undangan', bg_type: 'solid', bg_color: '#7e0758', bg_image: '', overlay_opacity: 0, show_qr: false, layout_template: 'classic' },
     },
     {
       id: makeId(), type: 'hero', label: 'Hero / Cover Dalam', visible: true, order: 1, group: 'inner',
@@ -110,7 +110,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
   khitanan: [
     {
       id: makeId(), type: 'opening', label: 'Sampul Depan', visible: true, order: 0, group: 'opening',
-      props: { title: 'Walimatul Khitan', name_primary: 'Nama Anak', name_secondary: '', names_size: 36, greeting_text: 'Tanpa Mengurangi Rasa Hormat, Kami Mengundang', to_label: 'Kepada Yth. Bapak/Ibu/Saudara/i', button_text: 'Buka Undangan', bg_image: '', overlay_opacity: 50, show_qr: false, layout_template: 'classic' },
+      props: { title: 'Walimatul Khitan', name_primary: 'Nama Anak', name_secondary: '', names_size: 36, greeting_text: 'Tanpa Mengurangi Rasa Hormat, Kami Mengundang', to_label: 'Kepada Yth. Bapak/Ibu/Saudara/i', button_text: 'Buka Undangan', bg_type: 'solid', bg_color: '#7e0758', bg_image: '', overlay_opacity: 0, show_qr: false, layout_template: 'classic' },
     },
     {
       id: makeId(), type: 'hero', label: 'Hero / Cover Dalam', visible: true, order: 1, group: 'inner',
@@ -153,7 +153,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
   custom: [
     {
       id: makeId(), type: 'opening', label: 'Sampul Depan', visible: true, order: 0, group: 'opening',
-      props: { title: 'Undangan Spesial', name_primary: 'Nama Acara', name_secondary: '', names_size: 36, greeting_text: 'Tanpa Mengurangi Rasa Hormat, Kami Mengundang', to_label: 'Kepada Yth. Bapak/Ibu/Saudara/i', button_text: 'Buka Undangan', bg_image: '', overlay_opacity: 50, show_qr: false, layout_template: 'classic' },
+      props: { title: 'Undangan Spesial', name_primary: 'Nama Acara', name_secondary: '', names_size: 36, greeting_text: 'Tanpa Mengurangi Rasa Hormat, Kami Mengundang', to_label: 'Kepada Yth. Bapak/Ibu/Saudara/i', button_text: 'Buka Undangan', bg_type: 'solid', bg_color: '#7e0758', bg_image: '', overlay_opacity: 0, show_qr: false, layout_template: 'classic' },
     },
     {
       id: makeId(), type: 'hero', label: 'Hero / Cover Dalam', visible: true, order: 1, group: 'inner',
