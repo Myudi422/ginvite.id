@@ -1,14 +1,19 @@
 'use client';
 import React, { useState } from 'react';
-import { Field, Input, Toggle, FieldGroup, Select, AddButton, ImageUploadField } from '../ui/EditorFields';
+import { Field, Input, Toggle, FieldGroup, Select, AddButton, ImageUploadField, ColorInput } from '../ui/EditorFields';
+import ImagePicker from '../ui/ImagePicker';
+import { deleteImageFromBackblaze } from '@/app/actions/backblaze';
+import GradientAngleWheel from '../ui/GradientAngleWheel';
 import { 
   ChevronDown, 
   Type, 
   Image as ImageIcon, 
   Maximize2, 
   Sparkles, 
-  Settings 
+  Settings,
+  Trash2
 } from 'lucide-react';
+import type { HeroProps } from '../types';
 
 interface P { props: Record<string, unknown>; onChange: (p: Record<string, unknown>) => void; }
 
@@ -94,29 +99,35 @@ export default function HeroEditor({ props, onChange }: P) {
     setOpenGroups(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const rawBgType      = p<string>('bg_type')         ?? 'solid';
-  const bgImage        = p<string>('bg_image')        ?? '';
-  const bgImages       = p<string[]>('bg_images')     ?? [''];
-  const bgSlideEffect  = p<string>('bg_slide_effect') ?? 'fade';
-  const bgSlideSpeed   = p<number>('bg_slide_speed')  ?? 5;
+  const typedProps = props as unknown as any;
 
-  // Resolve bgType for UI dropdown selector (support legacy single/multi)
-  let bgType = rawBgType;
-  if (bgType === 'single') {
-    bgType = bgImage ? 'image' : 'gradient';
-  } else if (bgType === 'multi') {
-    bgType = 'image';
-  }
+  const bgType = typedProps.bg_type || 'image';
+  const bgColor = typedProps.bg_color || '';
+  const bgColor2 = typedProps.bg_color2 || '';
+  const bgImage = typedProps.bg_image || '';
+  
+  // Blur & Grayscale
+  const bgImageBlur = typedProps.bg_image_blur ?? (typedProps.bg_blur as number ?? 0);
+  const bgImageGrayscale = typedProps.bg_image_grayscale ?? false;
 
-  // Resolve image mode for UI dropdown selector
-  const bgImageMode = p<string>('bg_image_mode') || (rawBgType === 'multi' ? 'multi' : 'single');
+  // Slideshow
+  const slideshowImages = typedProps.bg_slideshow_images || (typedProps.bg_images as string[]) || [];
+  const slideshowAnimation = typedProps.bg_slideshow_animation || (typedProps.bg_slide_effect as any) || 'fade';
+  const slideshowDuration = typedProps.bg_slideshow_duration ?? (typedProps.bg_slide_speed as number ?? 5);
 
-  const overlayType    = p<string>('overlay_type')    ?? 'solid';
-  const overlayOpacity = p<number>('overlay_opacity') ?? 0.4;
-  const overlayColor   = p<string>('overlay_color')   ?? '#000000';
-  const overlayColor2  = p<string>('overlay_color2')  ?? '#9333ea';
-  const overlayAngle   = p<number>('overlay_angle')   ?? 135;
-  const overlayPattern = p<string>('overlay_pattern') ?? '';
+  const overlayType = (typedProps.overlay_type || 'solid') as 'solid' | 'gradient';
+  const overlayColor = typedProps.overlay_color || '#000000';
+  const overlayColor2 = typedProps.overlay_color2 || '#000000';
+  
+  const rawOverlayOpacity = typedProps.overlay_opacity ?? 40;
+  const overlayOpacity = typeof rawOverlayOpacity === 'number'
+    ? (rawOverlayOpacity <= 1 && rawOverlayOpacity > 0 ? Math.round(rawOverlayOpacity * 100) : rawOverlayOpacity)
+    : 40;
+
+  const overlayOpacity2 = typedProps.overlay_opacity2 ?? 0;
+  const overlayGradientAngle = typedProps.overlay_gradient_angle ?? (typedProps.overlay_angle as number ?? 180);
+  const overlayPattern = typedProps.overlay_pattern ?? '';
+
   const heightValue    = p<string>('height')          ?? '480';
   const isCustomHeight = !HEIGHT_OPTIONS.slice(0, -1).map(o => o.value).includes(heightValue);
 
@@ -131,24 +142,6 @@ export default function HeroEditor({ props, onChange }: P) {
   // Animation state
   const overlayAnim    = p<string>('overlay_anim')    ?? 'none';
   const overlaySpeed   = p<number>('overlay_speed')   ?? 3;
-
-  // Update image inside array list
-  const handleBgImageChange = (index: number, val: string) => {
-    const list = [...bgImages];
-    list[index] = val;
-    set('bg_images', list);
-  };
-
-  // Add image item
-  const handleAddBgImage = () => {
-    set('bg_images', [...bgImages, '']);
-  };
-
-  // Remove image item
-  const handleRemoveBgImage = (index: number) => {
-    const list = bgImages.filter((_, idx) => idx !== index);
-    set('bg_images', list.length > 0 ? list : ['']);
-  };
 
   // Render Accordion Header Helper dengan Lucide Icons
   const renderHeader = (key: string, title: string, Icon: React.ComponentType<{ className?: string }>) => {
@@ -247,69 +240,45 @@ export default function HeroEditor({ props, onChange }: P) {
         {openGroups.media && (
           <div className="p-3 bg-white border border-gray-100 rounded-2xl space-y-4 shadow-sm">
             <Field label="Tipe Latar Belakang">
-              <Select value={bgType} onChange={v => set('bg_type', v)} options={BG_TYPES} />
+              <Select
+                value={bgType || 'image'}
+                onChange={v => set('bg_type', v)}
+                options={[
+                  { value: 'solid', label: 'Warna Solid' },
+                  { value: 'gradient', label: 'Gradasi Warna' },
+                  { value: 'image', label: 'Foto Single' },
+                  { value: 'slideshow', label: 'Foto Slideshow' },
+                ]}
+              />
             </Field>
 
-            {/* 1. SOLID COLOR MODE */}
             {bgType === 'solid' && (
-              <Field label="Warna Background">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={p<string>('bg_solid_color') || '#e879a0'}
-                    onChange={e => set('bg_solid_color', e.target.value)}
-                    className="h-9 w-12 rounded-lg border border-gray-200 cursor-pointer p-0.5"
-                  />
-                  <Input 
-                    value={p<string>('bg_solid_color') || ''} 
-                    onChange={v => set('bg_solid_color', v)} 
-                    placeholder="Default: #e879a0" 
-                  />
-                </div>
+              <Field label="Warna Latar Belakang">
+                <ColorInput
+                  value={bgColor || '#ffffff'}
+                  onChange={v => set('bg_color', v)}
+                />
               </Field>
             )}
 
-            {/* 2. GRADIENT MODE */}
             {bgType === 'gradient' && (
-              <div className="p-3 bg-gray-50/50 border border-gray-150 rounded-2xl space-y-3">
-                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Warna Latar Belakang Gradient</p>
-                
-                <Field label="Warna Gradient 1 (Dari)">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={p<string>('bg_color') || '#e879a0'}
-                      onChange={e => set('bg_color', e.target.value)}
-                      className="h-9 w-12 rounded-lg border border-gray-200 cursor-pointer p-0.5"
-                    />
-                    <Input 
-                      value={p<string>('bg_color') || ''} 
-                      onChange={v => set('bg_color', v)} 
-                      placeholder="Default: Aksen Halaman" 
-                    />
-                  </div>
+              <div className="space-y-4">
+                <Field label="Warna Gradasi 1">
+                  <ColorInput
+                    value={bgColor || '#ff7e5f'}
+                    onChange={v => set('bg_color', v)}
+                  />
                 </Field>
-
-                <Field label="Warna Gradient 2 (Ke)">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={p<string>('bg_color2') || '#9333ea'}
-                      onChange={e => set('bg_color2', e.target.value)}
-                      className="h-9 w-12 rounded-lg border border-gray-200 cursor-pointer p-0.5"
-                    />
-                    <Input 
-                      value={p<string>('bg_color2') || ''} 
-                      onChange={v => set('bg_color2', v)} 
-                      placeholder="Default: #9333ea" 
-                    />
-                  </div>
+                <Field label="Warna Gradasi 2">
+                  <ColorInput
+                    value={bgColor2 || '#feb47b'}
+                    onChange={v => set('bg_color2', v)}
+                  />
                 </Field>
-
-                <Field label={`Sudut Gradient: ${p<number>('bg_angle') ?? 135}°`}>
+                <Field label={`Sudut Gradasi: ${typedProps.bg_angle ?? 135}°`}>
                   <input
                     type="range" min={0} max={360} step={15}
-                    value={p<number>('bg_angle') ?? 135}
+                    value={typedProps.bg_angle ?? 135}
                     onChange={e => set('bg_angle', parseInt(e.target.value))}
                     className="w-full accent-pink-500 cursor-pointer"
                   />
@@ -317,71 +286,143 @@ export default function HeroEditor({ props, onChange }: P) {
               </div>
             )}
 
-            {/* 3. IMAGE MODE */}
-            {bgType === 'image' && (
+            {(bgType === 'image' || !bgType) && (
+              <Field label="Foto Background Cover">
+                <ImagePicker
+                  value={bgImage || ''}
+                  onChange={v => set('bg_image', v)}
+                />
+              </Field>
+            )}
+
+            {bgType === 'slideshow' && (
               <div className="space-y-4">
-                <Field label="Tipe Gambar">
-                  <Select 
-                    value={bgImageMode} 
-                    onChange={v => set('bg_image_mode', v)} 
-                    options={IMAGE_MODES} 
+                <Field label="Daftar Foto Slideshow">
+                  <div className="space-y-3">
+                    {(slideshowImages || []).map((imgUrl: string, idx: number) => (
+                      <div key={idx} className="flex gap-2 items-center bg-gray-50/50 p-2.5 rounded-2xl border border-gray-100">
+                        <div className="flex-1 min-w-0">
+                          <ImagePicker
+                            value={imgUrl}
+                            onChange={(v: string, isNew?: boolean) => {
+                              const newImages = [...(slideshowImages || [])];
+                              newImages[idx] = v;
+
+                              if (isNew) {
+                                const newUploaded = [...(typedProps.bg_new_uploaded_images || [])];
+                                newUploaded.push(v);
+                                onChange({
+                                  ...props,
+                                  bg_slideshow_images: newImages,
+                                  bg_new_uploaded_images: newUploaded
+                                });
+                              } else {
+                                set('bg_slideshow_images', newImages);
+                              }
+                            }}
+                            label={`Foto #${idx + 1}`}
+                          />
+                        </div>
+                        {!imgUrl && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const slideUrl = imgUrl;
+                              const newUploadedList = typedProps.bg_new_uploaded_images || [];
+                              const isNew = newUploadedList.includes(slideUrl);
+
+                              if (slideUrl && isNew) {
+                                try {
+                                  await deleteImageFromBackblaze(slideUrl);
+                                } catch (err) {
+                                  console.warn("Gagal menghapus gambar dari server:", err);
+                                }
+                              }
+
+                              const newImages = (slideshowImages || []).filter((_: string, i: number) => i !== idx);
+                              const updatedUploaded = newUploadedList.filter((u: string) => u !== slideUrl);
+
+                              onChange({
+                                ...props,
+                                bg_slideshow_images: newImages,
+                                bg_new_uploaded_images: updatedUploaded
+                              });
+                            }}
+                            className="p-2.5 text-red-500 hover:text-red-700 bg-white border border-gray-100 rounded-xl flex-shrink-0 transition-colors"
+                            title="Hapus Foto"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+
+                    {(slideshowImages || []).length < 3 ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newImages = [...(slideshowImages || []), ''];
+                          set('bg_slideshow_images', newImages);
+                        }}
+                        className="w-full py-2.5 rounded-xl border border-dashed border-pink-200 text-pink-500 font-bold text-xs hover:bg-pink-50 transition-all flex items-center justify-center gap-1.5"
+                      >
+                        + Tambah Foto Slideshow
+                      </button>
+                    ) : (
+                      <p className="text-[10px] text-gray-400 font-medium italic text-center py-1 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        Batas maksimal slideshow tercapai (Maksimal 3 foto).
+                      </p>
+                    )}
+                  </div>
+                </Field>
+
+                <Field label="Pilihan Animasi Slideshow">
+                  <Select
+                    value={slideshowAnimation || 'fade'}
+                    onChange={v => set('bg_slideshow_animation', v)}
+                    options={[
+                      { value: 'fade', label: 'Fade (Pudar)' },
+                      { value: 'zoom', label: 'Zoom (Ken Burns Effect)' },
+                      { value: 'slide', label: 'Slide (Geser)' },
+                    ]}
                   />
                 </Field>
 
-                {bgImageMode === 'single' ? (
-                  <Field label="URL Foto Background">
-                    <ImageUploadField value={bgImage} onChange={v => set('bg_image', v)} placeholder="https://..." />
-                  </Field>
-                ) : (
-                  <div className="space-y-3">
-                    <label className="text-xs font-semibold text-gray-600 block">Daftar Foto Slideshow</label>
-                    <div className="space-y-2">
-                      {bgImages.map((imgUrl, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <ImageUploadField 
-                              value={imgUrl} 
-                              onChange={v => handleBgImageChange(idx, v)} 
-                              placeholder={`Foto URL ${idx + 1}`} 
-                            />
-                          </div>
-                          <button 
-                            type="button" 
-                            onClick={() => handleRemoveBgImage(idx)}
-                            className="p-2 border border-red-100 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-700 font-bold transition-all text-xs"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <AddButton label="Tambah Foto Slideshow" onClick={handleAddBgImage} />
-
-                    <Field label="Efek Transisi Slideshow">
-                      <Select value={bgSlideEffect} onChange={v => set('bg_slide_effect', v)} options={SLIDE_EFFECTS} />
-                    </Field>
-
-                    <Field label={`Durasi Per Slide: ${bgSlideSpeed} detik`}>
-                      <input
-                        type="range" min={2} max={10} step={1}
-                        value={bgSlideSpeed}
-                        onChange={e => set('bg_slide_speed', parseInt(e.target.value))}
-                        className="w-full accent-pink-500 cursor-pointer"
-                      />
-                    </Field>
-                  </div>
-                )}
+                <Field label={`Durasi per Slide: ${slideshowDuration ?? 5} detik`}>
+                  <input
+                    type="range" min={2} max={10} step={1}
+                    value={slideshowDuration ?? 5}
+                    onChange={e => set('bg_slideshow_duration', parseInt(e.target.value))}
+                    className="w-full accent-pink-500 cursor-pointer"
+                  />
+                </Field>
               </div>
             )}
 
-            <Field label={`Blur Background: ${p<number>('bg_blur') ?? 0}px`} hint="Efek blur pada foto background">
-              <input
-                type="range" min={0} max={20} step={1}
-                value={p<number>('bg_blur') ?? 0}
-                onChange={e => set('bg_blur', parseInt(e.target.value))}
-                className="w-full accent-pink-500 cursor-pointer"
-              />
-            </Field>
+            {(bgType === 'image' || bgType === 'slideshow' || !bgType) && (
+              <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-4 mt-2">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Efek Foto Latar Belakang</p>
+                <Field label={`Efek Blur: ${bgImageBlur ?? 0}px`}>
+                  <input
+                    type="range" min={0} max={20} step={1}
+                    value={bgImageBlur ?? 0}
+                    onChange={e => set('bg_image_blur', parseInt(e.target.value))}
+                    className="w-full accent-pink-500 cursor-pointer"
+                  />
+                </Field>
+
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-700">Hitam & Putih (Black & White)</p>
+                    <p className="text-[10px] text-gray-400">Ubah foto menjadi grayscale</p>
+                  </div>
+                  <Toggle
+                    checked={bgImageGrayscale ?? false}
+                    onChange={v => set('bg_image_grayscale', v)}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -470,91 +511,109 @@ export default function HeroEditor({ props, onChange }: P) {
         {openGroups.overlay && (
           <div className="p-3 bg-white border border-gray-100 rounded-2xl space-y-4 shadow-sm">
             <Field label="Tipe Overlay">
-              <Select value={overlayType} onChange={v => set('overlay_type', v)} options={OVERLAY_TYPES} />
+              <Select
+                value={overlayType || 'solid'}
+                onChange={v => set('overlay_type', v)}
+                options={[
+                  { value: 'solid', label: 'Warna Solid' },
+                  { value: 'gradient', label: 'Gradasi Warna' },
+                ]}
+              />
             </Field>
 
-            {overlayType !== 'none' && (
-              <>
-                <Field label={`Transparansi Overlay: ${Math.round(overlayOpacity * 100)}%`}>
-                  <input
-                    type="range" min={0} max={1} step={0.05}
-                    value={overlayOpacity}
-                    onChange={e => set('overlay_opacity', parseFloat(e.target.value))}
-                    className="w-full accent-pink-500 cursor-pointer"
+            {/* Solid Overlay Settings */}
+            {(overlayType === 'solid' || !overlayType) && (
+              <div className="space-y-4">
+                <Field label="Warna Overlay">
+                  <ColorInput
+                    value={overlayColor || '#000000'}
+                    onChange={v => set('overlay_color', v)}
                   />
                 </Field>
 
-                <Field label="Animasi Efek Transisi Opacity">
-                  <Select value={overlayAnim} onChange={v => set('overlay_anim', v)} options={ANIMATION_TYPES} />
+                <Field label={`Kegelapan Overlay: ${overlayOpacity ?? 50}%`}>
+                  <input
+                    type="range" min={0} max={100} step={5}
+                    value={overlayOpacity ?? 50}
+                    onChange={e => set('overlay_opacity', parseInt(e.target.value))}
+                    className="w-full accent-pink-500 cursor-pointer"
+                  />
                 </Field>
+              </div>
+            )}
 
-                {overlayAnim !== 'none' && (
-                  <Field label={`Durasi Animasi: ${overlaySpeed} detik`}>
+            {/* Gradient Overlay Settings */}
+            {overlayType === 'gradient' && (
+              <div className="space-y-4">
+                <div className="p-2.5 bg-white border border-gray-100 rounded-xl space-y-3 shadow-sm">
+                  <p className="text-[10px] font-bold text-pink-500 uppercase tracking-wider">Gradasi Titik Awal (Atas)</p>
+                  <Field label="Warna Awal">
+                    <ColorInput
+                      value={overlayColor || '#000000'}
+                      onChange={v => set('overlay_color', v)}
+                    />
+                  </Field>
+                  <Field label={`Kegelapan Awal: ${overlayOpacity ?? 50}%`}>
                     <input
-                      type="range" min={1} max={10} step={0.5}
-                      value={overlaySpeed}
-                      onChange={e => set('overlay_speed', parseFloat(e.target.value))}
+                      type="range" min={0} max={100} step={5}
+                      value={overlayOpacity ?? 50}
+                      onChange={e => set('overlay_opacity', parseInt(e.target.value))}
                       className="w-full accent-pink-500 cursor-pointer"
                     />
                   </Field>
-                )}
-              </>
-            )}
-
-            {overlayType === 'solid' && (
-              <Field label="Warna Overlay">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={overlayColor}
-                    onChange={e => set('overlay_color', e.target.value)}
-                    className="h-9 w-12 rounded-lg border border-gray-200 cursor-pointer p-0.5"
-                  />
-                  <Input value={overlayColor} onChange={v => set('overlay_color', v)} placeholder="#000000" />
                 </div>
-              </Field>
+
+                <div className="p-2.5 bg-white border border-gray-100 rounded-xl space-y-3 shadow-sm">
+                  <p className="text-[10px] font-bold text-pink-500 uppercase tracking-wider">Gradasi Titik Akhir (Bawah)</p>
+                  <Field label="Warna Akhir">
+                    <ColorInput
+                      value={overlayColor2 || '#000000'}
+                      onChange={v => set('overlay_color2', v)}
+                    />
+                  </Field>
+                  <Field label={`Kegelapan Akhir: ${overlayOpacity2 ?? 0}%`}>
+                    <input
+                      type="range" min={0} max={100} step={5}
+                      value={overlayOpacity2 ?? 0}
+                      onChange={e => set('overlay_opacity2', parseInt(e.target.value))}
+                      className="w-full accent-pink-500 cursor-pointer"
+                    />
+                  </Field>
+                </div>
+
+                <div className="p-2.5 bg-white border border-gray-100 rounded-xl space-y-3 shadow-sm">
+                  <p className="text-[10px] font-bold text-pink-500 uppercase tracking-wider">Arah & Sudut Gradasi</p>
+                  <GradientAngleWheel
+                    value={overlayGradientAngle ?? 180}
+                    onChange={v => set('overlay_gradient_angle', v)}
+                  />
+                </div>
+              </div>
             )}
 
-            {overlayType === 'pattern' && (
-              <Field label="URL Gambar / Pattern Overlay" hint="Masukkan URL gambar transparan / png motif / pattern grid">
-                <ImageUploadField value={overlayPattern} onChange={v => set('overlay_pattern', v)} placeholder="https://example.com/overlay-pattern.png" />
+            {/* Legacy Animations & Speed */}
+            <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-4 mt-2">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Animasi & Transisi Overlay</p>
+              
+              <Field label="Animasi Efek Transisi Opacity">
+                <Select value={overlayAnim} onChange={v => set('overlay_anim', v)} options={ANIMATION_TYPES} />
               </Field>
-            )}
 
-            {overlayType === 'gradient' && (
-              <>
-                <Field label="Warna Gradient 1 (Dari)">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={overlayColor}
-                      onChange={e => set('overlay_color', e.target.value)}
-                      className="h-9 w-12 rounded-lg border border-gray-200 cursor-pointer p-0.5"
-                    />
-                    <Input value={overlayColor} onChange={v => set('overlay_color', v)} placeholder="#000000" />
-                  </div>
-                </Field>
-                <Field label="Warna Gradient 2 (Ke)">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={overlayColor2}
-                      onChange={e => set('overlay_color2', e.target.value)}
-                      className="h-9 w-12 rounded-lg border border-gray-200 cursor-pointer p-0.5"
-                    />
-                    <Input value={overlayColor2} onChange={v => set('overlay_color2', v)} placeholder="#9333ea" />
-                  </div>
-                </Field>
-                <Field label={`Sudut Gradient: ${overlayAngle}°`}>
+              {overlayAnim !== 'none' && (
+                <Field label={`Durasi Animasi: ${overlaySpeed} detik`}>
                   <input
-                    type="range" min={0} max={360} step={15}
-                    value={overlayAngle}
-                    onChange={e => set('overlay_angle', parseInt(e.target.value))}
+                    type="range" min={1} max={10} step={0.5}
+                    value={overlaySpeed}
+                    onChange={e => set('overlay_speed', parseFloat(e.target.value))}
                     className="w-full accent-pink-500 cursor-pointer"
                   />
                 </Field>
-              </>
-            )}
+              )}
+            </div>
+
+            <p className="text-[10px] text-gray-400 mt-1">
+              Overlay membantu meredupkan latar belakang agar teks undangan kontras dan lebih mudah terbaca.
+            </p>
           </div>
         )}
       </div>

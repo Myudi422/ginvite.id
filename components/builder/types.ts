@@ -104,6 +104,22 @@ export interface HeroProps {
   name_primary: string;
   name_secondary: string;
   show_scroll_hint: boolean;
+  
+  // Unified background/overlay settings from OpeningProps
+  bg_type?: 'solid' | 'gradient' | 'image' | 'slideshow';
+  bg_color?: string;
+  bg_color2?: string;
+  bg_image_blur?: number;
+  bg_image_grayscale?: boolean;
+  bg_slideshow_images?: string[];
+  bg_slideshow_animation?: 'fade' | 'zoom' | 'slide';
+  bg_slideshow_duration?: number;
+  overlay_type?: 'solid' | 'gradient';
+  overlay_color?: string;
+  overlay_color2?: string;
+  overlay_opacity2?: number;
+  overlay_gradient_angle?: number;
+  bg_new_uploaded_images?: string[];
 }
 
 export interface CountdownProps {

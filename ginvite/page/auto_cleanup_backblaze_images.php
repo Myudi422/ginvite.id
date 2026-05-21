@@ -3,7 +3,7 @@
 // Jalankan via cron job setiap 1 jam
 
 require __DIR__ . '/../db.php';
-require __DIR__ . '/../../../vendor/autoload.php'; // Path ke Composer vendor autoload
+require __DIR__ . '/../../../../vendor/autoload.php'; // Path ke Composer vendor autoload
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;

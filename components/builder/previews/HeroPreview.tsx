@@ -8,65 +8,32 @@ interface PreviewProps {
 }
 
 export default function HeroPreview({ props, style }: PreviewProps) {
-  const greeting      = props.greeting         as string  || 'The Wedding of';
-  const namePrimary   = props.name_primary     as string  || 'Nama Utama';
-  const nameSecondary = props.name_secondary   as string  || '';
-  const showScrollHint= (props.show_scroll_hint as boolean) ?? true;
+  const typedProps = props as unknown as any;
+
+  const greeting      = typedProps.greeting         || 'The Wedding of';
+  const namePrimary   = typedProps.name_primary     || 'Nama Utama';
+  const nameSecondary = typedProps.name_secondary   || '';
+  const showScrollHint= (typedProps.show_scroll_hint as boolean) ?? true;
 
   // ── Text Customizer Options ──────────────────────────────────────────────
-  const greetingSize  = (props.greeting_size   as number) ?? 12;
-  const namesSize     = (props.names_size      as number) ?? 36;
-  const textAnim      = props.text_anim        as string  || 'none';
-  const textAnimDur   = (props.text_anim_duration as number) ?? 1;
-  const alignV        = props.align_vertical   as string  || 'center';
-  const alignH        = props.align_horizontal as string  || 'center';
-
-  // ── Background Configuration ─────────────────────────────────────────────
-  const bgType        = props.bg_type         as string  ?? 'single';
-  const bgImage       = props.bg_image        as string  || '';
-  const bgImages      = (props.bg_images      as string[] || []).filter(Boolean);
-  const bgSlideEffect = props.bg_slide_effect as string  ?? 'fade';
-  const bgSlideSpeed  = (props.bg_slide_speed  as number)  ?? 5;
-  const bgBlur        = (props.bg_blur        as number)  ?? 0;
-  
-  const bgColor       = props.bg_color        as string  || '';
-  const bgColor2      = props.bg_color2       as string  || '#9333ea';
-  const bgAngle       = (props.bg_angle       as number)  ?? 135;
-  const bgSolidColor  = props.bg_solid_color  as string  || '';
-
-  // Slideshow active index state
-  const [activeIdx, setActiveIdx] = useState(0);
-
-  // Resolve legacy background type ('single' / 'multi') dynamically
-  let resolvedBgType = bgType;
-  if (resolvedBgType === 'single') {
-    resolvedBgType = bgImage ? 'image' : 'gradient';
-  } else if (resolvedBgType === 'multi') {
-    resolvedBgType = 'image';
-  }
-
-  // Resolve image mode (single photo vs slideshow)
-  const bgImageMode = props.bg_image_mode as string || (bgType === 'multi' ? 'multi' : 'single');
-
-  useEffect(() => {
-    if (resolvedBgType !== 'image' || bgImageMode !== 'multi' || bgImages.length <= 1) return;
-    const interval = setInterval(() => {
-      setActiveIdx(prev => (prev + 1) % bgImages.length);
-    }, bgSlideSpeed * 1000);
-    return () => clearInterval(interval);
-  }, [resolvedBgType, bgImageMode, bgImages.length, bgSlideSpeed]);
+  const greetingSize  = (typedProps.greeting_size   as number) ?? 12;
+  const namesSize     = (typedProps.names_size      as number) ?? 36;
+  const textAnim      = typedProps.text_anim        as string  || 'none';
+  const textAnimDur   = (typedProps.text_anim_duration as number) ?? 1;
+  const alignV        = typedProps.align_vertical   as string  || 'center';
+  const alignH        = typedProps.align_horizontal as string  || 'center';
 
   // ── Height ───────────────────────────────────────────────────────────────
-  const rawHeight = props.height as string ?? '480';
+  const rawHeight = typedProps.height as string ?? '480';
   const minHeight = /^\d+$/.test(rawHeight) ? `${rawHeight}px` : rawHeight;
 
   // ── Border Radius (Melengkung) ───────────────────────────────────────────
-  const roundedType = props.rounded_type as string ?? 'all';
-  const roundedAll  = (props.rounded_all as number) ?? 0;
-  const roundedTL   = (props.rounded_tl as number) ?? 0;
-  const roundedTR   = (props.rounded_tr as number) ?? 0;
-  const roundedBL   = (props.rounded_bl as number) ?? 0;
-  const roundedBR   = (props.rounded_br as number) ?? 0;
+  const roundedType = typedProps.rounded_type as string ?? 'all';
+  const roundedAll  = (typedProps.rounded_all as number) ?? 0;
+  const roundedTL   = (typedProps.rounded_tl as number) ?? 0;
+  const roundedTR   = (typedProps.rounded_tr as number) ?? 0;
+  const roundedBL   = (typedProps.rounded_bl as number) ?? 0;
+  const roundedBR   = (typedProps.rounded_br as number) ?? 0;
 
   let borderRadius = '0px';
   if (roundedType === 'all') {
@@ -75,59 +42,113 @@ export default function HeroPreview({ props, style }: PreviewProps) {
     borderRadius = `${roundedTL}px ${roundedTR}px ${roundedBR}px ${roundedBL}px`;
   }
 
-  // ── Overlay ──────────────────────────────────────────────────────────────
-  const overlayType    = props.overlay_type    as string  ?? 'solid';
-  const overlayOpacity = (props.overlay_opacity as number) ?? 0.4;
-  const overlayColor   = props.overlay_color   as string  ?? '#000000';
-  const overlayColor2  = props.overlay_color2  as string  ?? '#9333ea';
-  const overlayAngle   = (props.overlay_angle  as number) ?? 135;
-  const overlayPattern = props.overlay_pattern as string  ?? '';
-
-  // Animation & Transition
-  const overlayAnim    = props.overlay_anim    as string  ?? 'none';
-  const overlaySpeed   = (props.overlay_speed   as number) ?? 3;
-
-  function hexToRgba(hex: string, alpha: number) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r},${g},${b},${alpha})`;
+  // ── Unified & Legacy Background Configuration ────────────────────────────
+  const bgType = typedProps.bg_type || 'image';
+  let resolvedBgType = bgType;
+  if (resolvedBgType === 'single') {
+    resolvedBgType = typedProps.bg_image ? 'image' : 'solid';
+  } else if (resolvedBgType === 'multi') {
+    resolvedBgType = 'slideshow';
   }
+
+  const bgColor = typedProps.bg_color || '';
+  const bgColor2 = typedProps.bg_color2 || '';
+  const bgImage = typedProps.bg_image || '';
+  
+  // Blur & Grayscale
+  const bgImageBlur = typedProps.bg_image_blur ?? (typedProps.bg_blur as number ?? 0);
+  const bgImageGrayscale = typedProps.bg_image_grayscale ?? false;
+
+  // Slideshow
+  const slideshowImages = typedProps.bg_slideshow_images || (typedProps.bg_images as string[]) || [];
+  const slideshowAnimation = typedProps.bg_slideshow_animation || (typedProps.bg_slide_effect as 'fade' | 'zoom' | 'slide') || 'fade';
+  const slideshowDuration = typedProps.bg_slideshow_duration ?? (typedProps.bg_slide_speed as number ?? 5);
+
+  const [activeSlide, setActiveSlide] = useState(0);
+  const validSlides = slideshowImages.filter(Boolean);
+
+  useEffect(() => {
+    if (resolvedBgType !== 'slideshow' && resolvedBgType !== 'multi' && bgType !== 'slideshow') return;
+    if (validSlides.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveSlide(prev => (prev + 1) % validSlides.length);
+    }, slideshowDuration * 1000);
+    return () => clearInterval(interval);
+  }, [resolvedBgType, bgType, validSlides.length, slideshowDuration]);
+
+  // ── Unified & Legacy Overlay Configuration ───────────────────────────────
+  const overlayType = (typedProps.overlay_type || 'solid') as 'solid' | 'gradient' | 'none' | 'pattern';
+  const overlayColor = typedProps.overlay_color || '#000000';
+  const overlayColor2 = typedProps.overlay_color2 || '#000000';
+  
+  const rawOverlayOpacity = typedProps.overlay_opacity ?? 40;
+  const overlayOpacity = typeof rawOverlayOpacity === 'number'
+    ? (rawOverlayOpacity <= 1 && rawOverlayOpacity > 0 ? rawOverlayOpacity * 100 : rawOverlayOpacity)
+    : 40;
+
+  const overlayOpacity2 = typedProps.overlay_opacity2 ?? 0;
+  const overlayGradientAngle = typedProps.overlay_gradient_angle ?? (typedProps.overlay_angle as number ?? 180);
+
+  // Helper to convert hex to hex-alpha
+  const getHexWithOpacity = (hex: string, opacityPercent: number): string => {
+    if (!hex) return '';
+    let clean = hex.trim();
+    if (!clean.startsWith('#')) {
+      clean = '#' + clean;
+    }
+    if (clean.length === 4) {
+      const r = clean[1];
+      const g = clean[2];
+      const b = clean[3];
+      clean = `#${r}${r}${g}${g}${b}${b}`;
+    }
+    if (clean.length > 7) {
+      clean = clean.slice(0, 7);
+    }
+    const opacityHex = Math.round((opacityPercent / 100) * 255).toString(16).padStart(2, '0');
+    return `${clean}${opacityHex}`;
+  };
+
+  // Legacy Animations (Still supported!)
+  const overlayAnim = typedProps.overlay_anim as string ?? 'none';
+  const overlaySpeed = (typedProps.overlay_speed as number) ?? 3;
+  const animationClassName = overlayAnim !== 'none' ? `hero-overlay-anim-${overlayAnim}` : '';
 
   let overlayStyle: React.CSSProperties = {
     borderRadius,
     transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s ease, background 0.5s ease',
+    pointerEvents: 'none',
   };
 
-  if (overlayType === 'solid') {
-    overlayStyle = { 
-      ...overlayStyle,
-      backgroundColor: hexToRgba(overlayColor, overlayOpacity) 
-    };
-  } else if (overlayType === 'gradient') {
-    const c1 = hexToRgba(overlayColor,  overlayOpacity);
-    const c2 = hexToRgba(overlayColor2, overlayOpacity);
-    overlayStyle = { 
-      ...overlayStyle,
-      background: `linear-gradient(${overlayAngle}deg, ${c1} 0%, ${c2} 100%)` 
-    };
-  } else if (overlayType === 'pattern' && overlayPattern) {
+  if (overlayType === 'gradient') {
     overlayStyle = {
       ...overlayStyle,
-      backgroundImage: `url(${overlayPattern})`,
+      backgroundImage: `linear-gradient(${overlayGradientAngle}deg, ${getHexWithOpacity(overlayColor, overlayOpacity)}, ${getHexWithOpacity(overlayColor2, overlayOpacity2)})`,
+      zIndex: 2,
+    };
+  } else if ((overlayType as string) === 'pattern' && typedProps.overlay_pattern) {
+    overlayStyle = {
+      ...overlayStyle,
+      backgroundImage: `url(${typedProps.overlay_pattern})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-      opacity: overlayOpacity,
+      opacity: overlayOpacity / 100,
+      zIndex: 2,
+    };
+  } else {
+    overlayStyle = {
+      ...overlayStyle,
+      backgroundColor: overlayColor,
+      opacity: overlayOpacity / 100,
+      zIndex: 2,
     };
   }
-
-  const animationClassName = overlayAnim !== 'none' ? `hero-overlay-anim-${overlayAnim}` : '';
 
   // ── Render Background Layers ─────────────────────────────────────────────
   const renderBackgrounds = () => {
     // 1. SOLID COLOR MODE
     if (resolvedBgType === 'solid') {
-      const color = bgSolidColor || (style.accent_color as string) || '#e879a0';
+      const color = bgColor || typedProps.bg_solid_color || (style.accent_color as string) || '#e879a0';
       return (
         <div 
           style={{
@@ -143,101 +164,87 @@ export default function HeroPreview({ props, style }: PreviewProps) {
     // 2. GRADIENT MODE
     if (resolvedBgType === 'gradient') {
       const color1 = bgColor || (style.accent_color as string) || '#e879a0';
-      const color2 = bgColor2;
+      const color2 = bgColor2 || typedProps.bg_color2 || '#9333ea';
+      const angle = typedProps.bg_angle ?? 135;
       return (
         <div 
           style={{
             position: 'absolute',
             inset: 0,
-            background: `linear-gradient(${bgAngle}deg, ${color1} 0%, ${color2} 100%)`,
+            backgroundImage: `linear-gradient(${angle}deg, ${color1} 0%, ${color2} 100%)`,
             borderRadius,
           }}
         />
       );
     }
 
-    // 3. IMAGE MODE
-    if (resolvedBgType === 'image') {
-      // 3a. Slideshow (Multi) mode
-      if (bgImageMode === 'multi' && bgImages.length > 0) {
-        return bgImages.map((imgUrl, idx) => {
-          const isActive = idx === activeIdx;
-          let slideStyle: React.CSSProperties = {
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: `url(${imgUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
+    // 3. IMAGE MODE (SINGLE)
+    if (resolvedBgType === 'image' && bgImage) {
+      return (
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-all duration-300"
+          style={{ 
+            backgroundImage: `url(${bgImage})`,
+            filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
+            transform: bgImageBlur > 0 ? 'scale(1.1)' : 'scale(1)',
             borderRadius,
-          };
+          }}
+        />
+      );
+    }
 
-          if (bgBlur > 0) {
-            slideStyle = {
-              ...slideStyle,
-              filter: `blur(${bgBlur}px)`,
-              transform: 'scale(1.05)',
-            };
+    // 4. SLIDESHOW MODE (MULTI)
+    if ((resolvedBgType === 'slideshow' || resolvedBgType === 'image') && validSlides.length > 0) {
+      return validSlides.map((slideUrl: string, idx: number) => {
+        const isActive = idx === activeSlide;
+        const isPrevious = idx === (activeSlide - 1 + validSlides.length) % validSlides.length;
+        
+        let transformStr = 'scale(1)';
+        let opacityVal = 0;
+        let animationStr = undefined;
+        
+        if (slideshowAnimation === 'fade') {
+          opacityVal = isActive ? 1 : 0;
+          if (bgImageBlur > 0) {
+            transformStr = 'scale(1.1)';
           }
-
-          if (bgSlideEffect === 'fade') {
-            slideStyle = {
-              ...slideStyle,
-              opacity: isActive ? 1 : 0,
-              transition: 'opacity 1.2s ease-in-out',
-              zIndex: isActive ? 1 : 0,
-            };
-          } else if (bgSlideEffect === 'slide') {
-            const offset = (idx - activeIdx) * 100;
-            slideStyle = {
-              ...slideStyle,
-              transform: `translateX(${offset}%) ${bgBlur > 0 ? 'scale(1.05)' : ''}`,
-              transition: 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-              zIndex: 1,
-            };
-          } else if (bgSlideEffect === 'zoom') {
-            slideStyle = {
-              ...slideStyle,
-              opacity: isActive ? 1 : 0,
-              transition: 'opacity 1.5s ease-in-out',
-              zIndex: isActive ? 1 : 0,
-            };
+        } else if (slideshowAnimation === 'zoom') {
+          opacityVal = isActive ? 1 : 0;
+          if (isActive) {
+            animationStr = `kenburns ${slideshowDuration + 1}s ease-in-out infinite alternate`;
           }
-
-          const slideClassName = (bgSlideEffect === 'zoom' && isActive) ? 'animate-ken-burns' : '';
-
-          return (
-            <div 
-              key={idx}
-              className={slideClassName}
-              style={slideStyle}
-            />
-          );
-        });
-      }
-
-      // 3b. Single Image mode
-      if (bgImage) {
-        let imageStyle: React.CSSProperties = {
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `url(${bgImage})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          borderRadius,
-        };
-
-        if (bgBlur > 0) {
-          imageStyle = {
-            ...imageStyle,
-            filter: `blur(${bgBlur}px)`,
-            transform: 'scale(1.05)',
-          };
+          if (bgImageBlur > 0) {
+            transformStr = 'scale(1.1)';
+          }
+        } else if (slideshowAnimation === 'slide') {
+          opacityVal = isActive ? 1 : 0;
+          if (isActive) {
+            transformStr = bgImageBlur > 0 ? 'translateX(0) scale(1.1)' : 'translateX(0)';
+          } else if (isPrevious) {
+            transformStr = bgImageBlur > 0 ? 'translateX(-100%) scale(1.1)' : 'translateX(-100%)';
+          } else {
+            transformStr = bgImageBlur > 0 ? 'translateX(100%) scale(1.1)' : 'translateX(100%)';
+          }
         }
 
-        return <div style={imageStyle} />;
-      }
+        return (
+          <div 
+            key={idx}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${slideUrl})`,
+              opacity: opacityVal,
+              transform: transformStr,
+              animation: animationStr,
+              filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
+              transition: slideshowAnimation === 'slide' 
+                ? 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1), opacity 1000ms ease-in-out' 
+                : 'opacity 1000ms ease-in-out, transform 1000ms ease-in-out',
+              borderRadius,
+            }}
+          />
+        );
+      });
     }
 
     // Fallback: Default Gradient
@@ -246,7 +253,7 @@ export default function HeroPreview({ props, style }: PreviewProps) {
         style={{
           position: 'absolute',
           inset: 0,
-          background: `linear-gradient(135deg, ${style.accent_color || '#e879a0'} 0%, #9333ea 100%)`,
+          backgroundImage: `linear-gradient(135deg, ${style.accent_color || '#e879a0'} 0%, #9333ea 100%)`,
           borderRadius,
         }}
       />
@@ -265,21 +272,21 @@ export default function HeroPreview({ props, style }: PreviewProps) {
     >
       {/* Dynamic Keyframes injection */}
       <style>{`
+        @keyframes kenburns {
+          0% { transform: scale(1.02); }
+          100% { transform: scale(1.15); }
+        }
         @keyframes heroOverlayFade {
           from { opacity: 0; }
-          to { opacity: ${overlayOpacity}; }
+          to { opacity: ${overlayOpacity / 100}; }
         }
         @keyframes heroOverlayFadeOut {
-          from { opacity: ${overlayOpacity}; }
+          from { opacity: ${overlayOpacity / 100}; }
           to { opacity: 0; }
         }
         @keyframes heroOverlayBreath {
-          0%, 100% { opacity: ${Math.max(0.05, overlayOpacity * 0.4)}; }
-          50% { opacity: ${overlayOpacity}; }
-        }
-        @keyframes kenBurnsEffect {
-          from { transform: scale(1) ${bgBlur > 0 ? 'blur(' + bgBlur + 'px)' : ''}; }
-          to { transform: scale(1.15) ${bgBlur > 0 ? 'blur(' + bgBlur + 'px)' : ''}; }
+          0%, 100% { opacity: ${Math.max(0.05, (overlayOpacity / 100) * 0.4)}; }
+          50% { opacity: ${overlayOpacity / 100}; }
         }
         
         /* Text entrance animations */
@@ -309,9 +316,6 @@ export default function HeroPreview({ props, style }: PreviewProps) {
         .hero-overlay-anim-breath {
           animation: heroOverlayBreath ${overlaySpeed}s ease-in-out infinite;
         }
-        .animate-ken-burns {
-          animation: kenBurnsEffect ${bgSlideSpeed + 1}s ease-out forwards;
-        }
 
         /* Text Animation Classes */
         .text-anim-fade {
@@ -334,9 +338,9 @@ export default function HeroPreview({ props, style }: PreviewProps) {
       {/* Overlay (solid / gradient / custom pattern) dengan kelas animasi kustom */}
       {overlayType !== 'none' && (
         <div 
-          key={`${overlayType}-${overlayAnim}-${overlaySpeed}-${overlayOpacity}-${activeIdx}`}
+          key={`${overlayType}-${overlayAnim}-${overlaySpeed}-${overlayOpacity}-${activeSlide}`}
           className={`absolute inset-0 ${animationClassName}`} 
-          style={{ ...overlayStyle, zIndex: 2 }} 
+          style={overlayStyle} 
         />
       )}
 
