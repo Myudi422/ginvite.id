@@ -91,7 +91,18 @@ export default function BuilderNavigation({
     setActiveId(id);
     const element = document.getElementById(`section-${id}`);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const container = element.closest('.overflow-y-auto');
+      if (container) {
+        const containerRect = container.getBoundingClientRect();
+        const elemRect = element.getBoundingClientRect();
+        const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
+        container.scrollTo({
+          top: Math.max(0, relativeTop - 24),
+          behavior: 'smooth'
+        });
+      } else {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   };
 

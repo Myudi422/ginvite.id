@@ -94,6 +94,7 @@ export interface OpeningProps {
   overlay_gradient_angle?: number;
   bg_new_uploaded_images?: string[];
   animation_preset?: 'none' | 'fade_in' | 'fade_up' | 'fade_down' | 'zoom_in' | 'tracking_wide' | 'slide_left' | 'slide_right' | 'blur_reveal' | 'bounce_soft';
+  open_animation?: 'none' | 'slide_up' | 'slide_down' | 'fade_out' | 'zoom_fade' | 'zoom_in_fade' | 'split_vertical' | 'split_horizontal' | 'door_open';
 }
 
 export interface HeroProps {

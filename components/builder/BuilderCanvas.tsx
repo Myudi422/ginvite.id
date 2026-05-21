@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useBuilder } from './BuilderContext';
 import type { BuilderSection } from './types';
 import BuilderNavigation from './ui/BuilderNavigation';
@@ -49,11 +49,29 @@ function SectionRenderer({ section, style }: { section: BuilderSection; style: R
 }
 
 export default function BuilderCanvas() {
-  const { state, selectSection } = useBuilder();
-  const { page, selectedSectionId } = state;
+  const { state, selectSection, setViewMode } = useBuilder();
+  const { page, selectedSectionId, viewMode } = state;
   const style = page.style as unknown as Record<string, string | number>;
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const [viewMode, setViewMode] = useState<'all' | 'opening' | 'inner'>('all');
+  React.useEffect(() => {
+    if (selectedSectionId && containerRef.current) {
+      const timer = setTimeout(() => {
+        const element = document.getElementById(`section-${selectedSectionId}`);
+        const container = containerRef.current;
+        if (element && container) {
+          const containerRect = container.getBoundingClientRect();
+          const elemRect = element.getBoundingClientRect();
+          const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
+          container.scrollTo({
+            top: Math.max(0, relativeTop - 24),
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedSectionId, viewMode]);
 
   // Sort sections by group first (opening always on top), then by order
   const sections = [...page.sections].sort((a, b) => {
@@ -74,7 +92,7 @@ export default function BuilderCanvas() {
 
   return (
     // Outer: fills remaining flex space, scrolls vertically
-    <div className="flex-1 min-h-0 overflow-y-auto bg-gray-100 py-6 px-4 flex flex-col">
+    <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto bg-gray-100 py-6 px-4 flex flex-col">
       
       {/* ── View Toggle ── */}
       <div className="flex justify-center mb-6 flex-shrink-0 sticky top-0 z-50">

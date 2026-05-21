@@ -483,6 +483,24 @@ export default function OpeningEditor({ props, onChange }: P) {
                 </div>
               </label>
             </Field>
+
+            <Field label="Animasi Buka Undangan">
+              <Select
+                value={typedProps.open_animation || 'slide_up'}
+                onChange={v => set('open_animation', v)}
+                options={[
+                  { value: 'none', label: 'Tanpa Animasi (Langsung Terbuka)' },
+                  { value: 'slide_up', label: '🚀 Slide Up (Ke Atas)' },
+                  { value: 'slide_down', label: '⬇️ Slide Down (Ke Bawah)' },
+                  { value: 'fade_out', label: '✨ Fade Out (Pudar)' },
+                  { value: 'zoom_fade', label: '🔍 Zoom Out & Fade (Mengecil & Pudar)' },
+                  { value: 'zoom_in_fade', label: '🔎 Zoom In & Fade (Membesar & Pudar)' },
+                  { value: 'split_vertical', label: '🚪 Split Slide Up & Down (Belah Atas-Bawah)' },
+                  { value: 'split_horizontal', label: '↔️ Split Slide Left & Right (Belah Kiri-Kanan)' },
+                  { value: 'door_open', label: '🚪 Door Open (Buka Pintu 3D)' },
+                ]}
+              />
+            </Field>
           </div>
         )}
       </div>

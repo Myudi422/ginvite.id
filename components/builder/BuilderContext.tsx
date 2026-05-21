@@ -9,6 +9,7 @@ import { deleteImageFromBackblaze } from '@/app/actions/backblaze';
 type BuilderState = {
   page: BuilderPage;
   selectedSectionId: string | null;
+  viewMode: 'all' | 'opening' | 'inner';
   isDirty: boolean;
   saving: boolean;
   saveError: string | null;
@@ -24,6 +25,7 @@ type BuilderState = {
 type Action =
   | { type: 'SET_PAGE'; payload: BuilderPage }
   | { type: 'SELECT_SECTION'; id: string | null }
+  | { type: 'SET_VIEW_MODE'; payload: 'all' | 'opening' | 'inner' }
   | { type: 'UPDATE_SECTION_PROPS'; id: string; props: Record<string, unknown> }
   | { type: 'TOGGLE_SECTION_VISIBILITY'; id: string }
   | { type: 'MOVE_SECTION'; fromIdx: number; toIdx: number }
@@ -89,8 +91,20 @@ function reducer(state: BuilderState, action: Action): BuilderState {
     case 'FETCH_FAILURE':
       return { ...state, isLoading: false, connectionError: true };
 
-    case 'SELECT_SECTION':
-      return { ...state, selectedSectionId: action.id };
+    case 'SELECT_SECTION': {
+      if (!action.id) {
+        return { ...state, selectedSectionId: null };
+      }
+      const section = state.page.sections.find(s => s.id === action.id);
+      let newViewMode = state.viewMode;
+      if (section) {
+        const group = section.group || (section.type === 'opening' ? 'opening' : 'inner');
+        if (state.viewMode !== 'all' && state.viewMode !== group) {
+          newViewMode = group as 'opening' | 'inner';
+        }
+      }
+      return { ...state, selectedSectionId: action.id, viewMode: newViewMode };
+    }
 
     case 'UPDATE_SECTION_PROPS': {
       const sections = state.page.sections.map(s =>
@@ -189,7 +203,13 @@ function reducer(state: BuilderState, action: Action): BuilderState {
     case 'ADD_SECTION': {
       const sections = [...state.page.sections, { ...action.section, order: state.page.sections.length }];
       const stateWithHistory = updatePageHistory(state, { ...state.page, sections });
-      return { ...stateWithHistory, selectedSectionId: action.section.id };
+      
+      const group = action.section.group || (action.section.type === 'opening' ? 'opening' : 'inner');
+      let newViewMode = state.viewMode;
+      if (state.viewMode !== 'all' && state.viewMode !== group) {
+        newViewMode = group as 'opening' | 'inner';
+      }
+      return { ...stateWithHistory, selectedSectionId: action.section.id, viewMode: newViewMode };
     }
 
     case 'DUPLICATE_SECTION': {
@@ -223,8 +243,17 @@ function reducer(state: BuilderState, action: Action): BuilderState {
       const reordered = sortedSections.map((s, i) => ({ ...s, order: i }));
       
       const stateWithHistory = updatePageHistory(state, { ...state.page, sections: reordered });
-      return { ...stateWithHistory, selectedSectionId: copied.id };
+      
+      const group = copied.group || (copied.type === 'opening' ? 'opening' : 'inner');
+      let newViewMode = state.viewMode;
+      if (state.viewMode !== 'all' && state.viewMode !== group) {
+        newViewMode = group as 'opening' | 'inner';
+      }
+      return { ...stateWithHistory, selectedSectionId: copied.id, viewMode: newViewMode };
     }
+
+    case 'SET_VIEW_MODE':
+      return { ...state, viewMode: action.payload };
 
     case 'UPDATE_SECTION_LABEL': {
       const sections = state.page.sections.map(s =>
@@ -348,6 +377,7 @@ interface BuilderContextValue {
   dispatch: React.Dispatch<Action>;
   // helpers
   selectSection: (id: string | null) => void;
+  setViewMode: (viewMode: 'all' | 'opening' | 'inner') => void;
   updateSectionProps: (id: string, props: Record<string, unknown>) => void;
   toggleSectionVisibility: (id: string) => void;
   moveSection: (fromIdx: number, toIdx: number) => void;
@@ -386,6 +416,7 @@ export function BuilderProvider({
   const [state, dispatch] = useReducer(reducer, {
     page: initialPage,
     selectedSectionId: null,
+    viewMode: 'all',
     isDirty: false,
     saving: false,
     saveError: null,
@@ -398,6 +429,7 @@ export function BuilderProvider({
   });
 
   const selectSection = useCallback((id: string | null) => dispatch({ type: 'SELECT_SECTION', id }), []);
+  const setViewMode = useCallback((viewMode: 'all' | 'opening' | 'inner') => dispatch({ type: 'SET_VIEW_MODE', payload: viewMode }), []);
   const updateSectionProps = useCallback((id: string, props: Record<string, unknown>) => dispatch({ type: 'UPDATE_SECTION_PROPS', id, props }), []);
   const toggleSectionVisibility = useCallback((id: string) => dispatch({ type: 'TOGGLE_SECTION_VISIBILITY', id }), []);
   const moveSection = useCallback((fromIdx: number, toIdx: number) => dispatch({ type: 'MOVE_SECTION', fromIdx, toIdx }), []);
@@ -553,7 +585,7 @@ export function BuilderProvider({
   }, [serverLoadFailed, retryLoad]);
 
   return (
-    <BuilderContext.Provider value={{ state, dispatch, selectSection, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad, registerUploadedImage }}>
+    <BuilderContext.Provider value={{ state, dispatch, selectSection, setViewMode, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad, registerUploadedImage }}>
       {children}
     </BuilderContext.Provider>
   );

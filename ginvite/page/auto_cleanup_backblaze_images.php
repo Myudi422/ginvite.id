@@ -1,6 +1,6 @@
 <?php
 // Auto cleanup script untuk menghapus gambar Backblaze yang tidak terpakai
-// Jalankan via cron job setiap 1 jam
+// Jalankan via cron job setiap 1 jam atau secara manual via browser
 
 require __DIR__ . '/../db.php';
 require __DIR__ . '/../../../../vendor/autoload.php'; // Path ke Composer vendor autoload
@@ -28,27 +28,54 @@ function writeLog($message) {
     file_put_contents($log_file, $log_entry, FILE_APPEND | LOCK_EX);
 }
 
-try {
-    writeLog("Starting Backblaze image cleanup...");
+function printAndLog($message) {
+    writeLog($message);
+    $is_cli = (php_sapi_name() === 'cli');
+    if ($is_cli) {
+        echo $message . PHP_EOL;
+    } else {
+        echo htmlspecialchars($message) . "<br>" . PHP_EOL;
+    }
+}
 
-    // 1. Ambil gambar yang tidak terpakai (is_used = 0) dan sudah berumur lebih dari 2 jam
-    $stmt = $pdo->prepare("
+try {
+    printAndLog("Starting Backblaze image cleanup...");
+
+    // Check if run from browser with force parameter (?force=1)
+    $force = isset($_GET['force']) && $_GET['force'] == '1';
+
+    if ($force) {
+        printAndLog("Running in FORCE mode (bypassing 2-hour age check).");
+    }
+
+    // 1. Ambil gambar yang tidak terpakai (is_used = 0)
+    $query = "
         SELECT id, file_url, object_key 
         FROM builder_images 
         WHERE is_used = 0 
-        AND updated_at < DATE_SUB(NOW(), INTERVAL 2 HOUR)
-        ORDER BY updated_at ASC
-        LIMIT 100
-    ");
+    ";
+
+    if (!$force) {
+        $query .= " AND updated_at < DATE_SUB(NOW(), INTERVAL 2 HOUR) ";
+    }
+
+    $query .= " ORDER BY updated_at ASC LIMIT 100 ";
+
+    $stmt = $pdo->prepare($query);
     $stmt->execute();
     $unused_images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($unused_images)) {
-        writeLog("No unused Backblaze images found for cleanup.");
+        if ($force) {
+            printAndLog("Success: No unused Backblaze images found in database.");
+        } else {
+            printAndLog("Success: No unused Backblaze images older than 2 hours found for cleanup.");
+            printAndLog("Tip: You can append '?force=1' to the URL to instantly clean up all unused images regardless of their age.");
+        }
         exit;
     }
 
-    writeLog("Found " . count($unused_images) . " unused Backblaze images to clean up.");
+    printAndLog("Found " . count($unused_images) . " unused Backblaze images to clean up.");
 
     // Inisialisasi S3/Backblaze Client
     $s3 = new S3Client([
@@ -76,10 +103,10 @@ try {
             ]);
             $deleted_ids[] = $image['id'];
             $deleted_count++;
-            writeLog("Deleted from Backblaze: " . $objectKey);
+            printAndLog("Deleted from Backblaze: " . $objectKey);
         } catch (AwsException $e) {
             $error_count++;
-            writeLog("ERROR deleting " . $objectKey . ": " . $e->getMessage());
+            printAndLog("ERROR deleting " . $objectKey . ": " . $e->getMessage());
         }
     }
 
@@ -88,16 +115,14 @@ try {
         $placeholders = str_repeat('?,', count($deleted_ids) - 1) . '?';
         $delStmt = $pdo->prepare("DELETE FROM builder_images WHERE id IN ($placeholders)");
         $delStmt->execute($deleted_ids);
-        writeLog("Removed " . count($deleted_ids) . " records from database.");
+        printAndLog("Removed " . count($deleted_ids) . " records from database.");
     }
 
     $summary = "Backblaze cleanup completed. Deleted: $deleted_count images, Errors: $error_count";
-    writeLog($summary);
-    echo $summary . "\n";
+    printAndLog($summary);
 
 } catch (Exception $e) {
     $error = "Error during cleanup: " . $e->getMessage();
-    writeLog("ERROR: " . $error);
-    echo $error . "\n";
+    printAndLog("ERROR: " . $error);
 }
 ?>

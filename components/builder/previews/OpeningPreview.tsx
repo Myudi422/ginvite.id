@@ -6,9 +6,10 @@ interface PreviewProps {
   props: Record<string, unknown>;
   style: Record<string, string | number>;
   onOpen?: () => void;
+  isExiting?: boolean;
 }
 
-export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
+export default function OpeningPreview({ props, style, onOpen, isExiting = false }: PreviewProps) {
   const typedProps = props as unknown as OpeningProps;
   
   const title = typedProps.title || 'The Wedding Of';
@@ -77,9 +78,121 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
     return "Tamu Undangan";
   });
 
+  const openAnimation = typedProps.open_animation || 'slide_up';
+  const isSplit = ['split_vertical', 'split_horizontal', 'door_open'].includes(openAnimation);
+
+  const renderBackground = (clipPathValue?: string, extraClass = '', customStyle: React.CSSProperties = {}) => {
+    const combinedStyle: React.CSSProperties = {
+      ...customStyle,
+      ...(clipPathValue ? { clipPath: clipPathValue, WebkitClipPath: clipPathValue } : {})
+    };
+    return (
+      <div className={`absolute inset-0 w-full h-full overflow-hidden ${extraClass}`} style={combinedStyle}>
+        {/* Background Layer */}
+        {bgType === 'solid' && (
+          <div 
+            className="absolute inset-0"
+            style={{ backgroundColor: bgColor || '#ffffff' }}
+          />
+        )}
+
+        {bgType === 'gradient' && (
+          <div 
+            className="absolute inset-0"
+            style={{ 
+              backgroundImage: `linear-gradient(135deg, ${bgColor || '#ff7e5f'}, ${bgColor2 || '#feb47b'})` 
+            }}
+          />
+        )}
+
+        {(bgType === 'image' && bgImage) && (
+          <div 
+            className="absolute inset-0 bg-cover bg-center transition-all duration-300"
+            style={{ 
+              backgroundImage: `url(${bgImage})`,
+              filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
+              transform: bgImageBlur > 0 ? 'scale(1.1)' : 'scale(1)'
+            }}
+          />
+        )}
+
+        {bgType === 'slideshow' && validSlides.map((slideUrl, idx) => {
+          const isActive = idx === activeSlide;
+          const isPrevious = idx === (activeSlide - 1 + validSlides.length) % validSlides.length;
+          
+          let transformStr = 'scale(1)';
+          let opacityVal = 0;
+          let animationStr = undefined;
+          
+          if (slideshowAnimation === 'fade') {
+            opacityVal = isActive ? 1 : 0;
+            if (bgImageBlur > 0) {
+              transformStr = 'scale(1.1)';
+            }
+          } else if (slideshowAnimation === 'zoom') {
+            opacityVal = isActive ? 1 : 0;
+            if (isActive) {
+              animationStr = `kenburns ${slideshowDuration + 1}s ease-in-out infinite alternate`;
+            }
+            if (bgImageBlur > 0) {
+              transformStr = 'scale(1.1)';
+            }
+          } else if (slideshowAnimation === 'slide') {
+            opacityVal = isActive ? 1 : 0;
+            if (isActive) {
+              transformStr = bgImageBlur > 0 ? 'translateX(0) scale(1.1)' : 'translateX(0)';
+            } else if (isPrevious) {
+              transformStr = bgImageBlur > 0 ? 'translateX(-100%) scale(1.1)' : 'translateX(-100%)';
+            } else {
+              transformStr = bgImageBlur > 0 ? 'translateX(100%) scale(1.1)' : 'translateX(100%)';
+            }
+          }
+
+          return (
+            <div 
+              key={idx}
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${slideUrl})`,
+                opacity: opacityVal,
+                transform: transformStr,
+                animation: animationStr,
+                filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
+                transition: slideshowAnimation === 'slide' 
+                  ? 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1), opacity 1000ms ease-in-out' 
+                  : 'opacity 1000ms ease-in-out, transform 1000ms ease-in-out'
+              }}
+            />
+          );
+        })}
+
+        {/* Overlay */}
+        {overlayType === 'gradient' ? (
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{ 
+              backgroundImage: `linear-gradient(${typedProps.overlay_gradient_angle ?? 180}deg, ${getHexWithOpacity(overlayColor, overlayOpacity)}, ${getHexWithOpacity(overlayColor2, overlayOpacity2)})`
+            }}
+          />
+        ) : (
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{ 
+              backgroundColor: overlayColor,
+              opacity: overlayOpacity / 100 
+            }}
+          />
+        )}
+      </div>
+    );
+  };
+
+  const isNormalExiting = !isSplit && isExiting && openAnimation !== 'none';
+  const exitClass = isNormalExiting ? `animate-exit-${openAnimation}` : '';
+
   return (
     <div
-      className="relative flex flex-col items-center justify-center p-6 text-center overflow-hidden min-h-screen min-h-[100dvh]"
+      className={`relative flex flex-col items-center justify-center p-6 text-center overflow-hidden min-h-screen min-h-[100dvh] ${exitClass}`}
       style={{
         backgroundColor: style.bg_color as string || '#ffffff',
       }}
@@ -145,106 +258,104 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
         .delay-2 { animation-delay: 350ms; }
         .delay-3 { animation-delay: 550ms; }
         .delay-4 { animation-delay: 750ms; }
-      `}} />
 
-      {/* Background Layer */}
-      {bgType === 'solid' && (
-        <div 
-          className="absolute inset-0"
-          style={{ backgroundColor: bgColor || '#ffffff' }}
-        />
-      )}
-
-      {bgType === 'gradient' && (
-        <div 
-          className="absolute inset-0"
-          style={{ 
-            backgroundImage: `linear-gradient(135deg, ${bgColor || '#ff7e5f'}, ${bgColor2 || '#feb47b'})` 
-          }}
-        />
-      )}
-
-      {(bgType === 'image' && bgImage) && (
-        <div 
-          className="absolute inset-0 bg-cover bg-center transition-all duration-300"
-          style={{ 
-            backgroundImage: `url(${bgImage})`,
-            filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
-            transform: bgImageBlur > 0 ? 'scale(1.1)' : 'scale(1)'
-          }}
-        />
-      )}
-
-      {bgType === 'slideshow' && validSlides.map((slideUrl, idx) => {
-        const isActive = idx === activeSlide;
-        const isPrevious = idx === (activeSlide - 1 + validSlides.length) % validSlides.length;
-        
-        let transformStr = 'scale(1)';
-        let opacityVal = 0;
-        let animationStr = undefined;
-        
-        if (slideshowAnimation === 'fade') {
-          opacityVal = isActive ? 1 : 0;
-          if (bgImageBlur > 0) {
-            transformStr = 'scale(1.1)';
-          }
-        } else if (slideshowAnimation === 'zoom') {
-          opacityVal = isActive ? 1 : 0;
-          if (isActive) {
-            animationStr = `kenburns ${slideshowDuration + 1}s ease-in-out infinite alternate`;
-          }
-          if (bgImageBlur > 0) {
-            transformStr = 'scale(1.1)';
-          }
-        } else if (slideshowAnimation === 'slide') {
-          opacityVal = isActive ? 1 : 0;
-          if (isActive) {
-            transformStr = bgImageBlur > 0 ? 'translateX(0) scale(1.1)' : 'translateX(0)';
-          } else if (isPrevious) {
-            transformStr = bgImageBlur > 0 ? 'translateX(-100%) scale(1.1)' : 'translateX(-100%)';
-          } else {
-            transformStr = bgImageBlur > 0 ? 'translateX(100%) scale(1.1)' : 'translateX(100%)';
-          }
+        /* Exit Animations keyframes */
+        @keyframes exitSlideUp {
+          from { transform: translateY(0); }
+          to { transform: translateY(-100%); }
+        }
+        @keyframes exitSlideDown {
+          from { transform: translateY(0); }
+          to { transform: translateY(100%); }
+        }
+        @keyframes exitFadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+        @keyframes exitZoomFade {
+          from { opacity: 1; transform: scale(1); }
+          to { opacity: 0; transform: scale(0.92); }
+        }
+        @keyframes exitZoomInFade {
+          from { opacity: 1; transform: scale(1); }
+          to { opacity: 0; transform: scale(1.08); }
         }
 
-        return (
-          <div 
-            key={idx}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${slideUrl})`,
-              opacity: opacityVal,
-              transform: transformStr,
-              animation: animationStr,
-              filter: `${bgImageGrayscale ? 'grayscale(100%)' : ''} ${bgImageBlur > 0 ? `blur(${bgImageBlur}px)` : ''}`.trim() || undefined,
-              transition: slideshowAnimation === 'slide' 
-                ? 'transform 1000ms cubic-bezier(0.4, 0, 0.2, 1), opacity 1000ms ease-in-out' 
-                : 'opacity 1000ms ease-in-out, transform 1000ms ease-in-out'
-            }}
-          />
-        );
-      })}
+        /* Split/Door Keyframes */
+        @keyframes exitSplitUp {
+          from { transform: translateY(0); }
+          to { transform: translateY(-100%); }
+        }
+        @keyframes exitSplitDown {
+          from { transform: translateY(0); }
+          to { transform: translateY(100%); }
+        }
+        @keyframes exitSplitLeft {
+          from { transform: translateX(0); }
+          to { transform: translateX(-100%); }
+        }
+        @keyframes exitSplitRight {
+          from { transform: translateX(0); }
+          to { transform: translateX(100%); }
+        }
+        @keyframes exitDoorLeft {
+          from { transform: perspective(1200px) rotateY(0deg); transform-origin: left; opacity: 1; }
+          to { transform: perspective(1200px) rotateY(-95deg); transform-origin: left; opacity: 0; }
+        }
+        @keyframes exitDoorRight {
+          from { transform: perspective(1200px) rotateY(0deg); transform-origin: right; opacity: 1; }
+          to { transform: perspective(1200px) rotateY(95deg); transform-origin: right; opacity: 0; }
+        }
+        @keyframes exitContent {
+          from { opacity: 1; transform: scale(1); }
+          to { opacity: 0; transform: scale(0.96); }
+        }
 
-      {/* Overlay */}
-      {overlayType === 'gradient' ? (
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{ 
-            backgroundImage: `linear-gradient(${typedProps.overlay_gradient_angle ?? 180}deg, ${getHexWithOpacity(overlayColor, overlayOpacity)}, ${getHexWithOpacity(overlayColor2, overlayOpacity2)})`
-          }}
-        />
+        /* Exit Transition Classes */
+        .animate-exit-slide_up { animation: exitSlideUp 1000ms cubic-bezier(0.85, 0, 0.15, 1) forwards; }
+        .animate-exit-slide_down { animation: exitSlideDown 1000ms cubic-bezier(0.85, 0, 0.15, 1) forwards; }
+        .animate-exit-fade_out { animation: exitFadeOut 800ms ease-in-out forwards; }
+        .animate-exit-zoom_fade { animation: exitZoomFade 900ms cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .animate-exit-zoom_in_fade { animation: exitZoomInFade 900ms cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+        .animate-exit-split-up { animation: exitSplitUp 1000ms cubic-bezier(0.85, 0, 0.15, 1) forwards; }
+        .animate-exit-split-down { animation: exitSplitDown 1000ms cubic-bezier(0.85, 0, 0.15, 1) forwards; }
+        .animate-exit-split-left { animation: exitSplitLeft 1000ms cubic-bezier(0.85, 0, 0.15, 1) forwards; }
+        .animate-exit-split-right { animation: exitSplitRight 1000ms cubic-bezier(0.85, 0, 0.15, 1) forwards; }
+        .animate-exit-door-left { animation: exitDoorLeft 1100ms cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .animate-exit-door-right { animation: exitDoorRight 1100ms cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .animate-exit-content { animation: exitContent 700ms ease-in-out forwards; }
+      `}} />
+
+      {/* Background Layers */}
+      {isSplit ? (
+        <>
+          {openAnimation === 'split_vertical' && (
+            <>
+              {renderBackground('inset(0 0 50% 0)', isExiting ? 'animate-exit-split-up' : '')}
+              {renderBackground('inset(50% 0 0 0)', isExiting ? 'animate-exit-split-down' : '')}
+            </>
+          )}
+          {openAnimation === 'split_horizontal' && (
+            <>
+              {renderBackground('inset(0 50% 0 0)', isExiting ? 'animate-exit-split-left' : '')}
+              {renderBackground('inset(0 0 0 50%)', isExiting ? 'animate-exit-split-right' : '')}
+            </>
+          )}
+          {openAnimation === 'door_open' && (
+            <>
+              {renderBackground('inset(0 50% 0 0)', isExiting ? 'animate-exit-door-left' : '', { transformStyle: 'preserve-3d' })}
+              {renderBackground('inset(0 0 0 50%)', isExiting ? 'animate-exit-door-right' : '', { transformStyle: 'preserve-3d' })}
+            </>
+          )}
+        </>
       ) : (
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{ 
-            backgroundColor: overlayColor,
-            opacity: overlayOpacity / 100 
-          }}
-        />
+        renderBackground()
       )}
 
       {/* Modular Visual Elements Helpers */}
-      {(() => {
+      <div className={`relative z-10 w-full h-full flex flex-col items-center justify-center ${isSplit && isExiting ? 'animate-exit-content' : ''}`}>
+        {(() => {
         const layoutTemplate = typedProps.layout_template || 'classic';
 
         // Auto-detect event category based on title text
@@ -692,6 +803,7 @@ export default function OpeningPreview({ props, style, onOpen }: PreviewProps) {
           </>
         );
       })()}
+      </div>
     </div>
   );
 }

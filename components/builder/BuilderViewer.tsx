@@ -26,11 +26,11 @@ interface Props {
   page: BuilderPage;
 }
 
-function SectionRenderer({ section, style, onOpen }: { section: BuilderSection; style: Record<string, string | number>; onOpen?: () => void }) {
+function SectionRenderer({ section, style, onOpen, isExiting }: { section: BuilderSection; style: Record<string, string | number>; onOpen?: () => void; isExiting?: boolean }) {
   const props = section.props as Record<string, unknown>;
   if (!section.visible) return null;
   switch (section.type) {
-    case 'opening':       return <OpeningPreview props={props} style={style} onOpen={onOpen} />;
+    case 'opening':       return <OpeningPreview props={props} style={style} onOpen={onOpen} isExiting={isExiting} />;
     case 'hero':          return <HeroPreview props={props} style={style} />;
     case 'countdown':     return <CountdownPreview props={props} style={style} />;
     case 'couple':        return <CouplePreview props={props} style={style} />;
@@ -69,6 +69,7 @@ const preloadImages = (urls: string[]): Promise<void[]> => {
 
 export default function BuilderViewer({ page }: Props) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isExiting, setIsExiting] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   React.useEffect(() => {
@@ -93,6 +94,18 @@ export default function BuilderViewer({ page }: Props) {
       const props = hero.props as any;
       if (props.bg_image) criticalImages.push(props.bg_image as string);
       if (props.couple_photo) criticalImages.push(props.couple_photo as string);
+    }
+
+    // Gambar dari countdown section
+    const countdown = page.sections?.find(s => s.type === 'countdown');
+    if (countdown?.props) {
+      const props = countdown.props as any;
+      if (props.bg_image) criticalImages.push(props.bg_image as string);
+      if (Array.isArray(props.bg_slideshow_images)) {
+        props.bg_slideshow_images.forEach((img: any) => {
+          if (img) criticalImages.push(img as string);
+        });
+      }
     }
 
     // Gambar dari couple section
@@ -120,12 +133,45 @@ export default function BuilderViewer({ page }: Props) {
   const openingSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) === 'opening');
   const innerSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) !== 'opening');
 
+  const hasOpening = openingSections.length > 0;
+  const showInner = !hasOpening || isOpen || isExiting;
+  const showCover = hasOpening && !isOpen;
+
   // Jika tidak ada halaman opening, langsung anggap terbuka
-  if (!isOpen && openingSections.length === 0) {
+  if (!isOpen && !hasOpening) {
     setIsOpen(true);
   }
 
-  const sectionsToRender = isOpen ? innerSections : openingSections;
+  // Handle opening cover with premium transition support
+  const handleOpen = () => {
+    const opening = page.sections?.find(s => s.type === 'opening');
+    const openAnimation = (opening?.props as any)?.open_animation || 'slide_up';
+    
+    if (openAnimation === 'none') {
+      setIsOpen(true);
+    } else {
+      setIsExiting(true);
+      setTimeout(() => {
+        setIsOpen(true);
+        setIsExiting(false);
+      }, 1100);
+    }
+  };
+
+  // Lock body scrolling while the opening cover is fully closed and not yet exiting
+  React.useEffect(() => {
+    if (hasOpening && !isOpen && !isExiting) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100dvh';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+    };
+  }, [isOpen, isExiting, hasOpening]);
 
   if (!isLoaded) {
     return (
@@ -157,9 +203,10 @@ export default function BuilderViewer({ page }: Props) {
         className="mx-auto"
         style={{ maxWidth: `${page.style.page_width || 700}px` }}
       >
-        {sectionsToRender.map(section => (
+        {/* Inner page content rendered behind or after opening */}
+        {showInner && innerSections.map(section => (
           <div key={section.id} id={`section-${section.id}`}>
-            <SectionRenderer section={section} style={style} onOpen={() => setIsOpen(true)} />
+            <SectionRenderer section={section} style={style} />
           </div>
         ))}
 
@@ -180,8 +227,25 @@ export default function BuilderViewer({ page }: Props) {
           </div>
         )}
       </div>
+
+      {/* Opening cover overlay, positioned on top with z-50 */}
+      {showCover && openingSections.map(section => (
+        <div 
+          key={section.id} 
+          id={`section-${section.id}`} 
+          className="fixed inset-y-0 left-0 right-0 mx-auto z-50 overflow-hidden w-full"
+          style={{ maxWidth: `${page.style.page_width || 700}px` }}
+        >
+          <SectionRenderer 
+            section={section} 
+            style={style} 
+            onOpen={handleOpen} 
+            isExiting={isExiting} 
+          />
+        </div>
+      ))}
       
-      {isOpen && page.style.music_enabled && page.style.music_url && (
+      {(isOpen || isExiting) && page.style.music_enabled && page.style.music_url && (
         <MusicPlayer 
           url={page.style.music_url} 
           autoPlay={page.style.music_autoplay} 
