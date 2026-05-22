@@ -73,48 +73,78 @@ export default function BuilderViewer({ page }: Props) {
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    // 1. Kumpulkan semua url gambar kritis yang harus di-preload terlebih dahulu
+    // 1. Kumpulkan semua url gambar dari seluruh section yang harus di-preload
     const criticalImages: string[] = [];
-    
-    // Gambar dari opening section
-    const opening = page.sections?.find(s => s.type === 'opening');
-    if (opening?.props) {
-      const props = opening.props as any;
+
+    // Helper: extract semua gambar dari props sebuah section
+    const extractSectionImages = (props: any) => {
+      if (!props) return;
+      // bg_image (single)
       if (props.bg_image) criticalImages.push(props.bg_image as string);
+      // bg_slideshow_images (array)
       if (Array.isArray(props.bg_slideshow_images)) {
         props.bg_slideshow_images.forEach((img: any) => {
           if (img) criticalImages.push(img as string);
         });
       }
-    }
-    
-    // Gambar dari hero section
-    const hero = page.sections?.find(s => s.type === 'hero');
-    if (hero?.props) {
-      const props = hero.props as any;
-      if (props.bg_image) criticalImages.push(props.bg_image as string);
-      if (props.couple_photo) criticalImages.push(props.couple_photo as string);
-    }
-
-    // Gambar dari countdown section
-    const countdown = page.sections?.find(s => s.type === 'countdown');
-    if (countdown?.props) {
-      const props = countdown.props as any;
-      if (props.bg_image) criticalImages.push(props.bg_image as string);
-      if (Array.isArray(props.bg_slideshow_images)) {
-        props.bg_slideshow_images.forEach((img: any) => {
+      // bg_images (legacy slideshow array di hero)
+      if (Array.isArray(props.bg_images)) {
+        props.bg_images.forEach((img: any) => {
           if (img) criticalImages.push(img as string);
         });
       }
-    }
+    };
 
-    // Gambar dari couple section
-    const couple = page.sections?.find(s => s.type === 'couple');
-    if (couple?.props) {
-      const props = couple.props as any;
-      if (props.person_a?.photo) criticalImages.push(props.person_a.photo as string);
-      if (props.person_b?.photo) criticalImages.push(props.person_b.photo as string);
-    }
+    // Iterasi semua section yang visible
+    page.sections?.forEach(section => {
+      if (!section.visible) return;
+      const props = section.props as any;
+      if (!props) return;
+
+      switch (section.type) {
+        case 'opening':
+          extractSectionImages(props);
+          break;
+
+        case 'hero':
+          extractSectionImages(props);
+          if (props.couple_photo) criticalImages.push(props.couple_photo as string);
+          break;
+
+        case 'countdown':
+        case 'event_details':
+        case 'gallery':
+        case 'quote':
+        case 'text_block':
+        case 'rsvp':
+        case 'gift':
+        case 'our_story':
+        case 'divider':
+        case 'social_links':
+          extractSectionImages(props);
+          break;
+
+        case 'couple':
+          extractSectionImages(props);
+          if (props.person_a?.photo) criticalImages.push(props.person_a.photo as string);
+          if (props.person_b?.photo) criticalImages.push(props.person_b.photo as string);
+          break;
+      }
+
+      // Gallery: preload semua foto galeri
+      if (section.type === 'gallery' && Array.isArray(props.images)) {
+        props.images.forEach((img: any) => {
+          if (img) criticalImages.push(img as string);
+        });
+      }
+
+      // Our Story: preload foto di setiap item cerita
+      if (section.type === 'our_story' && Array.isArray(props.items)) {
+        props.items.forEach((item: any) => {
+          if (item?.image) criticalImages.push(item.image as string);
+        });
+      }
+    });
 
     const uniqueImages = Array.from(new Set(criticalImages.filter(Boolean)));
 
