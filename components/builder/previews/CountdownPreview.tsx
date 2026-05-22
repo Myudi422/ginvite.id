@@ -31,12 +31,19 @@ export default function CountdownPreview({ props, style }: P) {
   }
 
   const accent = style.accent_color as string || '#e879a0';
-  const boxes = [
-    { label: 'Hari', value: diff.d },
-    { label: 'Jam', value: diff.h },
-    { label: 'Menit', value: diff.m },
-    { label: 'Detik', value: diff.s },
+  const displayUnits = (props.display_units as string) || 'd_h_m_s';
+  const allBoxes = [
+    { label: 'Hari', value: diff.d, key: 'd' },
+    { label: 'Jam', value: diff.h, key: 'h' },
+    { label: 'Menit', value: diff.m, key: 'm' },
+    { label: 'Detik', value: diff.s, key: 's' },
   ];
+  const boxes = allBoxes.filter(box => {
+    if (displayUnits === 'd_h_m') return box.key !== 's';
+    if (displayUnits === 'd_h') return box.key !== 'm' && box.key !== 's';
+    if (displayUnits === 'd') return box.key === 'd';
+    return true;
+  });
 
   // ── BACKGROUND & OVERLAY PROPERTIES ──
   const bgType = props.bg_type as string || 'solid';
@@ -214,8 +221,13 @@ export default function CountdownPreview({ props, style }: P) {
         );
 
       case 'grid_2x2':
+        const gridCols = boxes.length === 3 
+          ? 'grid-cols-3 max-w-[360px]' 
+          : boxes.length === 1 
+            ? 'grid-cols-1 max-w-[140px]' 
+            : 'grid-cols-2 max-w-[240px]';
         return (
-          <div className="grid grid-cols-2 gap-3 max-w-[280px] mx-auto w-full justify-items-center animate-fade-in">
+          <div className={`grid ${gridCols} gap-3 mx-auto w-full justify-items-center animate-fade-in`}>
             {boxes.map(b => (
               <div 
                 key={b.label} 
@@ -444,7 +456,7 @@ export default function CountdownPreview({ props, style }: P) {
               <span className="text-[9px] uppercase tracking-widest text-pink-500 font-extrabold">Hitung Mundur</span>
               <h3 className={`text-xs font-semibold tracking-wider uppercase mt-1 leading-snug ${labelColorClass}`}>{label}</h3>
             </div>
-            <div className={`grid grid-cols-2 gap-3 flex-1 justify-center w-full max-w-[240px] sm:max-w-none ${getAnimClass(2)}`}>
+            <div className={`grid ${boxes.length === 3 ? 'grid-cols-3' : boxes.length === 1 ? 'grid-cols-1 max-w-[120px]' : 'grid-cols-2'} gap-3 flex-1 justify-center w-full max-w-[240px] sm:max-w-none ${getAnimClass(2)}`}>
               {boxes.map(b => (
                 <div 
                   key={b.label} 

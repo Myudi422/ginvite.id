@@ -72,6 +72,18 @@ export default function CountdownEditor({ props, onChange }: P) {
                 ]}
               />
             </Field>
+            <Field label="Tampilkan Unit Waktu">
+              <Select
+                value={(props.display_units as string) || 'd_h_m_s'}
+                onChange={v => set('display_units', v)}
+                options={[
+                  { value: 'd_h_m_s', label: 'Hari, Jam, Menit, Detik (Lengkap)' },
+                  { value: 'd_h_m', label: 'Hari, Jam, Menit (Tanpa Detik)' },
+                  { value: 'd_h', label: 'Hari & Jam' },
+                  { value: 'd', label: 'Hanya Hari' },
+                ]}
+              />
+            </Field>
             <Field label="Animasi Masuk Teks & Elemen">
               <Select
                 value={(props.animation_preset as string) || 'none'}
@@ -283,7 +295,7 @@ export default function CountdownEditor({ props, onChange }: P) {
               </div>
             )}
 
-            {props.bg_type !== 'solid' && props.bg_type && (
+            {props.bg_type !== 'solid' && !!props.bg_type && (
               <div className="p-3 bg-gray-50/50 border border-gray-100 rounded-2xl space-y-4 mt-2">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kustomisasi Overlay</p>
 
