@@ -180,6 +180,27 @@ export interface OurStoryProps {
 export interface RsvpProps {
   enabled: boolean;
   deadline: string;
+  title?: string;
+  layout_template?: 'classic' | 'card' | 'minimal' | 'floating';
+  animation_preset?: 'none' | 'fade_in' | 'fade_up' | 'fade_down' | 'zoom_in' | 'tracking_wide' | 'slide_left' | 'slide_right' | 'blur_reveal' | 'bounce_soft';
+  initial_comments?: number;
+  bg_type?: 'solid' | 'gradient' | 'image' | 'slideshow';
+  bg_color?: string;
+  bg_color2?: string;
+  bg_gradient_angle?: number;
+  bg_image?: string;
+  bg_image_blur?: number;
+  bg_image_grayscale?: boolean;
+  bg_slideshow_images?: string[];
+  bg_slideshow_animation?: 'fade' | 'zoom' | 'slide';
+  bg_slideshow_duration?: number;
+  overlay_type?: 'solid' | 'gradient';
+  overlay_color?: string;
+  overlay_color2?: string;
+  overlay_opacity?: number;
+  overlay_opacity2?: number;
+  overlay_gradient_angle?: number;
+  bg_new_uploaded_images?: string[];
 }
 
 export interface GiftProps {

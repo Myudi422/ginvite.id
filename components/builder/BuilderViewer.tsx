@@ -177,7 +177,11 @@ export default function BuilderViewer({ page }: Props) {
   }, [page]);
 
   const sections = [...(page.sections || [])].sort((a, b) => a.order - b.order);
-  const style = page.style as unknown as Record<string, string | number>;
+  const style = {
+    ...(page.style as unknown as Record<string, string | number>),
+    _page_id: page.id ?? 0,
+    _user_id: page.user_id ?? 0,
+  };
 
   const openingSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) === 'opening');
   const innerSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) !== 'opening');

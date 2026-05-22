@@ -57,7 +57,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: true, order: 7,
-      props: { enabled: true, deadline: '' },
+      props: { enabled: true, deadline: '', title: '', layout_template: 'classic', animation_preset: 'none', bg_type: 'solid', bg_color: '#ffffff', initial_comments: 5 },
     },
     {
       id: makeId(), type: 'gift', label: 'Hadiah / Gift', visible: false, order: 8,
@@ -105,7 +105,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: true, order: 5,
-      props: { enabled: true, deadline: '' },
+      props: { enabled: true, deadline: '', title: '', layout_template: 'classic', animation_preset: 'none', bg_type: 'solid', bg_color: '#ffffff', initial_comments: 5 },
     },
     {
       id: makeId(), type: 'gift', label: 'Hadiah', visible: true, order: 6,
@@ -153,7 +153,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: true, order: 5,
-      props: { enabled: true, deadline: '' },
+      props: { enabled: true, deadline: '', title: '', layout_template: 'classic', animation_preset: 'none', bg_type: 'solid', bg_color: '#ffffff', initial_comments: 5 },
     },
     {
       id: makeId(), type: 'gift', label: 'Hadiah', visible: false, order: 6,
@@ -205,7 +205,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: false, order: 6,
-      props: { enabled: false, deadline: '' },
+      props: { enabled: false, deadline: '', title: '', layout_template: 'classic', animation_preset: 'none', bg_type: 'solid', bg_color: '#ffffff', initial_comments: 5 },
     },
   ],
 };
