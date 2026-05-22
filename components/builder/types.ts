@@ -193,9 +193,19 @@ export interface GiftProps {
 }
 
 export interface MapsProps {
-  maps_url: string;
-  embed_url: string;
   label: string;
+  locations?: Array<{
+    id: string;
+    label: string;
+    venue_name: string;
+    venue_address: string;
+    maps_url: string;
+    button_text: string;
+  }>;
+  maps_url?: string;
+  venue_name?: string;
+  venue_address?: string;
+  button_text?: string;
 }
 
 export interface MusicProps {

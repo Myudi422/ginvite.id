@@ -48,7 +48,12 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'maps', label: 'Peta Lokasi', visible: true, order: 6,
-      props: { maps_url: '', embed_url: '', label: 'Lokasi Acara' },
+      props: {
+        label: 'Lokasi Acara',
+        locations: [
+          { id: makeId(), label: 'Lokasi Acara', venue_name: '', venue_address: '', maps_url: '', button_text: 'Buka Google Maps' }
+        ]
+      },
     },
     {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: true, order: 7,
@@ -91,7 +96,12 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'maps', label: 'Peta Lokasi', visible: true, order: 4,
-      props: { maps_url: '', embed_url: '', label: 'Lokasi Pesta' },
+      props: {
+        label: 'Lokasi Pesta',
+        locations: [
+          { id: makeId(), label: 'Lokasi Pesta', venue_name: '', venue_address: '', maps_url: '', button_text: 'Buka Google Maps' }
+        ]
+      },
     },
     {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: true, order: 5,
@@ -134,7 +144,12 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'maps', label: 'Peta Lokasi', visible: true, order: 4,
-      props: { maps_url: '', embed_url: '', label: 'Lokasi Acara' },
+      props: {
+        label: 'Lokasi Acara',
+        locations: [
+          { id: makeId(), label: 'Lokasi Acara', venue_name: '', venue_address: '', maps_url: '', button_text: 'Buka Google Maps' }
+        ]
+      },
     },
     {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: true, order: 5,
@@ -181,7 +196,12 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'maps', label: 'Peta Lokasi', visible: true, order: 5,
-      props: { maps_url: '', embed_url: '', label: 'Lokasi Acara' },
+      props: {
+        label: 'Lokasi Acara',
+        locations: [
+          { id: makeId(), label: 'Lokasi Acara', venue_name: '', venue_address: '', maps_url: '', button_text: 'Buka Google Maps' }
+        ]
+      },
     },
     {
       id: makeId(), type: 'rsvp', label: 'RSVP', visible: false, order: 6,
