@@ -26,7 +26,12 @@ interface Props {
   page: BuilderPage;
 }
 
-function SectionRenderer({ section, style, onOpen, isExiting }: { section: BuilderSection; style: Record<string, string | number>; onOpen?: () => void; isExiting?: boolean }) {
+function SectionRenderer({ section, style, onOpen, isExiting }: {
+  section: BuilderSection;
+  style: Record<string, string | number>;
+  onOpen?: () => void;
+  isExiting?: boolean;
+}) {
   const props = section.props as Record<string, unknown>;
   if (!section.visible) return null;
   switch (section.type) {
@@ -49,19 +54,63 @@ function SectionRenderer({ section, style, onOpen, isExiting }: { section: Build
   }
 }
 
+// ── Scroll Reveal Wrapper ─────────────────────────────────────────────────────
+// Setiap section isi undangan dibungkus komponen ini.
+// IntersectionObserver menambahkan class `section-in-view` saat section masuk
+// viewport, lalu CSS global mengubah animation-play-state dari paused → running.
+// Animasi berjalan sesuai scroll — section pertama langsung, berikutnya nunggu scroll.
+function ScrollRevealSection({ children, id }: { children: React.ReactNode; id: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add('section-in-view');
+          observer.unobserve(el); // Trigger sekali saja — tidak reset saat scroll naik
+        }
+      },
+      // threshold 0.08 = animasi mulai ketika 8% section sudah masuk viewport
+      // rootMargin -40px bottom = tidak trigger dari bawah layar terlalu dini
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} id={id} className="scroll-reveal-section">
+      {children}
+    </div>
+  );
+}
+
+// ── Image Preloader ───────────────────────────────────────────────────────────
+// Selain download (network cache), kita juga decode() agar GPU-ready sebelum
+// gambar pertama kali dipaint — ini menghilangkan white-flash saat scroll.
 const preloadImages = (urls: string[]): Promise<void[]> => {
   return Promise.all(
     urls.map(
       (url) =>
         new Promise<void>((resolve) => {
-          if (!url) {
-            resolve();
-            return;
-          }
+          if (!url) { resolve(); return; }
           const img = new Image();
           img.src = url;
-          img.onload = () => resolve();
-          img.onerror = () => resolve(); // Tetap jalan meskipun gambar gagal diload
+          img.onload = () => {
+            // decode() = memaksa browser men-decode gambar ke GPU memory sekarang,
+            // bukan nunggu saat pertama kali dipaint (yang menyebabkan white flash).
+            // Berlaku untuk <img> dan CSS background-image (shared decode cache).
+            if (typeof img.decode === 'function') {
+              img.decode().then(() => resolve()).catch(() => resolve());
+            } else {
+              resolve();
+            }
+          };
+          img.onerror = () => resolve();
         })
     )
   );
@@ -72,30 +121,21 @@ export default function BuilderViewer({ page }: Props) {
   const [isExiting, setIsExiting] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
 
+  // ── Preload semua gambar dari seluruh section ──────────────────────────────
   React.useEffect(() => {
-    // 1. Kumpulkan semua url gambar dari seluruh section yang harus di-preload
     const criticalImages: string[] = [];
 
-    // Helper: extract semua gambar dari props sebuah section
     const extractSectionImages = (props: any) => {
       if (!props) return;
-      // bg_image (single)
       if (props.bg_image) criticalImages.push(props.bg_image as string);
-      // bg_slideshow_images (array)
       if (Array.isArray(props.bg_slideshow_images)) {
-        props.bg_slideshow_images.forEach((img: any) => {
-          if (img) criticalImages.push(img as string);
-        });
+        props.bg_slideshow_images.forEach((img: any) => { if (img) criticalImages.push(img); });
       }
-      // bg_images (legacy slideshow array di hero)
       if (Array.isArray(props.bg_images)) {
-        props.bg_images.forEach((img: any) => {
-          if (img) criticalImages.push(img as string);
-        });
+        props.bg_images.forEach((img: any) => { if (img) criticalImages.push(img); });
       }
     };
 
-    // Iterasi semua section yang visible
     page.sections?.forEach(section => {
       if (!section.visible) return;
       const props = section.props as any;
@@ -105,50 +145,29 @@ export default function BuilderViewer({ page }: Props) {
         case 'opening':
           extractSectionImages(props);
           break;
-
         case 'hero':
           extractSectionImages(props);
-          if (props.couple_photo) criticalImages.push(props.couple_photo as string);
+          if (props.couple_photo) criticalImages.push(props.couple_photo);
           break;
-
-        case 'countdown':
-        case 'event_details':
-        case 'gallery':
-        case 'quote':
-        case 'text_block':
-        case 'rsvp':
-        case 'gift':
-        case 'our_story':
-        case 'divider':
-        case 'social_links':
-          extractSectionImages(props);
-          break;
-
         case 'couple':
           extractSectionImages(props);
-          if (props.person_a?.photo) criticalImages.push(props.person_a.photo as string);
-          if (props.person_b?.photo) criticalImages.push(props.person_b.photo as string);
+          if (props.person_a?.photo) criticalImages.push(props.person_a.photo);
+          if (props.person_b?.photo) criticalImages.push(props.person_b.photo);
+          break;
+        default:
+          extractSectionImages(props);
           break;
       }
 
-      // Gallery: preload semua foto galeri
       if (section.type === 'gallery' && Array.isArray(props.images)) {
-        props.images.forEach((img: any) => {
-          if (img) criticalImages.push(img as string);
-        });
+        props.images.forEach((img: any) => { if (img) criticalImages.push(img); });
       }
-
-      // Our Story: preload foto di setiap item cerita
       if (section.type === 'our_story' && Array.isArray(props.items)) {
-        props.items.forEach((item: any) => {
-          if (item?.image) criticalImages.push(item.image as string);
-        });
+        props.items.forEach((item: any) => { if (item?.image) criticalImages.push(item.image); });
       }
     });
 
     const uniqueImages = Array.from(new Set(criticalImages.filter(Boolean)));
-
-    // Gabungkan minimal loading time 1.2s dan proses preloading gambar
     const minTimeout = new Promise(resolve => setTimeout(resolve, 1200));
     const imagePreloader = preloadImages(uniqueImages);
 
@@ -167,16 +186,13 @@ export default function BuilderViewer({ page }: Props) {
   const showInner = !hasOpening || isOpen || isExiting;
   const showCover = hasOpening && !isOpen;
 
-  // Jika tidak ada halaman opening, langsung anggap terbuka
   if (!isOpen && !hasOpening) {
     setIsOpen(true);
   }
 
-  // Handle opening cover with premium transition support
   const handleOpen = () => {
     const opening = page.sections?.find(s => s.type === 'opening');
     const openAnimation = (opening?.props as any)?.open_animation || 'slide_up';
-    
     if (openAnimation === 'none') {
       setIsOpen(true);
     } else {
@@ -188,7 +204,6 @@ export default function BuilderViewer({ page }: Props) {
     }
   };
 
-  // Lock body scrolling while the opening cover is fully closed and not yet exiting
   React.useEffect(() => {
     if (hasOpening && !isOpen && !isExiting) {
       document.body.style.overflow = 'hidden';
@@ -205,13 +220,19 @@ export default function BuilderViewer({ page }: Props) {
 
   if (!isLoaded) {
     return (
-      <div 
-        className="min-h-screen min-h-[100dvh] flex items-center justify-center transition-opacity duration-1000"
+      <div
+        className="min-h-screen min-h-[100dvh] flex items-center justify-center"
         style={{ backgroundColor: page.style.bg_color }}
       >
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto" style={{ borderColor: page.style.accent_color }}></div>
-          <p className="mt-4 animate-pulse text-sm" style={{ color: page.style.text_color, fontFamily: `'${page.style.font_body}', sans-serif` }}>
+          <div
+            className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto"
+            style={{ borderColor: page.style.accent_color }}
+          />
+          <p
+            className="mt-4 animate-pulse text-sm"
+            style={{ color: page.style.text_color, fontFamily: `'${page.style.font_body}', sans-serif` }}
+          >
             Memuat Undangan...
           </p>
         </div>
@@ -228,19 +249,40 @@ export default function BuilderViewer({ page }: Props) {
         fontFamily: `'${page.style.font_body}', sans-serif`,
       }}
     >
-      {/* Centered 700px container */}
+      {/*
+        ── Global Scroll-Reveal CSS ──────────────────────────────────────────
+        Setiap `.scroll-reveal-section` mem-pause semua `.animate-item` di dalamnya.
+        Elemen yang di-pause tetap diam di frame awal (opacity:0 dari keyframe `from`).
+
+        Saat IntersectionObserver menambahkan `.section-in-view`, play-state berubah
+        ke `running` → animasi berjalan dari awal sesuai urutan scroll.
+
+        ⚠️ KENAPA BUKAN `animation: none/unset`?
+        `animation: unset` = initial value = `none` → animasi tidak pernah bisa jalan.
+        `animation-play-state` hanya mengontrol KAPAN animasi berjalan, bukan menghapusnya.
+      */}
+      <style>{`
+        .scroll-reveal-section .animate-item {
+          animation-play-state: paused !important;
+        }
+        .scroll-reveal-section.section-in-view .animate-item {
+          animation-play-state: running !important;
+        }
+      `}</style>
+
+      {/* Centered container */}
       <div
         className="mx-auto"
         style={{ maxWidth: `${page.style.page_width || 700}px` }}
       >
-        {/* Inner page content rendered behind or after opening */}
+        {/* Inner sections — masing-masing dibungkus ScrollRevealSection */}
         {showInner && innerSections.map(section => (
-          <div key={section.id} id={`section-${section.id}`}>
+          <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
             <SectionRenderer section={section} style={style} />
-          </div>
+          </ScrollRevealSection>
         ))}
 
-        {/* Footer hanya tampil jika sudah terbuka */}
+        {/* Footer */}
         {isOpen && (
           <div className="py-6 text-center">
             <p className="text-[11px] text-gray-300">
@@ -258,44 +300,52 @@ export default function BuilderViewer({ page }: Props) {
         )}
       </div>
 
-      {/* Opening cover overlay, positioned on top with z-50 */}
+      {/* Opening cover — tidak pakai ScrollRevealSection, langsung tampil */}
       {showCover && openingSections.map(section => (
-        <div 
-          key={section.id} 
-          id={`section-${section.id}`} 
+        <div
+          key={section.id}
+          id={`section-${section.id}`}
           className="fixed inset-y-0 left-0 right-0 mx-auto z-50 overflow-hidden w-full"
           style={{ maxWidth: `${page.style.page_width || 700}px` }}
         >
-          <SectionRenderer 
-            section={section} 
-            style={style} 
-            onOpen={handleOpen} 
-            isExiting={isExiting} 
+          <SectionRenderer
+            section={section}
+            style={style}
+            onOpen={handleOpen}
+            isExiting={isExiting}
           />
         </div>
       ))}
-      
+
       {(isOpen || isExiting) && page.style.music_enabled && page.style.music_url && (
-        <MusicPlayer 
-          url={page.style.music_url} 
-          autoPlay={page.style.music_autoplay} 
-          accentColor={page.style.accent_color} 
+        <MusicPlayer
+          url={page.style.music_url}
+          autoPlay={page.style.music_autoplay}
+          accentColor={page.style.accent_color}
         />
       )}
-      
+
       {page.style.nav_enabled !== false && isOpen && (
-        <BuilderNavigation 
-          items={innerSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps'].includes(s.type))).map(s => {
-            const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));
-            return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
-          })}
+        <BuilderNavigation
+          items={innerSections
+            .filter(s => s.visible && (
+              page.style.nav_items
+                ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id))
+                : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps'].includes(s.type)
+            ))
+            .map(s => {
+              const navItemConfig = page.style.nav_items?.find((i: any) =>
+                (typeof i === 'string' ? i === s.id : i.id === s.id)
+              );
+              return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
+            })}
           bgColor={page.style.nav_bg_color as string}
           bgColor2={page.style.nav_bg_color2 as string}
           bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
           bgOpacity={page.style.nav_bg_opacity as number}
           activeColor={page.style.nav_active_color as string}
           inactiveColor={page.style.nav_inactive_color as string}
-          accentColor={page.style.accent_color as string} 
+          accentColor={page.style.accent_color as string}
         />
       )}
     </div>
