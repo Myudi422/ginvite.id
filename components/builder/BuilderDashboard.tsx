@@ -18,8 +18,10 @@ import {
   Layout as LayoutIcon,
   Settings as SettingsIcon,
   MoreVertical as MoreVerticalIcon,
+  Palette as PaletteIcon,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import TemplateSelectorModal from './ui/TemplateSelectorModal';
 
 interface Props {
   userId: number;
@@ -33,12 +35,13 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 };
 
 export default function BuilderDashboard({ userId }: Props) {
-  const { state, save, undo, redo, resetPage, importPage, retryLoad } = useBuilder();
+  const { state, save, undo, redo, resetPage, importPage, retryLoad, isTemplate } = useBuilder();
   const { page, isDirty, saving, saveError, past, future, selectedSectionId, connectionError, isLoading } = state;
   const router = useRouter();
 
   const [mobileTab, setMobileTab] = React.useState<'sections' | 'canvas' | 'properties'>('canvas');
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [showTemplateModal, setShowTemplateModal] = React.useState(false);
 
   React.useEffect(() => {
     if (selectedSectionId) {
@@ -116,11 +119,11 @@ export default function BuilderDashboard({ userId }: Props) {
         <div className="flex items-center gap-4 min-w-0">
           {/* Back */}
           <button
-            onClick={() => router.push('/admin')}
+            onClick={() => router.push(isTemplate ? '/panel/template' : '/admin')}
             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
           >
             <ArrowLeftIcon className="h-4 w-4" />
-            <span className="hidden sm:inline">Dashboard</span>
+            <span className="hidden sm:inline">{isTemplate ? 'Kembali' : 'Dashboard'}</span>
           </button>
 
           <div className="hidden md:block w-px h-6 bg-gray-200" />
@@ -128,19 +131,19 @@ export default function BuilderDashboard({ userId }: Props) {
           {/* Title & event type */}
           <div className="flex-1 min-w-0 hidden md:block">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-gray-400 hidden lg:inline">
-                {EVENT_TYPE_LABELS[page.event_type] || page.event_type}
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isTemplate ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'}`}>
+                {isTemplate ? 'Template Builder' : (EVENT_TYPE_LABELS[page.event_type] || page.event_type)}
               </span>
-              <span className="text-gray-300 hidden lg:inline">·</span>
+              <span className="text-gray-300">·</span>
               <h1 className="text-sm font-bold text-gray-800 truncate">{page.page_title || page.slug}</h1>
             </div>
-            <p className="text-[10px] text-gray-400 hidden lg:block">/{page.slug}</p>
+            {!isTemplate && <p className="text-[10px] text-gray-400">/{page.slug}</p>}
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* Status */}
-          <div className="hidden sm:flex items-center gap-2 mr-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 mr-1 sm:mr-2">
             {isDirty && !saving && (
               <span className="flex items-center gap-1 text-[11px] text-amber-500 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -190,11 +193,34 @@ export default function BuilderDashboard({ userId }: Props) {
               </button>
             </div>
             
-            <a href={`/undang/${userId}/${page.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
-              <ExternalLinkIcon className="h-3.5 w-3.5" />
-              Preview
-            </a>
+            {!isTemplate && (
+              <button
+                onClick={() => setShowTemplateModal(true)}
+                className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100/50 text-xs font-semibold text-purple-700 transition-colors active:scale-95 transition-all"
+              >
+                <PaletteIcon className="h-3.5 w-3.5" />
+                Template
+              </button>
+            )}
+            
+            {!isTemplate && (
+              <a href={`/undang/${userId}/${page.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                <ExternalLinkIcon className="h-3.5 w-3.5" />
+                Preview
+              </a>
+            )}
           </div>
+
+          {/* Mobile Template button */}
+          {!isTemplate && (
+            <button
+              onClick={() => setShowTemplateModal(true)}
+              className="md:hidden flex items-center justify-center p-2 rounded-xl bg-purple-500 hover:bg-purple-600 text-white shadow-sm active:scale-95 transition-all mr-1.5"
+              title="Pilih Template"
+            >
+              <PaletteIcon className="h-4 w-4" />
+            </button>
+          )}
 
           {/* Mobile More Button */}
           <button 
@@ -221,6 +247,11 @@ export default function BuilderDashboard({ userId }: Props) {
             <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 mb-1">
               <span className="text-xs font-bold text-gray-600">Menu Tambahan</span>
             </div>
+            {!isTemplate && (
+              <button onClick={() => { setShowTemplateModal(true); setShowMobileMenu(false); }} className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs text-purple-600 hover:bg-purple-50 rounded-xl font-semibold">
+                <PaletteIcon className="h-4 w-4" /> Pilih Template
+              </button>
+            )}
             <button onClick={() => { undo(); setShowMobileMenu(false); }} disabled={past.length === 0} className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-xl disabled:opacity-50">
               <UndoIcon className="h-4 w-4" /> Batal (Undo)
             </button>
@@ -236,9 +267,11 @@ export default function BuilderDashboard({ userId }: Props) {
             <button onClick={() => { handleReset(); setShowMobileMenu(false); }} className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs text-red-500 hover:bg-red-50 rounded-xl">
               <RotateCcwIcon className="h-4 w-4" /> Reset Template
             </button>
-            <a href={`/undang/${userId}/${page.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-xl mt-1 border-t border-gray-100">
-              <ExternalLinkIcon className="h-4 w-4" /> Buka Preview Web
-            </a>
+            {!isTemplate && (
+              <a href={`/undang/${userId}/${page.slug}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs text-gray-600 hover:bg-gray-50 rounded-xl mt-1 border-t border-gray-100">
+                <ExternalLinkIcon className="h-4 w-4" /> Buka Preview Web
+              </a>
+            )}
           </div>
         )}
       </header>
@@ -296,6 +329,10 @@ export default function BuilderDashboard({ userId }: Props) {
           <span className="text-[10px] font-semibold">Edit</span>
         </button>
       </div>
+
+      {showTemplateModal && (
+        <TemplateSelectorModal onClose={() => setShowTemplateModal(false)} />
+      )}
     </div>
   );
 }

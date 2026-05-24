@@ -40,6 +40,12 @@ try {
         if (!$checkColPay->fetch()) {
             $pdo->exec("ALTER TABLE payment ADD COLUMN invitation_type VARCHAR(20) DEFAULT 'legacy' AFTER id_content");
         }
+
+        // Auto-alter builder_templates event_type column to VARCHAR(255) to support multiple categories
+        try {
+            $pdo->exec("ALTER TABLE builder_templates MODIFY COLUMN event_type VARCHAR(255) NOT NULL DEFAULT 'pernikahan'");
+        } catch (Exception $ex) {
+        }
     } catch (Exception $e) {
         // Abaikan jika tabel belum dibuat
     }

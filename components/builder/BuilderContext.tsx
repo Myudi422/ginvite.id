@@ -375,6 +375,7 @@ function reducer(state: BuilderState, action: Action): BuilderState {
 interface BuilderContextValue {
   state: BuilderState;
   dispatch: React.Dispatch<Action>;
+  isTemplate?: boolean;
   // helpers
   selectSection: (id: string | null) => void;
   setViewMode: (viewMode: 'all' | 'opening' | 'inner') => void;
@@ -406,11 +407,13 @@ export function BuilderProvider({
   initialPage,
   userId,
   serverLoadFailed = false,
+  isTemplate = false,
   children,
 }: {
   initialPage: BuilderPage;
   userId: number;
   serverLoadFailed?: boolean;
+  isTemplate?: boolean;
   children: React.ReactNode;
 }) {
   const [state, dispatch] = useReducer(reducer, {
@@ -504,12 +507,28 @@ export function BuilderProvider({
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
+        const url = isTemplate
+          ? 'https://ccgnimex.my.id/v2/android/ginvite/page/template_save.php'
+          : 'https://ccgnimex.my.id/v2/android/ginvite/page/builder_save.php';
+
+        const body = isTemplate
+          ? JSON.stringify({
+              id: pageToSave.id || 0,
+              name: pageToSave.page_title || pageToSave.slug || 'Template Baru',
+              event_type: pageToSave.event_type || 'pernikahan',
+              text_color: pageToSave.style?.text_color || '#000000',
+              accent_color: pageToSave.style?.accent_color || '#ec4899',
+              image_theme: pageToSave.image_theme || '',
+              page_data: pageToSave
+            })
+          : JSON.stringify(pageToSave);
+
         const res = await fetch(
-          'https://ccgnimex.my.id/v2/android/ginvite/page/builder_save.php',
+          url,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pageToSave),
+            body,
             signal: controller.signal,
           }
         );
@@ -549,13 +568,16 @@ export function BuilderProvider({
         await delay(3000);
       }
     }
-  }, [state.page, userId]);
+  }, [state.page, userId, isTemplate]);
 
   const retryLoad = useCallback(async () => {
     dispatch({ type: 'FETCH_START' });
     try {
+      const url = isTemplate
+        ? `https://ccgnimex.my.id/v2/android/ginvite/page/template_get.php?id=${state.page.id || 0}`
+        : `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get.php?user_id=${userId}&slug=${encodeURIComponent(state.page.slug)}`;
       const res = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get.php?user_id=${userId}&slug=${encodeURIComponent(state.page.slug)}`,
+        url,
         { cache: 'no-store' }
       );
       if (res.ok) {
@@ -576,7 +598,7 @@ export function BuilderProvider({
     } catch {
       dispatch({ type: 'FETCH_FAILURE' });
     }
-  }, [userId, state.page.slug, state.page]);
+  }, [userId, state.page.slug, state.page, isTemplate]);
 
   React.useEffect(() => {
     if (serverLoadFailed) {
@@ -585,7 +607,7 @@ export function BuilderProvider({
   }, [serverLoadFailed, retryLoad]);
 
   return (
-    <BuilderContext.Provider value={{ state, dispatch, selectSection, setViewMode, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad, registerUploadedImage }}>
+    <BuilderContext.Provider value={{ state, dispatch, isTemplate, selectSection, setViewMode, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad, registerUploadedImage }}>
       {children}
     </BuilderContext.Provider>
   );

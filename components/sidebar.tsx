@@ -4,7 +4,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { HomeIcon, LayoutTemplateIcon, MenuIcon, LogOut, FolderOpenDot, MusicIcon, ChartArea, Palette, LayoutDashboardIcon, MessageSquareWarning, Clapperboard, BookOpenIcon, MessageCircle } from "lucide-react" // Import MusicIcon
-import { useState } from "react"; // Import useState
+import { useState, useEffect } from "react"; // Import useState, useEffect
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import Image from "next/image";
@@ -37,6 +37,7 @@ const routes: NestedRoute[] = [
       { href: "/panel/music", label: "Music", icon: MusicIcon },
       { href: "/panel/blog-admin", label: "Blog", icon: BookOpenIcon },
       { href: "/panel/theme", label: "Theme", icon: Palette },
+      { href: "/panel/template", label: "Template", icon: LayoutTemplateIcon },
       { href: "/panel/filemanage", label: "File Manager", icon: Clapperboard },
       { href: "/panel/crm", label: "CRM & WA", icon: MessageCircle },
     ],
@@ -48,6 +49,13 @@ function SidebarContent({ onLinkClick, typeUser }: { onLinkClick?: () => void, t
   const pathname = usePathname()
   const router = useRouter();
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
+
+  // Auto-expand sub-menu on mount/pathname change if user is inside /panel
+  useEffect(() => {
+    if (pathname && pathname.startsWith('/panel')) {
+      setOpenSubMenu('Admin');
+    }
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
@@ -96,33 +104,39 @@ function SidebarContent({ onLinkClick, typeUser }: { onLinkClick?: () => void, t
             })
             .map(({ href, label, icon: Icon, items }) => (
               <div key={label}>
-                <Link
-                  href={items ? '#' : href}
-                  onClick={() => {
-                    if (items) {
-                      toggleSubMenu(label);
-                    } else if (onLinkClick) {
-                      onLinkClick();
-                    }
-                  }}
-                  className={`flex items-center justify-between gap-3 rounded-md px-3 py-3 text-base font-medium transition-all
-                    ${pathname.startsWith(href) && !items
-                      ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm'
-                      : 'text-pink-500 hover:bg-pink-100/30 hover:text-pink-600'}`
-                  }
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-1.5 rounded-sm bg-pink-50/80">
-                      <Icon className="h-5 w-5" />
+                {items ? (
+                  <button
+                    onClick={() => toggleSubMenu(label)}
+                    className="w-full flex items-center justify-between gap-3 rounded-md px-3 py-3 text-base font-medium transition-all text-pink-500 hover:bg-pink-100/30 hover:text-pink-600"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-sm bg-pink-50/80">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span>{label}</span>
                     </div>
-                    <span>{label}</span>
-                  </div>
-                  {items && (
                     <div className="transition-transform duration-200">
                       {openSubMenu === label ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </div>
-                  )}
-                </Link>
+                  </button>
+                ) : (
+                  <Link
+                    href={href}
+                    onClick={onLinkClick}
+                    className={`flex items-center justify-between gap-3 rounded-md px-3 py-3 text-base font-medium transition-all
+                      ${pathname.startsWith(href)
+                        ? 'bg-pink-500/10 text-pink-600 border border-pink-200/50 shadow-sm'
+                        : 'text-pink-500 hover:bg-pink-100/30 hover:text-pink-600'}`
+                    }
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-sm bg-pink-50/80">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span>{label}</span>
+                    </div>
+                  </Link>
+                )}
                 {items && openSubMenu === label && (
                   <div className="ml-6 mt-1 space-y-1">
                     {items.map((subItem) => (
