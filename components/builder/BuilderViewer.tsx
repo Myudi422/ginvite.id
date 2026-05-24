@@ -4,6 +4,7 @@ import React from 'react';
 import type { BuilderPage, BuilderSection } from '@/components/builder/types';
 import MusicPlayer from '@/components/MusicPlayer';
 import BuilderNavigation from '@/components/builder/ui/BuilderNavigation';
+import { midtransAction, toggleStatusAction } from '@/app/actions/indexcontent';
 
 // Section renderers (reuse dari builder)
 import OpeningPreview from '@/components/builder/previews/OpeningPreview';
@@ -26,11 +27,12 @@ interface Props {
   page: BuilderPage;
 }
 
-function SectionRenderer({ section, style, onOpen, isExiting }: {
+function SectionRenderer({ section, style, onOpen, isExiting, pageStatus }: {
   section: BuilderSection;
   style: Record<string, string | number>;
   onOpen?: () => void;
   isExiting?: boolean;
+  pageStatus?: number;
 }) {
   const props = section.props as Record<string, unknown>;
   if (!section.visible) return null;
@@ -44,7 +46,7 @@ function SectionRenderer({ section, style, onOpen, isExiting }: {
     case 'quote':         return <QuotePreview props={props} style={style} />;
     case 'text_block':    return <TextBlockPreview props={props} style={style} />;
     case 'maps':          return <MapsPreview props={props} style={style} />;
-    case 'rsvp':          return <RsvpPreview props={props} style={style} />;
+    case 'rsvp':          return <RsvpPreview props={props} style={style} pageStatus={pageStatus} />;
     case 'gift':          return <GiftPreview props={props} style={style} />;
     case 'music':         return <MusicPreview props={props} style={style} />;
     case 'our_story':     return <OurStoryPreview props={props} style={style} />;
@@ -120,6 +122,70 @@ export default function BuilderViewer({ page }: Props) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isExiting, setIsExiting] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
+  const [loadingPayment, setLoadingPayment] = React.useState(false);
+  const [paymentError, setPaymentError] = React.useState<string | null>(null);
+
+  const handleWatermarkPayment = async () => {
+    setLoadingPayment(true);
+    setPaymentError(null);
+
+    const builderId = page.id || 0;
+    const userId = page.user_id || 0;
+    const slug = page.slug || page.title || '';
+
+    try {
+      const result = await midtransAction({
+        user_id: userId,
+        id_content: builderId,
+        title: slug,
+        invitation_type: 'builder',
+      });
+
+      if (result.status === 'paid') {
+        await toggleStatusAction({
+          user_id: userId,
+          id: builderId,
+          title: slug,
+          status: 1,
+          invitation_type: 'builder',
+        });
+        window.location.reload();
+        return;
+      }
+
+      // @ts-ignore
+      if (typeof window.snap !== 'undefined') {
+        // @ts-ignore
+        window.snap.pay(result.snap_token, {
+          onSuccess: async () => {
+            try {
+              await toggleStatusAction({
+                user_id: userId,
+                id: builderId,
+                title: slug,
+                status: 1,
+                invitation_type: 'builder',
+              });
+            } catch (_) {}
+            window.location.reload();
+          },
+          onError: (e: any) => {
+            setPaymentError('Pembayaran gagal: ' + (e?.message || 'Terjadi kesalahan'));
+            setLoadingPayment(false);
+          },
+          onClose: () => {
+            setLoadingPayment(false);
+          },
+        });
+      } else {
+        setPaymentError('Sistem pembayaran belum siap. Silakan refresh halaman.');
+        setLoadingPayment(false);
+      }
+    } catch (err: any) {
+      setPaymentError('Gagal memproses: ' + err.message);
+      setLoadingPayment(false);
+    }
+  };
 
   // ── Preload semua gambar dari seluruh section ──────────────────────────────
   React.useEffect(() => {
@@ -282,13 +348,13 @@ export default function BuilderViewer({ page }: Props) {
         {/* Inner sections — masing-masing dibungkus ScrollRevealSection */}
         {showInner && innerSections.map(section => (
           <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
-            <SectionRenderer section={section} style={style} />
+            <SectionRenderer section={section} style={style} pageStatus={page.status} />
           </ScrollRevealSection>
         ))}
 
         {/* Footer */}
         {isOpen && (
-          <div className="py-6 text-center">
+          <div className="py-8 text-center space-y-1">
             <p className="text-[11px] text-gray-300">
               Dibuat dengan ❤️ oleh{' '}
               <a
@@ -300,6 +366,11 @@ export default function BuilderViewer({ page }: Props) {
                 papunda.com
               </a>
             </p>
+            {page.status === 0 && (
+              <p className="text-[10px] text-pink-400 font-semibold tracking-wider uppercase animate-pulse">
+                — Versi Gratis / Percobaan —
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -351,6 +422,53 @@ export default function BuilderViewer({ page }: Props) {
           inactiveColor={page.style.nav_inactive_color as string}
           accentColor={page.style.accent_color as string}
         />
+      )}
+
+      {/* Floating Watermark Banner - Versi Gratis / Percobaan */}
+      {page.status === 0 && (
+        <div className="fixed bottom-4 left-4 right-4 z-[9999] max-w-md mx-auto p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-pink-100 dark:border-pink-950 flex flex-col gap-3 transition-all duration-300">
+          <div className="flex items-start gap-3">
+            <span className="text-xl animate-bounce shrink-0">✨</span>
+            <div className="flex-1 text-left">
+              <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                Undangan Versi Gratis / Percobaan
+              </h4>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
+                Aktifkan undangan untuk menghilangkan watermark gratis dan mengaktifkan masa berlaku selamanya.
+              </p>
+            </div>
+          </div>
+
+          {paymentError && (
+            <div className="text-[10px] bg-red-50 dark:bg-red-950/30 text-red-500 dark:text-red-400 rounded-lg px-2.5 py-1.5 text-left border border-red-100/50 dark:border-red-950/50">
+              {paymentError}
+            </div>
+          )}
+
+          <button
+            onClick={handleWatermarkPayment}
+            disabled={loadingPayment}
+            className="w-full py-2.5 px-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 disabled:from-pink-300 disabled:to-rose-300 text-white text-xs font-bold rounded-xl shadow-md shadow-pink-200 dark:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+          >
+            {loadingPayment ? (
+              <>
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Memproses...
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                Aktifkan Sekarang (Rp 50.000)
+              </>
+            )}
+          </button>
+        </div>
       )}
     </div>
   );

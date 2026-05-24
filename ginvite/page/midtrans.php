@@ -19,10 +19,12 @@ function error($code, $msg) {
 }
 
 // 0. Parse input
-$input      = json_decode(file_get_contents('php://input'), true) ?: [];
-$user_id    = (int)($input['user_id']     ?? 0);
-$id_content = (int)($input['id_content'] ?? 0);
-$title      = trim($input['title']       ?? '');
+$input           = json_decode(file_get_contents('php://input'), true) ?: [];
+$user_id         = (int)($input['user_id']     ?? 0);
+$id_content      = (int)($input['id_content'] ?? 0);
+$title           = trim($input['title']       ?? '');
+$invitation_type = trim($input['invitation_type'] ?? 'legacy');
+
 if (!$user_id || !$id_content || $title==='') {
     error(400, 'Parameter tidak lengkap (user_id, id_content, title).');
 }
@@ -34,22 +36,36 @@ $stmt = $pdo->prepare("
     WHERE id_user     = ?
       AND id_content = ?
       AND status      = 'settlement'
+      AND invitation_type = ?
 ");
-$stmt->execute([$user_id, $id_content]);
+$stmt->execute([$user_id, $id_content, $invitation_type]);
 $paidInfo       = $stmt->fetch(PDO::FETCH_ASSOC);
 $totalPaid      = (float)$paidInfo['total_paid'];
 $alreadyCount = (int)$paidInfo['cnt'];
 
-// 2. Load fullAmount from content_user
-$sql = "SELECT content FROM content_user WHERE user_id=? AND id=? AND title=?";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([$user_id, $id_content, $title]);
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$row) error(404, 'Data content_user tidak ditemukan.');
-$content = json_decode($row['content'], true);
-
-// Set $fullAmount to null if 'jumlah' is not present
-$fullAmount = isset($content['jumlah']) ? (float)$content['jumlah'] : null;
+// 2. Load fullAmount based on type
+if ($invitation_type === 'builder') {
+    // Check in builder_pages
+    $sql = "SELECT id FROM builder_pages WHERE user_id=? AND id=? AND slug=?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$user_id, $id_content, $title]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) error(404, 'Data builder_pages tidak ditemukan.');
+    
+    // Flat price Rp 50.000 untuk tipe builder
+    $fullAmount = 50000;
+} else {
+    // Check in content_user (legacy)
+    $sql = "SELECT content FROM content_user WHERE user_id=? AND id=? AND title=?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$user_id, $id_content, $title]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) error(404, 'Data content_user tidak ditemukan.');
+    $content = json_decode($row['content'], true);
+    
+    // Set $fullAmount to null if 'jumlah' is not present
+    $fullAmount = isset($content['jumlah']) ? (float)$content['jumlah'] : null;
+}
 
 // 3. If already fully paid or already 2 settlements, return “paid”
 if ($fullAmount !== null && ($totalPaid >= $fullAmount || $alreadyCount >= 2)) {
@@ -70,7 +86,7 @@ $item_details = [[
     'id'        => $id_content,
     'price'     => $amountToCharge,
     'quantity' => 1,
-    'name'      => 'Undangan: '.$title,
+    'name'      => ($invitation_type === 'builder' ? 'Builder: ' : 'Undangan: ') . $title,
 ]];
 $payload = [
     'transaction_details' => $transaction_details,
@@ -91,9 +107,10 @@ $stmt = $pdo->prepare("
     WHERE id_user     = ?
       AND id_content = ?
       AND status      = 'pending'
+      AND invitation_type = ?
     LIMIT 1
 ");
-$stmt->execute([$user_id, $id_content]);
+$stmt->execute([$user_id, $id_content, $invitation_type]);
 $pending = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($pending) {
@@ -119,9 +136,9 @@ if ($pending) {
     // 8b. INSERT new pending row
     $ins = $pdo->prepare("
         INSERT INTO payment
-        (id_user, id_content, order_id, payment_date, jumlah, paket, snap_token, status)
+        (id_user, id_content, order_id, payment_date, jumlah, paket, snap_token, status, invitation_type)
         VALUES
-        (?, ?, ?, NOW(), ?, ?, ?, 'pending')
+        (?, ?, ?, NOW(), ?, ?, ?, 'pending', ?)
     ");
     $ins->execute([
         $user_id,
@@ -129,7 +146,8 @@ if ($pending) {
         $order_id,
         $amountToCharge,
         $title,
-        $snapToken
+        $snapToken,
+        $invitation_type
     ]);
 }
 

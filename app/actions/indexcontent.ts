@@ -18,12 +18,14 @@ interface TogglePayload {
   id: number;
   title: string;
   status: 0 | 1;
+  invitation_type?: string;
 }
 
 interface MidtransPayload {
   user_id: number;
   id_content: number;
   title: string;
+  invitation_type?: string;
 }
 
 // Save content user

@@ -16,6 +16,7 @@ interface RsvpData {
 interface P {
   props: Record<string, unknown>;
   style: Record<string, string | number>;
+  pageStatus?: number;
 }
 
 // ── API Constants ─────────────────────────────────────────────────────────────
@@ -46,7 +47,7 @@ function hexWithOpacity(hex: string, pct: number): string {
 }
 
 // ── Main Component ─────────────────────────────────────────────────────────────
-export default function RsvpPreview({ props, style }: P) {
+export default function RsvpPreview({ props, style, pageStatus }: P) {
   // ── Resolve IDs ──────────────────────────────────────────────────────────
   const contentId     = (style._page_id as number) || 0;
   const isPreviewMode = contentId === 0;   // builder canvas: no live API
@@ -577,6 +578,23 @@ export default function RsvpPreview({ props, style }: P) {
             <p className="text-sm text-gray-600">
               Batas konfirmasi berakhir{' '}
               {new Date(deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Payment Lock overlay (Jika belum bayar) ── */}
+      {!isPreviewMode && pageStatus === 0 && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[6px] flex items-center justify-center z-20">
+          <div className="text-center p-6 bg-white/95 dark:bg-gray-900/95 rounded-2xl shadow-2xl max-w-xs mx-4 border border-pink-100 dark:border-pink-950">
+            <div className="w-12 h-12 bg-pink-50 dark:bg-pink-950/30 rounded-full flex items-center justify-center mx-auto mb-3 border border-pink-100 dark:border-pink-900">
+              <FiLock className="text-xl text-pink-500 animate-pulse" />
+            </div>
+            <h3 className="text-base font-bold mb-1.5 text-gray-800 dark:text-gray-100" style={{ fontFamily: fontHead }}>
+              Fitur RSVP Dikunci
+            </h3>
+            <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed mb-0">
+              Fitur RSVP & Ucapan tamu hanya aktif pada versi Premium. Silakan lakukan pembayaran untuk membuka fitur ini.
             </p>
           </div>
         </div>

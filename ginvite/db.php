@@ -34,6 +34,12 @@ try {
             } catch (Exception $ex) {
             }
         }
+
+        // Migrasi payment table
+        $checkColPay = $pdo->query("SHOW COLUMNS FROM payment LIKE 'invitation_type'");
+        if (!$checkColPay->fetch()) {
+            $pdo->exec("ALTER TABLE payment ADD COLUMN invitation_type VARCHAR(20) DEFAULT 'legacy' AFTER id_content");
+        }
     } catch (Exception $e) {
         // Abaikan jika tabel belum dibuat
     }

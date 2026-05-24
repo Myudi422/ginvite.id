@@ -394,16 +394,16 @@ export default async function InvitationPage({ params, searchParams }: Props) {
         return <BuilderViewer page={builderJson.data as BuilderPage} />;
       }
 
-      // Kedaluwarsa → tampilkan pesan
+      // Kedaluwarsa → tampilkan pesan pembayaran Midtrans untuk builder
       if (builderJson.status === 'expired') {
+        const contentUserId = (builderJson.content_user_id as number) || 0;
         return (
-          <div className="min-h-screen flex items-center justify-center bg-pink-50 p-6 text-center">
-            <div>
-              <p className="text-5xl mb-4">⏳</p>
-              <h1 className="text-xl font-bold text-gray-700 mb-2">Undangan Kedaluwarsa</h1>
-              <p className="text-gray-500 text-sm">Undangan ini sudah melewati masa aktif.</p>
-            </div>
-          </div>
+          <PaymentRequired
+            userId={userId}
+            title={title}
+            contentUserId={contentUserId}
+            invitationType="builder"
+          />
         );
       }
 

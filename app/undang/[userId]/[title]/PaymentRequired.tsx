@@ -7,9 +7,10 @@ interface PaymentRequiredProps {
   userId: string;
   title: string;
   contentUserId: number;
+  invitationType?: string; // 'legacy' atau 'builder'
 }
 
-export default function PaymentRequired({ userId, title, contentUserId }: PaymentRequiredProps) {
+export default function PaymentRequired({ userId, title, contentUserId, invitationType = 'legacy' }: PaymentRequiredProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +31,7 @@ export default function PaymentRequired({ userId, title, contentUserId }: Paymen
         user_id: parseInt(userId),
         id_content: contentUserId,
         title: decodeURIComponent(title),
+        invitation_type: invitationType,
       });
 
       if (result.status === 'paid') {
@@ -38,6 +40,7 @@ export default function PaymentRequired({ userId, title, contentUserId }: Paymen
           id: contentUserId,
           title: decodeURIComponent(title),
           status: 1,
+          invitation_type: invitationType,
         });
         window.location.reload();
         return;
@@ -55,6 +58,7 @@ export default function PaymentRequired({ userId, title, contentUserId }: Paymen
                 id: contentUserId,
                 title: decodeURIComponent(title),
                 status: 1,
+                invitation_type: invitationType,
               });
             } catch (_) {}
             window.location.reload();
@@ -119,12 +123,20 @@ export default function PaymentRequired({ userId, title, contentUserId }: Paymen
 
             {/* Features */}
             <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-4 mb-6 text-left space-y-2">
-              {[
-                'Undangan aktif tanpa batas waktu',
-                'Tanpa watermark percobaan',
-                'Fitur RSVP & amplop digital',
-                'Musik & galeri foto',
-              ].map((f, i) => (
+              {(invitationType === 'builder'
+                ? [
+                    'Undangan builder aktif selamanya',
+                    'Bebas kustomisasi tata letak & section',
+                    'Tanpa watermark versi gratis',
+                    'Fitur RSVP, musik latar, & galeri eksklusif',
+                  ]
+                : [
+                    'Undangan aktif tanpa batas waktu',
+                    'Tanpa watermark percobaan',
+                    'Fitur RSVP & amplop digital',
+                    'Musik & galeri foto',
+                  ]
+              ).map((f, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
                   <svg className="w-4 h-4 text-pink-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

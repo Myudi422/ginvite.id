@@ -50,7 +50,15 @@ if (!$row) {
 
 // Check expiry
 if ($row['expired'] && strtotime($row['expired']) < time() && $row['status'] == 0) {
-    echo json_encode(['status' => 'expired'], JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        'status'          => 'expired',
+        'type'            => 'builder',
+        'content_user_id' => (int)$row['id'],
+        'user_id'         => (int)$row['user_id'],
+        'slug'            => $row['slug'],
+        'page_title'      => $row['page_title'],
+        'message'         => 'Masa percobaan undangan sudah habis. Silakan aktifkan.',
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

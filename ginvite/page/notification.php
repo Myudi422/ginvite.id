@@ -61,14 +61,24 @@ if ($transactionStatus === 'capture' || $transactionStatus === 'settlement') {
     ");
     $updPay->execute([$orderId]);
 
-    // Update content_user.status = 1 (aktif)
-    $updCont = $pdo->prepare("
-      UPDATE content_user
-         SET status = 1,
-             updated_at = NOW()
-       WHERE id = ?
-    ");
-    $updCont->execute([$payment['id_content']]);
+    // Update status aktif berdasarkan tipe undangan
+    if (isset($payment['invitation_type']) && $payment['invitation_type'] === 'builder') {
+        $updCont = $pdo->prepare("
+          UPDATE builder_pages
+             SET status = 1,
+                 updated_at = NOW()
+           WHERE id = ?
+        ");
+        $updCont->execute([$payment['id_content']]);
+    } else {
+        $updCont = $pdo->prepare("
+          UPDATE content_user
+             SET status = 1,
+                 updated_at = NOW()
+           WHERE id = ?
+        ");
+        $updCont->execute([$payment['id_content']]);
+    }
 
     http_response_code(200);
     echo json_encode(['status'=>'ok','message'=>'Payment settled and content activated']);
