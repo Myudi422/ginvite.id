@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { format, parseISO } from "date-fns";
-import { CalendarIcon, ChevronDownIcon, SearchIcon, MoreVertical } from "lucide-react";
+import { CalendarIcon, ChevronDownIcon, SearchIcon, MoreVertical, RefreshCw } from "lucide-react";
 
 interface User {
   id: number;
@@ -47,18 +47,24 @@ export default function ListUser() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [filterDate, setFilterDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [searchId, setSearchId] = useState("");
   const [visibleUsers, setVisibleUsers] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
   const [type, setType] = useState<"id" | "update">("update");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fetchUsers = async () => {
     try {
       let url = `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_undangan&page=${page}&limit=50&type=${type}`;
 
-      if (filterDate) {
-        url += `&date_from=${formatDateYMD(filterDate)}`;
+      if (startDate) {
+        url += `&date_from=${formatDateYMD(startDate)}`;
+      }
+
+      if (endDate) {
+        url += `&date_to=${formatDateYMD(endDate)}`;
       }
 
       if (searchId) {
@@ -82,16 +88,12 @@ export default function ListUser() {
 
   useEffect(() => {
     fetchUsers();
-  }, [page, filterDate, searchId, type]);
+  }, [page, startDate, endDate, searchId, type, refreshTrigger]);
 
   const handleLoadMore = () => {
     setVisibleUsers((prev) => prev + 10);
   };
 
-  const handleDateSelect = (date: Date | undefined) => {
-    setFilterDate(date || null);
-    setPage(1);
-  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,70 +135,129 @@ Tim Papunda.com`;
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <Input
-            type="number"
-            placeholder="Search by ID"
-            value={searchId}
-            onChange={(e) => setSearchId(e.target.value)}
-            className="w-32 rounded-xl border-pink-200 focus:ring-pink-300"
-          />
-          <Button type="submit" variant="outline" size="icon" className="rounded-xl border-pink-200 hover:bg-pink-50 text-pink-700">
-            <SearchIcon className="h-4 w-4" />
-          </Button>
-        </form>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-fit rounded-xl border-pink-200 hover:bg-pink-50 text-pink-700">
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {filterDate ? format(filterDate, "dd MMM yyyy") : "Filter by Date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={filterDate || undefined}
-              onSelect={handleDateSelect}
-              initialFocus
+      {/* Cohesive Filters Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-pink-50/15 p-4 rounded-2xl border border-pink-100/60 shadow-sm w-full">
+        {/* Left Side: Search and Date Range */}
+        <div className="flex flex-col sm:flex-row gap-3 items-center w-full lg:w-auto">
+          {/* Search box with embedded icon */}
+          <form onSubmit={handleSearch} className="relative flex items-center w-full sm:w-auto">
+            <SearchIcon className="absolute left-3.5 h-4 w-4 text-pink-400 pointer-events-none" />
+            <Input
+              type="number"
+              placeholder="Cari ID..."
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full sm:w-36 rounded-xl border-pink-200 focus:ring-pink-300 text-sm bg-white"
             />
-          </PopoverContent>
-        </Popover>
+          </form>
 
-        <div className="flex gap-2">
-          <Button
-            variant={type === "update" ? "default" : "outline"}
-            onClick={() => handleTypeChange("update")}
-            className={`rounded-xl ${type === "update" ? "bg-pink-500 hover:bg-pink-600 text-white" : "border-pink-200 hover:bg-pink-50 text-pink-700"}`}
-          >
-            By Update Time
-          </Button>
-          <Button
-            variant={type === "id" ? "default" : "outline"}
-            onClick={() => handleTypeChange("id")}
-            className={`rounded-xl ${type === "id" ? "bg-pink-500 hover:bg-pink-600 text-white" : "border-pink-200 hover:bg-pink-50 text-pink-700"}`}
-          >
-            By ID
-          </Button>
+          {/* Unified Premium Date Range Selector */}
+          <div className="flex items-center gap-1.5 sm:gap-2 bg-white border border-pink-200 rounded-xl px-2 sm:px-3 py-2 shadow-sm w-full sm:w-auto justify-between sm:justify-start">
+            <CalendarIcon className="h-4 w-4 text-pink-500 shrink-0" />
+            
+            {/* Start Date */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="text-xs sm:text-sm font-semibold text-pink-700 hover:text-pink-900 focus:outline-none cursor-pointer transition-colors px-0.5 sm:px-1">
+                  {startDate ? format(startDate, "dd MMM yyyy") : "Mulai"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-xl" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate || undefined}
+                  onSelect={(date) => {
+                    setStartDate(date || null);
+                    setPage(1);
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            <span className="text-pink-300 text-xs font-bold select-none shrink-0">➔</span>
+
+            {/* End Date */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="text-xs sm:text-sm font-semibold text-pink-700 hover:text-pink-900 focus:outline-none cursor-pointer transition-colors px-0.5 sm:px-1">
+                  {endDate ? format(endDate, "dd MMM yyyy") : "Akhir"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-xl" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate || undefined}
+                  onSelect={(date) => {
+                    setEndDate(date || null);
+                    setPage(1);
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
-        {filterDate && (
-          <Button
-            variant="outline"
-            onClick={() => setFilterDate(null)}
-            className="text-red-500 rounded-xl hover:bg-red-50"
-          >
-            Clear Date Filter
-          </Button>
-        )}
+        {/* Right Side: Sorting & Actions */}
+        <div className="flex items-center gap-3 w-full lg:w-auto justify-between sm:justify-end">
+          {/* Sorting Pill Switcher */}
+          <div className="flex bg-pink-100/40 p-1 rounded-xl border border-pink-200/40 shrink-0">
+            <button
+              onClick={() => handleTypeChange("update")}
+              className={`px-2.5 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer ${
+                type === "update"
+                  ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-sm"
+                  : "text-pink-700 hover:bg-pink-100/30"
+              }`}
+            >
+              By Update Time
+            </button>
+            <button
+              onClick={() => handleTypeChange("id")}
+              className={`px-2.5 sm:px-4 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer ${
+                type === "id"
+                  ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-sm"
+                  : "text-pink-700 hover:bg-pink-100/30"
+              }`}
+            >
+              By ID
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Refresh Button */}
+            <Button
+              onClick={() => setRefreshTrigger(prev => prev + 1)}
+              variant="outline"
+              className="rounded-xl border-pink-200 text-pink-700 bg-white hover:bg-pink-50 flex items-center gap-1 h-[34px] sm:h-[38px] px-2 sm:px-3.5 font-bold text-[10px] sm:text-xs shadow-sm transition-all active:scale-[0.98]"
+            >
+              <RefreshCw className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+              Refresh
+            </Button>
+
+            {/* Clear Filters Button */}
+            {(startDate || endDate) && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setStartDate(null);
+                  setEndDate(null);
+                  setPage(1);
+                }}
+                className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl h-[34px] sm:h-[38px] px-2 sm:px-3 font-bold text-[10px] sm:text-xs transition-colors shrink-0"
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Table */}
-      {/* Desktop Table View */}
-      <div className="hidden md:block rounded-2xl border border-pink-100 overflow-x-auto shadow-sm">
-        <Table>
+      {/* Responsive Table View (No Cards, scroll-x-auto for perfect mobile lightness) */}
+      <div className="rounded-2xl border border-pink-100 overflow-x-auto shadow-sm w-full custom-scrollbar">
+        <Table className="min-w-[600px] md:min-w-full">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[80px]">ID</TableHead>
@@ -264,7 +325,7 @@ Tim Papunda.com`;
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-[400px] p-4 rounded-2xl">
+                      <DropdownMenuContent align="end" className="w-[calc(100vw-32px)] sm:w-[400px] max-w-sm sm:max-w-md p-4 rounded-2xl">
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <div>
@@ -310,126 +371,6 @@ Tim Papunda.com`;
             ))}
           </TableBody>
         </Table>
-      </div>
-
-      {/* Mobile Card Grid View */}
-      <div className="block md:hidden space-y-4">
-        {users.slice(0, visibleUsers).map((user) => (
-          <div key={user.id} className="bg-white p-4 rounded-2xl border border-pink-100 shadow-sm space-y-3 relative overflow-hidden">
-            {/* Top row: ID, Source Badge, and Status */}
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-gray-400">#{user.id}</span>
-                {user.source === 'builder' ? (
-                  <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold uppercase tracking-wider">
-                    ✨ Builder
-                  </span>
-                ) : (
-                  <span className="px-1.5 py-0.5 rounded bg-pink-100 text-pink-800 text-[9px] font-bold uppercase tracking-wider">
-                    Legacy
-                  </span>
-                )}
-              </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                user.status === 1 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-              }`}>
-                {user.status === 1 ? 'Active' : 'Pending'}
-              </span>
-            </div>
-
-            {/* Middle Row: Contact details */}
-            <div className="space-y-1">
-              <div className="text-sm font-semibold text-gray-800 truncate" title={user.email}>
-                {user.email}
-              </div>
-              <div className="text-xs text-gray-500">
-                {user.nomor_wa || 'No Phone Number'}
-              </div>
-            </div>
-
-            {/* Footer row: Date & Quick Actions */}
-            <div className="pt-2 border-t border-gray-50 flex items-center justify-between">
-              <span className="text-[10px] text-gray-400">
-                {format(parseISO(user.updated_at), "dd MMM yyyy HH:mm")}
-              </span>
-
-              <div className="flex items-center gap-1">
-                {/* Send WhatsApp action */}
-                <Button
-                  variant="ghost"
-                  className={`h-8 px-2.5 text-xs gap-1.5 rounded-xl ${user.nomor_wa
-                    ? 'text-green-600 hover:text-green-700 hover:bg-green-50'
-                    : 'text-gray-400 cursor-not-allowed'}`}
-                  asChild
-                  disabled={!user.nomor_wa}
-                >
-                  <a
-                    href={generateWhatsAppUrl(user)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={e => !user.nomor_wa && e.preventDefault()}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-4 w-4"
-                      fill="currentColor"
-                    >
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                    </svg>
-                    WhatsApp
-                  </a>
-                </Button>
-
-                {/* More actions dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-pink-50 text-gray-400 hover:text-pink-600">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-[calc(100vw-32px)] sm:w-[400px] p-4 rounded-2xl max-w-full">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between border-b pb-1">
-                          <span className="text-xs font-semibold text-gray-500">Content ID:</span>
-                          <span className="text-xs text-gray-700 font-medium">{user.id}</span>
-                        </div>
-                        <div className="flex justify-between border-b pb-1">
-                          <span className="text-xs font-semibold text-gray-500">User ID:</span>
-                          <span className="text-xs text-gray-700 font-medium">{user.user_id}</span>
-                        </div>
-                        <div className="flex justify-between border-b pb-1">
-                          <span className="text-xs font-semibold text-gray-500">Source Type:</span>
-                          <span className="text-xs text-gray-700 capitalize font-medium">{user.source || 'legacy'}</span>
-                        </div>
-                        <div className="flex justify-between border-b pb-1">
-                          <span className="text-xs font-semibold text-gray-500">Name:</span>
-                          <span className="text-xs text-gray-700 font-medium">{user.first_name || '-'}</span>
-                        </div>
-                        <div className="flex justify-between border-b pb-1">
-                          <span className="text-xs font-semibold text-gray-500">Views:</span>
-                          <span className="text-xs text-gray-700 font-medium">{user.view}</span>
-                        </div>
-                      </div>
-
-                      <div>
-                        <span className="text-xs font-semibold text-gray-500">URL:</span>
-                        <a
-                          href={user.preview_url || `https://papunda.com/undang/${user.user_id}/${user.title}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-500 hover:text-blue-700 hover:underline break-all block mt-1"
-                        >
-                          {user.preview_url ? user.preview_url.replace('https://', '') : `papunda.com/undang/${user.user_id}/${user.title}`}
-                        </a>
-                      </div>
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Pagination */}

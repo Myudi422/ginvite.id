@@ -27,13 +27,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <SidebarDesktop typeUser={typeUser} />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col md:ml-64">
+      <div className="flex-1 flex flex-col md:ml-64 min-w-0 max-w-full overflow-x-hidden">
         {/* Header dengan z-index lebih rendah */}
         <div className="sticky top-0 z-30">
           <Header />
         </div>
 
-        <main className="flex-1 p-2 sm:mt-1">
+        <main className="flex-1 p-2 sm:mt-1 min-w-0 w-full max-w-full overflow-x-hidden">
           {children}
         </main>
       </div>
