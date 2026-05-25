@@ -28,15 +28,69 @@ export default function CreateBuilderPopup({ userId, onClose, onCreated }: Props
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Tambahan untuk nomor WA
+  const [showWaPopup, setShowWaPopup] = useState(false);
+  const [waNumber, setWaNumber] = useState('');
+  const [waError, setWaError] = useState('');
+  const [waLoading, setWaLoading] = useState(false);
+
+  // Handler simpan nomor WA
+  const handleSaveWa = async () => {
+    setWaError('');
+    if (!waNumber.match(/^08[0-9]{8,12}$/)) {
+      setWaError('Format nomor WA tidak valid. Contoh: 081234567890');
+      return;
+    }
+    setWaLoading(true);
+    try {
+      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=update_wa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, nomor_wa: waNumber }),
+      });
+      const data = await res.json();
+      if (data.status === 'ok') {
+        setShowWaPopup(false);
+        // Setelah berhasil simpan WA, lanjutkan submit undangan
+        handleCreate(true);
+      } else {
+        setWaError(data.message || 'Gagal simpan nomor WA.');
+      }
+    } catch {
+      setWaError('Gagal simpan nomor WA.');
+    } finally {
+      setWaLoading(false);
+    }
+  };
+
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let v = e.target.value.toLowerCase().replace(/\s+/g, '-');
     v = v.replace(/[^a-z0-9-]/g, '');
     setSlug(v);
   };
 
-  async function handleCreate() {
+  async function handleCreate(skipWaCheck = false) {
     if (!eventType || !slug) { setError('Harap isi semua kolom.'); return; }
     setError('');
+
+    if (!skipWaCheck) {
+      // Cek nomor WA ke backend
+      try {
+        const res = await fetch(
+          `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=check_wa&user_id=${userId}`
+        );
+        const data = await res.json();
+        if (data.status !== 'ok' || !data.nomor_wa) {
+          setShowWaPopup(true);
+          return;
+        }
+      } catch {
+        // Jika fetch gagal (misal error jaringan), tetap tampilkan popup WA
+        setShowWaPopup(true);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const defaultPage = makeDefaultPage({ slug, user_id: userId, event_type: eventType, page_title: pageTitle || slug });
@@ -60,6 +114,49 @@ export default function CreateBuilderPopup({ userId, onClose, onCreated }: Props
     } finally {
       setLoading(false);
     }
+  }
+
+  // Popup input WA jika belum ada
+  if (showWaPopup) {
+    return (
+      <div className="fixed inset-0 z-50 bg-pink-100/30 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl p-8 shadow-2xl border border-pink-200/30 w-full max-w-md">
+          <h2 className="text-xl font-bold text-pink-600 mb-4">Validasi Nomor WhatsApp</h2>
+          <p className="mb-4 text-pink-700 text-sm">
+            Sebelum membuat undangan, harap masukkan nomor WhatsApp aktif Anda untuk validasi.
+          </p>
+          {waError && (
+            <div className="mb-3 p-2 bg-red-100/50 rounded border border-red-200/50 text-red-600 text-sm">
+              {waError}
+            </div>
+          )}
+          <input
+            type="tel"
+            placeholder="Contoh: 081234567890"
+            value={waNumber}
+            onChange={(e) => setWaNumber(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-pink-200/50 text-pink-700 mb-4"
+            disabled={waLoading}
+          />
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => { setShowWaPopup(false); setWaNumber(''); setWaError(''); }}
+              disabled={waLoading}
+              className="px-6 py-2.5 rounded-xl border border-pink-200/50 bg-white/50 text-pink-600 font-medium"
+            >
+              Batal
+            </button>
+            <button
+              onClick={handleSaveWa}
+              disabled={waLoading}
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 text-white font-medium"
+            >
+              {waLoading ? 'Menyimpan...' : 'Simpan'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -160,7 +257,7 @@ export default function CreateBuilderPopup({ userId, onClose, onCreated }: Props
 
             <button
               disabled={!slug || loading}
-              onClick={handleCreate}
+              onClick={() => handleCreate()}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold text-sm transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none"
             >
               {loading ? <><Loader2Icon className="h-4 w-4 animate-spin" /> Membuat...</> : '🚀 Buka Builder'}

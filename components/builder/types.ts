@@ -205,12 +205,39 @@ export interface RsvpProps {
 
 export interface GiftProps {
   enabled: boolean;
+  title?: string;
+  layout_template?: 'classic' | 'card' | 'minimal' | 'floating';
+  animation_preset?: 'none' | 'fade_in' | 'fade_up' | 'fade_down' | 'zoom_in' | 'tracking_wide' | 'slide_left' | 'slide_right' | 'blur_reveal' | 'bounce_soft';
+  bg_type?: 'solid' | 'gradient' | 'image' | 'slideshow';
+  bg_color?: string;
+  bg_color2?: string;
+  bg_gradient_angle?: number;
+  bg_image?: string;
+  bg_image_blur?: number;
+  bg_image_grayscale?: boolean;
+  bg_slideshow_images?: string[];
+  bg_slideshow_animation?: 'fade' | 'zoom' | 'slide';
+  bg_slideshow_duration?: number;
+  overlay_type?: 'solid' | 'gradient';
+  overlay_color?: string;
+  overlay_color2?: string;
+  overlay_opacity?: number;
+  overlay_opacity2?: number;
+  overlay_gradient_angle?: number;
+  bg_new_uploaded_images?: string[];
+
   banks: Array<{
     id: string;
     bank_name: string;
     account_name: string;
     account_number: string;
   }>;
+
+  address_enabled?: boolean;
+  address_title?: string;
+  address_recipient?: string;
+  address_text?: string;
+  address_phone?: string;
 }
 
 export interface MapsProps {
@@ -237,6 +264,25 @@ export interface MusicProps {
 export interface QuoteProps {
   text: string;
   source: string;
+  layout_template?: 'classic' | 'card' | 'minimal' | 'floating';
+  animation_preset?: 'none' | 'fade_in' | 'fade_up' | 'fade_down' | 'zoom_in' | 'tracking_wide' | 'slide_left' | 'slide_right' | 'blur_reveal' | 'bounce_soft';
+  bg_type?: 'solid' | 'gradient' | 'image' | 'slideshow';
+  bg_color?: string;
+  bg_color2?: string;
+  bg_gradient_angle?: number;
+  bg_image?: string;
+  bg_image_blur?: number;
+  bg_image_grayscale?: boolean;
+  bg_slideshow_images?: string[];
+  bg_slideshow_animation?: 'fade' | 'zoom' | 'slide';
+  bg_slideshow_duration?: number;
+  overlay_type?: 'solid' | 'gradient';
+  overlay_color?: string;
+  overlay_color2?: string;
+  overlay_opacity?: number;
+  overlay_opacity2?: number;
+  overlay_gradient_angle?: number;
+  bg_new_uploaded_images?: string[];
 }
 
 export interface TextBlockProps {
