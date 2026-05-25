@@ -5,6 +5,7 @@ import type { BuilderPage, BuilderSection } from '@/components/builder/types';
 import MusicPlayer from '@/components/MusicPlayer';
 import BuilderNavigation from '@/components/builder/ui/BuilderNavigation';
 import { midtransAction, toggleStatusAction } from '@/app/actions/indexcontent';
+import { recordContentView } from '@/app/actions/view';
 
 // Section renderers (reuse dari builder)
 import OpeningPreview from '@/components/builder/previews/OpeningPreview';
@@ -288,6 +289,14 @@ export default function BuilderViewer({ page }: Props) {
       document.body.style.height = '';
     };
   }, [isOpen, isExiting, hasOpening]);
+
+  React.useEffect(() => {
+    if (page.id) {
+      recordContentView(page.id, 'builder').catch(err => {
+        console.error('Failed to record builder view:', err);
+      });
+    }
+  }, [page.id]);
 
   if (!isLoaded) {
     return (

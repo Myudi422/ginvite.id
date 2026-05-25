@@ -46,6 +46,29 @@ try {
             $pdo->exec("ALTER TABLE builder_templates MODIFY COLUMN event_type VARCHAR(255) NOT NULL DEFAULT 'pernikahan'");
         } catch (Exception $ex) {
         }
+
+        // Migrasi builder_pages table untuk kolom view
+        try {
+            $checkColView = $pdo->query("SHOW COLUMNS FROM builder_pages LIKE 'view'");
+            if (!$checkColView->fetch()) {
+                $pdo->exec("ALTER TABLE builder_pages ADD COLUMN view INT UNSIGNED NOT NULL DEFAULT 0 AFTER status");
+            }
+        } catch (Exception $ex) {
+        }
+
+        // Tambahkan indeks optimal untuk optimalisasi analis.php dan get_undangan.php
+        try {
+            $pdo->exec("ALTER TABLE users ADD INDEX idx_last_login (last_login)");
+        } catch (Exception $ex) {}
+        try {
+            $pdo->exec("ALTER TABLE content_user ADD INDEX idx_updated_at (updated_at)");
+        } catch (Exception $ex) {}
+        try {
+            $pdo->exec("ALTER TABLE builder_pages ADD INDEX idx_updated_at (updated_at)");
+        } catch (Exception $ex) {}
+        try {
+            $pdo->exec("ALTER TABLE payment ADD INDEX idx_status_date_jumlah (status, payment_date, jumlah)");
+        } catch (Exception $ex) {}
     } catch (Exception $e) {
         // Abaikan jika tabel belum dibuat
     }

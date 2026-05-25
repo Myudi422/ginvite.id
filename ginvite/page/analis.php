@@ -84,19 +84,30 @@ try {
         $mapUsers[$r['dt']] = (int)$r['cnt_users'];
     }
 
-    // 3b) DAILY INVITATIONS → berdasarkan DATE(updated_at) di tabel content_user
+    // 3b) DAILY INVITATIONS → berdasarkan DATE(updated_at) di tabel content_user dan builder_pages (UNION ALL)
     $sqlInv = "
-        SELECT 
-            DATE(updated_at) AS dt, 
-            COUNT(*) AS cnt_inv
-        FROM content_user
-        WHERE updated_at BETWEEN :s_full AND :e_full
+        SELECT dt, SUM(cnt) AS cnt_inv
+        FROM (
+            SELECT DATE(updated_at) AS dt, COUNT(*) AS cnt
+            FROM content_user
+            WHERE updated_at BETWEEN :s_full1 AND :e_full1
+            GROUP BY dt
+            
+            UNION ALL
+            
+            SELECT DATE(updated_at) AS dt, COUNT(*) AS cnt
+            FROM builder_pages
+            WHERE updated_at BETWEEN :s_full2 AND :e_full2
+            GROUP BY dt
+        ) AS combined
         GROUP BY dt
     ";
     $stmtInv = $pdo->prepare($sqlInv);
     $stmtInv->execute([
-        ':s_full' => $sd->format('Y-m-d') . ' 00:00:00',
-        ':e_full' => (new DateTime($ed->format('Y-m-d') . ' 23:59:59'))->format('Y-m-d H:i:s'),
+        ':s_full1' => $sd->format('Y-m-d') . ' 00:00:00',
+        ':e_full1' => (new DateTime($ed->format('Y-m-d') . ' 23:59:59'))->format('Y-m-d H:i:s'),
+        ':s_full2' => $sd->format('Y-m-d') . ' 00:00:00',
+        ':e_full2' => (new DateTime($ed->format('Y-m-d') . ' 23:59:59'))->format('Y-m-d H:i:s'),
     ]);
     $rowsInv = $stmtInv->fetchAll(PDO::FETCH_ASSOC);
     $mapInv = [];

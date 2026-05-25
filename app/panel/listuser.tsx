@@ -31,6 +31,8 @@ interface User {
   email: string;
   nomor_wa: string;
   first_name: string;
+  source: 'legacy' | 'builder';
+  preview_url?: string;
 }
 
 function formatDateYMD(d: Date): string {
@@ -103,7 +105,7 @@ export default function ListUser() {
   };
 
   const generateWhatsAppUrl = (user: User) => {
-    const url = `https://papunda.com/undang/${user.user_id}/${user.title}`;
+    const url = user.preview_url || `https://papunda.com/undang/${user.user_id}/${user.title}`;
     const message = `Halo Kak,
 Kami dari Papunda.com ingin menginformasikan bahwa undangan Anda (${url}) belum aktif.
 Untuk mengaktifkan fitur premium (transfer, RSVP, QR Code, dll.), silakan aktivasi di menu edit > aktifkan dan selesaikan pembayaran.
@@ -192,7 +194,8 @@ Tim Papunda.com`;
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-pink-100 overflow-x-auto shadow-sm">
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-2xl border border-pink-100 overflow-x-auto shadow-sm">
         <Table>
           <TableHeader>
             <TableRow>
@@ -206,7 +209,18 @@ Tim Papunda.com`;
           <TableBody>
             {users.slice(0, visibleUsers).map((user) => (
               <TableRow key={user.id} className="hover:bg-pink-50/50 transition-colors">
-                <TableCell className="font-medium text-gray-700">{user.id}</TableCell>
+                <TableCell className="font-medium text-gray-700">
+                  <div>{user.id}</div>
+                  {user.source === 'builder' ? (
+                    <span className="inline-block mt-1.5 px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold uppercase tracking-wider">
+                      ✨ Builder
+                    </span>
+                  ) : (
+                    <span className="inline-block mt-1.5 px-1.5 py-0.5 rounded bg-pink-100 text-pink-800 text-[9px] font-bold uppercase tracking-wider">
+                      Legacy
+                    </span>
+                  )}
+                </TableCell>
                 <TableCell>
                   <div className="font-medium truncate max-w-[180px]">{user.email}</div>
                   <div className="text-sm text-gray-500 truncate max-w-[180px]">{user.nomor_wa}</div>
@@ -262,6 +276,10 @@ Tim Papunda.com`;
                               <p className="text-sm text-gray-500">{user.user_id}</p>
                             </div>
                             <div>
+                              <span className="text-sm font-medium">Source Type:</span>
+                              <p className="text-sm text-gray-500 capitalize">{user.source || 'legacy'}</p>
+                            </div>
+                            <div>
                               <span className="text-sm font-medium">Name:</span>
                               <p className="text-sm text-gray-500">{user.first_name}</p>
                             </div>
@@ -270,12 +288,12 @@ Tim Papunda.com`;
                           <div>
                             <span className="text-sm font-medium">URL:</span>
                             <a
-                              href={`https://papunda.com/undang/${user.user_id}/${user.title}`}
+                              href={user.preview_url || `https://papunda.com/undang/${user.user_id}/${user.title}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-sm text-blue-500 hover:text-blue-700 hover:underline break-all block mt-1"
                             >
-                              papunda.com/undang/{user.user_id}/{user.title}
+                              {user.preview_url ? user.preview_url.replace('https://', '') : `papunda.com/undang/${user.user_id}/${user.title}`}
                             </a>
                           </div>
 
@@ -292,6 +310,126 @@ Tim Papunda.com`;
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card Grid View */}
+      <div className="block md:hidden space-y-4">
+        {users.slice(0, visibleUsers).map((user) => (
+          <div key={user.id} className="bg-white p-4 rounded-2xl border border-pink-100 shadow-sm space-y-3 relative overflow-hidden">
+            {/* Top row: ID, Source Badge, and Status */}
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-gray-400">#{user.id}</span>
+                {user.source === 'builder' ? (
+                  <span className="px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-[9px] font-bold uppercase tracking-wider">
+                    ✨ Builder
+                  </span>
+                ) : (
+                  <span className="px-1.5 py-0.5 rounded bg-pink-100 text-pink-800 text-[9px] font-bold uppercase tracking-wider">
+                    Legacy
+                  </span>
+                )}
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                user.status === 1 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+              }`}>
+                {user.status === 1 ? 'Active' : 'Pending'}
+              </span>
+            </div>
+
+            {/* Middle Row: Contact details */}
+            <div className="space-y-1">
+              <div className="text-sm font-semibold text-gray-800 truncate" title={user.email}>
+                {user.email}
+              </div>
+              <div className="text-xs text-gray-500">
+                {user.nomor_wa || 'No Phone Number'}
+              </div>
+            </div>
+
+            {/* Footer row: Date & Quick Actions */}
+            <div className="pt-2 border-t border-gray-50 flex items-center justify-between">
+              <span className="text-[10px] text-gray-400">
+                {format(parseISO(user.updated_at), "dd MMM yyyy HH:mm")}
+              </span>
+
+              <div className="flex items-center gap-1">
+                {/* Send WhatsApp action */}
+                <Button
+                  variant="ghost"
+                  className={`h-8 px-2.5 text-xs gap-1.5 rounded-xl ${user.nomor_wa
+                    ? 'text-green-600 hover:text-green-700 hover:bg-green-50'
+                    : 'text-gray-400 cursor-not-allowed'}`}
+                  asChild
+                  disabled={!user.nomor_wa}
+                >
+                  <a
+                    href={generateWhatsAppUrl(user)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={e => !user.nomor_wa && e.preventDefault()}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-4 w-4"
+                      fill="currentColor"
+                    >
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                    WhatsApp
+                  </a>
+                </Button>
+
+                {/* More actions dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-pink-50 text-gray-400 hover:text-pink-600">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[calc(100vw-32px)] sm:w-[400px] p-4 rounded-2xl max-w-full">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-xs font-semibold text-gray-500">Content ID:</span>
+                          <span className="text-xs text-gray-700 font-medium">{user.id}</span>
+                        </div>
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-xs font-semibold text-gray-500">User ID:</span>
+                          <span className="text-xs text-gray-700 font-medium">{user.user_id}</span>
+                        </div>
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-xs font-semibold text-gray-500">Source Type:</span>
+                          <span className="text-xs text-gray-700 capitalize font-medium">{user.source || 'legacy'}</span>
+                        </div>
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-xs font-semibold text-gray-500">Name:</span>
+                          <span className="text-xs text-gray-700 font-medium">{user.first_name || '-'}</span>
+                        </div>
+                        <div className="flex justify-between border-b pb-1">
+                          <span className="text-xs font-semibold text-gray-500">Views:</span>
+                          <span className="text-xs text-gray-700 font-medium">{user.view}</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-xs font-semibold text-gray-500">URL:</span>
+                        <a
+                          href={user.preview_url || `https://papunda.com/undang/${user.user_id}/${user.title}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-500 hover:text-blue-700 hover:underline break-all block mt-1"
+                        >
+                          {user.preview_url ? user.preview_url.replace('https://', '') : `papunda.com/undang/${user.user_id}/${user.title}`}
+                        </a>
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Pagination */}

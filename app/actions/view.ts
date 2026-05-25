@@ -5,11 +5,14 @@ const VIEW_API_URL = process.env.USER_MANAGE_API_URL || 'https://ccgnimex.my.id/
 /**
  * Record a view for the specified content
  */
-export async function recordContentView(contentUserId: number) {
+export async function recordContentView(contentUserId: number, invitationType?: 'builder' | 'legacy') {
   const res = await fetch(`${VIEW_API_URL}?action=view`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content_user_id: contentUserId }),
+    body: JSON.stringify({ 
+      content_user_id: contentUserId,
+      invitation_type: invitationType || 'legacy'
+    }),
   });
 
   const json = await res.json();

@@ -26,29 +26,50 @@ if (!isset($data['content_user_id']) || !is_numeric($data['content_user_id'])) {
 }
 
 $content_user_id = (int) $data['content_user_id'];
+$invitation_type = isset($data['invitation_type']) ? trim($data['invitation_type']) : 'legacy';
 
 try {
-    // 1) Tambah view
-    $upd = "UPDATE content_user
-            SET view = COALESCE(view,0) + 1
-            WHERE id = ?";
-    $stmt = $pdo->prepare($upd);
-    $stmt->execute([$content_user_id]);
+    if ($invitation_type === 'builder') {
+        // 1) Tambah view di builder_pages
+        $upd = "UPDATE builder_pages
+                SET view = COALESCE(view,0) + 1
+                WHERE id = ?";
+        $stmt = $pdo->prepare($upd);
+        $stmt->execute([$content_user_id]);
 
-    if ($stmt->rowCount() === 0) {
-        error(404, 'Record dengan id tersebut tidak ditemukan.');
+        if ($stmt->rowCount() === 0) {
+            error(404, 'Record builder_pages dengan id tersebut tidak ditemukan.');
+        }
+
+        // 2) (Opsional) ambil view terbaru
+        $sel = "SELECT view FROM builder_pages WHERE id = ? LIMIT 1";
+        $stmt2 = $pdo->prepare($sel);
+        $stmt2->execute([$content_user_id]);
+        $view = $stmt2->fetchColumn();
+    } else {
+        // 1) Tambah view di content_user (legacy)
+        $upd = "UPDATE content_user
+                SET view = COALESCE(view,0) + 1
+                WHERE id = ?";
+        $stmt = $pdo->prepare($upd);
+        $stmt->execute([$content_user_id]);
+
+        if ($stmt->rowCount() === 0) {
+            error(404, 'Record dengan id tersebut tidak ditemukan.');
+        }
+
+        // 2) (Opsional) ambil view terbaru
+        $sel = "SELECT view FROM content_user WHERE id = ? LIMIT 1";
+        $stmt2 = $pdo->prepare($sel);
+        $stmt2->execute([$content_user_id]);
+        $view = $stmt2->fetchColumn();
     }
-
-    // 2) (Opsional) ambil view terbaru
-    $sel = "SELECT view FROM content_user WHERE id = ? LIMIT 1";
-    $stmt2 = $pdo->prepare($sel);
-    $stmt2->execute([$content_user_id]);
-    $view = $stmt2->fetchColumn();
 
     echo json_encode([
         'status'           => 'success',
         'content_user_id'  => $content_user_id,
-        'view'             => (int) $view
+        'view'             => (int) $view,
+        'invitation_type'  => $invitation_type
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (PDOException $e) {

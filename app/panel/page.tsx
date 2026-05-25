@@ -322,23 +322,23 @@ export default function PanelPage() {
             {formatDisplayDate(startDate)} – {formatDisplayDate(endDate)}
           </span>
         </h2>
-        <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
-          <div style={{ minWidth: "600px", height: 350 }}>
-            <ResponsiveContainer>
-              <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+        <div className="w-full pb-4">
+          <div className="h-[280px] sm:h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#fbcfe8" />
                 <XAxis
                   dataKey="name"
                   stroke="#9D174D"
-                  tick={{ fill: '#be185d', fontSize: 12 }}
-                  tickMargin={10}
+                  tick={{ fill: '#be185d', fontSize: 10 }}
+                  tickMargin={8}
                   axisLine={{ stroke: '#fbcfe8' }}
                 />
                 <YAxis
                   stroke="#9D174D"
-                  tick={{ fill: '#be185d', fontSize: 12 }}
+                  tick={{ fill: '#be185d', fontSize: 9 }}
                   tickFormatter={(val) =>
-                    category === "revenue" ? `Rp ${val.toLocaleString("id-ID")}` : val
+                    category === "revenue" ? `${val >= 1000000 ? (val / 1000000) + 'M' : val >= 1000 ? (val / 1000) + 'k' : val}` : val
                   }
                   axisLine={{ stroke: '#fbcfe8' }}
                   tickLine={{ stroke: '#fbcfe8' }}
@@ -357,8 +357,8 @@ export default function PanelPage() {
                   dataKey="value"
                   stroke="#ec4899"
                   strokeWidth={3}
-                  dot={{ r: 4, fill: '#fff', stroke: '#ec4899', strokeWidth: 2 }}
-                  activeDot={{ r: 7, fill: '#db2777', stroke: '#fff', strokeWidth: 2 }}
+                  dot={{ r: 3, fill: '#fff', stroke: '#ec4899', strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: '#db2777', stroke: '#fff', strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
