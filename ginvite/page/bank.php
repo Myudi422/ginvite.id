@@ -34,38 +34,51 @@ $contentUserId   = isset($input['user_id'])
 $nama_pemberi    = isset($input['nama_pemberi'])
     ? trim($input['nama_pemberi'])
     : '';
+$invitationType  = isset($input['invitation_type'])
+    ? trim($input['invitation_type'])
+    : 'legacy';
 
 if ($nominal === null || $nominal <= 0 || $contentUserId === null || $contentUserId <= 0 || $nama_pemberi === '') {
     error(400, 'Parameter tidak valid. Diperlukan: nominal (angka positif), user_id (content_user_id positif), nama_pemberi.');
 }
 
 try {
-    // 1) Simpan ke bank_transfer
-    $sql  = "INSERT INTO bank_transfer (nominal, content_user_id, nama_pemberi) VALUES (?, ?, ?)";
+    // 1) Simpan ke bank_transfer dengan invitation_type
+    $sql  = "INSERT INTO bank_transfer (nominal, content_user_id, nama_pemberi, invitation_type) VALUES (?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
-    $ok   = $stmt->execute([$nominal, $contentUserId, $nama_pemberi]);
+    $ok   = $stmt->execute([$nominal, $contentUserId, $nama_pemberi, $invitationType]);
 
     if (!$ok) {
         error(500, 'Gagal menyimpan data transfer bank.');
     }
 
-    // 2) Ambil data content_user untuk cek WA
+    // Jika tipe builder, tidak perlu kirim notifikasi WA
+    if ($invitationType === 'builder') {
+        echo json_encode([
+            'status'  => 'success',
+            'message' => 'Konfirmasi transfer bank berhasil disimpan.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    // 2) Ambil data content dari tabel yang sesuai untuk notifikasi WA
     $stmt2 = $pdo->prepare("SELECT content FROM content_user WHERE id = ?");
     $stmt2->execute([$contentUserId]);
     $row = $stmt2->fetch(PDO::FETCH_ASSOC);
     if (!$row) {
         echo json_encode([
             'status'  => 'success',
-            'message' => 'Transfer berhasil, namun content_user tidak ditemukan untuk notifikasi WA.'
+            'message' => 'Transfer berhasil, namun data undangan tidak ditemukan untuk notifikasi WA.'
         ]);
         exit;
     }
 
     // Parse JSON content
-    $content = json_decode($row['content'], true);
+    $content = json_decode($row['content'], true) ?: [];
+    
     $plugin = $content['plugin'] ?? [];
-    $whatsappNotif = $plugin['whatsapp_notif'] ?? false;
-    $waNumber = $plugin['whatsapp_number'] ?? '';
+    $whatsappNotif = !empty($plugin['whatsapp_notif']);
+    $waNumber      = $plugin['whatsapp_number'] ?? '';
 
     // Jika WA notif non-aktif atau nomor kosong, skip pengiriman WA
     if (!$whatsappNotif || !$waNumber) {

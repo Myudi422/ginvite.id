@@ -163,8 +163,9 @@ export default function GiftPreview({ props, style }: P) {
     try {
       await submitBankTransfer({
         nominal: parseFloat(jumlah),
-        user_id: userId,
+        user_id: contentId,
         nama_pemberi: nama.trim(),
+        invitation_type: 'builder',
       });
       setSuccess(true);
       setNama('');

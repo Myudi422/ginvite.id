@@ -6,6 +6,7 @@ export interface BankTransferConfirmation {
   nominal: number;
   user_id: number;
   nama_pemberi: string;
+  invitation_type?: string;
 }
 
 /**

@@ -27,6 +27,7 @@ if (!$user_id || $title === '') {
 }
 
 try {
+    $is_builder = false;
     // Query untuk mendapatkan category_id dan content dari tabel content_user
     $sql_content_user = "
         SELECT category_id, content
@@ -38,11 +39,29 @@ try {
     $content_user_data = $stmt_content_user->fetch(PDO::FETCH_ASSOC);
 
     if (!$content_user_data) {
-        error(404, 'Data content_user tidak ditemukan.');
-    }
+        // Coba cari di builder_pages
+        $sql_builder = "
+            SELECT id, event_type, page_data
+            FROM builder_pages
+            WHERE user_id = ? AND slug = ?
+        ";
+        $stmt_builder = $pdo->prepare($sql_builder);
+        $stmt_builder->execute([$user_id, $title]);
+        $builder_data = $stmt_builder->fetch(PDO::FETCH_ASSOC);
 
-    $category_id = $content_user_data['category_id'];
-    $content_array = json_decode($content_user_data['content'], true);
+        if (!$builder_data) {
+            error(404, 'Data undangan tidak ditemukan.');
+        }
+
+        $is_builder = true;
+        $event_type = $builder_data['event_type'] ?? 'pernikahan';
+        // Map event_type to category_id
+        $category_id = ($event_type === 'khitanan') ? 1 : 2;
+        $content_array = json_decode($builder_data['page_data'] ?? '{}', true) ?: [];
+    } else {
+        $category_id = $content_user_data['category_id'];
+        $content_array = json_decode($content_user_data['content'], true) ?: [];
+    }
 
     // Query untuk mendapatkan data dari tabel bulk berdasarkan category_id yang sama
     $sql_bulk = "
@@ -68,143 +87,114 @@ try {
     foreach ($bulk_data as $bulk_item) {
         $text_undangan = $bulk_item['text_undangan'];
 
-        // Handle berbeda berdasarkan category_id
-        if ($category_id == 1) {
-            // Khitanan (Circumcision) - category_id = 1
-            $event_details = [];
-            
-            // Untuk khitanan, cek event.khitanan dulu, lalu fallback ke akad/resepsi
-            if (isset($content_array['event']['khitanan'])) {
-                $khitanan = $content_array['event']['khitanan'];
-                // Cek apakah ada data yang tidak kosong
-                $location = trim($khitanan['location'] ?? '');
-                $date = trim($khitanan['date'] ?? '');
-                $time = trim($khitanan['time'] ?? '');
-                
-                if (!empty($location) || !empty($date) || !empty($time)) {
-                    $event_parts = [];
-                    if (!empty($location)) $event_parts[] = $location;
-                    if (!empty($date)) $event_parts[] = $date;
-                    if (!empty($time)) $event_parts[] = "pukul " . $time;
-                    
-                    $event_details[] = "Acara: " . implode(", ", $event_parts);
+        if ($is_builder) {
+            // --- PARSER TIPE BUILDER ---
+            $sections = $content_array['sections'] ?? [];
+            $couple_section = null;
+            $opening_section = null;
+            $event_section = null;
+
+            foreach ($sections as $sec) {
+                if (($sec['type'] ?? '') === 'couple') {
+                    $couple_section = $sec;
                 }
-            }
-            
-            // Fallback jika khitanan kosong - coba dari data lain
-            if (empty($event_details)) {
-                // Cek akad dan resepsi
-                if (isset($content_array['event']['akad'])) {
-                    $akad = $content_array['event']['akad'];
-                    $location = trim($akad['location'] ?? '');
-                    $date = trim($akad['date'] ?? '');
-                    $time = trim($akad['time'] ?? '');
-                    
-                    if (!empty($location) || !empty($date) || !empty($time)) {
-                        $event_parts = [];
-                        if (!empty($location)) $event_parts[] = $location;
-                        if (!empty($date)) $event_parts[] = $date;
-                        if (!empty($time)) $event_parts[] = "pukul " . $time;
-                        
-                        $event_details[] = "Acara: " . implode(", ", $event_parts);
-                    }
+                if (($sec['type'] ?? '') === 'opening') {
+                    $opening_section = $sec;
                 }
-                
-                if (empty($event_details) && isset($content_array['event']['resepsi'])) {
-                    $resepsi = $content_array['event']['resepsi'];
-                    $location = trim($resepsi['location'] ?? '');
-                    $date = trim($resepsi['date'] ?? '');
-                    $time = trim($resepsi['time'] ?? '');
-                    
-                    if (!empty($location) || !empty($date) || !empty($time)) {
-                        $event_parts = [];
-                        if (!empty($location)) $event_parts[] = $location;
-                        if (!empty($date)) $event_parts[] = $date;
-                        if (!empty($time)) $event_parts[] = "pukul " . $time;
-                        
-                        $event_details[] = "Acara: " . implode(", ", $event_parts);
-                    }
+                if (($sec['type'] ?? '') === 'event_details') {
+                    $event_section = $sec;
                 }
-            }
-            
-            // Jika masih kosong, beri placeholder
-            if (empty($event_details)) {
-                $event_details[] = "Acara: [Waktu dan tempat akan diinformasikan kemudian]";
             }
 
+            // {event} placeholder
+            $event_details = [];
+            if ($event_section && isset($event_section['props']['events']) && is_array($event_section['props']['events'])) {
+                foreach ($event_section['props']['events'] as $ev) {
+                    $name = $ev['name'] ?? '';
+                    $loc = $ev['location'] ?? '';
+                    $date = $ev['date'] ?? '';
+                    $time = $ev['time'] ?? '';
+                    
+                    if (!empty($name) || !empty($loc) || !empty($date) || !empty($time)) {
+                        $parts = [];
+                        if (!empty($loc)) $parts[] = $loc;
+                        if (!empty($date)) $parts[] = $date;
+                        if (!empty($time)) $parts[] = "pukul " . $time;
+                        
+                        $event_details[] = ($name ? "$name: " : "") . implode(", ", $parts);
+                    }
+                }
+            }
+            if (empty($event_details)) {
+                $event_details[] = "[Waktu dan tempat akan diinformasikan kemudian]";
+            }
             $event_string = implode("<br>", $event_details);
 
-            // Untuk khitanan, ambil hanya satu anak saja (bukan pasangan pengantin)
-            // Cari anak yang bukan "Pengantin Wanita" atau ambil yang pertama jika struktur masih pakai pengantin
+            // {children} & {parrent} placeholders
             $child_name = '';
-            if (isset($content_array['children']) && is_array($content_array['children'])) {
-                // Prioritas: cari yang bukan "Pengantin Wanita" 
-                foreach ($content_array['children'] as $child) {
-                    if (($child['order'] ?? '') !== 'Pengantin Wanita') {
-                        $child_name = $child['nickname'] ?? $child['name'] ?? '';
-                        break;
-                    }
-                }
-                
-                // Jika tidak ketemu, ambil yang pertama
-                if (empty($child_name) && count($content_array['children']) > 0) {
-                    $first_child = $content_array['children'][0];
-                    $child_name = $first_child['nickname'] ?? $first_child['name'] ?? '';
-                }
-            }
-
-            // Untuk orang tua khitanan - cek struktur baru dulu (parents.father & parents.mother)
             $parent_names = '';
-            $father = '';
-            $mother = '';
-            
-            // PRIORITAS 1: Cek struktur baru parents.father dan parents.mother langsung
-            if (isset($content_array['parents']['father']) && !empty($content_array['parents']['father'])) {
-                $father = $content_array['parents']['father'];
-            }
-            if (isset($content_array['parents']['mother']) && !empty($content_array['parents']['mother'])) {
-                $mother = $content_array['parents']['mother'];
-            }
-            
-            // PRIORITAS 2: Jika tidak ada, fallback ke struktur lama (groom/bride)
-            if (empty($father) || empty($mother)) {
-                $groom_father = $content_array['parents']['groom']['father'] ?? '';
-                $groom_mother = $content_array['parents']['groom']['mother'] ?? '';
-                $bride_father = $content_array['parents']['bride']['father'] ?? '';
-                $bride_mother = $content_array['parents']['bride']['mother'] ?? '';
+
+            if ($category_id == 1) {
+                // Khitanan atau sejenisnya
+                if ($opening_section && isset($opening_section['props']['name_primary'])) {
+                    $child_name = $opening_section['props']['name_primary'];
+                }
                 
-                // Ambil father yang valid (yang bukan duplikat atau salah)
-                if (empty($father)) {
-                    if (!empty($groom_father) && $groom_father !== $groom_mother) {
-                        $father = $groom_father;
-                    } elseif (!empty($bride_father) && $bride_father !== $bride_mother) {
-                        $father = $bride_father;
+                if (empty($child_name) && $couple_section && isset($couple_section['props']['person_a'])) {
+                    $p_a = $couple_section['props']['person_a'];
+                    if (is_array($p_a)) {
+                        $child_name = $p_a['nickname'] ?? $p_a['name'] ?? '';
                     }
                 }
-                
-                // Ambil mother yang valid 
-                if (empty($mother)) {
-                    if (!empty($bride_mother) && strpos(strtolower($bride_mother), 'ibu') !== false) {
-                        $mother = $bride_mother;
-                    } elseif (!empty($groom_mother) && $groom_mother !== $groom_father) {
-                        $mother = $groom_mother;
+
+                if ($couple_section && isset($couple_section['props']['person_a'])) {
+                    $p_a = $couple_section['props']['person_a'];
+                    if (is_array($p_a)) {
+                        $f = $p_a['parent_father'] ?? '';
+                        $m = $p_a['parent_mother'] ?? '';
+                        if ($f && $m) $parent_names = $f . ' & ' . $m;
+                        elseif ($f) $parent_names = $f;
+                        elseif ($m) $parent_names = $m;
                     }
                 }
-                
-                // Fallback terakhir jika masih kosong
-                if (empty($father) && empty($mother)) {
-                    $father = $groom_father;
-                    $mother = $groom_mother;
+            } else {
+                // Pernikahan atau sejenisnya / umum
+                $couple_names = [];
+                if ($couple_section) {
+                    $p_a = $couple_section['props']['person_a'] ?? null;
+                    $p_b = $couple_section['props']['person_b'] ?? null;
+                    if (is_array($p_a)) {
+                        $name_a = $p_a['nickname'] ?? $p_a['name'] ?? '';
+                        if ($name_a) $couple_names[] = $name_a;
+                    }
+                    if (is_array($p_b)) {
+                        $name_b = $p_b['nickname'] ?? $p_b['name'] ?? '';
+                        if ($name_b) $couple_names[] = $name_b;
+                    }
                 }
-            }
-            
-            // Format hasil
-            if ($father && $mother) {
-                $parent_names = $father . ' & ' . $mother;
-            } elseif ($father) {
-                $parent_names = $father;
-            } elseif ($mother) {
-                $parent_names = $mother;
+                if (empty($couple_names) && $opening_section) {
+                    $p_a = $opening_section['props']['name_primary'] ?? '';
+                    $p_b = $opening_section['props']['name_secondary'] ?? '';
+                    if ($p_a) $couple_names[] = $p_a;
+                    if ($p_b) $couple_names[] = $p_b;
+                }
+                $child_name = implode(' & ', $couple_names);
+
+                if ($couple_section) {
+                    $p_a = $couple_section['props']['person_a'] ?? null;
+                    $p_b = $couple_section['props']['person_b'] ?? null;
+                    
+                    $f_a = is_array($p_a) ? ($p_a['parent_father'] ?? '') : '';
+                    $m_a = is_array($p_a) ? ($p_a['parent_mother'] ?? '') : '';
+                    $f_b = is_array($p_b) ? ($p_b['parent_father'] ?? '') : '';
+                    $m_b = is_array($p_b) ? ($p_b['parent_mother'] ?? '') : '';
+                    
+                    $p_a_str = ($f_a && $m_a) ? "$f_a & $m_a" : ($f_a ?: $m_a);
+                    $p_b_str = ($f_b && $m_b) ? "$f_b & $m_b" : ($f_b ?: $m_b);
+                    
+                    if ($p_a_str && $p_b_str) $parent_names = "$p_a_str <br> $p_b_str";
+                    else $parent_names = $p_a_str ?: $p_b_str;
+                }
             }
 
             $replacements = [
@@ -214,33 +204,180 @@ try {
             ];
 
         } else {
-            // Pernikahan (Wedding) - category_id = 2 atau lainnya
-            $event_details = [];
-            if (isset($content_array['event']['akad'])) {
-                $akad = $content_array['event']['akad'];
-                $event_details[] = "Akad Nikah: " . ($akad['location'] ?? '') . ", " . ($akad['date'] ?? '') . " pukul " . ($akad['time'] ?? '');
-            }
-            if (isset($content_array['event']['resepsi'])) {
-                $resepsi = $content_array['event']['resepsi'];
-                $event_details[] = "Resepsi: " . ($resepsi['location'] ?? '') . ", " . ($resepsi['date'] ?? '') . " pukul " . ($resepsi['time'] ?? '');
-            }
-
-            $event_string = implode("<br>", $event_details);
-
-            // Handle {children} untuk pernikahan (pasangan pengantin)
-            $children_names = [];
-            if (isset($content_array['children']) && is_array($content_array['children'])) {
-                foreach ($content_array['children'] as $child) {
-                    $children_names[] = $child['nickname'] ?? $child['name'] ?? '';
+            // --- PARSER TIPE LEGACY (FORMULIR) ---
+            if ($category_id == 1) {
+                // Khitanan (Circumcision) - category_id = 1
+                $event_details = [];
+                
+                // Untuk khitanan, cek event.khitanan dulu, lalu fallback ke akad/resepsi
+                if (isset($content_array['event']['khitanan'])) {
+                    $khitanan = $content_array['event']['khitanan'];
+                    // Cek apakah ada data yang tidak kosong
+                    $location = trim($khitanan['location'] ?? '');
+                    $date = trim($khitanan['date'] ?? '');
+                    $time = trim($khitanan['time'] ?? '');
+                    
+                    if (!empty($location) || !empty($date) || !empty($time)) {
+                        $event_parts = [];
+                        if (!empty($location)) $event_parts[] = $location;
+                        if (!empty($date)) $event_parts[] = $date;
+                        if (!empty($time)) $event_parts[] = "pukul " . $time;
+                        
+                        $event_details[] = "Acara: " . implode(", ", $event_parts);
+                    }
                 }
-            }
+                
+                // Fallback jika khitanan kosong - coba dari data lain
+                if (empty($event_details)) {
+                    // Cek akad dan resepsi
+                    if (isset($content_array['event']['akad'])) {
+                        $akad = $content_array['event']['akad'];
+                        $location = trim($akad['location'] ?? '');
+                        $date = trim($akad['date'] ?? '');
+                        $time = trim($akad['time'] ?? '');
+                        
+                        if (!empty($location) || !empty($date) || !empty($time)) {
+                            $event_parts = [];
+                            if (!empty($location)) $event_parts[] = $location;
+                            if (!empty($date)) $event_parts[] = $date;
+                            if (!empty($time)) $event_parts[] = "pukul " . $time;
+                            
+                            $event_details[] = "Acara: " . implode(", ", $event_parts);
+                        }
+                    }
+                    
+                    if (empty($event_details) && isset($content_array['event']['resepsi'])) {
+                        $resepsi = $content_array['event']['resepsi'];
+                        $location = trim($resepsi['location'] ?? '');
+                        $date = trim($resepsi['date'] ?? '');
+                        $time = trim($resepsi['time'] ?? '');
+                        
+                        if (!empty($location) || !empty($date) || !empty($time)) {
+                            $event_parts = [];
+                            if (!empty($location)) $event_parts[] = $location;
+                            if (!empty($date)) $event_parts[] = $date;
+                            if (!empty($time)) $event_parts[] = "pukul " . $time;
+                            
+                            $event_details[] = "Acara: " . implode(", ", $event_parts);
+                        }
+                    }
+                }
+                
+                // Jika masih kosong, beri placeholder
+                if (empty($event_details)) {
+                    $event_details[] = "Acara: [Waktu dan tempat akan diinformasikan kemudian]";
+                }
 
-            $replacements = [
-                '{event}' => $event_string,
-                '{parrent}' => ($content_array['parents']['groom']['father'] ?? '') . ' & ' . ($content_array['parents']['groom']['mother'] ?? '') . '<br>' .
-                               ($content_array['parents']['bride']['father'] ?? '') . ' & ' . ($content_array['parents']['bride']['mother'] ?? ''),
-                '{children}' => implode(' & ', $children_names),
-            ];
+                $event_string = implode("<br>", $event_details);
+
+                // Untuk khitanan, ambil hanya satu anak saja (bukan pasangan pengantin)
+                // Cari anak yang bukan "Pengantin Wanita" atau ambil yang pertama jika struktur masih pakai pengantin
+                $child_name = '';
+                if (isset($content_array['children']) && is_array($content_array['children'])) {
+                    // Prioritas: cari yang bukan "Pengantin Wanita" 
+                    foreach ($content_array['children'] as $child) {
+                        if (($child['order'] ?? '') !== 'Pengantin Wanita') {
+                            $child_name = $child['nickname'] ?? $child['name'] ?? '';
+                            break;
+                        }
+                    }
+                    
+                    // Jika tidak ketemu, ambil yang pertama
+                    if (empty($child_name) && count($content_array['children']) > 0) {
+                        $first_child = $content_array['children'][0];
+                        $child_name = $first_child['nickname'] ?? $first_child['name'] ?? '';
+                    }
+                }
+
+                // Untuk orang tua khitanan - cek struktur baru dulu (parents.father & parents.mother)
+                $parent_names = '';
+                $father = '';
+                $mother = '';
+                
+                // PRIORITAS 1: Cek struktur baru parents.father dan parents.mother langsung
+                if (isset($content_array['parents']['father']) && !empty($content_array['parents']['father'])) {
+                    $father = $content_array['parents']['father'];
+                }
+                if (isset($content_array['parents']['mother']) && !empty($content_array['parents']['mother'])) {
+                    $mother = $content_array['parents']['mother'];
+                }
+                
+                // PRIORITAS 2: Jika tidak ada, fallback ke struktur lama (groom/bride)
+                if (empty($father) || empty($mother)) {
+                    $groom_father = $content_array['parents']['groom']['father'] ?? '';
+                    $groom_mother = $content_array['parents']['groom']['mother'] ?? '';
+                    $bride_father = $content_array['parents']['bride']['father'] ?? '';
+                    $bride_mother = $content_array['parents']['bride']['mother'] ?? '';
+                    
+                    // Ambil father yang valid (yang bukan duplikat atau salah)
+                    if (empty($father)) {
+                        if (!empty($groom_father) && $groom_father !== $groom_mother) {
+                            $father = $groom_father;
+                        } elseif (!empty($bride_father) && $bride_father !== $bride_mother) {
+                            $father = $bride_father;
+                        }
+                    }
+                    
+                    // Ambil mother yang valid 
+                    if (empty($mother)) {
+                        if (!empty($bride_mother) && strpos(strtolower($bride_mother), 'ibu') !== false) {
+                            $mother = $bride_mother;
+                        } elseif (!empty($groom_mother) && $groom_mother !== $groom_father) {
+                            $mother = $groom_mother;
+                        }
+                    }
+                    
+                    // Fallback terakhir jika masih kosong
+                    if (empty($father) && empty($mother)) {
+                        $father = $groom_father;
+                        $mother = $groom_mother;
+                    }
+                }
+                
+                // Format hasil
+                if ($father && $mother) {
+                    $parent_names = $father . ' & ' . $mother;
+                } elseif ($father) {
+                    $parent_names = $father;
+                } elseif ($mother) {
+                    $parent_names = $mother;
+                }
+
+                $replacements = [
+                    '{event}' => $event_string,
+                    '{children}' => $child_name,
+                    '{parrent}' => $parent_names,
+                ];
+
+            } else {
+                // Pernikahan (Wedding) - category_id = 2 atau lainnya
+                $event_details = [];
+                if (isset($content_array['event']['akad'])) {
+                    $akad = $content_array['event']['akad'];
+                    $event_details[] = "Akad Nikah: " . ($akad['location'] ?? '') . ", " . ($akad['date'] ?? '') . " pukul " . ($akad['time'] ?? '');
+                }
+                if (isset($content_array['event']['resepsi'])) {
+                    $resepsi = $content_array['event']['resepsi'];
+                    $event_details[] = "Resepsi: " . ($resepsi['location'] ?? '') . ", " . ($resepsi['date'] ?? '') . " pukul " . ($resepsi['time'] ?? '');
+                }
+
+                $event_string = implode("<br>", $event_details);
+
+                // Handle {children} untuk pernikahan (pasangan pengantin)
+                $children_names = [];
+                if (isset($content_array['children']) && is_array($content_array['children'])) {
+                    foreach ($content_array['children'] as $child) {
+                        $children_names[] = $child['nickname'] ?? $child['name'] ?? '';
+                    }
+                }
+
+                $replacements = [
+                    '{event}' => $event_string,
+                    '{parrent}' => ($content_array['parents']['groom']['father'] ?? '') . ' & ' . ($content_array['parents']['groom']['mother'] ?? '') . '<br>' .
+                                   ($content_array['parents']['bride']['father'] ?? '') . ' & ' . ($content_array['parents']['bride']['mother'] ?? ''),
+                    '{children}' => implode(' & ', $children_names),
+                ];
+            }
         }
 
         // Perform the replacements
