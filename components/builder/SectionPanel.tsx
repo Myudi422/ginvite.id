@@ -33,6 +33,9 @@ const SECTION_META: Record<SectionType, { icon: React.ElementType; color: string
 
 const ADD_SECTIONS: Array<{ type: SectionType; label: string }> = [
   { type: 'opening', label: 'Sampul Depan' },
+  { type: 'hero', label: 'Banner Opening' },
+  { type: 'couple', label: 'Profil Pasangan' },
+  { type: 'event_details', label: 'Detail Acara' },
   { type: 'text_block', label: 'Teks Bebas' },
   { type: 'divider', label: 'Pemisah' },
   { type: 'gallery', label: 'Galeri Foto' },
@@ -46,15 +49,15 @@ const ADD_SECTIONS: Array<{ type: SectionType; label: string }> = [
 ];
 
 export default function SectionPanel() {
-  const { 
-    state, selectSection, toggleSectionVisibility, 
+  const {
+    state, selectSection, toggleSectionVisibility,
     moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup,
-    removeSection, addSection, duplicateSection 
+    removeSection, addSection, duplicateSection
   } = useBuilder();
   const { page, selectedSectionId } = state;
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [activeTab, setActiveTab] = useState<'sections' | 'style' | 'plugins'>('sections');
-  
+
   // Drag state using IDs
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -78,7 +81,7 @@ export default function SectionPanel() {
     const groupList = group === 'opening' ? openingSections : innerSections;
     const oldIndex = groupList.findIndex(s => s.id === draggedId);
     const newIndex = groupList.findIndex(s => s.id === targetId);
-    
+
     if (oldIndex !== -1 && newIndex !== -1) {
       // Reorder within the same group
       const newIds = groupList.map(s => s.id);
@@ -124,13 +127,12 @@ export default function SectionPanel() {
           e.preventDefault();
           handleDrop(section.id, isOpeningGroup ? 'opening' : 'inner');
         }}
-        className={`group flex flex-col gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${
-          isSelected
+        className={`group flex flex-col gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${isSelected
             ? 'border-pink-200 bg-pink-50 shadow-sm'
             : isDragOver
-            ? 'border-dashed border-pink-400 bg-pink-50/30 scale-[1.02]'
-            : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
-        } ${isDragging ? 'opacity-40 scale-95 border-dashed border-pink-300' : ''}`}
+              ? 'border-dashed border-pink-400 bg-pink-50/30 scale-[1.02]'
+              : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
+          } ${isDragging ? 'opacity-40 scale-95 border-dashed border-pink-300' : ''}`}
         onClick={() => selectSection(section.id)}
       >
         <div className="flex items-center gap-2 w-full">
@@ -191,7 +193,7 @@ export default function SectionPanel() {
             >
               <CopyIcon className="h-3 w-3" /> Salin
             </button>
-            
+
             {isOpeningGroup ? (
               section.type !== 'opening' && (
                 <button
@@ -245,7 +247,7 @@ export default function SectionPanel() {
         <>
           {/* Section List (Grouped) */}
           <div className="flex-1 overflow-y-auto p-3 space-y-4">
-            
+
             {/* GROUP: OPENING */}
             <div>
               <div className="flex items-center gap-2 mb-2 px-1">
@@ -429,7 +431,7 @@ function getDefaultIconForType(type: string) {
 function PluginPanel() {
   const { state, updateStyle } = useBuilder();
   const { page } = state;
-  const [musicList, setMusicList] = useState<{Nama_lagu: string, link_lagu: string, kategori: string}[]>([]);
+  const [musicList, setMusicList] = useState<{ Nama_lagu: string, link_lagu: string, kategori: string }[]>([]);
 
   useEffect(() => {
     getMusicList(page.event_type || 'pernikahan')
@@ -438,13 +440,13 @@ function PluginPanel() {
   }, [page.event_type]);
 
   const innerSections = page.sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) !== 'opening' && s.visible);
-  
+
   // Normalize nav_items to objects array
   const rawNavItems = page.style.nav_items;
-  const navItems: {id: string, icon: string}[] = Array.isArray(rawNavItems) 
-    ? (typeof rawNavItems[0] === 'string' 
-        ? (rawNavItems as unknown as string[]).map(id => ({ id, icon: getDefaultIconForType(innerSections.find(s => s.id === id)?.type || '') }))
-        : rawNavItems as {id: string, icon: string}[])
+  const navItems: { id: string, icon: string }[] = Array.isArray(rawNavItems)
+    ? (typeof rawNavItems[0] === 'string'
+      ? (rawNavItems as unknown as string[]).map(id => ({ id, icon: getDefaultIconForType(innerSections.find(s => s.id === id)?.type || '') }))
+      : rawNavItems as { id: string, icon: string }[])
     : innerSections.filter(s => ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps'].includes(s.type)).map(s => ({ id: s.id, icon: getDefaultIconForType(s.type) }));
 
   const toggleNavItem = (id: string, defaultIcon: string) => {
@@ -516,20 +518,20 @@ function PluginPanel() {
             <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-pink-500"></div>
           </label>
         </div>
-        
+
         {page.style.nav_enabled !== false && (
           <div className="space-y-4 mt-4 border-t border-gray-100 pt-4">
-            
+
             {/* Group 1: Tampilan & Warna */}
             <div className="bg-gray-50/50 p-3 rounded-xl border border-gray-100 space-y-3">
               <h4 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest flex items-center gap-1.5 border-b border-gray-100 pb-2">
                 <PaletteIcon className="w-3.5 h-3.5 text-indigo-500" /> Tampilan & Warna Latar
               </h4>
-              
+
               <div className="flex gap-3">
                 <div className="flex-1">
                   <label className="text-[9px] font-semibold text-gray-500 block mb-1">Gaya Latar</label>
-                  <select 
+                  <select
                     className="w-full px-2 py-1.5 text-[10px] rounded-lg border border-gray-200 focus:outline-none focus:border-indigo-300 bg-white"
                     value={page.style.nav_bg_type || 'solid'}
                     onChange={e => updateStyle({ nav_bg_type: e.target.value as 'solid' | 'gradient' })}
@@ -540,8 +542,8 @@ function PluginPanel() {
                 </div>
                 <div className="flex-1">
                   <label className="text-[9px] font-semibold text-gray-500 block mb-1">Transparansi ({page.style.nav_bg_opacity ?? 80}%)</label>
-                  <input 
-                    type="range" min="0" max="100" 
+                  <input
+                    type="range" min="0" max="100"
                     value={page.style.nav_bg_opacity ?? 80}
                     onChange={e => updateStyle({ nav_bg_opacity: Number(e.target.value) })}
                     className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-1.5 accent-indigo-500"
@@ -591,7 +593,7 @@ function PluginPanel() {
               <h4 className="text-[10px] font-bold text-gray-700 uppercase tracking-widest flex items-center gap-1.5 border-b border-gray-100 pb-2 mb-2">
                 <LayoutIcon className="w-3.5 h-3.5 text-indigo-500" /> Pengaturan Menu Navigasi
               </h4>
-              
+
               <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
                 {innerSections.map(s => {
                   const navItem = navItems.find(i => i.id === s.id);
@@ -600,8 +602,8 @@ function PluginPanel() {
                   return (
                     <div key={s.id} className={`flex flex-col gap-1.5 p-2 rounded-xl transition-all border ${isSelected ? 'bg-indigo-50/50 border-indigo-100 shadow-sm' : 'bg-white border-gray-100 hover:border-indigo-200'}`}>
                       <label className="flex items-center gap-2 cursor-pointer w-full">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleNavItem(s.id, defaultIcon)}
                           className="rounded text-indigo-500 focus:ring-indigo-500 bg-white border-gray-300 w-3.5 h-3.5"

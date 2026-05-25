@@ -43,10 +43,11 @@ if (!$id && !$pageData) {
 }
 
 try {
+    $pageJson = is_array($pageData) ? json_encode($pageData, JSON_UNESCAPED_UNICODE) : $pageData;
+
     if ($id > 0) {
         // Edit template
         if ($pageData) {
-            $pageJson = is_array($pageData) ? json_encode($pageData, JSON_UNESCAPED_UNICODE) : $pageData;
             $sql = "UPDATE builder_templates 
                     SET name = ?, event_type = ?, text_color = ?, accent_color = ?, image_theme = ?, page_data = ?, updated_at = NOW()
                     WHERE id = ?";
