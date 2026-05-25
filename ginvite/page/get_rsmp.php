@@ -22,24 +22,25 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     sendError(405, 'Method harus GET.');
 }
 
-// Ambil dan validasi content_id
+// Ambil dan validasi content_id dan invitation_type
 $content_id = isset($_GET['content_id'])
     ? filter_var($_GET['content_id'], FILTER_VALIDATE_INT)
     : null;
+$invitation_type = isset($_GET['invitation_type']) ? trim($_GET['invitation_type']) : 'legacy';
 
 if (!$content_id || $content_id <= 0) {
     sendError(400, 'Parameter tidak valid. Diperlukan: content_id (angka positif).');
 }
 
 try {
-    // Query RSVP berdasarkan content_id
+    // Query RSVP berdasarkan content_id dan invitation_type
     $stmt = $pdo->prepare("
         SELECT nama, wa, ucapan, konfirmasi, created_at
         FROM rsmp
-        WHERE content_id = ?
+        WHERE content_id = ? AND invitation_type = ?
         ORDER BY created_at DESC
     ");
-    $stmt->execute([$content_id]);
+    $stmt->execute([$content_id, $invitation_type]);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([

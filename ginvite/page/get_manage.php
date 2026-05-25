@@ -101,43 +101,58 @@ try {
 
     $QR = false;
 
-    if (json_last_error() === JSON_ERROR_NONE) {
-        if (isset($content_data['plugin']['qrcode']) && $content_data['plugin']['qrcode'] === true) {
+    if ($is_builder) {
+        // Cek apakah halaman builder sudah aktif/dibayar (status = 1)
+        // Atau jika ada transaksi sukses di payment
+        $stmt_pay = $pdo->prepare("SELECT COUNT(*) FROM payment WHERE id_content = ? AND invitation_type = 'builder' AND status = 'settlement'");
+        $stmt_pay->execute([$content_user_id]);
+        $has_paid = ((int)$stmt_pay->fetchColumn()) > 0;
+
+        if ((int)$content_user_data['status'] === 1 || $has_paid) {
             $QR = true;
         }
-        $dibayar_value  = isset($content_data['dibayar'])           ? $content_data['dibayar']           : 0;
-        $qrcode_enabled = isset($content_data['plugin']['qrcode'])  ? $content_data['plugin']['qrcode']  : false;
-        if ($qrcode_enabled && ($dibayar_value !== 0 && $dibayar_value !== 40000)) {
-            $QR = true;
+    } else {
+        if (json_last_error() === JSON_ERROR_NONE) {
+            if (isset($content_data['plugin']['qrcode']) && $content_data['plugin']['qrcode'] === true) {
+                $QR = true;
+            }
+            $dibayar_value  = isset($content_data['dibayar'])           ? $content_data['dibayar']           : 0;
+            $qrcode_enabled = isset($content_data['plugin']['qrcode'])  ? $content_data['plugin']['qrcode']  : false;
+            if ($qrcode_enabled && ($dibayar_value !== 0 && $dibayar_value !== 40000)) {
+                $QR = true;
+            }
         }
     }
 
-    // Jumlah hadir / tidak hadir
+    // Jumlah hadir / tidak hadir dengan filter invitation_type
     $stmt = $pdo->prepare("
         SELECT
             SUM(CASE WHEN konfirmasi = 'hadir' THEN 1 ELSE 0 END)       AS jumlah_hadir,
             SUM(CASE WHEN konfirmasi = 'tidak hadir' THEN 1 ELSE 0 END) AS jumlah_tidak_hadir
-        FROM rsmp WHERE content_id = ?
+        FROM rsmp WHERE content_id = ? AND invitation_type = ?
     ");
-    $stmt->execute([$content_user_id]);
+    $stmt->execute([$content_user_id, $is_builder ? 'builder' : 'legacy']);
     $rsmp = $stmt->fetch(PDO::FETCH_ASSOC);
-    $jumlah_hadir       = isset($rsmp['jumlah_hadir'])       ? $rsmp['jumlah_hadir']       : 0;
-    $jumlah_tidak_hadir = isset($rsmp['jumlah_tidak_hadir']) ? $rsmp['jumlah_tidak_hadir'] : 0;
+    $jumlah_hadir       = isset($rsmp['jumlah_hadir'])       ? (int)$rsmp['jumlah_hadir']       : 0;
+    $jumlah_tidak_hadir = isset($rsmp['jumlah_tidak_hadir']) ? (int)$rsmp['jumlah_tidak_hadir'] : 0;
 
-    // Total nominal bank transfer
-    $stmt = $pdo->prepare("SELECT SUM(nominal) AS total_nominal FROM bank_transfer WHERE content_user_id = ?");
-    $stmt->execute([$content_user_id]);
+    // Total nominal bank transfer dengan filter invitation_type
+    $stmt = $pdo->prepare("SELECT SUM(nominal) AS total_nominal FROM bank_transfer WHERE content_user_id = ? AND invitation_type = ?");
+    $stmt->execute([$content_user_id, $is_builder ? 'builder' : 'legacy']);
     $bt = $stmt->fetch(PDO::FETCH_ASSOC);
-    $total_nominal = isset($bt['total_nominal']) ? $bt['total_nominal'] : 0;
+    $total_nominal = isset($bt['total_nominal']) ? (float)$bt['total_nominal'] : 0.0;
 
-    // View count
+    // View count berdasarkan tabel yang tepat
     if ($is_builder) {
-        $view_data = 0;
+        $stmt = $pdo->prepare("SELECT view FROM builder_pages WHERE id = ?");
+        $stmt->execute([$content_user_id]);
+        $vr = $stmt->fetch(PDO::FETCH_ASSOC);
+        $view_data = isset($vr['view']) ? (int)$vr['view'] : 0;
     } else {
         $stmt = $pdo->prepare("SELECT view FROM content_user WHERE id = ?");
         $stmt->execute([$content_user_id]);
         $vr = $stmt->fetch(PDO::FETCH_ASSOC);
-        $view_data = isset($vr['view']) ? $vr['view'] : null;
+        $view_data = isset($vr['view']) ? (int)$vr['view'] : 0;
     }
 
     echo json_encode([

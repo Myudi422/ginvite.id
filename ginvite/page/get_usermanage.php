@@ -58,57 +58,60 @@ try {
     $offset_transfer = ($transfer_page - 1) * $limit;
     $offset_qr_attendance = ($qr_attendance_page - 1) * $limit;
     
-    // Query untuk tabel rsmp (RSVP) dengan pagination
-    $sql_rsmp = "SELECT * FROM rsmp WHERE content_id = ? LIMIT ? OFFSET ?";
+    // Query untuk tabel rsmp (RSVP) dengan pagination dan invitation_type
+    $sql_rsmp = "SELECT * FROM rsmp WHERE content_id = ? AND invitation_type = ? LIMIT ? OFFSET ?";
     $stmt_rsmp = $pdo->prepare($sql_rsmp);
     $stmt_rsmp->bindValue(1, $content_user_id, PDO::PARAM_INT);
-    $stmt_rsmp->bindValue(2, $limit, PDO::PARAM_INT);
-    $stmt_rsmp->bindValue(3, $offset_rsvp, PDO::PARAM_INT);
+    $stmt_rsmp->bindValue(2, $is_builder ? 'builder' : 'legacy', PDO::PARAM_STR);
+    $stmt_rsmp->bindValue(3, $limit, PDO::PARAM_INT);
+    $stmt_rsmp->bindValue(4, $offset_rsvp, PDO::PARAM_INT);
     $stmt_rsmp->execute();
     $rsmp_data = $stmt_rsmp->fetchAll(PDO::FETCH_ASSOC);
     
-    // Query untuk tabel bank_transfer dengan pagination
-    $sql_bank_transfer = "SELECT * FROM bank_transfer WHERE content_user_id = ? LIMIT ? OFFSET ?";
+    // Query untuk tabel bank_transfer dengan pagination dan invitation_type
+    $sql_bank_transfer = "SELECT * FROM bank_transfer WHERE content_user_id = ? AND invitation_type = ? LIMIT ? OFFSET ?";
     $stmt_bank_transfer = $pdo->prepare($sql_bank_transfer);
     $stmt_bank_transfer->bindValue(1, $content_user_id, PDO::PARAM_INT);
-    $stmt_bank_transfer->bindValue(2, $limit, PDO::PARAM_INT);
-    $stmt_bank_transfer->bindValue(3, $offset_transfer, PDO::PARAM_INT);
+    $stmt_bank_transfer->bindValue(2, $is_builder ? 'builder' : 'legacy', PDO::PARAM_STR);
+    $stmt_bank_transfer->bindValue(3, $limit, PDO::PARAM_INT);
+    $stmt_bank_transfer->bindValue(4, $offset_transfer, PDO::PARAM_INT);
     $stmt_bank_transfer->execute();
     $bank_transfer_data = $stmt_bank_transfer->fetchAll(PDO::FETCH_ASSOC);
     
-    // Query untuk tabel attendance dengan pagination
-    $sql_qr_attendance = "SELECT * FROM attendance WHERE content_id = ? LIMIT ? OFFSET ?";
+    // Query untuk tabel attendance dengan pagination dan invitation_type
+    $sql_qr_attendance = "SELECT * FROM attendance WHERE content_id = ? AND invitation_type = ? LIMIT ? OFFSET ?";
     $stmt_qr_attendance = $pdo->prepare($sql_qr_attendance);
     $stmt_qr_attendance->bindValue(1, $content_user_id, PDO::PARAM_INT);
-    $stmt_qr_attendance->bindValue(2, $limit, PDO::PARAM_INT);
-    $stmt_qr_attendance->bindValue(3, $offset_qr_attendance, PDO::PARAM_INT);
+    $stmt_qr_attendance->bindValue(2, $is_builder ? 'builder' : 'legacy', PDO::PARAM_STR);
+    $stmt_qr_attendance->bindValue(3, $limit, PDO::PARAM_INT);
+    $stmt_qr_attendance->bindValue(4, $offset_qr_attendance, PDO::PARAM_INT);
     $stmt_qr_attendance->execute();
     $qr_attendance_data = $stmt_qr_attendance->fetchAll(PDO::FETCH_ASSOC);
     
-    // Query agregat total nominal dari bank_transfer (seluruh data tanpa pagination)
-    $sql_total_nominal = "SELECT IFNULL(SUM(nominal),0) as total_nominal FROM bank_transfer WHERE content_user_id = ?";
+    // Query agregat total nominal dari bank_transfer (seluruh data tanpa pagination) dengan invitation_type
+    $sql_total_nominal = "SELECT IFNULL(SUM(nominal),0) as total_nominal FROM bank_transfer WHERE content_user_id = ? AND invitation_type = ?";
     $stmt_total_nominal = $pdo->prepare($sql_total_nominal);
-    $stmt_total_nominal->execute([$content_user_id]);
+    $stmt_total_nominal->execute([$content_user_id, $is_builder ? 'builder' : 'legacy']);
     $total_nominal_data = $stmt_total_nominal->fetch(PDO::FETCH_ASSOC);
     $total_nominal = $total_nominal_data['total_nominal'] ?? 0;
     
-    // Query agregat untuk menghitung total RSVP, hadir, dan tidak hadir
+    // Query agregat untuk menghitung total RSVP, hadir, dan tidak hadir dengan invitation_type
     $sql_rsvp_counts = "
         SELECT 
             COUNT(*) AS total,
             SUM(CASE WHEN konfirmasi = 'hadir' THEN 1 ELSE 0 END) AS hadir,
             SUM(CASE WHEN konfirmasi = 'tidak hadir' THEN 1 ELSE 0 END) AS tidak_hadir
         FROM rsmp
-        WHERE content_id = ?
+        WHERE content_id = ? AND invitation_type = ?
     ";
     $stmt_rsvp_counts = $pdo->prepare($sql_rsvp_counts);
-    $stmt_rsvp_counts->execute([$content_user_id]);
+    $stmt_rsvp_counts->execute([$content_user_id, $is_builder ? 'builder' : 'legacy']);
     $rsvp_counts = $stmt_rsvp_counts->fetch(PDO::FETCH_ASSOC);
     
-    // Query untuk menghitung total QR attendance (tanpa pagination)
-    $sql_qr_attendance_total = "SELECT COUNT(*) as total FROM attendance WHERE content_id = ?";
+    // Query untuk menghitung total QR attendance (tanpa pagination) dengan invitation_type
+    $sql_qr_attendance_total = "SELECT COUNT(*) as total FROM attendance WHERE content_id = ? AND invitation_type = ?";
     $stmt_qr_attendance_total = $pdo->prepare($sql_qr_attendance_total);
-    $stmt_qr_attendance_total->execute([$content_user_id]);
+    $stmt_qr_attendance_total->execute([$content_user_id, $is_builder ? 'builder' : 'legacy']);
     $qr_attendance_total_data = $stmt_qr_attendance_total->fetch(PDO::FETCH_ASSOC);
     $qr_attendance_total = $qr_attendance_total_data['total'] ?? 0;
     

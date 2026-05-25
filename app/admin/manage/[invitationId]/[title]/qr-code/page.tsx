@@ -82,6 +82,7 @@ export default function QRManagePage() {
 
   const [tab, setTab] = useState<TabOption>(TabOption.Scan);
   const [contentId, setContentId] = useState<number | null>(null);
+  const [source, setSource] = useState<'builder' | 'legacy'>('legacy');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -94,6 +95,7 @@ export default function QRManagePage() {
         const json = await res.json();
         if (json.status === 'success') {
           setContentId((json.data as ManageData).id_content_user);
+          setSource(json.data.source || 'legacy');
         } else {
           throw new Error(json.message || 'Data invalid');
         }
@@ -180,7 +182,7 @@ export default function QRManagePage() {
         </div>
 
         {/* ── Tab Content ── */}
-        {tab === TabOption.Scan && <ScanTab contentId={contentId} userId={userId} title={decodedTitle} />}
+        {tab === TabOption.Scan && <ScanTab contentId={contentId} userId={userId} title={decodedTitle} source={source} />}
         {tab === TabOption.Generate && <GenerateTab contentId={contentId} />}
         {tab === TabOption.Undangan && <UndanganTab contentId={contentId} />}
 
@@ -190,7 +192,7 @@ export default function QRManagePage() {
 }
 
 /* ─── Scan Tab ─── */
-function ScanTab({ contentId, userId, title }: { contentId: number; userId: number; title: string }) {
+function ScanTab({ contentId, userId, title, source }: { contentId: number; userId: number; title: string; source: string }) {
   const [scanData, setScanData] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [recorded, setRecorded] = useState<string[]>([]);
@@ -207,7 +209,7 @@ function ScanTab({ contentId, userId, title }: { contentId: number; userId: numb
   const handleOK = async () => {
     if (!scanData) return;
     await axios.post('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=qr', {
-      nama: scanData, content_id: contentId, user_id: userId, title,
+      nama: scanData, content_id: contentId, user_id: userId, title, invitation_type: source,
     });
     setRecorded(prev => [scanData, ...prev]);
     setShowModal(false);

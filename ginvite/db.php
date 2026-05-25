@@ -41,6 +41,33 @@ try {
             $pdo->exec("ALTER TABLE payment ADD COLUMN invitation_type VARCHAR(20) DEFAULT 'legacy' AFTER id_content");
         }
 
+        // Migrasi rsmp table
+        $checkColRsmp = $pdo->query("SHOW COLUMNS FROM rsmp LIKE 'invitation_type'");
+        if (!$checkColRsmp->fetch()) {
+            try {
+                $pdo->exec("ALTER TABLE rsmp ADD COLUMN invitation_type VARCHAR(20) DEFAULT 'legacy' AFTER content_id");
+                $pdo->exec("ALTER TABLE rsmp ADD INDEX idx_content_type (content_id, invitation_type)");
+            } catch (Exception $ex) {}
+        }
+
+        // Migrasi bank_transfer table
+        $checkColBank = $pdo->query("SHOW COLUMNS FROM bank_transfer LIKE 'invitation_type'");
+        if (!$checkColBank->fetch()) {
+            try {
+                $pdo->exec("ALTER TABLE bank_transfer ADD COLUMN invitation_type VARCHAR(20) DEFAULT 'legacy' AFTER content_user_id");
+                $pdo->exec("ALTER TABLE bank_transfer ADD INDEX idx_content_user_type (content_user_id, invitation_type)");
+            } catch (Exception $ex) {}
+        }
+
+        // Migrasi attendance table
+        $checkColAtt = $pdo->query("SHOW COLUMNS FROM attendance LIKE 'invitation_type'");
+        if (!$checkColAtt->fetch()) {
+            try {
+                $pdo->exec("ALTER TABLE attendance ADD COLUMN invitation_type VARCHAR(20) DEFAULT 'legacy' AFTER content_id");
+                $pdo->exec("ALTER TABLE attendance ADD INDEX idx_attendance_content_type (content_id, invitation_type)");
+            } catch (Exception $ex) {}
+        }
+
         // Auto-alter builder_templates event_type column to VARCHAR(255) to support multiple categories
         try {
             $pdo->exec("ALTER TABLE builder_templates MODIFY COLUMN event_type VARCHAR(255) NOT NULL DEFAULT 'pernikahan'");

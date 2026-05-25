@@ -24,15 +24,16 @@ $input = json_decode(file_get_contents('php://input'), true);
 error_log("Data diterima: " . json_encode($input));
 $nama = trim($input['nama'] ?? '');
 $content_id = (int)($input['content_id'] ?? 0);
+$invitation_type = trim($input['invitation_type'] ?? 'legacy');
 
 if (!$nama || !$content_id) {
     error(400, 'Parameter tidak valid. Diperlukan: nama(string), content_id(int).');
 }
 
 try {
-    $sql = "INSERT INTO attendance (nama, content_id, tanggal) VALUES (?, ?, NOW())";
+    $sql = "INSERT INTO attendance (nama, content_id, invitation_type, tanggal) VALUES (?, ?, ?, NOW())";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$nama, $content_id]);
+    $stmt->execute([$nama, $content_id, $invitation_type]);
 
     echo json_encode(['status' => 'success', 'message' => 'Absensi tercatat.'], JSON_UNESCAPED_UNICODE);
 } catch (PDOException $e) {

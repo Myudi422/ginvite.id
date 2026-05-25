@@ -24,11 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 
-$content_id = isset($input['content_id']) ? filter_var($input['content_id'], FILTER_VALIDATE_INT) : null;
-$nama       = isset($input['nama'])       ? trim($input['nama'])                              : '';
-$wa         = isset($input['wa'])         ? trim($input['wa'])                                : '';
-$ucapan     = isset($input['ucapan'])     ? trim($input['ucapan'])                            : '';
-$konfirmasi = isset($input['konfirmasi']) ? trim($input['konfirmasi'])                        : '';
+$content_id      = isset($input['content_id']) ? filter_var($input['content_id'], FILTER_VALIDATE_INT) : null;
+$invitation_type = isset($input['invitation_type']) ? trim($input['invitation_type']) : 'legacy';
+$nama            = isset($input['nama'])       ? trim($input['nama'])                              : '';
+$wa              = isset($input['wa'])         ? trim($input['wa'])                                : '';
+$ucapan          = isset($input['ucapan'])     ? trim($input['ucapan'])                            : '';
+$konfirmasi      = isset($input['konfirmasi']) ? trim($input['konfirmasi'])                        : '';
 
 if (
     $content_id === null || $content_id <= 0 ||
@@ -41,15 +42,19 @@ if (
 }
 
 try {
-    // Simpan ke tabel rsmp
-    $stmt = $pdo->prepare("INSERT INTO rsmp (content_id, nama, wa, ucapan, konfirmasi) VALUES (?, ?, ?, ?, ?)");
-    $ok   = $stmt->execute([$content_id, $nama, $wa, $ucapan, $konfirmasi]);
+    // Simpan ke tabel rsmp dengan invitation_type
+    $stmt = $pdo->prepare("INSERT INTO rsmp (content_id, invitation_type, nama, wa, ucapan, konfirmasi) VALUES (?, ?, ?, ?, ?, ?)");
+    $ok   = $stmt->execute([$content_id, $invitation_type, $nama, $wa, $ucapan, $konfirmasi]);
     if (!$ok) {
         error(500, 'Gagal menyimpan data RSVP.');
     }
 
-    // Ambil setting notifikasi WA dari content_user
-    $stmt2 = $pdo->prepare("SELECT content FROM content_user WHERE id = ?");
+    // Ambil setting notifikasi WA dari tabel yang sesuai
+    if ($invitation_type === 'builder') {
+        $stmt2 = $pdo->prepare("SELECT page_data AS content FROM builder_pages WHERE id = ?");
+    } else {
+        $stmt2 = $pdo->prepare("SELECT content FROM content_user WHERE id = ?");
+    }
     $stmt2->execute([$content_id]);
     $row = $stmt2->fetch(PDO::FETCH_ASSOC);
     if (!$row) {
@@ -62,8 +67,15 @@ try {
 
     $content       = json_decode($row['content'], true) ?: [];
     $plugin        = $content['plugin'] ?? [];
-    $waNotifActive = !empty($plugin['whatsapp_notif']);
-    $waNumber      = $plugin['whatsapp_number'] ?? '';
+    if ($invitation_type === 'builder') {
+        // Untuk builder, WhatsApp notif tersimpan di metadata/style
+        $style = $content['style'] ?? [];
+        $waNotifActive = !empty($style['whatsapp_notif']);
+        $waNumber      = $style['whatsapp_number'] ?? '';
+    } else {
+        $waNotifActive = !empty($plugin['whatsapp_notif']);
+        $waNumber      = $plugin['whatsapp_number'] ?? '';
+    }
 
     if (!$waNotifActive || !$waNumber) {
         echo json_encode([

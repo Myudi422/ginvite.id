@@ -123,7 +123,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
     setLoadingList(true);
     setErrorList(null);
     try {
-      const res  = await fetch(`${RSVP_GET_URL}&content_id=${contentId}`, { cache: 'no-store' });
+      const res  = await fetch(`${RSVP_GET_URL}&content_id=${contentId}&invitation_type=builder`, { cache: 'no-store' });
       const json = await res.json();
       if (json.status === 'success') {
         setRsvpList(json.data ?? []);
@@ -158,7 +158,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
       const res  = await fetch(RSVP_SUBMIT_URL, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content_id: contentId, nama: nama.trim(), wa: wa.trim(), ucapan: ucapan.trim(), konfirmasi }),
+        body: JSON.stringify({ content_id: contentId, invitation_type: 'builder', nama: nama.trim(), wa: wa.trim(), ucapan: ucapan.trim(), konfirmasi }),
       });
       const json = await res.json();
       if (json.status === 'success' || json.status === 'partial_success') {
