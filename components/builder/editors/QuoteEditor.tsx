@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Field, Input, Textarea, Toggle, Select, ColorInput } from '../ui/EditorFields';
+import { Field, Input, Textarea, Toggle, Select, ColorInput, FieldSection } from '../ui/EditorFields';
 import ImagePicker from '../ui/ImagePicker';
 import { deleteImageFromBackblaze } from '@/app/actions/backblaze';
 import { ChevronDown, Quote, Image as ImageIcon, Trash2, Loader2 } from 'lucide-react';
@@ -181,6 +181,100 @@ export default function QuoteEditor({ props, onChange }: P) {
                 ]}
               />
             </Field>
+
+            {/* Kustomisasi Desain & Warna */}
+            <div className="border-t border-gray-100 pt-4 mt-4 space-y-4">
+              <FieldSection title="Desain & Warna Kustom" />
+
+              {/* Warna Teks Kutipan */}
+              <Field label="Warna Teks Kutipan" hint="Mengabaikan warna teks default halaman jika diatur">
+                <ColorInput
+                  value={(props.custom_text_color as string) || ''}
+                  onChange={v => set('custom_text_color', v)}
+                />
+              </Field>
+
+              {/* Warna Teks Sumber */}
+              <Field label="Warna Teks Sumber" hint="Mengabaikan warna teks default halaman jika diatur">
+                <ColorInput
+                  value={(props.custom_source_color as string) || ''}
+                  onChange={v => set('custom_source_color', v)}
+                />
+              </Field>
+
+              {/* Bentuk Wadah Ikon */}
+              <Field label="Bentuk Wadah Ikon Kutip">
+                <Select
+                  value={(props.quote_shape as string) || 'default'}
+                  onChange={v => set('quote_shape', v)}
+                  options={[
+                    { value: 'default', label: 'Bawaan Layout' },
+                    { value: 'circle', label: 'Lingkaran (Circle)' },
+                    { value: 'square', label: 'Kotak (Square)' },
+                    { value: 'rounded', label: 'Rounded Square' },
+                    { value: 'none', label: 'Tanpa Ikon' },
+                  ]}
+                />
+              </Field>
+
+              {props.quote_shape !== 'none' && (
+                <>
+                  {/* Warna Ikon Kutip */}
+                  <Field label="Warna Ikon Kutip">
+                    <ColorInput
+                      value={(props.custom_quote_color as string) || ''}
+                      onChange={v => set('custom_quote_color', v)}
+                    />
+                  </Field>
+
+                  {/* Kustomisasi Tambahan untuk Bentuk Wadah selain Default */}
+                  {props.quote_shape !== 'default' && (
+                    <>
+                      <Field label="Tipe Background Wadah">
+                        <Select
+                          value={(props.quote_bg_type as string) || 'default'}
+                          onChange={v => set('quote_bg_type', v)}
+                          options={[
+                            { value: 'default', label: 'Transparan (Bawaan)' },
+                            { value: 'solid', label: 'Warna Solid' },
+                          ]}
+                        />
+                      </Field>
+
+                      {props.quote_bg_type === 'solid' && (
+                        <Field label="Warna Background Wadah">
+                          <ColorInput
+                            value={(props.custom_quote_bg as string) || '#ffffff'}
+                            onChange={v => set('custom_quote_bg', v)}
+                          />
+                        </Field>
+                      )}
+
+                      {/* Tipe Border Wadah */}
+                      <Field label="Garis Tepi Wadah (Border)">
+                        <Select
+                          value={(props.quote_border_type as string) || 'none'}
+                          onChange={v => set('quote_border_type', v)}
+                          options={[
+                            { value: 'none', label: 'Tanpa Garis' },
+                            { value: 'solid', label: 'Garis Solid' },
+                          ]}
+                        />
+                      </Field>
+
+                      {props.quote_border_type === 'solid' && (
+                        <Field label="Warna Garis Tepi Wadah">
+                          <ColorInput
+                            value={(props.custom_quote_border_color as string) || ''}
+                            onChange={v => set('custom_quote_border_color', v)}
+                          />
+                        </Field>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Quote } from 'lucide-react';
 
 interface P {
   props: Record<string, unknown>;
@@ -28,6 +29,18 @@ export default function QuotePreview({ props, style }: P) {
   const bgColor   = (style.bg_color as string)     || '#ffffff';
   const fontBody  = (style.font_body as string)    || 'inherit';
   const fontHead  = (style.font_heading as string) || fontBody;
+
+  // Custom Color and Shape overrides
+  const customTextColor = (props.custom_text_color as string) || textColor;
+  const customSourceColor = (props.custom_source_color as string) || customTextColor;
+  const customQuoteColor = (props.custom_quote_color as string) || accent;
+  const quoteShape = (props.quote_shape as string) || 'default';
+  
+  const quoteBgType = (props.quote_bg_type as string) || 'default';
+  const customQuoteBg = (props.custom_quote_bg as string) || '#ffffff';
+  
+  const quoteBorderType = (props.quote_border_type as string) || 'none';
+  const customQuoteBorderColor = (props.custom_quote_border_color as string) || customQuoteColor;
 
   // ── Background props ──────────────────────────────────────────────────────
   const bgType            = (props.bg_type as string)                     || 'solid';
@@ -136,18 +149,62 @@ export default function QuotePreview({ props, style }: P) {
   );
 
   // ── Layout Render Selectors ──────────────────────────────────────────────
+ 
+  const renderQuoteIcon = (className?: string) => {
+    if (quoteShape === 'none') return null;
+
+    if (quoteShape === 'default') {
+      return (
+        <span 
+          className={className}
+          style={{ color: props.custom_quote_color ? customQuoteColor : accent + '40' }}
+        >
+          “
+        </span>
+      );
+    }
+
+    // Shapes: circle, square, rounded
+    let shapeClass = 'inline-flex items-center justify-center w-12 h-12 transition-all duration-300 ';
+    if (quoteShape === 'circle') shapeClass += 'rounded-full ';
+    else if (quoteShape === 'rounded') shapeClass += 'rounded-xl ';
+    else if (quoteShape === 'square') shapeClass += 'rounded-none ';
+
+    const bgStyleColor = quoteBgType === 'solid' ? customQuoteBg : 'transparent';
+    const borderStyleColor = quoteBorderType === 'solid' ? `1px solid ${customQuoteBorderColor}` : 'none';
+
+    return (
+      <div 
+        className={`${shapeClass} ${className || ''}`}
+        style={{
+          backgroundColor: bgStyleColor,
+          border: borderStyleColor,
+          color: customQuoteColor,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+        }}
+      >
+        <Quote className="w-5 h-5" />
+      </div>
+    );
+  };
 
   const renderClassic = () => (
     <div className="py-16 px-8 flex flex-col items-center gap-4 text-center max-w-xl mx-auto">
-      <span className={`text-6xl font-serif leading-none select-none ${getAnimClass(1)}`} style={{ color: accent + '40' }}>“</span>
+      {quoteShape === 'default' ? (
+        <span className={`text-6xl font-serif leading-none select-none ${getAnimClass(1)}`} style={{ color: props.custom_quote_color ? customQuoteColor : accent + '40' }}>“</span>
+      ) : (
+        <div className={getAnimClass(1)}>
+          {renderQuoteIcon()}
+        </div>
+      )}
       <p
         className={`text-base italic leading-relaxed font-medium ${getAnimClass(2)}`}
-        style={{ fontFamily: `'${fontHead}', serif`, color: textColor }}
+        style={{ fontFamily: `'${fontHead}', serif`, color: customTextColor }}
       >
         {text}
       </p>
       {source && (
-        <p className={`text-xs opacity-75 font-semibold tracking-wide ${getAnimClass(3)}`} style={{ color: textColor }}>
+        <p className={`text-xs opacity-75 font-semibold tracking-wide ${getAnimClass(3)}`} style={{ color: customSourceColor }}>
           — {source}
         </p>
       )}
@@ -156,15 +213,21 @@ export default function QuotePreview({ props, style }: P) {
 
   const renderCard = () => (
     <div className={`max-w-lg mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-8 space-y-4 text-center ${getAnimClass(1)}`}>
-      <span className="text-5xl font-serif leading-none select-none block" style={{ color: accent + '40' }}>“</span>
+      {quoteShape === 'default' ? (
+        <span className="text-5xl font-serif leading-none select-none block" style={{ color: props.custom_quote_color ? customQuoteColor : accent + '40' }}>“</span>
+      ) : (
+        <div className="flex justify-center pb-2">
+          {renderQuoteIcon()}
+        </div>
+      )}
       <p
         className="text-base italic leading-relaxed font-medium"
-        style={{ fontFamily: `'${fontHead}', serif`, color: textColor }}
+        style={{ fontFamily: `'${fontHead}', serif`, color: customTextColor }}
       >
         {text}
       </p>
       {source && (
-        <p className="text-xs opacity-75 border-t border-gray-150/40 pt-3 mt-3 font-semibold tracking-wide" style={{ color: textColor }}>
+        <p className="text-xs opacity-75 border-t border-gray-150/40 pt-3 mt-3 font-semibold tracking-wide" style={{ color: customSourceColor }}>
           — {source}
         </p>
       )}
@@ -172,42 +235,70 @@ export default function QuotePreview({ props, style }: P) {
   );
 
   const renderMinimal = () => (
-    <div className={`max-w-xl mx-auto py-12 px-6 border-l-4 text-left space-y-3 pl-6 ${getAnimClass(1)}`} style={{ borderColor: accent }}>
+    <div className={`max-w-xl mx-auto py-12 px-6 border-l-4 text-left space-y-3 pl-6 ${getAnimClass(1)}`} style={{ borderColor: customQuoteColor }}>
       <p
         className="text-base italic leading-relaxed font-medium"
-        style={{ fontFamily: `'${fontHead}', serif`, color: textColor }}
+        style={{ fontFamily: `'${fontHead}', serif`, color: customTextColor }}
       >
         {text}
       </p>
       {source && (
-        <p className="text-xs tracking-wider uppercase font-bold opacity-75" style={{ color: accent }}>
+        <p className="text-xs tracking-wider uppercase font-bold opacity-75" style={{ color: customSourceColor }}>
           — {source}
         </p>
       )}
     </div>
   );
 
-  const renderFloating = () => (
-    <div className={`max-w-xl mx-auto py-14 px-8 text-center relative border-y-2 py-8 my-4 ${getAnimClass(1)}`} style={{ borderColor: accent + '33' }}>
-      <span
-        className="absolute -top-5 left-1/2 -translate-x-1/2 px-3 text-3xl font-serif select-none"
-        style={{ backgroundColor: bgSolidColor || bgColor, color: accent }}
+  const renderFloating = () => {
+    const isQuoteNone = quoteShape === 'none';
+    
+    const topBorder = (
+      <div className="absolute top-0 left-0 right-0 -translate-y-1/2 flex items-center justify-center">
+        {isQuoteNone ? (
+          <div className="w-full h-[2px]" style={{ backgroundColor: accent + '33' }} />
+        ) : (
+          <div className="w-full flex items-center justify-center gap-4">
+            <div className="flex-1 h-[2px]" style={{ backgroundColor: accent + '33' }} />
+            <div className="flex-shrink-0 relative z-10 px-2 select-none">
+              {quoteShape === 'default' ? (
+                <span
+                  className="text-3xl font-serif block leading-none translate-y-[4px] px-3"
+                  style={{ color: customQuoteColor }}
+                >
+                  “
+                </span>
+              ) : (
+                renderQuoteIcon()
+              )}
+            </div>
+            <div className="flex-1 h-[2px]" style={{ backgroundColor: accent + '33' }} />
+          </div>
+        )}
+      </div>
+    );
+
+    return (
+      <div 
+        className={`max-w-xl mx-auto py-14 px-8 text-center relative border-b-2 my-4 ${getAnimClass(1)}`} 
+        style={{ borderBottomColor: accent + '33' }}
       >
-        “
-      </span>
-      <p
-        className="text-base italic leading-relaxed font-medium"
-        style={{ fontFamily: `'${fontHead}', serif`, color: textColor }}
-      >
-        {text}
-      </p>
-      {source && (
-        <p className="text-xs opacity-80 mt-4 font-semibold tracking-wide" style={{ color: textColor }}>
-          — {source}
+        {topBorder}
+        
+        <p
+          className={`text-base italic leading-relaxed font-medium mt-4 ${getAnimClass(2)}`}
+          style={{ fontFamily: `'${fontHead}', serif`, color: customTextColor }}
+        >
+          {text}
         </p>
-      )}
-    </div>
-  );
+        {source && (
+          <p className={`text-xs opacity-80 mt-4 font-semibold tracking-wide ${getAnimClass(3)}`} style={{ color: customSourceColor }}>
+            — {source}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   const renderLayout = () => {
     switch (layoutTemplate) {

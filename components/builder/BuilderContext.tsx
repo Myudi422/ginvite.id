@@ -570,12 +570,15 @@ export function BuilderProvider({
     }
   }, [state.page, userId, isTemplate]);
 
+  const initialSlug = initialPage.slug;
+  const initialId = initialPage.id;
+
   const retryLoad = useCallback(async () => {
     dispatch({ type: 'FETCH_START' });
     try {
       const url = isTemplate
-        ? `https://ccgnimex.my.id/v2/android/ginvite/page/template_get.php?id=${state.page.id || 0}`
-        : `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get.php?user_id=${userId}&slug=${encodeURIComponent(state.page.slug)}`;
+        ? `https://ccgnimex.my.id/v2/android/ginvite/page/template_get.php?id=${initialId || 0}`
+        : `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get.php?user_id=${userId}&slug=${encodeURIComponent(initialSlug)}`;
       const res = await fetch(
         url,
         { cache: 'no-store' }
@@ -586,8 +589,8 @@ export function BuilderProvider({
           if (json.data) {
             dispatch({ type: 'FETCH_SUCCESS', payload: json.data as BuilderPage });
           } else {
-            // Halaman baru / data belum ada di server, aman pakai state saat ini
-            dispatch({ type: 'FETCH_SUCCESS', payload: state.page });
+            // Halaman baru / data belum ada di server, aman pakai data awal
+            dispatch({ type: 'FETCH_SUCCESS', payload: initialPage });
           }
         } else {
           dispatch({ type: 'FETCH_FAILURE' });
@@ -598,10 +601,13 @@ export function BuilderProvider({
     } catch {
       dispatch({ type: 'FETCH_FAILURE' });
     }
-  }, [userId, state.page.slug, state.page, isTemplate]);
+  }, [userId, initialId, initialSlug, initialPage, isTemplate]);
+
+  const hasAttemptedRetry = React.useRef(false);
 
   React.useEffect(() => {
-    if (serverLoadFailed) {
+    if (serverLoadFailed && !hasAttemptedRetry.current) {
+      hasAttemptedRetry.current = true;
       retryLoad();
     }
   }, [serverLoadFailed, retryLoad]);

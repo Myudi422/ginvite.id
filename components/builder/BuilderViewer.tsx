@@ -124,6 +124,7 @@ export default function BuilderViewer({ page }: Props) {
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [loadingPayment, setLoadingPayment] = React.useState(false);
   const [paymentError, setPaymentError] = React.useState<string | null>(null);
+  const [showBanner, setShowBanner] = React.useState(true);
 
   const handleWatermarkPayment = async () => {
     setLoadingPayment(true);
@@ -425,9 +426,20 @@ export default function BuilderViewer({ page }: Props) {
       )}
 
       {/* Floating Watermark Banner - Versi Gratis / Percobaan */}
-      {page.status === 0 && (
+      {page.status === 0 && showBanner && (
         <div className="fixed bottom-4 left-4 right-4 z-[9999] max-w-md mx-auto p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-pink-100 dark:border-pink-950 flex flex-col gap-3 transition-all duration-300">
-          <div className="flex items-start gap-3">
+          {/* Close button */}
+          <button
+            onClick={() => setShowBanner(false)}
+            className="absolute top-2.5 right-2.5 p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-gray-800 transition-all cursor-pointer hover:scale-105 active:scale-95 focus:outline-none"
+            title="Tutup Peringatan"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <div className="flex items-start gap-3 pr-6">
             <span className="text-xl animate-bounce shrink-0">✨</span>
             <div className="flex-1 text-left">
               <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">

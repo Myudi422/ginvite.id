@@ -49,6 +49,30 @@ export default function BuilderDashboard({ userId }: Props) {
     }
   }, [selectedSectionId]);
 
+  React.useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = 'Anda memiliki perubahan yang belum disimpan. Apakah Anda yakin ingin meninggalkan halaman ini?';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty]);
+
+  const handleBack = React.useCallback(() => {
+    if (isDirty) {
+      const confirmLeave = confirm(
+        'Anda memiliki perubahan yang belum disimpan. Apakah Anda yakin ingin keluar tanpa menyimpan?'
+      );
+      if (!confirmLeave) return;
+    }
+    router.push(isTemplate ? '/panel/template' : '/admin');
+  }, [isDirty, router, isTemplate]);
+
   function handleExport() {
     try {
       const exportData = {
@@ -119,7 +143,7 @@ export default function BuilderDashboard({ userId }: Props) {
         <div className="flex items-center gap-4 min-w-0">
           {/* Back */}
           <button
-            onClick={() => router.push(isTemplate ? '/panel/template' : '/admin')}
+            onClick={handleBack}
             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
           >
             <ArrowLeftIcon className="h-4 w-4" />

@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface P { props: Record<string, unknown>; style: Record<string, string | number>; }
@@ -33,9 +34,14 @@ export default function GalleryPreview({ props, style }: P) {
   // ── ACTIVE STATE HELD BY HOOKS ──
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
   
   const sliderRef = useRef<HTMLDivElement>(null);
   const validSlides = slideshowImages.filter(Boolean);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // ── SLIDESHOW TIMER ──
   useEffect(() => {
@@ -402,7 +408,7 @@ export default function GalleryPreview({ props, style }: P) {
       </div>
 
       {/* ── IMMERSIVE FULLSCREEN LIGHTBOX MODAL ── */}
-      {activeLightboxIndex !== null && images[activeLightboxIndex] && (
+      {activeLightboxIndex !== null && images[activeLightboxIndex] && mounted && createPortal(
         <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center select-none animate-item animate-fade_in">
           {/* Close button */}
           <button
@@ -444,7 +450,8 @@ export default function GalleryPreview({ props, style }: P) {
           <div className="absolute bottom-6 px-4 py-1.5 rounded-full bg-white/10 text-white/90 text-xs font-semibold tracking-widest shadow-sm">
             {activeLightboxIndex + 1} / {images.length}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
