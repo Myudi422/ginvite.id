@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { Home, Calendar, BookOpen, Gift, Heart, MapPin, Users, Clock, MessageSquare, Music, Star, Camera, Coffee, Info, type LucideIcon } from "lucide-react";
+import { Home, Calendar, BookOpen, Gift, Heart, MapPin, Users, Clock, MessageSquare, Music, Star, Camera, Coffee, Info, Shirt, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BuilderNavigationProps {
@@ -18,7 +18,8 @@ interface BuilderNavigationProps {
 const TYPE_ICONS: Record<string, LucideIcon> = {
   hero: Home, event_details: Calendar, gallery: BookOpen, gift: Gift, rsvp: Heart,
   maps: MapPin, couple: Users, countdown: Clock, our_story: BookOpen, quote: MessageSquare,
-  Home, Calendar, BookOpen, Gift, Heart, MapPin, Users, Clock, MessageSquare, Music, Star, Camera, Coffee, Info
+  dresscode: Shirt,
+  Home, Calendar, BookOpen, Gift, Heart, MapPin, Users, Clock, MessageSquare, Music, Star, Camera, Coffee, Info, Shirt
 };
 
 function normalizeHex(hex: string): string {

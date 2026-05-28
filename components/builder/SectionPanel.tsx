@@ -10,7 +10,7 @@ import {
   BookOpenIcon, CheckSquareIcon, GiftIcon, MapPinIcon, MusicIcon,
   MessageSquareIcon, TypeIcon, MinusIcon, LinkIcon, PaletteIcon,
   SettingsIcon, CopyIcon, ArrowRightIcon, ArrowLeftIcon, PlayCircleIcon,
-  HomeIcon, StarIcon, CameraIcon, CoffeeIcon, InfoIcon
+  HomeIcon, StarIcon, CameraIcon, CoffeeIcon, InfoIcon, ShirtIcon
 } from 'lucide-react';
 
 const SECTION_META: Record<SectionType, { icon: React.ElementType; color: string }> = {
@@ -23,6 +23,7 @@ const SECTION_META: Record<SectionType, { icon: React.ElementType; color: string
   our_story: { icon: BookOpenIcon, color: '#06b6d4' },
   rsvp: { icon: CheckSquareIcon, color: '#6366f1' },
   gift: { icon: GiftIcon, color: '#f59e0b' },
+  dresscode: { icon: ShirtIcon, color: '#ec4899' },
   maps: { icon: MapPinIcon, color: '#ef4444' },
   music: { icon: MusicIcon, color: '#14b8a6' },
   quote: { icon: MessageSquareIcon, color: '#a855f7' },
@@ -44,6 +45,7 @@ const ADD_SECTIONS: Array<{ type: SectionType; label: string }> = [
   { type: 'social_links', label: 'Sosial Media' },
   { type: 'rsvp', label: 'RSVP' },
   { type: 'gift', label: 'Hadiah / Gift' },
+  { type: 'dresscode', label: 'Dresscode' },
   { type: 'maps', label: 'Peta Lokasi' },
   { type: 'countdown', label: 'Hitung Mundur' },
 ];
@@ -419,12 +421,12 @@ const ICONS_MAP: Record<string, React.ElementType> = {
   Home: HomeIcon, Calendar: CalendarIcon, BookOpen: BookOpenIcon,
   Gift: GiftIcon, Heart: CheckSquareIcon, MapPin: MapPinIcon, Users: UsersIcon,
   Clock: ClockIcon, MessageSquare: MessageSquareIcon, Music: MusicIcon,
-  Star: StarIcon, Camera: CameraIcon, Coffee: CoffeeIcon, Info: InfoIcon
+  Star: StarIcon, Camera: CameraIcon, Coffee: CoffeeIcon, Info: InfoIcon, Shirt: ShirtIcon
 };
 const AVAILABLE_ICONS = Object.keys(ICONS_MAP);
 
 function getDefaultIconForType(type: string) {
-  const map: Record<string, string> = { hero: 'Home', event_details: 'Calendar', gallery: 'BookOpen', gift: 'Gift', rsvp: 'Heart', maps: 'MapPin', couple: 'Users', countdown: 'Clock', our_story: 'BookOpen', quote: 'MessageSquare' };
+  const map: Record<string, string> = { hero: 'Home', event_details: 'Calendar', gallery: 'BookOpen', gift: 'Gift', rsvp: 'Heart', maps: 'MapPin', couple: 'Users', countdown: 'Clock', our_story: 'BookOpen', quote: 'MessageSquare', dresscode: 'Shirt' };
   return map[type] || 'Star';
 }
 
@@ -447,7 +449,7 @@ function PluginPanel() {
     ? (typeof rawNavItems[0] === 'string'
       ? (rawNavItems as unknown as string[]).map(id => ({ id, icon: getDefaultIconForType(innerSections.find(s => s.id === id)?.type || '') }))
       : rawNavItems as { id: string, icon: string }[])
-    : innerSections.filter(s => ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps'].includes(s.type)).map(s => ({ id: s.id, icon: getDefaultIconForType(s.type) }));
+    : innerSections.filter(s => ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type)).map(s => ({ id: s.id, icon: getDefaultIconForType(s.type) }));
 
   const toggleNavItem = (id: string, defaultIcon: string) => {
     if (navItems.some(i => i.id === id)) {

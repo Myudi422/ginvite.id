@@ -21,6 +21,10 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
       id: makeId(), type: 'couple', label: 'Profil Pasangan', visible: true, order: 1,
       props: {
         layout: 'side_by_side',
+        layout_template: 'classic',
+        animation_preset: 'none',
+        bg_type: 'solid',
+        bg_color: '#ffffff',
         person_a: { name: '', nickname: '', photo: '', parent_father: '', parent_mother: '', instagram: '' },
         person_b: { name: '', nickname: '', photo: '', parent_father: '', parent_mother: '', instagram: '' },
       },
@@ -75,6 +79,32 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
         address_text: '',
         address_phone: '',
       },
+    },
+    {
+      id: makeId(), type: 'dresscode', label: 'Dresscode', visible: false, order: 8,
+      props: {
+        enabled: false,
+        title: 'Dress Code',
+        description: 'Demi keselarasan bersama pada hari bahagia kami, para tamu undangan diharapkan mengenakan pakaian dengan ketentuan berikut:',
+        layout_template: 'classic',
+        animation_preset: 'none',
+        bg_type: 'solid',
+        bg_color: '#ffffff',
+        items: [
+          {
+            id: makeId(),
+            name: 'Pria',
+            description: 'Pakaian Formal / Kemeja Batik Lengan Panjang / Setelan Jas',
+            colors: ['#475569', '#94a3b8', '#cbd5e1']
+          },
+          {
+            id: makeId(),
+            name: 'Wanita',
+            description: 'Dress / Kebaya Modern / Pakaian Formal dengan Nuansa Pastel',
+            colors: ['#e879a0', '#fda4af', '#fff1f2']
+          }
+        ]
+      }
     },
     {
       id: makeId(), type: 'quote', label: 'Kutipan', visible: true, order: 9,

@@ -1,35 +1,25 @@
 'use client';
-
 import React, { useState } from 'react';
-import { Field, Input, Toggle, Select, ColorInput, ItemCard } from '../ui/EditorFields';
+import { Field, Input, Textarea, Toggle, Select, ColorInput, AddButton, ItemCard } from '../ui/EditorFields';
 import ImagePicker from '../ui/ImagePicker';
 import { deleteImageFromBackblaze } from '@/app/actions/backblaze';
-import { ChevronDown, Heart, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { ChevronDown, Shirt, Image as ImageIcon, Trash2 } from 'lucide-react';
 import GradientAngleWheel from '../ui/GradientAngleWheel';
+import { makeId } from '../defaults';
 
-interface P {
-  props: Record<string, unknown>;
-  onChange: (p: Record<string, unknown>) => void;
-}
+interface P { props: Record<string, unknown>; onChange: (p: Record<string, unknown>) => void; }
+type DresscodeItem = { id: string; name: string; description: string; colors: string[]; image?: string; };
 
-type Person = Record<string, string>;
-
-export default function CoupleEditor({ props, onChange }: P) {
-  const pA = (props.person_a as Person) || {};
-  const pB = (props.person_b as Person) || {};
-  const layout = (props.layout as string) || 'side_by_side';
-  const layoutTemplate = (props.layout_template as string) || 'classic';
-  const animationPreset = (props.animation_preset as string) || 'none';
-
-  const setA = (key: string, val: string) => onChange({ ...props, person_a: { ...pA, [key]: val } });
-  const setB = (key: string, val: string) => onChange({ ...props, person_b: { ...pB, [key]: val } });
+export default function DresscodeEditor({ props, onChange }: P) {
   const set = (key: string, val: unknown) => onChange({ ...props, [key]: val });
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    settings: true,
-    profiles: false,
+    dresscode: true,
+    categories: false,
     bg: false,
   });
+
+  const [localNewColors, setLocalNewColors] = useState<Record<string, string>>({});
 
   const toggleGroup = (key: string) =>
     setOpenGroups(prev => ({ ...prev, [key]: !prev[key] }));
@@ -58,57 +48,62 @@ export default function CoupleEditor({ props, onChange }: P) {
     );
   };
 
-  const personFields = (person: Person, setter: (k: string, v: string) => void, label: string) => (
-    <div className="space-y-3 p-3 bg-gray-50/50 rounded-2xl border border-gray-100">
-      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b pb-1 mb-2">{label}</p>
-      <Field label="Nama Lengkap">
-        <Input value={person.name || ''} onChange={v => setter('name', v)} placeholder="Contoh: Muhammad Yusuf" />
-      </Field>
-      <Field label="Nama Panggilan">
-        <Input value={person.nickname || ''} onChange={v => setter('nickname', v)} placeholder="Contoh: Yusuf" />
-      </Field>
-      <Field label="Foto Profil">
-        <ImagePicker value={person.photo || ''} onChange={v => setter('photo', v)} />
-      </Field>
-      <Field label="Nama Ayah">
-        <Input value={person.parent_father || ''} onChange={v => setter('parent_father', v)} placeholder="Nama Bapak Kandung" />
-      </Field>
-      <Field label="Nama Ibu">
-        <Input value={person.parent_mother || ''} onChange={v => setter('parent_mother', v)} placeholder="Nama Ibu Kandung" />
-      </Field>
-      <Field label="Instagram (tanpa @)">
-        <Input value={person.instagram || ''} onChange={v => setter('instagram', v)} placeholder="yusuf.wedding" />
-      </Field>
-    </div>
-  );
+  const enabled = (props.enabled as boolean) ?? false;
+  const items = (props.items as DresscodeItem[]) || [];
+
+  const updateItem = (id: string, key: keyof DresscodeItem, val: any) =>
+    set('items', items.map(item => item.id === id ? { ...item, [key]: val } : item));
+  const addItem = () =>
+    set('items', [...items, { id: makeId(), name: '', description: '', colors: ['#ffffff', '#cccccc'], image: '' }]);
+  const removeItem = (id: string) =>
+    set('items', items.filter(item => item.id !== id));
 
   return (
     <div className="p-4 space-y-3">
-      {/* ── GROUP: PENGATURAN PROFIL ── */}
+
+      {/* ── GROUP: PENGATURAN DRESSCODE ── */}
       <div className="space-y-2">
-        {renderHeader('settings', 'Pengaturan Profil', Heart)}
-        {openGroups.settings && (
+        {renderHeader('dresscode', 'Pengaturan Dresscode', Shirt)}
+        {openGroups.dresscode && (
           <div className="p-3 bg-white border border-gray-100 rounded-2xl space-y-4 shadow-sm">
-            {/* Tata Letak */}
-            <Field label="Tata Letak Hubungan">
-              <Select
-                value={layout}
-                onChange={v => set('layout', v)}
-                options={[
-                  { value: 'side_by_side', label: 'Sejajar (Kiri - Kanan)' },
-                  { value: 'stacked', label: 'Bertumpuk (Atas - Bawah)' },
-                ]}
+            {/* Aktifkan Fitur */}
+            <div className="flex items-center justify-between py-1">
+              <div>
+                <p className="text-xs font-semibold text-gray-700">Aktifkan Fitur Dresscode</p>
+                <p className="text-[10px] text-gray-400">Tampilkan ketentuan kode busana</p>
+              </div>
+              <Toggle
+                checked={enabled}
+                onChange={v => set('enabled', v)}
+              />
+            </div>
+
+            {/* Judul Section */}
+            <Field label="Judul Section" hint="Biarkan kosong untuk judul default">
+              <Input
+                value={(props.title as string) || ''}
+                onChange={v => set('title', v)}
+                placeholder="Dresscode"
+              />
+            </Field>
+
+            {/* Deskripsi Section */}
+            <Field label="Deskripsi Pengantar">
+              <Textarea
+                value={(props.description as string) || ''}
+                onChange={v => set('description', v)}
+                placeholder="Tulis instruksi umum kode busana di sini..."
               />
             </Field>
 
             {/* Template Layout */}
             <Field label="Template Layout">
               <Select
-                value={layoutTemplate}
+                value={(props.layout_template as string) || 'classic'}
                 onChange={v => set('layout_template', v)}
                 options={[
-                  { value: 'classic', label: 'Klasik (Standar)' },
-                  { value: 'card', label: 'Card Terpusat (Glassmorphism)' },
+                  { value: 'classic', label: 'Klasik (Grid Berdampingan)' },
+                  { value: 'card', label: 'Card Terpusat' },
                   { value: 'minimal', label: 'Minimalis Bersih' },
                   { value: 'floating', label: 'Floating Cards' },
                 ]}
@@ -118,7 +113,7 @@ export default function CoupleEditor({ props, onChange }: P) {
             {/* Animasi Masuk */}
             <Field label="Animasi Masuk Elemen">
               <Select
-                value={animationPreset}
+                value={(props.animation_preset as string) || 'none'}
                 onChange={v => set('animation_preset', v)}
                 options={[
                   { value: 'none', label: 'Tanpa Animasi' },
@@ -138,13 +133,89 @@ export default function CoupleEditor({ props, onChange }: P) {
         )}
       </div>
 
-      {/* ── GROUP: ISI PROFIL PASANGAN ── */}
+      {/* ── GROUP: KATEGORI DRESSCODE ── */}
       <div className="space-y-2">
-        {renderHeader('profiles', 'Isi Profil Pasangan', Heart)}
-        {openGroups.profiles && (
+        {renderHeader('categories', 'Isi Kategori Dresscode', Shirt)}
+        {openGroups.categories && (
           <div className="p-3 bg-white border border-gray-100 rounded-2xl space-y-4 shadow-sm">
-            {personFields(pA, setA, 'Orang Pertama / Mempelai Pria')}
-            {personFields(pB, setB, 'Orang Kedua / Mempelai Wanita')}
+            <div className="space-y-3">
+              <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider border-b pb-1">Daftar Kategori / Kelompok Tamu</p>
+              {items.map(item => (
+                <ItemCard key={item.id} title={item.name || 'Kategori Dresscode'} onRemove={() => removeItem(item.id)}>
+                  <Field label="Nama Kategori">
+                    <Input value={item.name} onChange={v => updateItem(item.id, 'name', v)} placeholder="Contoh: Tamu Pria / Tamu Wanita / Keluarga" />
+                  </Field>
+                  <Field label="Ketentuan / Deskripsi">
+                    <Textarea value={item.description} onChange={v => updateItem(item.id, 'description', v)} placeholder="Contoh: Kemeja Batik Lengan Panjang / Dress warna pastel formal" />
+                  </Field>
+                  
+                  {/* Color Swatches Picker */}
+                  <Field label="Palet Warna Pakaian">
+                    <div className="flex flex-wrap gap-2 items-center mb-2">
+                      {(item.colors || []).map((color, cIdx) => (
+                        <div
+                          key={cIdx}
+                          className="relative flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 shadow-sm cursor-pointer group shrink-0"
+                          style={{ backgroundColor: color }}
+                          title="Klik untuk menghapus warna ini"
+                          onClick={() => {
+                            const newColors = item.colors.filter((_, i) => i !== cIdx);
+                            updateItem(item.id, 'colors', newColors);
+                          }}
+                        >
+                          <span className="opacity-0 group-hover:opacity-100 text-white text-[10px] font-bold bg-black/60 rounded-full px-1.5 py-0.5 absolute">✕</span>
+                        </div>
+                      ))}
+                      {/* Pick and Add Color Color Swatch */}
+                      <div className="flex items-center gap-2 bg-gray-50/80 p-1.5 rounded-2xl border border-gray-200/60 shrink-0 select-none">
+                        <div
+                          className="relative w-8 h-8 rounded-full border border-gray-300 shadow-sm shrink-0 overflow-hidden cursor-pointer"
+                          style={{ backgroundColor: localNewColors[item.id] || '#e879a0' }}
+                          title="Klik untuk memilih warna"
+                        >
+                          <input
+                            type="color"
+                            value={localNewColors[item.id] || '#e879a0'}
+                            onChange={(e) => {
+                              const picked = e.target.value;
+                              setLocalNewColors(prev => ({ ...prev, [item.id]: picked }));
+                            }}
+                            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const committedColor = localNewColors[item.id] || '#e879a0';
+                            const newColors = [...(item.colors || []), committedColor];
+                            updateItem(item.id, 'colors', newColors);
+                          }}
+                          className="px-2.5 py-1.5 bg-pink-500 hover:bg-pink-600 active:scale-95 text-white text-[10px] font-bold rounded-xl shadow-sm transition-all"
+                        >
+                          + Tambah
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-[9px] text-gray-400 italic">Pilih warna pada gelembung pratinjau, lalu klik "+ Tambah" untuk memasukkannya ke palet. Klik warna yang sudah ada untuk menghapusnya.</p>
+                  </Field>
+
+                  {/* Attire Sketch/Photo upload picker */}
+                  <Field label="Foto Contoh Busana / Ilustrasi">
+                    <ImagePicker
+                      value={item.image || ''}
+                      onChange={v => updateItem(item.id, 'image', v)}
+                    />
+                  </Field>
+                </ItemCard>
+              ))}
+              {items.length < 2 ? (
+                <AddButton label="Tambah Kategori" onClick={addItem} />
+              ) : (
+                <p className="text-[10px] text-gray-400 font-medium italic text-center py-2.5 bg-gray-50 rounded-xl border border-dashed border-gray-200 select-none">
+                  Batas maksimal kategori tercapai (Maksimal 2 kategori).
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -154,6 +225,7 @@ export default function CoupleEditor({ props, onChange }: P) {
         {renderHeader('bg', 'Latar Belakang', ImageIcon)}
         {openGroups.bg && (
           <div className="p-3 bg-white border border-gray-100 rounded-2xl space-y-4 shadow-sm">
+
             <Field label="Tipe Latar Belakang">
               <Select
                 value={(props.bg_type as string) || 'solid'}
@@ -399,6 +471,7 @@ export default function CoupleEditor({ props, onChange }: P) {
           </div>
         )}
       </div>
+
     </div>
   );
 }

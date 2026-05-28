@@ -23,6 +23,7 @@ import MusicPreview from '@/components/builder/previews/MusicPreview';
 import OurStoryPreview from '@/components/builder/previews/OurStoryPreview';
 import DividerPreview from '@/components/builder/previews/DividerPreview';
 import SocialLinksPreview from '@/components/builder/previews/SocialLinksPreview';
+import DresscodePreview from '@/components/builder/previews/DresscodePreview';
 
 interface Props {
   page: BuilderPage;
@@ -49,6 +50,7 @@ function SectionRenderer({ section, style, onOpen, isExiting, pageStatus }: {
     case 'maps':          return <MapsPreview props={props} style={style} />;
     case 'rsvp':          return <RsvpPreview props={props} style={style} pageStatus={pageStatus} />;
     case 'gift':          return <GiftPreview props={props} style={style} />;
+    case 'dresscode':     return <DresscodePreview props={props} style={style} />;
     case 'music':         return <MusicPreview props={props} style={style} />;
     case 'our_story':     return <OurStoryPreview props={props} style={style} />;
     case 'divider':       return <DividerPreview props={props} style={style} />;
@@ -231,6 +233,9 @@ export default function BuilderViewer({ page }: Props) {
         props.images.forEach((img: any) => { if (img) criticalImages.push(img); });
       }
       if (section.type === 'our_story' && Array.isArray(props.items)) {
+        props.items.forEach((item: any) => { if (item?.image) criticalImages.push(item.image); });
+      }
+      if (section.type === 'dresscode' && Array.isArray(props.items)) {
         props.items.forEach((item: any) => { if (item?.image) criticalImages.push(item.image); });
       }
     });
@@ -416,7 +421,7 @@ export default function BuilderViewer({ page }: Props) {
             .filter(s => s.visible && (
               page.style.nav_items
                 ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id))
-                : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps'].includes(s.type)
+                : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type)
             ))
             .map(s => {
               const navItemConfig = page.style.nav_items?.find((i: any) =>

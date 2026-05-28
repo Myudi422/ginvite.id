@@ -17,6 +17,7 @@ import TextBlockPreview from './previews/TextBlockPreview';
 import MapsPreview from './previews/MapsPreview';
 import RsvpPreview from './previews/RsvpPreview';
 import GiftPreview from './previews/GiftPreview';
+import DresscodePreview from './previews/DresscodePreview';
 import MusicPreview from './previews/MusicPreview';
 import OurStoryPreview from './previews/OurStoryPreview';
 import DividerPreview from './previews/DividerPreview';
@@ -36,6 +37,7 @@ function SectionRenderer({ section, style }: { section: BuilderSection; style: R
     case 'maps': return <MapsPreview props={props} style={style} />;
     case 'rsvp': return <RsvpPreview props={props} style={style} />;
     case 'gift': return <GiftPreview props={props} style={style} />;
+    case 'dresscode': return <DresscodePreview props={props} style={style} />;
     case 'music': return <MusicPreview props={props} style={style} />;
     case 'our_story': return <OurStoryPreview props={props} style={style} />;
     case 'divider': return <DividerPreview props={props} style={style} />;
@@ -168,7 +170,7 @@ export default function BuilderCanvas() {
 
       {page.style.nav_enabled !== false && viewMode !== 'opening' && (
         <BuilderNavigation 
-          items={visibleSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps'].includes(s.type))).map(s => {
+          items={visibleSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type))).map(s => {
             const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));
             return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
           })}

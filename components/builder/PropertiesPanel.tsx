@@ -16,6 +16,7 @@ import TextBlockEditor from './editors/TextBlockEditor';
 import MapsEditor from './editors/MapsEditor';
 import RsvpEditor from './editors/RsvpEditor';
 import GiftEditor from './editors/GiftEditor';
+import DresscodeEditor from './editors/DresscodeEditor';
 import MusicEditor from './editors/MusicEditor';
 import OurStoryEditor from './editors/OurStoryEditor';
 import DividerEditor from './editors/DividerEditor';
@@ -34,6 +35,7 @@ const EDITORS: Record<SectionType, React.ComponentType<{ props: Record<string, u
   maps: MapsEditor,
   rsvp: RsvpEditor,
   gift: GiftEditor,
+  dresscode: DresscodeEditor,
   music: MusicEditor,
   our_story: OurStoryEditor,
   divider: DividerEditor,
