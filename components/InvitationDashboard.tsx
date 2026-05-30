@@ -81,8 +81,8 @@ const TUTORIAL_VIDEOS = [
   },
   {
     title: "Cara Kirim & Kelola Undangan (Bulk)",
-    desc: "Panduan lengkap menggunakan fitur sharing kolaboratif dan fitur bulk send untuk mengelola dan membagikan undangan Anda.",
-    badge: "Bulk & Sharing",
+    desc: "fitur bulk send untuk mengelola dan membagikan undangan Anda.",
+    badge: "Bulk & Send",
     duration: "3:00",
     url: "https://ccgnimex.s3.us-east-005.backblazeb2.com/admin_uploads/video/tutorial+share+undangan.mp4",
   },
