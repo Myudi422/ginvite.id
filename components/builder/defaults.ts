@@ -48,7 +48,15 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
     },
     {
       id: makeId(), type: 'our_story', label: 'Kisah Kami', visible: false, order: 5,
-      props: { items: [] },
+      props: {
+        title: 'Kisah Kami',
+        description: 'Bagaimana perjalanan cinta kami bermula dan terjalin',
+        layout_template: 'classic',
+        animation_preset: 'none',
+        bg_type: 'solid',
+        bg_color: '#ffffff',
+        items: [],
+      },
     },
     {
       id: makeId(), type: 'maps', label: 'Peta Lokasi', visible: true, order: 6,
