@@ -379,72 +379,42 @@ export default function InvitationDashboard({ user, invitations, error = null }:
                   </div>
                 </div>
 
-                {/* Arrow navigation + Dropdown toggle */}
-                <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                  {showTutorials && (
-                    <div className="flex items-center gap-1 mr-1">
-                      <button
-                        onClick={scrollLeft}
-                        className="p-1.5 rounded-lg bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors flex items-center justify-center"
-                        title="Geser Kiri"
-                      >
-                        <ChevronLeftIcon className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={scrollRight}
-                        className="p-1.5 rounded-lg bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors flex items-center justify-center"
-                        title="Geser Kanan"
-                      >
-                        <ChevronRightIcon className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
-                  <button
-                    onClick={() => setShowTutorials(!showTutorials)}
-                    className="p-1.5 rounded-lg bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors flex items-center justify-center"
-                  >
-                    {showTutorials ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowTutorials(!showTutorials)}
+                  className="p-1.5 rounded-lg bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors flex items-center justify-center"
+                >
+                  {showTutorials ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
               </div>
 
               {showTutorials && (
                 <div className="pt-2 border-t border-pink-50">
-                  <div
-                    ref={scrollContainerRef}
-                    className="flex gap-4 overflow-x-auto pb-3 pt-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-pink-100 scrollbar-track-transparent scroll-smooth"
-                  >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                     {TUTORIAL_VIDEOS.map((video, idx) => (
                       <div
                         key={idx}
-                        className="w-[280px] sm:w-[320px] shrink-0 snap-start bg-pink-50/20 border border-pink-100/50 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md transition-shadow"
+                        onClick={() => setActiveVideoIdx(idx)}
+                        className="flex gap-3 items-center bg-pink-50/10 border border-pink-100/40 rounded-2xl p-3 hover:shadow-md hover:border-pink-200/60 transition-all cursor-pointer group"
                       >
-                        <div>
-                          {/* Video Thumbnail */}
-                          <div
-                            className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-pink-500/80 via-rose-500/80 to-purple-600/90 border border-slate-100 shadow-md group mb-3 cursor-pointer flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-[1.02]"
-                            onClick={() => setActiveVideoIdx(idx)}
-                          >
-                            <div className="absolute inset-0 bg-black/10 mix-blend-multiply pointer-events-none" />
-                            <div className="w-12 h-12 rounded-full bg-white text-pink-600 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-pink-50 transition-all duration-300 z-10">
-                              <Play className="w-5 h-5 fill-pink-600 text-pink-600 translate-x-0.5" />
-                            </div>
-                            <span className="absolute bottom-2 left-2 right-2 text-[9px] font-black uppercase tracking-widest text-white/95 line-clamp-1 text-center bg-slate-950/40 backdrop-blur-[2px] py-1 px-2 rounded-md">
-                              Klik untuk Putar
-                            </span>
+                        {/* Small Left Thumbnail */}
+                        <div className="relative w-24 h-14 shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-pink-500/90 via-rose-500/90 to-purple-600/95 flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-[1.03]">
+                          <div className="absolute inset-0 bg-black/5 mix-blend-multiply pointer-events-none" />
+                          <div className="w-8 h-8 rounded-full bg-white text-pink-600 flex items-center justify-center shadow-md z-10 transition-transform group-hover:scale-110">
+                            <Play className="w-3.5 h-3.5 fill-pink-600 text-pink-600 translate-x-0.5" />
                           </div>
+                        </div>
 
-                          {/* Header info */}
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 border border-pink-200">
+                        {/* Right Text Information */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="text-[8px] font-extrabold px-1.5 py-0.5 rounded bg-pink-100 text-pink-600 border border-pink-200/50 uppercase tracking-wider">
                               {video.badge}
                             </span>
                           </div>
-
-                          <h4 className="font-bold text-gray-800 text-sm leading-snug mb-1 line-clamp-1">
+                          <h4 className="font-bold text-gray-800 text-xs sm:text-sm leading-snug line-clamp-1 group-hover:text-pink-600 transition-colors">
                             {video.title}
                           </h4>
-                          <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
+                          <p className="text-[10px] text-gray-400 line-clamp-1 leading-relaxed mt-0.5">
                             {video.desc}
                           </p>
                         </div>
