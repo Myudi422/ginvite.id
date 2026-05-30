@@ -1,230 +1,233 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  PlayCircle,
+  UserPlus,
+  FolderPlus,
+  Sliders,
+  Send,
+  Sparkles,
+  ArrowRight,
+  Info,
+} from "lucide-react";
 import Image from "next/image";
-import { useRef } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
-// Cover video menggunakan image 1.jpeg
 const tutorialImage = "/tutor1.jpg";
 
 const steps = [
   {
     step: 1,
-    title: "Buat Akun",
+    title: "Buat Akun Papunda",
+    subtitle: "Daftar & login instan hanya dengan sekali klik menggunakan akun Google Anda.",
     linkText: "Daftar & Login Sekarang",
-    subtitle: "Cukup Login Pakai akun google anda",
     linkUrl: "/login",
     image: "/tutor1.jpg",
+    icon: <UserPlus className="w-5 h-5 text-pink-600" />,
+    color: "bg-pink-100/80 border-pink-200 text-pink-700",
   },
   {
     step: 2,
-    title: "Klik Tombol + Buat Undangan",
-    subtitle: "Pilih Kategori Undangan Yang ingin dipilih, dan isi judul undangan, lalu simpan",
+    title: "Klik Buat Undangan",
+    subtitle: "Pilih kategori acara (Pernikahan, Khitanan, Ulang Tahun, atau Acara Lain), isi judul, lalu simpan.",
     image: "/tutor2.jpg",
+    icon: <FolderPlus className="w-5 h-5 text-rose-600" />,
+    color: "bg-rose-100/80 border-rose-200 text-rose-700",
   },
   {
     step: 3,
-    title: "Pilih Template & Isi Data",
-    subtitle: "Pilih Template Undangan serta isi data formulir dan aktifkan/nonaktifkan fitur yang ingin dipilih, lalu simpan",
+    title: "Kustom Desain & Isi Data",
+    subtitle: "Pilih tema terfavorit, isi formulir data acara, aktifkan fitur rsvp/hadiah, dan kustom warna/font sesuka hati.",
     image: "/tutor3.jpg",
+    icon: <Sliders className="w-5 h-5 text-purple-600" />,
+    color: "bg-purple-100/80 border-purple-200 text-purple-700",
   },
   {
     step: 4,
-    title: "Terbitkan & Bagikan",
-    subtitle: "Kirim tautan undangan ke tamu, kamu bisa juga kirim tautan spesial per tamu!",
+    title: "Terbitkan & Sebarkan!",
+    subtitle: "Undangan siap dibagikan! Buat link khusus yang personal untuk tamu VIP agar terasa lebih dihargai.",
     image: "/tutor4.jpg",
+    icon: <Send className="w-5 h-5 text-violet-600" />,
+    color: "bg-violet-100/80 border-violet-200 text-violet-700",
   },
 ];
 
 export default function InstructionsSection() {
-  const sliderRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: "left" | "right") => {
-    if (!sliderRef.current) return;
-    const slider = sliderRef.current;
-    const scrollAmount = slider.clientWidth * 0.8;
-    slider.scrollTo({
-      left:
-        direction === "left"
-          ? slider.scrollLeft - scrollAmount
-          : slider.scrollLeft + scrollAmount,
-      behavior: "smooth",
-    });
-  };
+  const [activeStep, setActiveStep] = useState(0);
 
   return (
-    <section className="py-6 md:py-6 bg-white px-4">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-24 px-4 bg-gradient-to-b from-white via-pink-50/10 to-white overflow-hidden relative">
+      {/* Decorative Circles */}
+      <div className="absolute -top-12 left-1/4 w-96 h-96 bg-purple-100/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-12 right-1/4 w-96 h-96 bg-pink-100/20 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        
         {/* Header */}
-        <div className="text-center mb-14 md:mb-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+        <div className="text-center max-w-2xl mx-auto mb-16 md:mb-20">
+          <motion.span
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-1 bg-pink-100 text-pink-700 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 border border-pink-200/50"
+          >
+            <Sparkles className="w-3.5 h-3.5 fill-pink-500 text-pink-500 animate-spin-slow" />
+            Panduan Mudah
+          </motion.span>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-5xl font-serif font-bold text-slate-800 mb-5 tracking-tight leading-tight"
+          >
             Cara Menggunakan Papunda
-          </h2>
-          <p className="text-gray-600 md:text-lg max-w-xl mx-auto leading-relaxed">
-            Buat undangan profesional hanya dalam {" "}
-            <span className="font-semibold text-pink-500">5 menit</span>
-          </p>
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-lg text-slate-600 leading-relaxed"
+          >
+            Buat undangan digital profesional yang mewah dan elegan hanya dalam waktu{" "}
+            <span className="font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md border border-pink-100">5 menit</span>
+          </motion.p>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_1fr] gap-8 lg:gap-8">
-          {/* Steps Grid */}
-          <div className="lg:contents">
-            {/* Mobile Carousel */}
-            <div className="lg:hidden relative group">
-              {/* Mobile nav */}
-              <div className="absolute inset-y-0 left-0 z-10 flex items-center -translate-x-3">
-                <button
-                  onClick={() => scroll("left")}
-                  className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all hover:scale-105"
-                >
-                  <ChevronLeft
-                    className="w-6 h-6 text-gray-700"
-                    strokeWidth={2}
-                  />
-                </button>
-              </div>
-              <div className="absolute inset-y-0 right-0 z-10 flex items-center translate-x-3">
-                <button
-                  onClick={() => scroll("right")}
-                  className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all hover:scale-105"
-                >
-                  <ChevronRight
-                    className="w-6 h-6 text-gray-700"
-                    strokeWidth={2}
-                  />
-                </button>
-              </div>
-
-              <div
-                ref={sliderRef}
-                className="pb-4 -mx-4 px-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+        {/* Desktop Interactive Layout & Mobile Card Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          {/* Left Column: Vertical Interactive Steps (lg:col-span-5) */}
+          <div className="lg:col-span-5 flex flex-col justify-center space-y-4">
+            {steps.map((item, index) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                onClick={() => setActiveStep(index)}
+                className={`group relative p-5 rounded-2xl border transition-all duration-300 cursor-pointer flex gap-4 ${
+                  activeStep === index
+                    ? "bg-white border-pink-200 shadow-lg shadow-pink-100/50 scale-[1.02]"
+                    : "bg-white/40 border-slate-100 hover:border-slate-200 hover:bg-white/80"
+                }`}
               >
-                <div className="flex gap-4 w-max">
-                  {steps.map((item) => (
-                    <div
-                      key={item.step}
-                      className="w-[85vw] snap-center flex-shrink-0 mx-2"
+                {/* Visual Step Connection Line (desktop only) */}
+                {index < steps.length - 1 && (
+                  <div className="absolute top-[70px] left-[38px] w-0.5 h-[50px] bg-slate-100 hidden lg:block" />
+                )}
+
+                {/* Step Number / Icon Badge */}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300 group-hover:scale-110 ${
+                  activeStep === index ? item.color : "bg-slate-50 border-slate-200 text-slate-500"
+                }`}>
+                  {item.icon}
+                </div>
+
+                {/* Step Info */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Step {item.step}</span>
+                  <h3 className="font-bold text-slate-800 text-lg group-hover:text-pink-600 transition-colors flex items-center gap-1.5">
+                    {item.title}
+                  </h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    {item.subtitle}
+                  </p>
+                  
+                  {/* Action Link for Step 1 */}
+                  {item.linkText && (
+                    <Link
+                      href={item.linkUrl}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-pink-600 hover:text-pink-700 hover:underline pt-1.5"
                     >
-                      <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all h-full overflow-hidden flex flex-col">
-                        <div className="p-5 flex-grow">
-                          <div className="text-pink-500 font-bold text-lg mb-2">
-                            Step {item.step}
-                          </div>
-                          <h3 className="text-gray-900 font-semibold text-lg mb-1.5">
-                            {item.title}
-                            {item.linkText && (
-                              <a
-                                href={item.linkUrl}
-                                className="block text-pink-500 hover:text-pink-600 text-sm mt-1"
-                              >
-                                {item.linkText} →
-                              </a>
-                            )}
-                          </h3>
-                          {item.subtitle && (
-                            <p className="text-gray-600 text-sm leading-relaxed">
-                              {item.subtitle}
-                            </p>
-                          )}
-                        </div>
-                        <div className="relative aspect-video bg-gray-50">
-                          <Image
-                            src={item.image}
-                            alt={`Step ${item.step}`}
-                            fill
-                            className="object-cover object-center"
-                            quality={85}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                      {item.linkText}
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Right Column: Dynamic Preview Screen & Video (lg:col-span-7) */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="lg:col-span-7 flex flex-col space-y-6"
+          >
+            {/* Screen / Image Showcase with smooth animation */}
+            <div className="bg-slate-900 rounded-3xl border-4 border-slate-800 shadow-2xl overflow-hidden aspect-video relative group flex-1 min-h-[300px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeStep}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={steps[activeStep].image}
+                    alt={steps[activeStep].title}
+                    fill
+                    className="object-cover object-top opacity-90"
+                    quality={90}
+                  />
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Status Header Overlay */}
+              <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+                <div className="bg-slate-900/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-slate-700 text-[10px] font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                  Live Preview Screen
+                </div>
+                <div className="bg-pink-600 text-white font-black text-xs px-3.5 py-1.5 rounded-full shadow-lg">
+                  Step {steps[activeStep].step}
                 </div>
               </div>
+
+              {/* Gradient Bottom Cover */}
+              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent pointer-events-none" />
             </div>
 
-            {/* Desktop Grid */}
-            <div className="hidden lg:grid grid-cols-2 gap-6 h-full">
-              {steps.map((item) => (
-                <div
-                  key={item.step}
-                  className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
-                >
-                  <div className="p-6 flex-grow">
-                    <div className="text-pink-500 font-bold text-lg mb-3">
-                      Step {item.step}
-                    </div>
-                    <h3 className="text-gray-900 font-semibold text-lg mb-2">
-                      {item.title}
-                      {item.linkText && (
-                        <a
-                          href={item.linkUrl}
-                          className="block text-pink-500 hover:text-pink-600 text-sm mt-2"
-                        >
-                          {item.linkText} →
-                        </a>
-                      )}
-                    </h3>
-                    {item.subtitle && (
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        {item.subtitle}
-                      </p>
-                    )}
-                  </div>
-                  <div className="relative aspect-video bg-gray-50">
-                    <Image
-                      src={item.image}
-                      alt={`Step ${item.step}`}
-                      fill
-                      className="object-cover object-center"
-                      quality={85}
-                    />
-                  </div>
+            {/* Floating Video Preview Panel */}
+            <div className="bg-white rounded-2xl border border-pink-50 p-4 shadow-md flex flex-col sm:flex-row items-center gap-4 hover:shadow-lg transition-shadow">
+              <div className="relative w-full sm:w-28 aspect-video rounded-xl overflow-hidden shrink-0 border border-slate-100">
+                <Image
+                  src={tutorialImage}
+                  alt="Tutorial cover"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-slate-900/20 flex items-center justify-center">
+                  <PlayCircle className="w-8 h-8 text-white drop-shadow-md" />
                 </div>
-              ))}
+              </div>
+              <div className="flex-1 text-center sm:text-left space-y-1">
+                <h4 className="font-bold text-slate-800 text-sm">Lihat Video Panduan Lengkap</h4>
+                <p className="text-slate-500 text-xs leading-relaxed">
+                  Tonton tutorial langkah demi langkah cara membuat undangan digital elegan Papunda dari awal hingga siap disebarkan.
+                </p>
+              </div>
+              <Link href="https://wa.me/6289654728249" target="_blank" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto bg-pink-600 hover:bg-pink-700 text-white rounded-xl text-xs font-bold gap-1 px-4 py-4">
+                  <PlayCircle className="w-4 h-4" />
+                  Tonton Video
+                </Button>
+              </Link>
             </div>
-          </div>
 
-          {/* Video Section */}
-          <div className="
-            group
-            relative
-            rounded-xl
-            overflow-hidden
-            shadow-xl hover:shadow-2xl transition-all
-            aspect-video        /* default mobile 16:9 */
-            lg:aspect-auto      /* desktop override */
-            lg:h-full           /* desktop full height */
-          ">
-            {/* Background image fills entire box */}
-            <Image
-              src={tutorialImage}
-              alt="Tutorial Video"
-              fill
-              className="object-cover object-center opacity-90 group-hover:opacity-100 transition-opacity"
-              quality={90}
-            />
-
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/40 via-gray-900/20 to-transparent" />
-
-            {/* Play button */}
-            <Button
-              variant="ghost"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full p-0 w-20 h-20 bg-pink-500/90 hover:bg-pink-600 backdrop-blur-sm"
-            >
-              <PlayCircle className="text-white w-14 h-14" strokeWidth={1.5} />
-            </Button>
-
-            {/* Text overlay */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 text-white bg-gradient-to-t from-gray-900/80">
-            </div>
-          </div>
+          </motion.div>
         </div>
+
       </div>
     </section>
-
   );
 }

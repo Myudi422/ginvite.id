@@ -2,7 +2,7 @@
 'use client';
 
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   EllipsisVerticalIcon,
   PlusIcon,
@@ -21,6 +21,10 @@ import {
   AlertTriangle,
   RefreshCw,
   MessageCircle,
+  Video,
+  Play,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import SelectVersionModal from '@/components/SelectVersionModal';
@@ -47,10 +51,10 @@ interface Props { user: User; slides?: string[]; invitations: Invitation[]; erro
 // ─── Category label only (no rainbow colors) ───
 function getCategoryLabel(type: string) {
   switch (type) {
-    case 'pernikahan':  return '💒 Pernikahan';
-    case 'khitanan':    return '🎉 Khitanan';
+    case 'pernikahan': return '💒 Pernikahan';
+    case 'khitanan': return '🎉 Khitanan';
     case 'ulang_tahun': return '🎂 Ulang Tahun';
-    case 'custom':      return '✨ Custom';
+    case 'custom': return '✨ Custom';
     default: return `✨ ${type}`;
   }
 }
@@ -67,6 +71,23 @@ function getExpiredInfo(expiredDate: string | null) {
   return { text: `${diffDays} hari lagi`, urgent: diffDays <= 3 };
 }
 
+const TUTORIAL_VIDEOS = [
+  {
+    title: "Cara Sharing Akses Undangan",
+    desc: "Tutorial cara membagikan hak akses kelola dan edit undangan digital kepada pasangan atau orang terdekat Anda.",
+    badge: "Sharing Akses",
+    duration: "1:30",
+    url: "https://ccgnimex.s3.us-east-005.backblazeb2.com/admin_uploads/video/invite.mp4",
+  },
+  {
+    title: "Cara Kirim & Kelola Undangan (Bulk)",
+    desc: "Panduan lengkap menggunakan fitur sharing kolaboratif dan fitur bulk send untuk mengelola dan membagikan undangan Anda.",
+    badge: "Bulk & Sharing",
+    duration: "3:00",
+    url: "https://ccgnimex.s3.us-east-005.backblazeb2.com/admin_uploads/video/tutorial+share+undangan.mp4",
+  },
+];
+
 export default function InvitationDashboard({ user, invitations, error = null }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -82,6 +103,21 @@ export default function InvitationDashboard({ user, invitations, error = null }:
   const [manageSharesModal, setManageSharesModal] = useState<{ open: boolean; inv?: Invitation }>({ open: false });
   const [showPromo, setShowPromo] = useState(true);
   const [promoIdx, setPromoIdx] = useState(0);
+  const [showTutorials, setShowTutorials] = useState(false);
+  const [activeVideoIdx, setActiveVideoIdx] = useState<number | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
 
   const ANNOUNCEMENTS = [
     {
@@ -236,7 +272,7 @@ export default function InvitationDashboard({ user, invitations, error = null }:
             <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto shadow-inner animate-pulse">
               <AlertTriangle className="w-10 h-10 text-rose-500" />
             </div>
-            
+
             <div className="space-y-2">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">
                 Koneksi API Terganggu
@@ -326,6 +362,97 @@ export default function InvitationDashboard({ user, invitations, error = null }:
                   </div>
                 ))}
               </div>
+            </div>
+            {/* ── VIDEO TUTORIAL ── */}
+            <div className="bg-white border border-pink-100 rounded-3xl p-5 shadow-sm space-y-4">
+              <div
+                className="flex items-center justify-between cursor-pointer select-none"
+                onClick={() => setShowTutorials(!showTutorials)}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-pink-50 rounded-xl flex items-center justify-center shrink-0">
+                    <Video className="w-5 h-5 text-pink-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800 text-sm sm:text-base">Video Panduan Papunda</h3>
+                    <p className="text-[11px] sm:text-xs text-gray-400">Tonton video tutorial singkat untuk memahami seluruh fitur canggih kami.</p>
+                  </div>
+                </div>
+
+                {/* Arrow navigation + Dropdown toggle */}
+                <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                  {showTutorials && (
+                    <div className="flex items-center gap-1 mr-1">
+                      <button
+                        onClick={scrollLeft}
+                        className="p-1.5 rounded-lg bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors flex items-center justify-center"
+                        title="Geser Kiri"
+                      >
+                        <ChevronLeftIcon className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={scrollRight}
+                        className="p-1.5 rounded-lg bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors flex items-center justify-center"
+                        title="Geser Kanan"
+                      >
+                        <ChevronRightIcon className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setShowTutorials(!showTutorials)}
+                    className="p-1.5 rounded-lg bg-pink-50 text-pink-500 hover:bg-pink-100 transition-colors flex items-center justify-center"
+                  >
+                    {showTutorials ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              {showTutorials && (
+                <div className="pt-2 border-t border-pink-50">
+                  <div
+                    ref={scrollContainerRef}
+                    className="flex gap-4 overflow-x-auto pb-3 pt-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-pink-100 scrollbar-track-transparent scroll-smooth"
+                  >
+                    {TUTORIAL_VIDEOS.map((video, idx) => (
+                      <div
+                        key={idx}
+                        className="w-[280px] sm:w-[320px] shrink-0 snap-start bg-pink-50/20 border border-pink-100/50 rounded-2xl p-4 flex flex-col justify-between hover:shadow-md transition-shadow"
+                      >
+                        <div>
+                          {/* Video Thumbnail */}
+                          <div
+                            className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-pink-500/80 via-rose-500/80 to-purple-600/90 border border-slate-100 shadow-md group mb-3 cursor-pointer flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-[1.02]"
+                            onClick={() => setActiveVideoIdx(idx)}
+                          >
+                            <div className="absolute inset-0 bg-black/10 mix-blend-multiply pointer-events-none" />
+                            <div className="w-12 h-12 rounded-full bg-white text-pink-600 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-pink-50 transition-all duration-300 z-10">
+                              <Play className="w-5 h-5 fill-pink-600 text-pink-600 translate-x-0.5" />
+                            </div>
+                            <span className="absolute bottom-2 left-2 right-2 text-[9px] font-black uppercase tracking-widest text-white/95 line-clamp-1 text-center bg-slate-950/40 backdrop-blur-[2px] py-1 px-2 rounded-md">
+                              Klik untuk Putar
+                            </span>
+                          </div>
+
+                          {/* Header info */}
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 border border-pink-200">
+                              {video.badge}
+                            </span>
+                          </div>
+
+                          <h4 className="font-bold text-gray-800 text-sm leading-snug mb-1 line-clamp-1">
+                            {video.title}
+                          </h4>
+                          <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
+                            {video.desc}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* ── GRID UNDANGAN ── */}
@@ -471,8 +598,8 @@ export default function InvitationDashboard({ user, invitations, error = null }:
                               const url = inv.edit_url
                                 ? `/${inv.edit_url}`
                                 : inv.source === 'builder'
-                                ? `/admin/builder/${inv.user_id}/${inv.title}`
-                                : `/admin/formulir/${inv.user_id}/${inv.title}`;
+                                  ? `/admin/builder/${inv.user_id}/${inv.title}`
+                                  : `/admin/formulir/${inv.user_id}/${inv.title}`;
                               router.push(url);
                             }}
                             className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-pink-50 hover:bg-pink-100 border border-pink-100 transition-all text-pink-600 font-semibold text-xs"
@@ -634,6 +761,52 @@ export default function InvitationDashboard({ user, invitations, error = null }:
           invitation={manageSharesModal.inv}
           userId={user.userId}
         />
+      )}
+      {/* ── VIDEO TUTORIAL POPUP MODAL ── */}
+      {activeVideoIdx !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+          onClick={() => setActiveVideoIdx(null)}
+        >
+          <div
+            className="bg-[#18181b] border border-zinc-850 rounded-3xl p-5 shadow-2xl w-full max-w-2xl relative overflow-hidden flex flex-col gap-4"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header / Title */}
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                  {TUTORIAL_VIDEOS[activeVideoIdx].badge}
+                </span>
+                <h3 className="font-bold text-white text-sm sm:text-base leading-none">
+                  {TUTORIAL_VIDEOS[activeVideoIdx].title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setActiveVideoIdx(null)}
+                className="p-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors"
+                title="Tutup Video"
+              >
+                <XIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Video Player Box */}
+            <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black shadow-inner">
+              <video
+                src={TUTORIAL_VIDEOS[activeVideoIdx].url}
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+              />
+            </div>
+
+            {/* Description info */}
+            <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed bg-zinc-900/50 p-3.5 rounded-xl border border-zinc-800/40">
+              {TUTORIAL_VIDEOS[activeVideoIdx].desc}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -5,7 +5,7 @@ import HeroSection from "@/components/sections/HeroSection";
 import FeaturesSection from "@/components/sections/FeaturesSection";
 import ThemesSection from "@/components/sections/ThemesSection";
 import WeddingPlannerSpoiler from "@/components/sections/WeddingPlannerSpoiler";
-import PhotoEditingSpoiler from "@/components/sections/PhotoEditingSpoiler";
+import InvitationTypesSection from "@/components/sections/InvitationTypesSection";
 import InstructionsSection from "@/components/sections/InstructionsSection";
 import PricingSection from "@/components/sections/PricingSection";
 import FooterSection from "@/components/sections/FooterSection";
@@ -185,7 +185,7 @@ export default function HomeClient() {
       <FeaturesSection />
       <ThemesSection />
       <WeddingPlannerSpoiler />
-      <PhotoEditingSpoiler />
+      <InvitationTypesSection />
       <TestimonialsSection />
       <InstructionsSection />
       <PricingSection />
