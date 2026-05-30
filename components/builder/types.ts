@@ -175,6 +175,7 @@ export interface EventDetailsProps {
     name: string;
     date: string;
     time: string;
+    timezone?: string;
     location: string;
     maps_link: string;
     note: string;

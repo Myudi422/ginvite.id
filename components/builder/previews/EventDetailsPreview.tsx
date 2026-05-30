@@ -102,7 +102,8 @@ export default function EventDetailsPreview({ props, style }: P) {
         {ev.time && (
           <div className={`flex items-center gap-2 text-xs ${textColorClass}`}>
             <ClockIcon className="h-3.5 w-3.5" />
-            {ev.time} WIB
+            {ev.time}
+            {ev.timezone !== 'none' && ` ${ev.timezone || 'WIB'}`}
           </div>
         )}
         {ev.location && (

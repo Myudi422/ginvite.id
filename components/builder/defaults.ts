@@ -33,8 +33,8 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
       id: makeId(), type: 'event_details', label: 'Detail Acara', visible: true, order: 2,
       props: {
         events: [
-          { id: makeId(), name: 'Akad Nikah', date: '', time: '', location: '', maps_link: '', note: '' },
-          { id: makeId(), name: 'Resepsi', date: '', time: '', location: '', maps_link: '', note: '' },
+          { id: makeId(), name: 'Akad Nikah', date: '', time: '', timezone: 'WIB', location: '', maps_link: '', note: '' },
+          { id: makeId(), name: 'Resepsi', date: '', time: '', timezone: 'WIB', location: '', maps_link: '', note: '' },
         ],
       },
     },
@@ -136,7 +136,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
       id: makeId(), type: 'event_details', label: 'Detail Acara', visible: true, order: 2,
       props: {
         events: [
-          { id: makeId(), name: 'Pesta Ulang Tahun', date: '', time: '', location: '', maps_link: '', note: '' },
+          { id: makeId(), name: 'Pesta Ulang Tahun', date: '', time: '', timezone: 'WIB', location: '', maps_link: '', note: '' },
         ],
       },
     },
@@ -204,7 +204,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
       id: makeId(), type: 'event_details', label: 'Detail Acara', visible: true, order: 2,
       props: {
         events: [
-          { id: makeId(), name: 'Acara Khitanan', date: '', time: '', location: '', maps_link: '', note: '' },
+          { id: makeId(), name: 'Acara Khitanan', date: '', time: '', timezone: 'WIB', location: '', maps_link: '', note: '' },
         ],
       },
     },
@@ -272,7 +272,7 @@ export const DEFAULT_SECTIONS: Record<EventType, BuilderSection[]> = {
       id: makeId(), type: 'event_details', label: 'Detail Acara', visible: true, order: 2,
       props: {
         events: [
-          { id: makeId(), name: 'Nama Sesi', date: '', time: '', location: '', maps_link: '', note: '' },
+          { id: makeId(), name: 'Nama Sesi', date: '', time: '', timezone: 'WIB', location: '', maps_link: '', note: '' },
         ],
       },
     },
