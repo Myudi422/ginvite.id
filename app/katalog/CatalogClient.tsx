@@ -26,9 +26,62 @@ interface CatalogClientProps {
 export default function CatalogClient({ initialThemes }: CatalogClientProps) {
     const [guestName, setGuestName] = useState("");
     const [themes, setThemes] = useState<Theme[]>(initialThemes);
-    const loading = false;
+    const [loading, setLoading] = useState(initialThemes.length === 0);
     const [currentPage, setCurrentPage] = useState(1);
     const [activeCategory, setActiveCategory] = useState("Semua");
+
+    useEffect(() => {
+        // If initialThemes is already populated, no client fetch is needed.
+        if (initialThemes && initialThemes.length > 0) {
+            setThemes(initialThemes);
+            setLoading(false);
+            return;
+        }
+
+        const fetchThemes = async () => {
+            try {
+                setLoading(true);
+                const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/index.php?action=theme");
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                const data = await res.json();
+                if (data.status === "success" && Array.isArray(data.data)) {
+                    // Sort by API ID ascending first to determine localId
+                    const sortedById = [...data.data].sort((a: any, b: any) => a.id - b.id);
+
+                    // Map and assign sequential localId
+                    const mappedThemes = sortedById.map((item: any, index: number) => ({
+                        id: item.id,
+                        localId: index + 1,
+                        name: item.name,
+                        category: item.kategory_theme_nama || "Umum",
+                        image: item.image_theme,
+                        usage_count: Number(item.usage_count) || 0,
+                    }));
+                    mappedThemes.sort((a, b) => b.usage_count - a.usage_count);
+
+                    // Auto-inject Theme 6 if missing from API
+                    if (!mappedThemes.some((t: any) => t.localId === 6)) {
+                        mappedThemes.push({
+                            id: 9999,
+                            localId: 6,
+                            name: "Mildness",
+                            category: "Premium",
+                            image: "https://www.wevitation.com/themes/mildness/img/cover-1.jpg",
+                            usage_count: 5
+                        });
+                    }
+
+                    setThemes(mappedThemes);
+                }
+            } catch (error) {
+                console.error("Failed to fetch themes in client fallback:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchThemes();
+    }, [initialThemes]);
 
     const categories = useMemo(() => {
         const cats = Array.from(new Set(themes.map(t => t.category)));
