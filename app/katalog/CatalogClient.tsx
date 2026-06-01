@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 import Link from "next/link";
-import { BadgeCheck, Phone, Eye, Search, LogIn, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { BadgeCheck, Phone, Eye, Search, LogIn, ChevronLeft, ChevronRight, ExternalLink, Sparkles, Palette, Type, LayoutGrid, Wand2, ArrowRight } from "lucide-react";
 import FooterSection from "@/components/sections/FooterSection";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
@@ -224,18 +224,119 @@ export default function CatalogClient({ initialThemes }: CatalogClientProps) {
                     </div>
                 )}
 
-                {/* ── INFO ROW ── */}
+                {/* ── BUILDER PROMO CARD ── */}
+                {!loading && activeCategory === "Semua" && currentPage === 1 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="mb-8"
+                    >
+                        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-pink-500 p-5 sm:p-8 text-white shadow-xl">
+                            {/* Floating decorative elements */}
+                            <div className="absolute top-3 right-4 sm:top-4 sm:right-8 opacity-10 text-white">
+                                <Wand2 className="h-24 w-24 sm:h-36 sm:w-36 rotate-12" />
+                            </div>
+                            <div className="absolute -bottom-4 -left-4 w-28 h-28 sm:w-40 sm:h-40 rounded-full bg-white/5 blur-2xl" />
+                            <div className="absolute top-1/2 right-1/4 w-16 h-16 rounded-full bg-pink-400/10 blur-xl" />
+                            
+                            {/* Animated sparkles */}
+                            <motion.div
+                                className="absolute top-6 right-20 sm:right-32"
+                                animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.1, 0.8] }}
+                                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                            >
+                                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-300" />
+                            </motion.div>
+                            <motion.div
+                                className="absolute bottom-8 right-12 sm:right-20"
+                                animate={{ opacity: [0.2, 0.8, 0.2], scale: [0.9, 1.2, 0.9] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+                            >
+                                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-200/80" />
+                            </motion.div>
+
+                            {/* Content */}
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-sm text-[10px] sm:text-xs font-semibold tracking-wide uppercase">
+                                        <Wand2 className="h-3 w-3" /> Builder
+                                    </span>
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-yellow-400/20 backdrop-blur-sm text-[10px] sm:text-xs font-semibold tracking-wide uppercase text-yellow-200">
+                                        <Sparkles className="h-3 w-3" /> Full Custom
+                                    </span>
+                                </div>
+                                <h2 className="text-lg sm:text-2xl md:text-3xl font-bold leading-tight mb-1.5 sm:mb-2">
+                                    Buat Undangan Custom Sendiri
+                                </h2>
+                                <p className="text-xs sm:text-sm text-white/70 max-w-lg mb-4 sm:mb-5 leading-relaxed">
+                                    Desain undangan digitalmu dari nol — atur warna, font, layout, dan 
+                                    section sesuka hati. Kamu yang pegang kendali penuh!
+                                </p>
+
+                                {/* Feature highlights */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5 sm:mb-6">
+                                    {[
+                                        { icon: Palette, label: "Warna Bebas" },
+                                        { icon: Type, label: "Font Pilihan" },
+                                        { icon: LayoutGrid, label: "Layout Fleksibel" },
+                                        { icon: Wand2, label: "Section Modular" },
+                                    ].map((feat, i) => (
+                                        <motion.div
+                                            key={feat.label}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.35 + i * 0.08 }}
+                                            className="flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-2.5 py-2 sm:px-3 sm:py-2.5"
+                                        >
+                                            <feat.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-yellow-300 flex-shrink-0" />
+                                            <span className="text-[10px] sm:text-xs font-medium truncate">{feat.label}</span>
+                                        </motion.div>
+                                    ))}
+                                </div>
+
+                                {/* CTA */}
+                                <Link
+                                    href="/admin"
+                                    className="inline-flex items-center gap-2 bg-white text-purple-700 hover:text-purple-800 px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                >
+                                    <Wand2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                    Mulai Buat Gratis
+                                    <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                </Link>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* ── LEGACY TEMPLATE SECTION HEADER ── */}
                 {!loading && (
-                    <div className="flex items-center justify-between mb-4">
-                        <p className="text-xs text-gray-400">
-                            {filtered.length} tema tersedia
-                            {activeCategory !== "Semua" && ` · ${activeCategory}`}
-                        </p>
-                        {totalPages > 1 && (
-                            <p className="text-xs text-gray-400">
-                                Halaman {currentPage} dari {totalPages}
-                            </p>
+                    <div className="mb-4">
+                        {activeCategory === "Semua" && currentPage === 1 && (
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1.5 rounded-lg bg-pink-100">
+                                        <LayoutGrid className="h-3.5 w-3.5 text-pink-500" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm sm:text-base font-bold text-gray-800">Template Siap Pakai</h3>
+                                        <p className="text-[10px] sm:text-xs text-gray-400">Desain sudah jadi — kamu tinggal isi data undangan saja</p>
+                                    </div>
+                                </div>
+                                <div className="flex-1 h-px bg-gray-100" />
+                            </div>
                         )}
+                        <div className="flex items-center justify-between">
+                            <p className="text-xs text-gray-400">
+                                {filtered.length} tema tersedia
+                                {activeCategory !== "Semua" && ` · ${activeCategory}`}
+                            </p>
+                            {totalPages > 1 && (
+                                <p className="text-xs text-gray-400">
+                                    Halaman {currentPage} dari {totalPages}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 )}
 
@@ -382,17 +483,26 @@ export default function CatalogClient({ initialThemes }: CatalogClientProps) {
 
                 {/* ── CTA ── */}
                 <div className="text-center bg-white rounded-2xl p-6 md:p-10 border border-pink-100 shadow-sm">
-                    <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-2">Suka dengan tema di atas?</h2>
-                    <p className="text-sm text-gray-400 mb-6 max-w-md mx-auto">
-                        Buat undangan digitalmu sendiri sekarang juga. Gratis uji coba, bayar jika sudah puas.
+                    <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-2">Siap Buat Undanganmu?</h2>
+                    <p className="text-sm text-gray-400 mb-6 max-w-lg mx-auto">
+                        Pilih template siap pakai dan langsung isi data, atau gunakan Builder untuk desain custom tanpa batas.
                     </p>
-                    <Link
-                        href="/admin"
-                        className="inline-flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-colors"
-                    >
-                        <BadgeCheck className="h-4 w-4" />
-                        Buat Undangan Sekarang
-                    </Link>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <Link
+                            href="/admin"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-700 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all"
+                        >
+                            <Wand2 className="h-4 w-4" />
+                            Buat Custom (Builder)
+                        </Link>
+                        <Link
+                            href="/admin"
+                            className="inline-flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-colors"
+                        >
+                            <BadgeCheck className="h-4 w-4" />
+                            Pakai Template
+                        </Link>
+                    </div>
                 </div>
             </main>
 
