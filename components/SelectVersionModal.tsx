@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { XIcon, SparklesIcon, LayoutTemplateIcon, ChevronRightIcon } from 'lucide-react';
+import { XIcon, SparklesIcon, LayoutTemplateIcon, ChevronRightIcon, MessageCircleIcon } from 'lucide-react';
 import CreateInvitationPopup from '@/components/CreateInvitationPopup';
 import CreateBuilderPopup from '@/components/builder/CreateBuilderPopup';
 
@@ -99,6 +99,31 @@ export default function SelectVersionModal({ userId, onClose, onInvitationCreate
               </div>
             </div>
           </button>
+          {/* Terima Beres */}
+          <a
+            href="https://wa.me/6289654728249?text=Halo%20Admin%20Papunda,%20saya%20mau%20pesan%20undangan%20Terima%20Beres%20seharga%2080rb."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full text-left p-4 rounded-2xl border-2 border-gray-100 hover:border-green-200 hover:bg-green-50/50 transition-all group relative overflow-hidden block"
+          >
+            <div className="absolute top-3 right-3">
+              <span className="text-[10px] bg-green-100 text-green-600 px-2.5 py-0.5 rounded-full font-bold">Promo 80k ✨</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gray-100 group-hover:bg-green-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                <MessageCircleIcon className="h-6 w-6 text-gray-400 group-hover:text-green-500 transition-colors" />
+              </div>
+              <div className="flex-1 min-w-0 pr-10">
+                <p className="font-bold text-gray-800 text-sm group-hover:text-green-600 transition-colors">Terima Beres</p>
+                <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">Cuman 80rb! Dibuatkan sampai jadi. Bebas request lagu & semua fitur terbuka.</p>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <span className="text-[10px] bg-white text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full font-medium">Bebas Request Lagu</span>
+                  <span className="text-[10px] bg-white text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full font-medium">Semua Fitur Terbuka</span>
+                  <span className="text-[10px] bg-white text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full font-medium">Semua Jenis Undangan</span>
+                </div>
+              </div>
+            </div>
+          </a>
         </div>
       </div>
     </div>
