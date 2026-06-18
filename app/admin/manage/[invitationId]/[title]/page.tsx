@@ -261,7 +261,7 @@ export default function ManagePage() {
                 if (!manageData.QR) return;
                 try {
                   const res = await fetch(
-                    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_manage&user_id=${userId}&title=${slug}`
+                    `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_manage&user_id=${userId}&title=${slug}`
                   );
                   const json = await res.json();
                   if (json.status === 'success' && json.data?.QR) {

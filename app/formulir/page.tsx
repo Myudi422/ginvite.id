@@ -41,7 +41,7 @@ function FormulirContent() {
     setLoading(true);
     try {
       await axios.post(
-        'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=qr',
+        'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=qr',
         { nama, content_id: contentId }
       );
       alert('Terima kasih, data Anda telah tercatat.');

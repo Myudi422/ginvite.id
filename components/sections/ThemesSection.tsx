@@ -25,7 +25,7 @@ export default function ThemesSection() {
   useEffect(() => {
     const fetchThemes = async () => {
       try {
-        const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/index.php?action=theme");
+        const res = await fetch("https://dev.legalpilar.id/v2/android/ginvite/index.php?action=theme");
         const data = await res.json();
         if (data.status === "success" && Array.isArray(data.data)) {
           // 1. Sort by API ID ascending first to determine localId

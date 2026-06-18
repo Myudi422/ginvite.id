@@ -102,7 +102,7 @@ export default function BulkUndanganPage() {
                     }
                 }
                 const res = await fetch(
-                    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_bulk&user_id=${invitationId}&title=${encodeURIComponent(title)}`
+                    `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_bulk&user_id=${invitationId}&title=${encodeURIComponent(title)}`
                 );
                 if (!res.ok) throw new Error(`Gagal memuat template: ${res.status}`);
                 const data = await res.json();

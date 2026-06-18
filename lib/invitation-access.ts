@@ -13,7 +13,7 @@ export async function checkInvitationAccess(
 ): Promise<AccessInfo> {
   try {
     const res = await fetch(
-      `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=check_invitation_access&invitation_id=${invitationId}&user_email=${encodeURIComponent(userEmail)}&access_type=${accessType}`
+      `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=check_invitation_access&invitation_id=${invitationId}&user_email=${encodeURIComponent(userEmail)}&access_type=${accessType}`
     );
     
     if (!res.ok) {

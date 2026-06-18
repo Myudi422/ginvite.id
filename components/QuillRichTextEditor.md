@@ -45,7 +45,7 @@ interface RichTextEditorProps {
 ### API Integration
 
 #### Image Upload Endpoint
-- **URL**: `https://ccgnimex.my.id/v2/android/ginvite/page/image_upload.php`
+- **URL**: `https://dev.legalpilar.id/v2/android/ginvite/page/image_upload.php`
 - **Method**: POST
 - **Content-Type**: multipart/form-data
 - **Parameters**:
@@ -56,7 +56,7 @@ interface RichTextEditorProps {
 ```json
 {
   "success": true,
-  "location": "https://ccgnimex.my.id/v2/android/ginvite/page/uploads/editor/image.jpg",
+  "location": "https://dev.legalpilar.id/v2/android/ginvite/page/uploads/editor/image.jpg",
   "image_id": 123,
   "filename": "unique_filename.jpg"
 }

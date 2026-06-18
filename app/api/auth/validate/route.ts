@@ -8,7 +8,7 @@ export async function GET(req: Request) {
 
   // Forward ke backend PHP
   const backend = await fetch(
-    "https://ccgnimex.my.id/v2/android/ginvite/validate_token.php",
+    "https://dev.legalpilar.id/v2/android/ginvite/validate_token.php",
     {
       method: "GET",
       headers: {

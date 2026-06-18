@@ -27,8 +27,8 @@ export default function CrmPage() {
     async function fetchStats() {
       try {
         const [contactsRes, rsvpRes] = await Promise.allSettled([
-          fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_undangan&page=1&limit=500&type=update`),
-          fetch(`https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_rsvp&limit=1`),
+          fetch(`https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_undangan&page=1&limit=500&type=update`),
+          fetch(`https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_rsvp&limit=1`),
         ]);
 
         let contacts = 0;

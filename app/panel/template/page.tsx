@@ -132,7 +132,7 @@ export default function TemplateAdminPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/template_list.php');
+      const res = await fetch('https://dev.legalpilar.id/v2/android/ginvite/page/template_list.php');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.status === 'success' && Array.isArray(data.data)) {
@@ -220,7 +220,7 @@ export default function TemplateAdminPage() {
         ]
       };
 
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/template_save.php', {
+      const res = await fetch('https://dev.legalpilar.id/v2/android/ginvite/page/template_save.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -263,7 +263,7 @@ export default function TemplateAdminPage() {
 
     setEditLoading(true);
     try {
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/template_save.php', {
+      const res = await fetch('https://dev.legalpilar.id/v2/android/ginvite/page/template_save.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -296,7 +296,7 @@ export default function TemplateAdminPage() {
     if (!confirm(`Apakah Anda yakin ingin menghapus template "${name}"? Tindakan ini permanen.`)) return;
 
     try {
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/template_delete.php', {
+      const res = await fetch('https://dev.legalpilar.id/v2/android/ginvite/page/template_delete.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id })

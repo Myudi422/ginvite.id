@@ -108,7 +108,7 @@ Salam hangat,
 // ────────────────────────────────────────────
 // Utils
 // ────────────────────────────────────────────
-const API_BASE = "https://ccgnimex.my.id/v2/android/ginvite/index.php";
+const API_BASE = "https://dev.legalpilar.id/v2/android/ginvite/index.php";
 const LIMIT = 25;
 
 function formatPhone(nomor: string): string {

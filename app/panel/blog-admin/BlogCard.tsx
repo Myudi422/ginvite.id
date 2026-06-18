@@ -35,7 +35,7 @@ interface BlogCardProps {
   onDelete: () => void;
 }
 
-const API_BASE = 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php';
+const API_BASE = 'https://dev.legalpilar.id/v2/android/ginvite/page/blog_admin.php';
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').replace(/&[a-zA-Z]+;/g, ' ').trim();

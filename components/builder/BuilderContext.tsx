@@ -508,8 +508,8 @@ export function BuilderProvider({
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
         const url = isTemplate
-          ? 'https://ccgnimex.my.id/v2/android/ginvite/page/template_save.php'
-          : 'https://ccgnimex.my.id/v2/android/ginvite/page/builder_save.php';
+          ? 'https://dev.legalpilar.id/v2/android/ginvite/page/template_save.php'
+          : 'https://dev.legalpilar.id/v2/android/ginvite/page/builder_save.php';
 
         const body = isTemplate
           ? JSON.stringify({
@@ -577,8 +577,8 @@ export function BuilderProvider({
     dispatch({ type: 'FETCH_START' });
     try {
       const url = isTemplate
-        ? `https://ccgnimex.my.id/v2/android/ginvite/page/template_get.php?id=${initialId || 0}`
-        : `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get.php?user_id=${userId}&slug=${encodeURIComponent(initialSlug)}`;
+        ? `https://dev.legalpilar.id/v2/android/ginvite/page/template_get.php?id=${initialId || 0}`
+        : `https://dev.legalpilar.id/v2/android/ginvite/page/builder_get.php?user_id=${userId}&slug=${encodeURIComponent(initialSlug)}`;
       const res = await fetch(
         url,
         { cache: 'no-store' }

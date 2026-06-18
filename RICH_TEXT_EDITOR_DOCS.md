@@ -34,7 +34,7 @@
 ```json
 {
   "success": true,
-  "location": "https://ccgnimex.my.id/v2/android/ginvite/page/uploads/editor/filename.jpg",
+  "location": "https://dev.legalpilar.id/v2/android/ginvite/page/uploads/editor/filename.jpg",
   "image_id": 123,
   "filename": "unique_filename.jpg"
 }
@@ -165,7 +165,7 @@ CREATE TABLE blog_images (
     'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
     'removeformat | link image media table | emoticons charmap | code fullscreen preview'
   ],
-  images_upload_url: 'https://ccgnimex.my.id/v2/android/ginvite/page/image_upload.php',
+  images_upload_url: 'https://dev.legalpilar.id/v2/android/ginvite/page/image_upload.php',
   paste_data_images: true
 }
 ```

@@ -41,7 +41,7 @@ export default function CatalogClient({ initialThemes }: CatalogClientProps) {
         const fetchThemes = async () => {
             try {
                 setLoading(true);
-                const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/index.php?action=theme");
+                const res = await fetch("https://dev.legalpilar.id/v2/android/ginvite/index.php?action=theme");
                 if (!res.ok) throw new Error("HTTP error " + res.status);
                 const data = await res.json();
                 if (data.status === "success" && Array.isArray(data.data)) {

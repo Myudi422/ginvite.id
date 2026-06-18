@@ -167,7 +167,7 @@ export default function InvitationDashboard({ user, invitations, error = null }:
     setDeleteError(null);
     try {
       const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/delete_invitation.php',
+        'https://dev.legalpilar.id/v2/android/ginvite/page/delete_invitation.php',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -194,7 +194,7 @@ export default function InvitationDashboard({ user, invitations, error = null }:
     setShareError(null);
     try {
       const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=add_invitation_share',
+        'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=add_invitation_share',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

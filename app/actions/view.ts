@@ -1,6 +1,6 @@
 'use server';
 
-const VIEW_API_URL = process.env.USER_MANAGE_API_URL || 'https://ccgnimex.my.id/v2/android/ginvite/index.php';
+const VIEW_API_URL = process.env.USER_MANAGE_API_URL || 'https://dev.legalpilar.id/v2/android/ginvite/index.php';
 
 /**
  * Record a view for the specified content

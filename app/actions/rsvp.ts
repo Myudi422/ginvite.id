@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 
-const RSVP_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=rsmp';
-const GET_RSVP_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_rsmp';
+const RSVP_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=rsmp';
+const GET_RSVP_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_rsmp';
 
 export interface RsvpData {
   nama: string;

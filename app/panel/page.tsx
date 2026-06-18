@@ -76,7 +76,7 @@ export default function PanelPage() {
   useEffect(() => {
     async function fetchData() {
       setRefreshing(true);
-      const FETCH_URL = `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=analis&start_date=${startDate}&end_date=${endDate}`;
+      const FETCH_URL = `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=analis&start_date=${startDate}&end_date=${endDate}`;
 
       try {
         const res = await fetch(FETCH_URL);

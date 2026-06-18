@@ -119,7 +119,7 @@ export default function ContactsTab() {
   const fetchContacts = useCallback(async () => {
     setLoading(true);
     try {
-      let url = `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_undangan&page=1&limit=200&type=update`;
+      let url = `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_undangan&page=1&limit=200&type=update`;
       if (search) url += `&search=${encodeURIComponent(search)}`;
       const res = await fetch(url);
       const data = await res.json();

@@ -30,7 +30,7 @@ export default function ThemePage() {
     setError(null);
     try {
       const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/theme_list.php'
+        'https://dev.legalpilar.id/v2/android/ginvite/page/theme_list.php'
       );
       const data = await res.json();
       if (data.status === 'success') {
@@ -60,7 +60,7 @@ export default function ThemePage() {
     try {
       const formData = new FormData();
       formData.append('id', id.toString());
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/theme_delete.php', {
+      const res = await fetch('https://dev.legalpilar.id/v2/android/ginvite/page/theme_delete.php', {
         method: 'POST',
         body: formData,
       });

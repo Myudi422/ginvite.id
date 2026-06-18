@@ -221,7 +221,7 @@ export default function BroadcastTab() {
     }
     setLoadingContacts(true);
     try {
-      const url = `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_undangan&page=1&limit=500&type=update`;
+      const url = `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_undangan&page=1&limit=500&type=update`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.status === "success") {

@@ -28,7 +28,7 @@ interface UploadBlogFormProps {
   onUploadSuccess: () => void;
 }
 
-const API_BASE = 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php';
+const API_BASE = 'https://dev.legalpilar.id/v2/android/ginvite/page/blog_admin.php';
 
 const CATEGORIES = [
   { value: 'tutorial', label: 'Tutorial' },
@@ -64,7 +64,7 @@ export default function UploadBlogForm({ onUploadSuccess }: UploadBlogFormProps)
       const apiUrl =
         window.location.hostname === 'localhost'
           ? '/api/page/blog_images.php?action=mark_unused'
-          : 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_images.php?action=mark_unused';
+          : 'https://dev.legalpilar.id/v2/android/ginvite/page/blog_images.php?action=mark_unused';
       await fetch(apiUrl, { method: 'POST', body: formData });
     } catch {
       // fail silently

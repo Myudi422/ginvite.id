@@ -112,7 +112,7 @@ export default function UploadThemeForm({ onUploadSuccess }: UploadThemeFormProp
       if (decorBRFile) formData.append('decorations_bottom_right', decorBRFile);
 
       const response = await axios.post(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/theme_upload.php', // ← sesuaikan endpoint Anda
+        'https://dev.legalpilar.id/v2/android/ginvite/page/theme_upload.php', // ← sesuaikan endpoint Anda
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },

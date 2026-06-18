@@ -44,8 +44,8 @@ export default function BlogImageManager({
     setError(null);
     try {
       const url = blogId 
-        ? `https://ccgnimex.my.id/v2/android/ginvite/page/blog_images.php?action=list&blog_id=${blogId}`
-        : 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_images.php?action=list';
+        ? `https://dev.legalpilar.id/v2/android/ginvite/page/blog_images.php?action=list&blog_id=${blogId}`
+        : 'https://dev.legalpilar.id/v2/android/ginvite/page/blog_images.php?action=list';
       
       const response = await fetch(url);
       const data = await response.json();
@@ -74,7 +74,7 @@ export default function BlogImageManager({
 
     try {
       const response = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/page/blog_images.php?action=delete&id=${imageId}`,
+        `https://dev.legalpilar.id/v2/android/ginvite/page/blog_images.php?action=delete&id=${imageId}`,
         { method: 'DELETE' }
       );
       const data = await response.json();
@@ -102,7 +102,7 @@ export default function BlogImageManager({
       formData.append('blog_id', blogId.toString());
 
       const response = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/blog_images.php?action=mark_featured',
+        'https://dev.legalpilar.id/v2/android/ginvite/page/blog_images.php?action=mark_featured',
         {
           method: 'POST',
           body: formData

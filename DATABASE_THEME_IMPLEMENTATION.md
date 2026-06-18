@@ -110,7 +110,7 @@ INSERT INTO theme (
 Anda juga bisa menggunakan endpoint `theme_upload.php` yang sudah ada:
 
 ```bash
-curl -X POST https://ccgnimex.my.id/v2/android/ginvite/index.php?action=theme_upload \
+curl -X POST https://dev.legalpilar.id/v2/android/ginvite/index.php?action=theme_upload \
   -F "name=Netflix Theme - Pernikahan" \
   -F "text_color=#ffffff" \
   -F "accent_color=#e50914" \

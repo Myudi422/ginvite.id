@@ -20,7 +20,7 @@ export default async function CatalogPage() {
     try {
         // ISR is applied here to protect the backend from traffic overload. 
         // We cache the results on Vercel Edge for 1 hour (3600 seconds).
-        const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/index.php?action=theme", {
+        const res = await fetch("https://dev.legalpilar.id/v2/android/ginvite/index.php?action=theme", {
             next: { revalidate: 3600 },
         });
 

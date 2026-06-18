@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Calendar, Tag, ArrowRight, Phone, BadgeCheck, LogIn, BookOpen } from 'lucide-react';
 import FooterSection from '@/components/sections/FooterSection';
 
-const API = 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_public.php';
+const API = 'https://dev.legalpilar.id/v2/android/ginvite/page/blog_public.php';
 
 interface Blog {
     id: number;

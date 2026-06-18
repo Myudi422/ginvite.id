@@ -1,7 +1,7 @@
 // app/api/invitations/route.ts
 import { NextResponse } from 'next/server';
 
-const EXTERNAL_API = 'https://ccgnimex.my.id/v2/android/ginvite/index.php';
+const EXTERNAL_API = 'https://dev.legalpilar.id/v2/android/ginvite/index.php';
 const TIMEOUT_MS = 10000; // 10 detik
 
 async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {

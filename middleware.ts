@@ -57,7 +57,7 @@ export async function middleware(req: NextRequest) {
         try {
           // Check QR status from API
           const response = await fetch(
-            `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_manage&user_id=${invitationId}&title=${encodeURIComponent(title)}`
+            `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_manage&user_id=${invitationId}&title=${encodeURIComponent(title)}`
           );
           const data = await response.json();
           

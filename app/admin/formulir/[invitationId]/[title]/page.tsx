@@ -34,7 +34,7 @@ export default async function Page({ params }: PageProps) {
 
   // 2) Fetch record
   const res = await fetch(
-    `https://ccgnimex.my.id/v2/android/ginvite/index.php` +
+    `https://dev.legalpilar.id/v2/android/ginvite/index.php` +
     `?action=get_content_user` +
     `&user_id=${userIdParam}` +
     `&title=${encodeURIComponent(title)}`,

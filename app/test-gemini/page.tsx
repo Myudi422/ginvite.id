@@ -64,7 +64,7 @@ export default function TestGeminiPage() {
       
       console.log('Sending create request...');
       const createResponse = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=create',
+        'https://dev.legalpilar.id/v2/android/ginvite/page/blog_admin.php?action=create',
         {
           method: 'POST',
           body: formData

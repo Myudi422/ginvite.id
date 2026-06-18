@@ -92,7 +92,7 @@ export default function PernikahanForm({ previewUrl, userId }: PernikahanFormPro
     async function load() {
       try {
         const res = await fetch(
-          `https://ccgnimex.my.id/v2/android/ginvite/index.php` +
+          `https://dev.legalpilar.id/v2/android/ginvite/index.php` +
             `?action=get_content_user&user_id=${userId}` +
             `&id=${invId}&title=${encodeURIComponent(title)}`,
           { cache: 'no-store' }
@@ -128,7 +128,7 @@ export default function PernikahanForm({ previewUrl, userId }: PernikahanFormPro
         content: JSON.stringify(data),
       };
       const res = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user`,
+        `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=save_content_user`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -158,7 +158,7 @@ export default function PernikahanForm({ previewUrl, userId }: PernikahanFormPro
     setError(null);
     try {
       const res = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status`,
+        `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=toggle_status`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

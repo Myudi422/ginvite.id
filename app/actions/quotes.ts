@@ -1,6 +1,6 @@
 'use server';
 
-const QUOTES_API_URL = process.env.USER_MANAGE_API_URL || 'https://ccgnimex.my.id/v2/android/ginvite/index.php';
+const QUOTES_API_URL = process.env.USER_MANAGE_API_URL || 'https://dev.legalpilar.id/v2/android/ginvite/index.php';
 
 export interface QuoteGroup {
   category: string;

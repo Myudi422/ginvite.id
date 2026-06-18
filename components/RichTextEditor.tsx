@@ -69,7 +69,7 @@ export default function RichTextEditor({
     `,
     placeholder: placeholder,
     // Image upload configuration
-    images_upload_url: 'https://ccgnimex.my.id/v2/android/ginvite/page/image_upload.php',
+    images_upload_url: 'https://dev.legalpilar.id/v2/android/ginvite/page/image_upload.php',
     images_upload_base_path: '',
     images_upload_credentials: false,
     images_upload_handler: async (blobInfo: any, progress: any) => {
@@ -83,7 +83,7 @@ export default function RichTextEditor({
         }
 
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://ccgnimex.my.id/v2/android/ginvite/page/image_upload.php');
+        xhr.open('POST', 'https://dev.legalpilar.id/v2/android/ginvite/page/image_upload.php');
         
         xhr.upload.onprogress = (e) => {
           progress(e.loaded / e.total * 100);
@@ -142,7 +142,7 @@ export default function RichTextEditor({
                   formData.append('blog_id', blogId.toString());
                 }
                 
-                fetch('https://ccgnimex.my.id/v2/android/ginvite/page/image_upload.php', {
+                fetch('https://dev.legalpilar.id/v2/android/ginvite/page/image_upload.php', {
                   method: 'POST',
                   body: formData
                 })

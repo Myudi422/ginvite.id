@@ -1,9 +1,9 @@
 // app/actions/indexcontent.ts
 'use server';
 
-const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
-const TOGGLE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=toggle_status';
-const MIDTRANS_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=midtrans';
+const SAVE_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=save_content_user';
+const TOGGLE_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=toggle_status';
+const MIDTRANS_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=midtrans';
 
 interface SavePayload {
   user_id: number;

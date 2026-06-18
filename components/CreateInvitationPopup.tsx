@@ -29,7 +29,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
     }
     setWaLoading(true);
     try {
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=update_wa', {
+      const res = await fetch('https://dev.legalpilar.id/v2/android/ginvite/index.php?action=update_wa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: userId, nomor_wa: waNumber }),
@@ -66,7 +66,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
       // Cek nomor WA ke backend
       try {
         const res = await fetch(
-          `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=check_wa&user_id=${userId}`
+          `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=check_wa&user_id=${userId}`
         );
         const data = await res.json();
         if (data.status !== 'ok' || !data.nomor_wa) {
@@ -83,7 +83,7 @@ const CreateInvitationPopup: React.FC<Props> = ({ userId, onClose, onInvitationC
     setLoading(true);
     try {
       const response = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=add_content_user',
+        'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=add_content_user',
         {
           method: 'POST',
           headers: {

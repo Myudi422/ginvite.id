@@ -43,7 +43,7 @@ export default function CreateBuilderPopup({ userId, onClose, onCreated }: Props
     }
     setWaLoading(true);
     try {
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=update_wa', {
+      const res = await fetch('https://dev.legalpilar.id/v2/android/ginvite/index.php?action=update_wa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: userId, nomor_wa: waNumber }),
@@ -77,7 +77,7 @@ export default function CreateBuilderPopup({ userId, onClose, onCreated }: Props
       // Cek nomor WA ke backend
       try {
         const res = await fetch(
-          `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=check_wa&user_id=${userId}`
+          `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=check_wa&user_id=${userId}`
         );
         const data = await res.json();
         if (data.status !== 'ok' || !data.nomor_wa) {
@@ -95,7 +95,7 @@ export default function CreateBuilderPopup({ userId, onClose, onCreated }: Props
     try {
       const defaultPage = makeDefaultPage({ slug, user_id: userId, event_type: eventType, page_title: pageTitle || slug });
       const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/builder_create.php',
+        'https://dev.legalpilar.id/v2/android/ginvite/page/builder_create.php',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

@@ -90,7 +90,7 @@ export default function QRManagePage() {
     async function fetchData() {
       try {
         const res = await fetch(
-          `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_manage&user_id=${userId}&title=${encodeURIComponent(decodedTitle)}`
+          `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_manage&user_id=${userId}&title=${encodeURIComponent(decodedTitle)}`
         );
         const json = await res.json();
         if (json.status === 'success') {
@@ -208,7 +208,7 @@ function ScanTab({ contentId, userId, title, source }: { contentId: number; user
 
   const handleOK = async () => {
     if (!scanData) return;
-    await axios.post('https://ccgnimex.my.id/v2/android/ginvite/index.php?action=qr', {
+    await axios.post('https://dev.legalpilar.id/v2/android/ginvite/index.php?action=qr', {
       nama: scanData, content_id: contentId, user_id: userId, title, invitation_type: source,
     });
     setRecorded(prev => [scanData, ...prev]);

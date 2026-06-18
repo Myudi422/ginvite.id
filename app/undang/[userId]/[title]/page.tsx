@@ -73,7 +73,7 @@ async function fetchWithTimeout(url: string, options: RequestInit & { next?: any
 // Ambil data undangan terlebih dahulu untuk metadata dinamis
 async function getInvitationData(userId: string, title: string) {
   const apiUrl = [
-    "https://ccgnimex.my.id/v2/android/ginvite/index.php",
+    "https://dev.legalpilar.id/v2/android/ginvite/index.php",
     `?action=result`,
     `&user=${encodeURIComponent(userId)}`,
     `&title=${encodeURIComponent(title)}`,
@@ -204,7 +204,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   let builderData: any = null;
   try {
     const builderRes = await fetch(
-      `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get_public.php?user_id=${encodeURIComponent(userId)}&slug=${encodeURIComponent(title)}`,
+      `https://dev.legalpilar.id/v2/android/ginvite/page/builder_get_public.php?user_id=${encodeURIComponent(userId)}&slug=${encodeURIComponent(title)}`,
       { next: { revalidate: 60 } }
     );
     let builderJson: Record<string, unknown> | null = null;
@@ -380,7 +380,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
   let isBuilderNotFound = false;
   try {
     const builderRes = await fetch(
-      `https://ccgnimex.my.id/v2/android/ginvite/page/builder_get_public.php?user_id=${encodeURIComponent(userId)}&slug=${encodeURIComponent(title)}`,
+      `https://dev.legalpilar.id/v2/android/ginvite/page/builder_get_public.php?user_id=${encodeURIComponent(userId)}&slug=${encodeURIComponent(title)}`,
       { next: { revalidate: 60 } }
     );
 
@@ -418,7 +418,7 @@ export default async function InvitationPage({ params, searchParams }: Props) {
 
   // ── 2. Flow lama (formulir / tema) ───────────────────────────────────────
   const apiUrl = [
-    "https://ccgnimex.my.id/v2/android/ginvite/index.php",
+    "https://dev.legalpilar.id/v2/android/ginvite/index.php",
     `?action=result`,
     `&user=${encodeURIComponent(userId)}`,
     `&title=${encodeURIComponent(title)}`,

@@ -20,8 +20,8 @@ interface P {
 }
 
 // ── API Constants ─────────────────────────────────────────────────────────────
-const RSVP_SUBMIT_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=rsmp';
-const RSVP_GET_URL    = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_rsmp';
+const RSVP_SUBMIT_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=rsmp';
+const RSVP_GET_URL    = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_rsmp';
 
 // ── Time helper ───────────────────────────────────────────────────────────────
 const timeAgo = (dateString: string): string => {

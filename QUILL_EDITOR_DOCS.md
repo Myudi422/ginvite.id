@@ -138,7 +138,7 @@ FormData {
 ```json
 {
   "success": true,
-  "location": "https://ccgnimex.my.id/v2/android/ginvite/page/uploads/editor/filename.jpg",
+  "location": "https://dev.legalpilar.id/v2/android/ginvite/page/uploads/editor/filename.jpg",
   "image_id": 123,
   "filename": "unique_filename.jpg"
 }

@@ -6,7 +6,7 @@ export async function POST(request: Request) {
 
   try {
     const res = await fetch(
-      'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user',
+      'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=save_content_user',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

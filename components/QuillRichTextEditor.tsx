@@ -11,7 +11,7 @@ interface RichTextEditorProps {
 }
 
 const IMAGE_UPLOAD_URL =
-  'https://ccgnimex.my.id/v2/android/ginvite/page/image_upload.php';
+  'https://dev.legalpilar.id/v2/android/ginvite/page/image_upload.php';
 
 export default function RichTextEditor({
   value,

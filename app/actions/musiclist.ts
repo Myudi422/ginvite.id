@@ -1,6 +1,6 @@
 'use server';
 
-const MUSIC_API_URL = process.env.USER_MANAGE_API_URL || 'https://ccgnimex.my.id/v2/android/ginvite/index.php';
+const MUSIC_API_URL = process.env.USER_MANAGE_API_URL || 'https://dev.legalpilar.id/v2/android/ginvite/index.php';
 
 export interface Music {
   Nama_lagu: string;

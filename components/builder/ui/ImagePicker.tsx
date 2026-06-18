@@ -135,7 +135,7 @@ export default function ImagePicker({
     setLoadingRecent(true);
     setRecentError(null);
     try {
-      const res = await fetchWithRetry("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_list.php?prefix=background/");
+      const res = await fetchWithRetry("https://dev.legalpilar.id/v2/android/ginvite/page/backblaze_list.php?prefix=background/");
       const data = await res.json();
       if (data.success && data.files) {
         // Filter only images and sort by last modified descending
@@ -526,7 +526,7 @@ function FileManagerModal({ onClose, onSelect, selectedValue }: FileManagerModal
     setLoading(true);
     setError(null);
     try {
-      const url = new URL("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_list.php");
+      const url = new URL("https://dev.legalpilar.id/v2/android/ginvite/page/backblaze_list.php");
       if (prefix) url.searchParams.append("prefix", prefix);
 
       const res = await fetchWithRetry(url.toString());

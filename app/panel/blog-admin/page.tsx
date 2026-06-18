@@ -30,7 +30,7 @@ interface Blog {
   updated_at: string;
 }
 
-const API_BASE = 'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php';
+const API_BASE = 'https://dev.legalpilar.id/v2/android/ginvite/page/blog_admin.php';
 
 export default function BlogAdminPage() {
   const router = useRouter();
@@ -336,7 +336,7 @@ function BlogListItem({ blog, onDelete }: { blog: Blog; onDelete: () => void }) 
       formData.append('id', blog.id.toString());
       formData.append('status', newStatus);
       const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=toggle_status',
+        'https://dev.legalpilar.id/v2/android/ginvite/page/blog_admin.php?action=toggle_status',
         { method: 'POST', body: formData }
       );
       const data = await res.json();
@@ -412,7 +412,7 @@ function BlogListItem({ blog, onDelete }: { blog: Blog; onDelete: () => void }) 
           onClick={async () => {
             if (!confirm('Hapus artikel ini?')) return;
             await fetch(
-              `https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=delete&id=${blog.id}`,
+              `https://dev.legalpilar.id/v2/android/ginvite/page/blog_admin.php?action=delete&id=${blog.id}`,
               { method: 'DELETE' }
             );
             onDelete();

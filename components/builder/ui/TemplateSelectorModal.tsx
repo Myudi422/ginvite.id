@@ -103,7 +103,7 @@ export default function TemplateSelectorModal({ onClose }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/template_list.php');
+      const res = await fetch('https://dev.legalpilar.id/v2/android/ginvite/page/template_list.php');
       const data = await res.json();
       if (data.status === 'success' && Array.isArray(data.data)) {
         setThemes(data.data);
@@ -165,7 +165,7 @@ export default function TemplateSelectorModal({ onClose }: Props) {
   const handleImport = async (theme: TemplateItem) => {
     setImportingId(theme.id);
     try {
-      const res = await fetch(`https://ccgnimex.my.id/v2/android/ginvite/page/template_get.php?id=${theme.id}`);
+      const res = await fetch(`https://dev.legalpilar.id/v2/android/ginvite/page/template_get.php?id=${theme.id}`);
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       
       const json = await res.json();

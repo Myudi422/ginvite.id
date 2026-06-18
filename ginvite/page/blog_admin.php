@@ -117,7 +117,7 @@ function createBlog($pdo)
             }
 
             if (move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
-                $image_url = 'https://ccgnimex.my.id/v2/android/ginvite/' . $file_path;
+                $image_url = 'https://dev.legalpilar.id/v2/android/ginvite/' . $file_path;
             }
         }
 
@@ -205,7 +205,7 @@ function updateBlog($pdo)
 
             if (move_uploaded_file($_FILES['image']['tmp_name'], $file_path)) {
                 // Perbaikan: Menambahkan '/page/' ke dalam URL
-                $image_url = 'https://ccgnimex.my.id/v2/android/ginvite/page/' . $file_path;
+                $image_url = 'https://dev.legalpilar.id/v2/android/ginvite/page/' . $file_path;
 
                 // Update with new image
                 $stmt = $pdo->prepare("
@@ -266,7 +266,7 @@ function deleteBlog($pdo)
 
         // Delete associated image file if exists
         if (!empty($blog['image_url'])) {
-            $file_path = str_replace('https://ccgnimex.my.id/v2/android/ginvite/', '', $blog['image_url']);
+            $file_path = str_replace('https://dev.legalpilar.id/v2/android/ginvite/', '', $blog['image_url']);
             if (file_exists($file_path)) {
                 unlink($file_path);
             }

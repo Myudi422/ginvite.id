@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 
-const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
-const THEME_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=theme';
+const SAVE_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=save_content_user';
+const THEME_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=theme';
 
 interface Theme {
   id: number;

@@ -14,7 +14,7 @@ interface SavePayload {
   mapsLink: string;
 }
 
-const SAVE_URL = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=save_content_user';
+const SAVE_URL = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=save_content_user';
 
 export async function autoSaveContent(payload: SavePayload) {
   const res = await fetch(SAVE_URL, {

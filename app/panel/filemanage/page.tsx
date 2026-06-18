@@ -44,7 +44,7 @@ export default function FileManagerPage() {
     const fetchFiles = async (prefix: string) => {
         setLoading(true);
         try {
-            const url = new URL("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_list.php");
+            const url = new URL("https://dev.legalpilar.id/v2/android/ginvite/page/backblaze_list.php");
             if (prefix) url.searchParams.append("prefix", prefix);
 
             const res = await fetch(url.toString());
@@ -76,7 +76,7 @@ export default function FileManagerPage() {
         formData.append("folderPath", currentPrefix); // Upload to current folder
 
         try {
-            const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_admin_upload.php", {
+            const res = await fetch("https://dev.legalpilar.id/v2/android/ginvite/page/backblaze_admin_upload.php", {
                 method: "POST",
                 body: formData,
             });
@@ -104,7 +104,7 @@ export default function FileManagerPage() {
             const formData = new FormData();
             formData.append("imageUrl", url);
 
-            const res = await fetch("https://ccgnimex.my.id/v2/android/ginvite/page/backblaze_hapus.php", {
+            const res = await fetch("https://dev.legalpilar.id/v2/android/ginvite/page/backblaze_hapus.php", {
                 method: "POST",
                 body: formData,
             });

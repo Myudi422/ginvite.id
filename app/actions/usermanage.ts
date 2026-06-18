@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 
-const BASE_URL = process.env.USER_MANAGE_API_URL || 'https://ccgnimex.my.id/v2/android/ginvite/index.php';
+const BASE_URL = process.env.USER_MANAGE_API_URL || 'https://dev.legalpilar.id/v2/android/ginvite/index.php';
 
 /**
  * Fetch user management data.

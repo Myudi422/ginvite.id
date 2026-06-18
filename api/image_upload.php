@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (move_uploaded_file($file['tmp_name'], $file_path)) {
             // Return the URL for TinyMCE
-            $image_url = 'https://ccgnimex.my.id/v2/android/ginvite/page/' . $file_path;
+            $image_url = 'https://dev.legalpilar.id/v2/android/ginvite/page/' . $file_path;
             
             // Save image metadata to database
             $blog_id = $_POST['blog_id'] ?? null; // Optional blog ID if editing existing blog

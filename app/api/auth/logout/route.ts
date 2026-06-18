@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     // 1. Kirim permintaan ke backend untuk menghapus sesi
     const backendLogout = await fetch(
-      "https://ccgnimex.my.id/v2/android/ginvite/page/logout.php",
+      "https://dev.legalpilar.id/v2/android/ginvite/page/logout.php",
       {
         method: "POST",
         headers: {

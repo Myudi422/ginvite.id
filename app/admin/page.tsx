@@ -7,7 +7,7 @@ import { fetchWithRetry } from '@/lib/api-fetch';
 // Mengambil SECRET dari variabel lingkungan dengan fallback
 const SECRET = process.env.JWT_SECRET || 'very-secret-key';
 // Mengambil API_BASE_URL dari variabel lingkungan dengan fallback
-const API_BASE_URL = process.env.API_BASE_URL || 'https://ccgnimex.my.id/v2/android/ginvite';
+const API_BASE_URL = process.env.API_BASE_URL || 'https://dev.legalpilar.id/v2/android/ginvite';
 
 export default async function Page() {
   const cookieStore = await cookies();

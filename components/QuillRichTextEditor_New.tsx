@@ -118,7 +118,7 @@ export default function RichTextEditor({
     }
 
     try {
-      const response = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/image_upload.php', {
+      const response = await fetch('https://dev.legalpilar.id/v2/android/ginvite/page/image_upload.php', {
         method: 'POST',
         body: formData
       });

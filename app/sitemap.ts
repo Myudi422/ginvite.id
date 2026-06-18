@@ -108,7 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch dynamic invitation pages
   let dynamicPages: MetadataRoute.Sitemap = [];
   try {
-    const apiUrl = 'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_undangan&limit=10000'; // Fetch up to 10k invitations
+    const apiUrl = 'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_undangan&limit=10000'; // Fetch up to 10k invitations
     const res = await fetch(apiUrl, {
       headers: {
         'User-Agent': 'Papunda-Sitemap/1.0',
@@ -294,7 +294,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let blogPages: MetadataRoute.Sitemap = [];
   try {
     const blogRes = await fetch(
-      'https://ccgnimex.my.id/v2/android/ginvite/page/blog_public.php?action=list&limit=500',
+      'https://dev.legalpilar.id/v2/android/ginvite/page/blog_public.php?action=list&limit=500',
       { next: { revalidate: 3600 } }
     );
     if (blogRes.ok) {

@@ -6,7 +6,7 @@ export async function POST(req: Request) {
 
   // forward ke backend utama
   const backend = await fetch(
-    "https://ccgnimex.my.id/v2/android/ginvite/google.php",
+    "https://dev.legalpilar.id/v2/android/ginvite/google.php",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

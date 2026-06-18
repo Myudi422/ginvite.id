@@ -57,7 +57,7 @@ export default function ListUser() {
 
   const fetchUsers = async () => {
     try {
-      let url = `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_undangan&page=${page}&limit=50&type=${type}`;
+      let url = `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_undangan&page=${page}&limit=50&type=${type}`;
 
       if (startDate) {
         url += `&date_from=${formatDateYMD(startDate)}`;

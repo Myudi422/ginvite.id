@@ -46,7 +46,7 @@ export default function TestRegeneratePage() {
 
       console.log('Sending update request...');
       const updateResponse = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=update',
+        'https://dev.legalpilar.id/v2/android/ginvite/page/blog_admin.php?action=update',
         {
           method: 'POST',
           body: formData

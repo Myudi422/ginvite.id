@@ -24,7 +24,7 @@ export default function MusicPage() {
     setError(null);
     try {
       const res = await fetch(
-        'https://ccgnimex.my.id/v2/android/ginvite/index.php?action=musiclist'
+        'https://dev.legalpilar.id/v2/android/ginvite/index.php?action=musiclist'
       );
       const data = await res.json();
       if (data.status === 'success') {

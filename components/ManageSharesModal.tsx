@@ -36,7 +36,7 @@ export default function ManageSharesModal({ isOpen, onClose, invitation, userId 
     setLoading(true);
     try {
       const res = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_invitation_shares&invitation_id=${invitation.id}&user_id=${userId}`
+        `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_invitation_shares&invitation_id=${invitation.id}&user_id=${userId}`
       );
       const json = await res.json();
       if (json.status === 'success') {
@@ -52,7 +52,7 @@ export default function ManageSharesModal({ isOpen, onClose, invitation, userId 
     setRemoving(shareId);
     try {
       const res = await fetch(
-        `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=remove_invitation_share`,
+        `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=remove_invitation_share`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

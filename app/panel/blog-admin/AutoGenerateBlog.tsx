@@ -45,7 +45,7 @@ export default function AutoGenerateBlog({ onBlogGenerated }: AutoGenerateBlogPr
       });
       
       // Save to database via API
-      const response = await fetch('https://ccgnimex.my.id/v2/android/ginvite/page/blog_admin.php?action=create', {
+      const response = await fetch('https://dev.legalpilar.id/v2/android/ginvite/page/blog_admin.php?action=create', {
         method: 'POST',
         body: formData
       });

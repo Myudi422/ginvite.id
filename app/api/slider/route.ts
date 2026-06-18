@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   const res = await fetch(
-    `https://ccgnimex.my.id/v2/android/ginvite/index.php?action=get_slider`
+    `https://dev.legalpilar.id/v2/android/ginvite/index.php?action=get_slider`
   );
 
   if (!res.ok) {

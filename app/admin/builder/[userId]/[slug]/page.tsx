@@ -7,7 +7,7 @@ import type { BuilderPage, EventType } from '@/components/builder/types';
 import { makeDefaultPage } from '@/components/builder/defaults';
 
 const SECRET = process.env.JWT_SECRET || 'very-secret-key';
-const API = process.env.API_BASE_URL || 'https://ccgnimex.my.id/v2/android/ginvite';
+const API = process.env.API_BASE_URL || 'https://dev.legalpilar.id/v2/android/ginvite';
 
 const VALID_EVENT_TYPES: EventType[] = ['pernikahan', 'ulang_tahun', 'khitanan', 'custom'];
 

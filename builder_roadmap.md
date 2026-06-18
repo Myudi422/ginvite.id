@@ -170,7 +170,7 @@ ginvite/page/
 ### Environment Variables
 ```env
 JWT_SECRET=your-secret-key
-API_BASE_URL=https://ccgnimex.my.id/v2/android/ginvite
+API_BASE_URL=https://dev.legalpilar.id/v2/android/ginvite
 ```
 
 ### Database Migration
