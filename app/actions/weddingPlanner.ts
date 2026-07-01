@@ -216,3 +216,20 @@ export async function toggleSeserahanItem(id: number, isBought: boolean) {
 export async function deleteSeserahanItem(id: number) {
     return wpFetch('seserahan', 'DELETE', { id });
 }
+
+// ─── Tabungan Mock Actions (Legacy) ───
+export async function getSavingsData(userId: string | number, invitationTitle: string) {
+    return { goal: 0, entries: [] };
+}
+
+export async function saveSavingsGoal(userId: string | number, invitationTitle: string, goal: number) {
+    return { status: "success" };
+}
+
+export async function addSavingsEntry(userId: string | number, invitationTitle: string, entry: Omit<SavingsEntry, 'id'>) {
+    return { status: "success" };
+}
+
+export async function deleteSavingsEntry(id: number) {
+    return { status: "success" };
+}

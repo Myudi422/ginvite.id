@@ -1,0 +1,261 @@
+Objective
+
+Homepage berfungsi sebagai gerbang utama Event Papunda, memperkenalkan konsep "Partner Resmi Papunda" yang hadir di berbagai kota di Indonesia. Fokus utama halaman adalah mengarahkan pengguna memilih kota dan memulai konsultasi.
+
+Target utama:
+
+Membangun kepercayaan terhadap brand Event Papunda.
+Menjelaskan konsep satu partner resmi di setiap kota.
+Mengarahkan pengguna memilih kota.
+Menghasilkan lead melalui WhatsApp.
+Hero Section
+Headline
+
+Semua Kebutuhan Pernikahan dalam Satu Tempat.
+
+Subheadline
+
+Temukan Partner Resmi Papunda di kotamu. Mulai dari Wedding Organizer, Catering, Dekorasi, Dokumentasi, hingga Undangan Digital, semuanya dalam satu layanan terpercaya.
+
+CTA
+
+Primary:
+
+Cari Kota
+
+Secondary:
+
+Konsultasi Gratis
+Hero Visual
+
+Gunakan foto wedding premium dengan nuansa hangat dan elegan.
+
+Tambahkan elemen pencarian kota di bagian tengah hero.
+
+Contoh:
+
+📍 Pilih Kota
+
+[ Bogor ▼ ]
+
+[ Cari Partner ]
+Tentang Event Papunda
+Judul
+
+Lebih dari Sekadar Wedding Organizer
+
+Deskripsi
+
+Event Papunda adalah jaringan partner resmi yang membantu calon pengantin mendapatkan layanan pernikahan terbaik di setiap kota. Kami bekerja sama dengan satu partner terpercaya di setiap wilayah untuk memastikan kualitas layanan tetap konsisten dan profesional.
+
+Cara Kerja
+Judul
+
+Persiapan Wedding Jadi Lebih Mudah
+
+Gunakan ilustrasi timeline horizontal.
+
+Langkah 1
+
+Pilih Kota
+
+Temukan partner resmi Papunda di kota tempat acara akan berlangsung.
+
+Langkah 2
+
+Pilih Paket
+
+Lihat berbagai pilihan paket wedding sesuai kebutuhan dan anggaran.
+
+Langkah 3
+
+Konsultasi
+
+Diskusikan konsep acara bersama tim partner Papunda.
+
+Langkah 4
+
+Hari Bahagia
+
+Nikmati momen spesial dengan persiapan yang lebih tenang dan terorganisir.
+
+Layanan Kami
+
+Gunakan grid icon modern.
+
+Kategori layanan:
+
+Wedding Organizer
+Catering
+Dekorasi
+Photography
+Videography
+Makeup Artist
+Venue
+MC
+Entertainment
+Souvenir
+Bridal
+Undangan Digital Papunda
+
+Tambahkan teks:
+
+Semua layanan disediakan oleh Partner Resmi Papunda di setiap kota.
+
+Mengapa Memilih Event Papunda
+
+Gunakan card dengan icon.
+
+Partner Terpercaya
+
+Setiap kota hanya memiliki satu partner resmi yang telah dikurasi.
+
+Layanan Lengkap
+
+Semua kebutuhan wedding tersedia dalam satu layanan.
+
+Harga Transparan
+
+Pilihan paket dengan informasi biaya yang jelas.
+
+Konsultasi Gratis
+
+Diskusikan kebutuhan acara sebelum menentukan paket.
+
+Didampingi Hingga Hari H
+
+Tim partner siap membantu sejak tahap perencanaan hingga pelaksanaan acara.
+
+Terintegrasi dengan Papunda
+
+Undangan digital, RSVP, buku tamu digital, hingga wedding planning dapat terhubung dalam satu ekosistem.
+
+Kota yang Tersedia
+
+Judul:
+
+Temukan Partner Resmi di Kotamu
+
+Gunakan grid card kota.
+
+Contoh:
+
+Bogor
+
+Bandung
+
+Jakarta
+
+Bekasi
+
+Depok
+
+Yogyakarta
+
+Semarang
+
+Surabaya
+
+Malang
+
+Medan
+
+Makassar
+
+Bali
+
+Setiap card menuju halaman:
+
+/bogor
+
+/bandung
+
+/jakarta
+Portofolio
+
+Judul:
+
+Momen Bahagia Bersama Partner Papunda
+
+Grid gallery berisi foto:
+
+Wedding Indoor
+Wedding Outdoor
+Garden Party
+Traditional Wedding
+Modern Wedding
+Intimate Wedding
+Testimoni
+
+Carousel review pasangan.
+
+Isi:
+
+Foto pasangan
+
+Nama
+
+Kota
+
+Rating
+
+Komentar singkat.
+
+FAQ
+
+Contoh pertanyaan:
+
+Apakah bisa hanya menggunakan catering?
+
+Apakah bisa request konsep adat?
+
+Apakah bisa wedding di luar kota?
+
+Bagaimana proses konsultasi?
+
+Apakah tersedia paket custom?
+
+CTA Penutup
+Headline
+
+Siap Merencanakan Pernikahan Impian?
+
+Deskripsi
+
+Mulai konsultasi bersama Partner Resmi Papunda di kotamu dan temukan solusi wedding yang sesuai dengan kebutuhanmu.
+
+Button:
+
+Konsultasi Gratis
+
+Footer
+
+Navigasi:
+
+Tentang Kami
+Layanan
+Kota
+Portofolio
+FAQ
+Blog
+Hubungi Kami
+
+Sosial Media:
+
+Instagram
+TikTok
+YouTube
+Arah Desain
+Elegan dan premium dengan dominasi warna putih serta aksen pink base website papunda.
+Hero menggunakan foto full-width berkualitas tinggi.
+Banyak white space untuk memberi kesan eksklusif.
+Card dengan sudut membulat dan bayangan halus.
+Animasi ringan saat scroll.
+Responsif untuk desktop dan mobile.
+Pengalaman pengguna yang diinginkan
+
+Begitu pengguna membuka event.papunda.com, mereka langsung memahami bahwa ini bukan marketplace vendor, melainkan jaringan Partner Resmi Papunda. Alur yang ingin dibangun adalah:
+
+Masuk Homepage → Pilih Kota → Lihat Halaman Partner Kota → Pilih Paket → Konsultasi via WhatsApp → Booking.
+
+Alur yang sederhana ini menjaga fokus pengguna dan memperkuat citra Papunda sebagai penyedia solusi pernikahan yang praktis, terpercaya, dan terkurasi.
