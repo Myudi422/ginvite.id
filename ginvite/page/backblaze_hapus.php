@@ -33,6 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['imageUrl'])) {
                     'secret' => B2_SECRET_KEY,
                 ],
                 'suppress_php_deprecation_warning' => true,
+                'http' => [
+                    'verify' => false,
+                    'connect_timeout' => 10,
+                    'timeout' => 30,
+                    'curl' => [
+                        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    ],
+                ],
             ]);
 
             $s3->deleteObject([

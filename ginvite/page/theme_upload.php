@@ -72,7 +72,14 @@ function uploadToBackblaze($file, $categoryId, $themeNameSanitized, $fieldKey) {
                 'key'    => B2_ACCESS_KEY,
                 'secret' => B2_SECRET_KEY
             ],
-            'http' => ['verify' => false],
+            'http' => [
+                'verify' => false,
+                'connect_timeout' => 10,
+                'timeout' => 30,
+                'curl' => [
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                ],
+            ],
             'suppress_php_deprecation_warning' => true,
         ]);
 
