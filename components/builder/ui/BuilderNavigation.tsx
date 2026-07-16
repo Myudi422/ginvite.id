@@ -120,27 +120,19 @@ export default function BuilderNavigation({
     const element = document.getElementById(`${idPrefix}${id}`);
     if (!element) return;
 
-    // Use the passed-in ref first (reliable for fixed-position nav bars outside DOM tree),
-    // then fall back to DOM traversal for vertically-embedded navbars.
+    // Use the passed-in ref first (reliable for fixed nav outside DOM tree),
+    // then fall back to DOM traversal.
     const container = (scrollContainerRef?.current ?? element.closest('.overflow-y-auto')) as HTMLElement | null;
 
     if (container) {
-      // Temporarily disable scroll-snap so mobile browsers don't cancel the smooth scroll
-      const originalSnap = container.style.scrollSnapType;
-      container.style.scrollSnapType = 'none';
-
+      // Use instant scroll (not smooth) — snap engine handles the animation.
+      // Smooth scroll fights snap-type mandatory and gets canceled on mobile.
       const containerRect = container.getBoundingClientRect();
       const elemRect = element.getBoundingClientRect();
       const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
-
-      container.scrollTo({ top: Math.max(0, relativeTop), behavior: 'smooth' });
-
-      // Re-enable snap after scroll animation finishes
-      setTimeout(() => {
-        container.style.scrollSnapType = originalSnap || 'y mandatory';
-      }, 700);
+      container.scrollTop = Math.max(0, relativeTop);
     } else {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      element.scrollIntoView({ block: 'start' });
     }
   };
 

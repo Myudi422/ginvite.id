@@ -61,14 +61,14 @@ function SectionRenderer({ section, style, onOpen, isExiting, pageStatus }: {
 
 // ── Scroll Reveal Wrapper ─────────────────────────────────────────────────────
 // Setiap section isi undangan dibungkus komponen ini.
-// IntersectionObserver menambahkan class `section-in-view` saat section masuk
-// viewport, lalu CSS global mengubah animation-play-state dari paused → running.
-// Animasi berjalan sesuai scroll — section pertama langsung, berikutnya nunggu scroll.
+// PENTING: outer div adalah snap anchor — TIDAK boleh dianimasikan (transform/clip-path)
+// karena browser akan berantem antara snap engine dan CSS animation → konten geter.
+// Animasi reveal dipindahkan ke inner div agar snap point tetap stabil.
 function ScrollRevealSection({ children, id }: { children: React.ReactNode; id: string }) {
-  const ref = React.useRef<HTMLDivElement>(null);
+  const innerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const el = ref.current;
+    const el = innerRef.current;
     if (!el) return;
 
     const observer = new IntersectionObserver(
@@ -78,7 +78,7 @@ function ScrollRevealSection({ children, id }: { children: React.ReactNode; id: 
           observer.unobserve(el);
         }
       },
-      { threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
+      { threshold: 0.15 }
     );
 
     observer.observe(el);
@@ -86,19 +86,21 @@ function ScrollRevealSection({ children, id }: { children: React.ReactNode; id: 
   }, []);
 
   return (
+    // Outer: stable snap anchor — no transform, no animation, no will-change
     <div
-      ref={ref}
       id={id}
-      className="scroll-reveal-section"
       style={{
         scrollSnapAlign: 'start',
         height: '100dvh',
         flexShrink: 0,
-        display: 'flex',
-        flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
-      <div className="flex-1 flex flex-col section-renderer-wrapper">
+      {/* Inner: carries the reveal animation, isolated from snap engine */}
+      <div
+        ref={innerRef}
+        className="scroll-reveal-section h-full flex flex-col section-renderer-wrapper"
+      >
         {children}
       </div>
     </div>
@@ -485,6 +487,7 @@ export default function BuilderViewer({ page }: Props) {
       */}
       <style>{`
         /* ── Scroll-reveal: pause animasi sampai section masuk viewport ── */
+        /* ── Scroll-reveal: pause animasi item sampai section masuk viewport ── */
         .scroll-reveal-section .animate-item {
           animation-play-state: paused !important;
         }
@@ -492,48 +495,27 @@ export default function BuilderViewer({ page }: Props) {
           animation-play-state: running !important;
         }
 
-        /* ── Page-reveal: efek "buka lembaran" saat section masuk viewport ── */
+        /* ── Page-reveal desktop: opacity fade saat section in-view ── */
+        /* TIDAK pakai transform/clip-path di snap point — menyebabkan geter */
         @keyframes pageReveal {
-          from {
-            clip-path: inset(100% 0 0 0);
-            transform: translateY(8px);
-          }
-          to {
-            clip-path: inset(0% 0 0 0);
-            transform: translateY(0);
-          }
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
-
-        /* Setiap scroll-reveal-section mendapat animasi pageReveal saat in-view */
         .scroll-reveal-section.section-in-view {
-          animation: pageReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-          will-change: clip-path, transform;
+          animation: pageReveal 0.45s ease-out forwards;
         }
 
-        /* Optimize for mobile viewports to prevent jank/stiff touch scroll */
+        /* Mobile: same clean fade, no translate (avoids jitter with snap) */
         @media (max-width: 1023px) {
           .scroll-reveal-section.section-in-view {
-            animation: mobilePageReveal 0.35s ease-out forwards !important;
-            will-change: opacity, transform !important;
-            clip-path: none !important;
-          }
-        }
-
-        @keyframes mobilePageReveal {
-          from {
-            opacity: 0.3;
-            transform: translateY(16px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+            animation: pageReveal 0.3s ease-out forwards !important;
           }
         }
 
         /* Snap scroll container */
         .builder-snap-container {
           scroll-snap-type: y mandatory;
-          scroll-behavior: smooth;
+          overscroll-behavior-y: contain;
           -webkit-overflow-scrolling: touch;
         }
 
