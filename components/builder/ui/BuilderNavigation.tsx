@@ -13,6 +13,7 @@ interface BuilderNavigationProps {
   activeColor?: string;
   inactiveColor?: string;
   accentColor?: string;
+  isVertical?: boolean;
 }
 
 const TYPE_ICONS: Record<string, LucideIcon> = {
@@ -55,7 +56,8 @@ export default function BuilderNavigation({
   bgOpacity, 
   activeColor, 
   inactiveColor, 
-  accentColor 
+  accentColor,
+  isVertical = false
 }: BuilderNavigationProps) {
   const [activeId, setActiveId] = useState<string>(items.length > 0 ? items[0].id : "");
 
@@ -118,7 +120,7 @@ export default function BuilderNavigation({
   let navStyle: React.CSSProperties = {};
   if (bgType === 'gradient') {
     navStyle = {
-      backgroundImage: `linear-gradient(to right, ${cleanBgColor}${opacityHex}, ${cleanBgColor2}${opacityHex})`,
+      backgroundImage: `linear-gradient(to bottom, ${cleanBgColor}${opacityHex}, ${cleanBgColor2}${opacityHex})`,
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover',
     };
@@ -128,10 +130,68 @@ export default function BuilderNavigation({
     };
   }
 
+  // ── Render Vertical Menu for Desktop Split View ──
+  if (isVertical) {
+    return (
+      <div className="absolute top-1/2 left-[60%] -translate-y-1/2 -translate-x-1/2 z-[999] pointer-events-none">
+        <div 
+          className="backdrop-blur-xl rounded-full shadow-2xl overflow-hidden pointer-events-auto w-14 py-4 px-1 border border-white/10 flex flex-col items-center justify-center"
+          style={navStyle}
+        >
+          <div className="flex flex-col justify-center items-center gap-3">
+            {items.map((item) => {
+              const isActive = activeId === item.id;
+              const Icon = (item.icon && TYPE_ICONS[item.icon]) || TYPE_ICONS[item.type || ''] || Home;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={cn(
+                    "relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 flex-shrink-0"
+                  )}
+                  style={isActive ? { 
+                    backgroundColor: '#ffffff',
+                    color: cleanBgColor || navActive || '#000000'
+                  } : { 
+                    color: '#ffffffd0' 
+                  }}
+                  title={item.label}
+                >
+                  <Icon
+                    size={20}
+                    className={cn(
+                      "transition-transform duration-300",
+                      isActive ? "scale-110" : "scale-100"
+                    )}
+                    strokeWidth={isActive ? 2.5 : 2}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Render Horizontal Menu for Mobile View ──
+  let horizontalNavStyle: React.CSSProperties = {};
+  if (bgType === 'gradient') {
+    horizontalNavStyle = {
+      backgroundImage: `linear-gradient(to right, ${cleanBgColor}${opacityHex}, ${cleanBgColor2}${opacityHex})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+    };
+  } else {
+    horizontalNavStyle = {
+      backgroundColor: `${cleanBgColor}${opacityHex}`,
+    };
+  }
+
   return (
     <>
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full px-4 z-[999] pointer-events-none" style={{ maxWidth: '700px' }}>
-        <div className="max-w-md mx-auto backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden pointer-events-auto" style={navStyle}>
+        <div className="max-w-md mx-auto backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden pointer-events-auto" style={horizontalNavStyle}>
           <div className="flex justify-around items-center h-16 px-2 overflow-x-auto no-scrollbar gap-1">
             {items.map((item) => {
               const isActive = activeId === item.id;

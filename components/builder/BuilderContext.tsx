@@ -128,9 +128,101 @@ function reducer(state: BuilderState, action: Action): BuilderState {
     }
 
     case 'UPDATE_SECTION_PROPS': {
-      const sections = state.page.sections.map(s =>
+      let sections = state.page.sections.map(s =>
         s.id === action.id ? { ...s, props: { ...s.props, ...action.props } } : s
       );
+
+      const targetSection = sections.find(s => s.id === action.id);
+      if (targetSection) {
+        // If it's a wedding event
+        if (state.page.event_type === 'pernikahan') {
+          let groomNickname = '';
+          let brideNickname = '';
+          let shouldSync = false;
+
+          if (targetSection.type === 'couple') {
+            const pA = (targetSection.props?.person_a as any) || {};
+            const pB = (targetSection.props?.person_b as any) || {};
+            groomNickname = pA.nickname || '';
+            brideNickname = pB.nickname || '';
+            shouldSync = true;
+          } else if (targetSection.type === 'opening' || targetSection.type === 'hero') {
+            groomNickname = (targetSection.props?.name_primary as string) || '';
+            brideNickname = (targetSection.props?.name_secondary as string) || '';
+            shouldSync = true;
+          }
+
+          if (shouldSync && (groomNickname || brideNickname)) {
+            sections = sections.map(s => {
+              // Sync to couple section
+              if (s.type === 'couple') {
+                return {
+                  ...s,
+                  props: {
+                    ...s.props,
+                    person_a: {
+                      ...((s.props.person_a as any) || {}),
+                      nickname: groomNickname || ((s.props.person_a as any)?.nickname || ''),
+                    },
+                    person_b: {
+                      ...((s.props.person_b as any) || {}),
+                      nickname: brideNickname || ((s.props.person_b as any)?.nickname || ''),
+                    }
+                  }
+                };
+              }
+              // Sync to opening section
+              if (s.type === 'opening') {
+                return {
+                  ...s,
+                  props: {
+                    ...s.props,
+                    name_primary: groomNickname || (s.props.name_primary || ''),
+                    name_secondary: brideNickname || (s.props.name_secondary || ''),
+                  }
+                };
+              }
+              // Sync to hero section
+              if (s.type === 'hero') {
+                return {
+                  ...s,
+                  props: {
+                    ...s.props,
+                    name_primary: groomNickname || (s.props.name_primary || ''),
+                    name_secondary: brideNickname || (s.props.name_secondary || ''),
+                  }
+                };
+              }
+              return s;
+            });
+          }
+        } else {
+          // Non-wedding event (sync main person name between opening and hero)
+          let mainName = '';
+          let shouldSync = false;
+
+          if (targetSection.type === 'opening' || targetSection.type === 'hero') {
+            mainName = (targetSection.props?.name_primary as string) || '';
+            shouldSync = true;
+          }
+
+          if (shouldSync && mainName) {
+            sections = sections.map(s => {
+              if (s.type === 'opening' || s.type === 'hero') {
+                return {
+                  ...s,
+                  props: {
+                    ...s.props,
+                    name_primary: mainName || (s.props.name_primary || ''),
+                  }
+                };
+              }
+              return s;
+            });
+          }
+        }
+      }
+
       return updatePageHistory(state, { ...state.page, sections });
     }
 

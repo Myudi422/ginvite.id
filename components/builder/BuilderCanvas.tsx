@@ -92,6 +92,131 @@ export default function BuilderCanvas() {
     return group === viewMode;
   });
 
+  const openingSection = sections.find(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) === 'opening');
+  const innerSections = sections.filter(s => (s.group || (s.type === 'opening' ? 'opening' : 'inner')) !== 'opening');
+  const hasOpening = !!openingSection;
+
+  const getLeftPaneData = () => {
+    let names = '';
+    const openingSection = page.sections?.find((s: any) => s.type === 'opening');
+    const coupleSection = page.sections?.find((s: any) => s.type === 'couple');
+    
+    if (openingSection?.props?.name_primary) {
+      const p = openingSection.props.name_primary;
+      const s = openingSection.props.name_secondary;
+      names = p + (s ? ` & ${s}` : '');
+    } else if (coupleSection?.props?.person_a?.nickname || coupleSection?.props?.person_a?.name) {
+      const pA = coupleSection.props.person_a?.nickname || coupleSection.props.person_a?.name;
+      const pB = coupleSection.props.person_b?.nickname || coupleSection.props.person_b?.name;
+      names = pA + (pB ? ` & ${pB}` : '');
+    } else {
+      names = page.page_title || page.slug || 'Save The Date';
+    }
+
+    let date = '';
+    const countdownSection = page.sections?.find((s: any) => s.type === 'countdown');
+    const eventDetailsSection = page.sections?.find((s: any) => s.type === 'event_details');
+    const rawDate = countdownSection?.props?.event_date || eventDetailsSection?.props?.events?.[0]?.date;
+    
+    if (rawDate && typeof rawDate === 'string') {
+      try {
+        const d = new Date(rawDate);
+        if (!isNaN(d.getTime())) {
+          const options: Intl.DateTimeFormatOptions = { 
+            weekday: 'long', 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric' 
+          };
+          date = d.toLocaleDateString('id-ID', options);
+        } else {
+          date = rawDate;
+        }
+      } catch {
+        date = rawDate;
+      }
+    }
+
+    let location = '';
+    const mapsSection = page.sections?.find((s: any) => s.type === 'maps');
+    location = eventDetailsSection?.props?.events?.[0]?.location || mapsSection?.props?.venue_name || mapsSection?.props?.locations?.[0]?.venue_name || '';
+
+    return { names, date, location };
+  };
+
+  const renderLeftBackground = () => {
+    const openingSection = page.sections?.find((s: any) => s.type === 'opening');
+    if (!openingSection) return null;
+    const props = openingSection.props as any;
+    const bgType = props.bg_type || 'image';
+    const bgImage = props.bg_image || '';
+    const bgColor = props.bg_color || '';
+    const bgColor2 = props.bg_color2 || '';
+    const overlayColor = props.overlay_color || '#000000';
+    const overlayOpacity = props.overlay_opacity ?? 50;
+
+    return (
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+        {bgType === 'solid' && (
+          <div className="absolute inset-0" style={{ backgroundColor: bgColor || '#ffffff' }} />
+        )}
+        {bgType === 'gradient' && (
+          <div className="absolute inset-0" style={{ backgroundImage: `linear-gradient(135deg, ${bgColor || '#ff7e5f'}, ${bgColor2 || '#feb47b'})` }} />
+        )}
+        {bgType === 'image' && bgImage && (
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }} />
+        )}
+        {bgType === 'slideshow' && props.bg_slideshow_images?.[0] && (
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${props.bg_slideshow_images[0]})` }} />
+        )}
+        {/* Overlay */}
+        <div className="absolute inset-0" style={{ backgroundColor: overlayColor, opacity: (overlayOpacity / 100) * 0.4 }} />
+      </div>
+    );
+  };
+
+  const getContrastTextColor = () => {
+    const text_color = (page.style.text_color as string) || '#1f2937';
+    const openingSection = page.sections?.find((s: any) => s.type === 'opening');
+    if (!openingSection) return text_color;
+    
+    const props = openingSection.props as any;
+    const bgType = props.bg_type || 'image';
+    const bgColor = props.bg_color || '';
+    const overlayColor = props.overlay_color || '#000000';
+    const overlayOpacity = props.overlay_opacity ?? 50;
+
+    const isHexDark = (hex: string) => {
+      if (!hex) return false;
+      let clean = hex.replace('#', '').trim();
+      if (clean.length === 3) {
+        clean = clean[0] + clean[0] + clean[1] + clean[1] + clean[2] + clean[2];
+      }
+      if (clean.length !== 6) return false;
+      const r = parseInt(clean.substring(0, 2), 16);
+      const g = parseInt(clean.substring(2, 4), 16);
+      const b = parseInt(clean.substring(4, 6), 16);
+      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+      return yiq < 140;
+    };
+
+    if (bgType === 'image' || bgType === 'slideshow') {
+      if (isHexDark(overlayColor) && overlayOpacity > 30) {
+        return '#ffffff';
+      }
+      return '#1f2937';
+    }
+
+    if (bgType === 'gradient') {
+      return isHexDark(bgColor) ? '#ffffff' : text_color;
+    }
+    
+    return isHexDark(bgColor || (page.style.bg_color as string)) ? '#ffffff' : text_color;
+  };
+
+  const leftPaneData = getLeftPaneData();
+  const contrastTextColor = getContrastTextColor();
+
   return (
     // Outer: fills remaining flex space, scrolls vertically
     <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto bg-gray-100 py-6 px-4 flex flex-col">
@@ -121,67 +246,252 @@ export default function BuilderCanvas() {
         </div>
       </div>
 
-      {/* Phone-like frame — centered, max width, clips corners */}
-      <div
-        className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8 flex-shrink-0 w-full"
-        style={{
-          maxWidth: `${page.style.page_width}px`,
-          minHeight: '800px',
-          backgroundColor: page.style.bg_color,
-          color: page.style.text_color,
-          fontFamily: `'${page.style.font_body}', sans-serif`,
-        }}
-      >
-        {visibleSections.map(section => {
-          const isSelected = section.id === selectedSectionId;
-          return (
-            <div
-              key={section.id}
-              id={`section-${section.id}`}
-              className={`relative cursor-pointer transition-all ${!section.visible ? 'opacity-30' : ''}`}
-              onClick={() => selectSection(section.id)}
+      {/* Responsive layout: split screen on desktop (lg:flex) when viewMode is 'all' and hasOpening is true */}
+      {hasOpening && viewMode === 'all' ? (
+        <>
+          {/* Desktop Split View Container */}
+          <div className="hidden lg:flex w-full max-w-6xl mx-auto mb-8 flex-shrink-0 bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-150 relative h-[800px]">
+            {/* Left pane: Static Cover (Desktop Left Cover Panel) */}
+            <div 
+              className="w-[60%] h-full flex flex-col items-center justify-center text-center p-8 select-none border-r border-gray-100 relative"
+              style={{
+                backgroundColor: page.style.bg_color,
+                color: contrastTextColor,
+                fontFamily: `'${page.style.font_body}', sans-serif`,
+              }}
             >
-              {/* Highlight overlay on selected */}
-              {isSelected && (
-                <div className="absolute inset-0 ring-2 ring-pink-400 ring-inset z-10 pointer-events-none" />
-              )}
-              {/* Selection label */}
-              {isSelected && (
-                <div className="absolute top-0 left-0 z-20 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg pointer-events-none">
-                  {section.label}
+              {renderLeftBackground()}
+              
+              <div className="max-w-md mx-auto flex flex-col items-center gap-6 relative z-10">
+                <span className="text-xs tracking-[0.3em] uppercase opacity-75 font-semibold">
+                  SAVE THE DATE
+                </span>
+                
+                <h1 
+                  className="text-4xl sm:text-5xl font-bold font-serif leading-tight py-2"
+                  style={{ fontFamily: `'${page.style.font_heading || 'Playfair Display'}', serif` }}
+                >
+                  {leftPaneData.names}
+                </h1>
+                
+                {leftPaneData.date && (
+                  <p className="text-sm font-medium tracking-wide opacity-90">
+                    {leftPaneData.date}
+                  </p>
+                )}
+                
+                {leftPaneData.location && (
+                  <p className="text-xs tracking-wider opacity-75 uppercase">
+                    {leftPaneData.location}
+                  </p>
+                )}
+
+                <div className="flex items-center gap-2 mt-2 opacity-50">
+                  <span className="w-4 h-[1px] bg-current" />
+                  <span className="text-xs">✦</span>
+                  <span className="w-4 h-[1px] bg-current" />
                 </div>
-              )}
-              {/* Hidden badge */}
-              {!section.visible && (
-                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                  <span className="bg-white/90 text-gray-500 text-xs px-3 py-1 rounded-full shadow border">Tersembunyi</span>
-                </div>
-              )}
-              <SectionRenderer section={section} style={style} />
+              </div>
             </div>
-          );
-        })}
 
-        {/* Bottom spacer */}
-        <div className="h-12 flex items-center justify-center">
-          <p className="text-[10px] text-gray-300">papunda.com</p>
-        </div>
-      </div>
+            {/* Right pane: Mobile viewport flow (including opening cover and inner sections) */}
+            <div 
+              className="w-[40%] h-full overflow-y-auto relative no-scrollbar"
+              style={{
+                backgroundColor: page.style.bg_color,
+                color: page.style.text_color,
+                fontFamily: `'${page.style.font_body}', sans-serif`,
+              }}
+            >
+              {visibleSections.map(section => {
+                const isSelected = section.id === selectedSectionId;
+                return (
+                  <div
+                    key={section.id}
+                    id={`section-${section.id}`}
+                    className={`relative cursor-pointer transition-all ${!section.visible ? 'opacity-30' : ''}`}
+                    onClick={() => selectSection(section.id)}
+                  >
+                    {/* Highlight overlay on selected */}
+                    {isSelected && (
+                      <div className="absolute inset-0 ring-2 ring-pink-400 ring-inset z-10 pointer-events-none" />
+                    )}
+                    {/* Selection label */}
+                    {isSelected && (
+                      <div className="absolute top-0 left-0 z-20 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg pointer-events-none">
+                        {section.label}
+                      </div>
+                    )}
+                    {/* Hidden badge */}
+                    {!section.visible && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                        <span className="bg-white/90 text-gray-500 text-xs px-3 py-1 rounded-full shadow border">Tersembunyi</span>
+                      </div>
+                    )}
+                    <SectionRenderer section={section} style={style} />
+                  </div>
+                );
+              })}
 
-      {page.style.nav_enabled !== false && viewMode !== 'opening' && (
-        <BuilderNavigation 
-          items={visibleSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type))).map(s => {
-            const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));
-            return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
-          })}
-          bgColor={page.style.nav_bg_color as string}
-          bgColor2={page.style.nav_bg_color2 as string}
-          bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
-          bgOpacity={page.style.nav_bg_opacity as number}
-          activeColor={page.style.nav_active_color as string}
-          inactiveColor={page.style.nav_inactive_color as string}
-          accentColor={page.style.accent_color as string} 
-        />
+              {/* Bottom spacer */}
+              <div className="h-12 flex items-center justify-center">
+                <p className="text-[10px] text-gray-300">papunda.com</p>
+              </div>
+            </div>
+
+            {/* Middle Vertical Divider Line */}
+            <div className="absolute top-0 bottom-0 left-[60%] w-[1px] bg-white/20 z-30 pointer-events-none" />
+
+            {/* Vertical Navigation Menu on Divider */}
+            {page.style.nav_enabled !== false && (
+              <BuilderNavigation 
+                isVertical={true}
+                items={innerSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type))).map(s => {
+                  const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));
+                  return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
+                })}
+                bgColor={page.style.nav_bg_color as string}
+                bgColor2={page.style.nav_bg_color2 as string}
+                bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
+                bgOpacity={page.style.nav_bg_opacity as number}
+                activeColor={page.style.nav_active_color as string}
+                inactiveColor={page.style.nav_inactive_color as string}
+                accentColor={page.style.accent_color as string} 
+              />
+            )}
+          </div>
+
+          {/* Mobile view fallback wrapper */}
+          <div className="lg:hidden w-full">
+            {/* Phone-like frame */}
+            <div
+              className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8 flex-shrink-0 w-full"
+              style={{
+                maxWidth: `${page.style.page_width}px`,
+                minHeight: '800px',
+                backgroundColor: page.style.bg_color,
+                color: page.style.text_color,
+                fontFamily: `'${page.style.font_body}', sans-serif`,
+              }}
+            >
+              {visibleSections.map(section => {
+                const isSelected = section.id === selectedSectionId;
+                return (
+                  <div
+                    key={section.id}
+                    id={`section-${section.id}`}
+                    className={`relative cursor-pointer transition-all ${!section.visible ? 'opacity-30' : ''}`}
+                    onClick={() => selectSection(section.id)}
+                  >
+                    {/* Highlight overlay on selected */}
+                    {isSelected && (
+                      <div className="absolute inset-0 ring-2 ring-pink-400 ring-inset z-10 pointer-events-none" />
+                    )}
+                    {/* Selection label */}
+                    {isSelected && (
+                      <div className="absolute top-0 left-0 z-20 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg pointer-events-none">
+                        {section.label}
+                      </div>
+                    )}
+                    {/* Hidden badge */}
+                    {!section.visible && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                        <span className="bg-white/90 text-gray-500 text-xs px-3 py-1 rounded-full shadow border">Tersembunyi</span>
+                      </div>
+                    )}
+                    <SectionRenderer section={section} style={style} />
+                  </div>
+                );
+              })}
+
+              {/* Bottom spacer */}
+              <div className="h-12 flex items-center justify-center">
+                <p className="text-[10px] text-gray-300">papunda.com</p>
+              </div>
+            </div>
+
+            {page.style.nav_enabled !== false && (
+              <BuilderNavigation 
+                items={visibleSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type))).map(s => {
+                  const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));
+                  return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
+                })}
+                bgColor={page.style.nav_bg_color as string}
+                bgColor2={page.style.nav_bg_color2 as string}
+                bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
+                bgOpacity={page.style.nav_bg_opacity as number}
+                activeColor={page.style.nav_active_color as string}
+                inactiveColor={page.style.nav_inactive_color as string}
+                accentColor={page.style.accent_color as string} 
+              />
+            )}
+          </div>
+        </>
+      ) : (
+        /* Original Single column Viewport for when hasOpening is false or viewMode is not 'all' */
+        <>
+          <div
+            className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8 flex-shrink-0 w-full"
+            style={{
+              maxWidth: `${page.style.page_width}px`,
+              minHeight: '800px',
+              backgroundColor: page.style.bg_color,
+              color: page.style.text_color,
+              fontFamily: `'${page.style.font_body}', sans-serif`,
+            }}
+          >
+            {visibleSections.map(section => {
+              const isSelected = section.id === selectedSectionId;
+              return (
+                <div
+                  key={section.id}
+                  id={`section-${section.id}`}
+                  className={`relative cursor-pointer transition-all ${!section.visible ? 'opacity-30' : ''}`}
+                  onClick={() => selectSection(section.id)}
+                >
+                  {/* Highlight overlay on selected */}
+                  {isSelected && (
+                    <div className="absolute inset-0 ring-2 ring-pink-400 ring-inset z-10 pointer-events-none" />
+                  )}
+                  {/* Selection label */}
+                  {isSelected && (
+                    <div className="absolute top-0 left-0 z-20 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg pointer-events-none">
+                      {section.label}
+                    </div>
+                  )}
+                  {/* Hidden badge */}
+                  {!section.visible && (
+                    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                      <span className="bg-white/90 text-gray-500 text-xs px-3 py-1 rounded-full shadow border">Tersembunyi</span>
+                    </div>
+                  )}
+                  <SectionRenderer section={section} style={style} />
+                </div>
+              );
+            })}
+
+            {/* Bottom spacer */}
+            <div className="h-12 flex items-center justify-center">
+              <p className="text-[10px] text-gray-300">papunda.com</p>
+            </div>
+          </div>
+
+          {page.style.nav_enabled !== false && viewMode !== 'opening' && (
+            <BuilderNavigation 
+              items={visibleSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type))).map(s => {
+                const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));
+                return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
+              })}
+              bgColor={page.style.nav_bg_color as string}
+              bgColor2={page.style.nav_bg_color2 as string}
+              bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
+              bgOpacity={page.style.nav_bg_opacity as number}
+              activeColor={page.style.nav_active_color as string}
+              inactiveColor={page.style.nav_inactive_color as string}
+              accentColor={page.style.accent_color as string} 
+            />
+          )}
+        </>
       )}
     </div>
   );

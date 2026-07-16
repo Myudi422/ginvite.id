@@ -134,18 +134,23 @@ export default function QuickFormModal({ onClose }: Props) {
     setMusicEnabled(!!page.style?.music_enabled);
     setMusicUrl(page.style?.music_url || '');
 
-    // opening section
+    // opening & hero sections
     const opening = page.sections.find(s => s.type === 'opening');
+    const hero = page.sections.find(s => s.type === 'hero');
     if (opening) {
-      setOpeningTitle(opening.props.title as string || '');
+      setOpeningTitle(opening.props.title as string || hero?.props?.greeting as string || '');
       setOpeningGreeting(opening.props.greeting_text as string || '');
       if (page.event_type !== 'pernikahan') {
-        setMainPersonName(opening.props.name_primary as string || '');
+        setMainPersonName(opening.props.name_primary as string || hero?.props?.name_primary as string || '');
+      }
+    } else if (hero) {
+      setOpeningTitle(hero.props.greeting as string || '');
+      if (page.event_type !== 'pernikahan') {
+        setMainPersonName(hero.props.name_primary as string || '');
       }
     }
 
     // hero section (for non-wedding main photo, or wedding confirmation)
-    const hero = page.sections.find(s => s.type === 'hero');
     if (hero && page.event_type !== 'pernikahan') {
       setMainPhoto(hero.props.couple_photo as string || '');
     }
@@ -153,19 +158,24 @@ export default function QuickFormModal({ onClose }: Props) {
     // couple section (if wedding)
     if (page.event_type === 'pernikahan') {
       const couple = page.sections.find(s => s.type === 'couple');
+      
+      const initialGroomNickname = couple?.props?.person_a?.nickname || opening?.props?.name_primary || hero?.props?.name_primary || '';
+      const initialBrideNickname = couple?.props?.person_b?.nickname || opening?.props?.name_secondary || hero?.props?.name_secondary || '';
+      
+      setGroomNickname(initialGroomNickname);
+      setBrideNickname(initialBrideNickname);
+
       if (couple) {
         const pA = (couple.props.person_a as any) || {};
         const pB = (couple.props.person_b as any) || {};
 
         setGroomFullName(pA.name || '');
-        setGroomNickname(pA.nickname || '');
         setGroomFather(pA.parent_father || '');
         setGroomMother(pA.parent_mother || '');
         setGroomInstagram(pA.instagram || '');
         setGroomPhoto(pA.photo || '');
 
         setBrideFullName(pB.name || '');
-        setBrideNickname(pB.nickname || '');
         setBrideFather(pB.parent_father || '');
         setBrideMother(pB.parent_mother || '');
         setBrideInstagram(pB.instagram || '');
@@ -295,6 +305,7 @@ export default function QuickFormModal({ onClose }: Props) {
     // 3. Hero section
     const hero = updatedSections.find(s => s.type === 'hero');
     if (hero) {
+      hero.props.greeting = openingTitle;
       if (page.event_type === 'pernikahan') {
         hero.props.name_primary = groomNickname || 'Pengantin Pria';
         hero.props.name_secondary = brideNickname || 'Pengantin Wanita';

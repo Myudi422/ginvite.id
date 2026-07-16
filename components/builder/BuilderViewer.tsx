@@ -303,6 +303,128 @@ export default function BuilderViewer({ page }: Props) {
     }
   }, [page.id]);
 
+  const getLeftPaneData = () => {
+    let names = '';
+    const openingSection = page.sections?.find((s: any) => s.type === 'opening');
+    const coupleSection = page.sections?.find((s: any) => s.type === 'couple');
+    
+    if (openingSection?.props?.name_primary) {
+      const p = openingSection.props.name_primary;
+      const s = openingSection.props.name_secondary;
+      names = p + (s ? ` & ${s}` : '');
+    } else if (coupleSection?.props?.person_a?.nickname || coupleSection?.props?.person_a?.name) {
+      const pA = coupleSection.props.person_a?.nickname || coupleSection.props.person_a?.name;
+      const pB = coupleSection.props.person_b?.nickname || coupleSection.props.person_b?.name;
+      names = pA + (pB ? ` & ${pB}` : '');
+    } else {
+      names = page.page_title || page.slug || 'Save The Date';
+    }
+
+    let date = '';
+    const countdownSection = page.sections?.find((s: any) => s.type === 'countdown');
+    const eventDetailsSection = page.sections?.find((s: any) => s.type === 'event_details');
+    const rawDate = countdownSection?.props?.event_date || eventDetailsSection?.props?.events?.[0]?.date;
+    
+    if (rawDate && typeof rawDate === 'string') {
+      try {
+        const d = new Date(rawDate);
+        if (!isNaN(d.getTime())) {
+          const options: Intl.DateTimeFormatOptions = { 
+            weekday: 'long', 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric' 
+          };
+          date = d.toLocaleDateString('id-ID', options);
+        } else {
+          date = rawDate;
+        }
+      } catch {
+        date = rawDate;
+      }
+    }
+
+    let location = '';
+    const mapsSection = page.sections?.find((s: any) => s.type === 'maps');
+    location = eventDetailsSection?.props?.events?.[0]?.location || mapsSection?.props?.venue_name || mapsSection?.props?.locations?.[0]?.venue_name || '';
+
+    return { names, date, location };
+  };
+
+  const renderLeftBackground = () => {
+    const openingSection = page.sections?.find((s: any) => s.type === 'opening');
+    if (!openingSection) return null;
+    const props = openingSection.props as any;
+    const bgType = props.bg_type || 'image';
+    const bgImage = props.bg_image || '';
+    const bgColor = props.bg_color || '';
+    const bgColor2 = props.bg_color2 || '';
+    const overlayColor = props.overlay_color || '#000000';
+    const overlayOpacity = props.overlay_opacity ?? 50;
+
+    return (
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+        {bgType === 'solid' && (
+          <div className="absolute inset-0" style={{ backgroundColor: bgColor || '#ffffff' }} />
+        )}
+        {bgType === 'gradient' && (
+          <div className="absolute inset-0" style={{ backgroundImage: `linear-gradient(135deg, ${bgColor || '#ff7e5f'}, ${bgColor2 || '#feb47b'})` }} />
+        )}
+        {bgType === 'image' && bgImage && (
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${bgImage})` }} />
+        )}
+        {bgType === 'slideshow' && props.bg_slideshow_images?.[0] && (
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${props.bg_slideshow_images[0]})` }} />
+        )}
+        {/* Overlay */}
+        {/* Overlay */}
+        <div className="absolute inset-0" style={{ backgroundColor: overlayColor, opacity: (overlayOpacity / 100) * 0.4 }} />
+      </div>
+    );
+  };
+
+  const getContrastTextColor = () => {
+    const text_color = (page.style.text_color as string) || '#1f2937';
+    const openingSection = page.sections?.find((s: any) => s.type === 'opening');
+    if (!openingSection) return text_color;
+    
+    const props = openingSection.props as any;
+    const bgType = props.bg_type || 'image';
+    const bgColor = props.bg_color || '';
+    const overlayColor = props.overlay_color || '#000000';
+    const overlayOpacity = props.overlay_opacity ?? 50;
+
+    const isHexDark = (hex: string) => {
+      if (!hex) return false;
+      let clean = hex.replace('#', '').trim();
+      if (clean.length === 3) {
+        clean = clean[0] + clean[0] + clean[1] + clean[1] + clean[2] + clean[2];
+      }
+      if (clean.length !== 6) return false;
+      const r = parseInt(clean.substring(0, 2), 16);
+      const g = parseInt(clean.substring(2, 4), 16);
+      const b = parseInt(clean.substring(4, 6), 16);
+      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+      return yiq < 140;
+    };
+
+    if (bgType === 'image' || bgType === 'slideshow') {
+      if (isHexDark(overlayColor) && overlayOpacity > 30) {
+        return '#ffffff';
+      }
+      return '#1f2937';
+    }
+
+    if (bgType === 'gradient') {
+      return isHexDark(bgColor) ? '#ffffff' : text_color;
+    }
+    
+    return isHexDark(bgColor || (page.style.bg_color as string)) ? '#ffffff' : text_color;
+  };
+
+  const leftPaneData = getLeftPaneData();
+  const contrastTextColor = getContrastTextColor();
+
   if (!isLoaded) {
     return (
       <div
@@ -327,7 +449,7 @@ export default function BuilderViewer({ page }: Props) {
 
   return (
     <div
-      className="min-h-screen min-h-[100dvh]"
+      className="min-h-screen min-h-[100dvh] flex flex-col lg:flex-row overflow-hidden relative"
       style={{
         backgroundColor: page.style.bg_color,
         color: page.style.text_color,
@@ -355,57 +477,191 @@ export default function BuilderViewer({ page }: Props) {
         }
       `}</style>
 
-      {/* Centered container */}
-      <div
-        className="mx-auto"
-        style={{ maxWidth: `${page.style.page_width || 700}px` }}
-      >
-        {/* Inner sections — masing-masing dibungkus ScrollRevealSection */}
-        {showInner && innerSections.map(section => (
-          <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
-            <SectionRenderer section={section} style={style} pageStatus={page.status} />
-          </ScrollRevealSection>
-        ))}
+      {/* ── Desktop Split Layout (Visible when opened / transition starts) ── */}
+      {hasOpening && (isOpen || isExiting) && (
+        <div className="hidden lg:flex w-full h-screen overflow-hidden relative">
+          {/* Left Pane: Static Desktop Event Cover */}
+          <div 
+            className="w-[60%] h-full flex flex-col items-center justify-center text-center p-8 select-none border-r border-white/10 relative"
+            style={{
+              backgroundColor: page.style.bg_color,
+              color: contrastTextColor,
+            }}
+          >
+            {renderLeftBackground()}
 
-        {/* Footer */}
-        {isOpen && (
-          <div className="py-8 text-center space-y-1">
-            <p className="text-[11px] text-gray-300">
-              Dibuat dengan ❤️ oleh{' '}
-              <a
-                href="https://papunda.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:opacity-70 transition-opacity"
+            {/* Static details content */}
+            <div className="max-w-md mx-auto flex flex-col items-center gap-6 relative z-10">
+              <span className="text-xs tracking-[0.3em] uppercase opacity-75 font-semibold">
+                SAVE THE DATE
+              </span>
+              
+              <h1 
+                className="text-4xl sm:text-5xl font-bold font-serif leading-tight py-2"
+                style={{ fontFamily: `'${page.style.font_heading || 'Playfair Display'}', serif` }}
               >
-                papunda.com
-              </a>
-            </p>
-            {page.status === 0 && (
-              <p className="text-[10px] text-pink-400 font-semibold tracking-wider uppercase animate-pulse">
-                — Versi Gratis / Percobaan —
+                {leftPaneData.names}
+              </h1>
+              
+              {leftPaneData.date && (
+                <p className="text-sm font-medium tracking-wide opacity-90">
+                  {leftPaneData.date}
+                </p>
+              )}
+              
+              {leftPaneData.location && (
+                <p className="text-xs tracking-wider opacity-75 uppercase">
+                  {leftPaneData.location}
+                </p>
+              )}
+
+              <div className="flex items-center gap-2 mt-2 opacity-50">
+                <span className="w-4 h-[1px] bg-current" />
+                <span className="text-xs">✦</span>
+                <span className="w-4 h-[1px] bg-current" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Pane: Scrollable Inner Sections */}
+          <div className="w-[40%] h-full overflow-y-auto relative scroll-smooth no-scrollbar flex flex-col">
+            <div className="flex-1 w-full mx-auto relative">
+              {innerSections.map(section => (
+                <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
+                  <SectionRenderer section={section} style={style} pageStatus={page.status} />
+                </ScrollRevealSection>
+              ))}
+
+              {/* Footer */}
+              <div className="py-8 text-center space-y-1">
+                <p className="text-[11px] text-gray-300">
+                  Dibuat dengan ❤️ oleh{' '}
+                  <a
+                    href="https://papunda.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:opacity-70 transition-opacity"
+                  >
+                    papunda.com
+                  </a>
+                </p>
+                {page.status === 0 && (
+                  <p className="text-[10px] text-pink-400 font-semibold tracking-wider uppercase animate-pulse">
+                    — Versi Gratis / Percobaan —
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Divider line & Vertical Nav for Desktop View */}
+          <div className="absolute top-0 bottom-0 left-[60%] w-[1px] bg-white/20 z-40 pointer-events-none" />
+          {page.style.nav_enabled !== false && (
+            <BuilderNavigation
+              isVertical={true}
+              items={innerSections
+                .filter(s => s.visible && (
+                  page.style.nav_items
+                    ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id))
+                    : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type)
+                ))
+                .map(s => {
+                  const navItemConfig = page.style.nav_items?.find((i: any) =>
+                    (typeof i === 'string' ? i === s.id : i.id === s.id)
+                  );
+                  return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
+                })}
+              bgColor={page.style.nav_bg_color as string}
+              bgColor2={page.style.nav_bg_color2 as string}
+              bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
+              bgOpacity={page.style.nav_bg_opacity as number}
+              activeColor={page.style.nav_active_color as string}
+              inactiveColor={page.style.nav_inactive_color as string}
+              accentColor={page.style.accent_color as string}
+            />
+          )}
+        </div>
+      )}
+
+      {/* ── Mobile Layout or Full Screen Cover Overlay ── */}
+      <div className={`${hasOpening && (isOpen || isExiting) ? 'lg:hidden' : ''} w-full flex-1 flex flex-col`}>
+        {/* Main Content (Inner sections) */}
+        {showInner && (
+          <div 
+            className="flex-1 w-full mx-auto relative overflow-y-auto no-scrollbar scroll-smooth" 
+            style={{ maxWidth: `${page.style.page_width || 700}px` }}
+          >
+            {innerSections.map(section => (
+              <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
+                <SectionRenderer section={section} style={style} pageStatus={page.status} />
+              </ScrollRevealSection>
+            ))}
+
+            {/* Footer */}
+            <div className="py-8 text-center space-y-1">
+              <p className="text-[11px] text-gray-300">
+                Dibuat dengan ❤️ oleh{' '}
+                <a
+                  href="https://papunda.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:opacity-70 transition-opacity"
+                >
+                  papunda.com
+                </a>
               </p>
-            )}
+              {page.status === 0 && (
+                <p className="text-[10px] text-pink-400 font-semibold tracking-wider uppercase animate-pulse">
+                  — Versi Gratis / Percobaan —
+                </p>
+              )}
+            </div>
           </div>
         )}
+
+        {/* Opening cover — overlay fixed full screen on both desktop and mobile initially */}
+        {showCover && openingSections.map(section => (
+          <div
+            key={section.id}
+            id={`section-${section.id}`}
+            className="fixed inset-0 z-50 overflow-hidden w-full h-screen"
+          >
+            <SectionRenderer
+              section={section}
+              style={style}
+              onOpen={handleOpen}
+              isExiting={isExiting}
+            />
+          </div>
+        ))}
       </div>
 
-      {/* Opening cover — tidak pakai ScrollRevealSection, langsung tampil */}
-      {showCover && openingSections.map(section => (
-        <div
-          key={section.id}
-          id={`section-${section.id}`}
-          className="fixed inset-y-0 left-0 right-0 mx-auto z-50 overflow-hidden w-full"
-          style={{ maxWidth: `${page.style.page_width || 700}px` }}
-        >
-          <SectionRenderer
-            section={section}
-            style={style}
-            onOpen={handleOpen}
-            isExiting={isExiting}
+      {/* Horizontal Nav for Mobile View */}
+      {page.style.nav_enabled !== false && isOpen && (
+        <div className={hasOpening ? 'lg:hidden' : ''}>
+          <BuilderNavigation
+            items={innerSections
+              .filter(s => s.visible && (
+                page.style.nav_items
+                  ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id))
+                  : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type)
+              ))
+              .map(s => {
+                const navItemConfig = page.style.nav_items?.find((i: any) =>
+                  (typeof i === 'string' ? i === s.id : i.id === s.id)
+                );
+                return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
+              })}
+            bgColor={page.style.nav_bg_color as string}
+            bgColor2={page.style.nav_bg_color2 as string}
+            bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
+            bgOpacity={page.style.nav_bg_opacity as number}
+            activeColor={page.style.nav_active_color as string}
+            inactiveColor={page.style.nav_inactive_color as string}
+            accentColor={page.style.accent_color as string}
           />
         </div>
-      ))}
+      )}
 
       {(isOpen || isExiting) && page.style.music_enabled && page.style.music_url && (
         <MusicPlayer
@@ -415,33 +671,9 @@ export default function BuilderViewer({ page }: Props) {
         />
       )}
 
-      {page.style.nav_enabled !== false && isOpen && (
-        <BuilderNavigation
-          items={innerSections
-            .filter(s => s.visible && (
-              page.style.nav_items
-                ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id))
-                : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type)
-            ))
-            .map(s => {
-              const navItemConfig = page.style.nav_items?.find((i: any) =>
-                (typeof i === 'string' ? i === s.id : i.id === s.id)
-              );
-              return { id: s.id, type: s.type, icon: navItemConfig?.icon, label: s.label };
-            })}
-          bgColor={page.style.nav_bg_color as string}
-          bgColor2={page.style.nav_bg_color2 as string}
-          bgType={page.style.nav_bg_type as 'solid' | 'gradient'}
-          bgOpacity={page.style.nav_bg_opacity as number}
-          activeColor={page.style.nav_active_color as string}
-          inactiveColor={page.style.nav_inactive_color as string}
-          accentColor={page.style.accent_color as string}
-        />
-      )}
-
       {/* Floating Watermark Banner - Versi Gratis / Percobaan */}
       {page.status === 0 && showBanner && (
-        <div className="fixed bottom-4 left-4 right-4 z-[9999] max-w-md mx-auto p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-pink-100 dark:border-pink-950 flex flex-col gap-3 transition-all duration-300">
+        <div className="fixed bottom-4 left-4 right-4 z-[9999] max-w-md mx-auto p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-pink-100 dark:border-pink-950 flex flex-col gap-3 transition-all duration-300 font-sans">
           {/* Close button */}
           <button
             onClick={() => setShowBanner(false)}
