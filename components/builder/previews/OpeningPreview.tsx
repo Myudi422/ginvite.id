@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import type { OpeningProps } from '../types';
+import QRModal from '@/components/QRModal';
 
 interface PreviewProps {
   props: Record<string, unknown>;
@@ -53,6 +54,7 @@ export default function OpeningPreview({ props, style, onOpen, isExiting = false
   const slideshowDuration = typedProps.bg_slideshow_duration ?? 5;
 
   const [activeSlide, setActiveSlide] = useState(0);
+  const [showQrModal, setShowQrModal] = useState(false);
   const validSlides = slideshowImages.filter(Boolean);
 
   useEffect(() => {
@@ -446,6 +448,7 @@ export default function OpeningPreview({ props, style, onOpen, isExiting = false
 
             {showQr && (
               <button 
+                onClick={() => setShowQrModal(true)}
                 className={`${stacked ? 'w-full' : 'flex-1'} py-3 px-6 rounded-full font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 text-center`}
                 style={{ 
                   backgroundColor: style.accent_color as string || '#e879a0',
@@ -628,6 +631,7 @@ export default function OpeningPreview({ props, style, onOpen, isExiting = false
 
                     {showQr && (
                       <button 
+                        onClick={() => setShowQrModal(true)}
                         className="flex-1 py-3 px-6 rounded-lg font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 text-center bg-[#515050]/80 hover:bg-[#515050]/90 border border-white/20 text-white flex items-center justify-center gap-2 text-sm sm:text-base"
                       >
                         <span className="text-base">ⓘ</span> Info QR
@@ -790,6 +794,7 @@ export default function OpeningPreview({ props, style, onOpen, isExiting = false
 
                     {showQr && (
                       <button 
+                        onClick={() => setShowQrModal(true)}
                         className="flex-1 py-3 px-6 rounded-lg font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 text-center bg-transparent border border-white/30 text-white hover:bg-white/5 flex items-center justify-center gap-2 text-xs sm:text-sm tracking-wider uppercase font-mono"
                       >
                         QR INFO
@@ -804,6 +809,14 @@ export default function OpeningPreview({ props, style, onOpen, isExiting = false
         );
       })()}
       </div>
+      <QRModal
+        show={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        qrData={toName || "Tamu Undangan"}
+        guestName={toName}
+        eventName={nameSecondary ? `${namePrimary} & ${nameSecondary}` : namePrimary}
+        coverImage={bgImage || (validSlides.length > 0 ? validSlides[0] : undefined)}
+      />
     </div>
   );
 }

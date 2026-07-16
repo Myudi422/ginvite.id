@@ -410,7 +410,7 @@ export default function BuilderCanvas() {
               </div>
             </div>
 
-            {page.style.nav_enabled !== false && (
+            {page.style.nav_enabled !== false && viewMode !== 'opening' && (
               <BuilderNavigation 
                 items={visibleSections.filter(s => s.visible && (page.style.nav_items ? page.style.nav_items.some((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id)) : ['hero', 'event_details', 'gallery', 'rsvp', 'gift', 'maps', 'dresscode'].includes(s.type))).map(s => {
                   const navItemConfig = page.style.nav_items?.find((i: any) => (typeof i === 'string' ? i === s.id : i.id === s.id));

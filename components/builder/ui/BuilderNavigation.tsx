@@ -14,6 +14,7 @@ interface BuilderNavigationProps {
   inactiveColor?: string;
   accentColor?: string;
   isVertical?: boolean;
+  position?: 'fixed' | 'absolute';
 }
 
 const TYPE_ICONS: Record<string, LucideIcon> = {
@@ -48,6 +49,20 @@ function normalizeHex(hex: string): string {
   return clean;
 }
 
+function isHexDark(hex: string): boolean {
+  if (!hex) return true;
+  let clean = hex.replace('#', '').trim();
+  if (clean.length === 3) {
+    clean = clean[0] + clean[0] + clean[1] + clean[1] + clean[2] + clean[2];
+  }
+  if (clean.length !== 6) return true;
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq < 150;
+}
+
 export default function BuilderNavigation({ 
   items, 
   bgType = 'solid', 
@@ -57,9 +72,14 @@ export default function BuilderNavigation({
   activeColor, 
   inactiveColor, 
   accentColor,
-  isVertical = false
+  isVertical = false,
+  position = 'fixed'
 }: BuilderNavigationProps) {
-  const [activeId, setActiveId] = useState<string>(items.length > 0 ? items[0].id : "");
+  const [activeId, setActiveId] = useState<string>(items && items.length > 0 ? items[0].id : "");
+
+  if (!items || items.length === 0) {
+    return null;
+  }
 
   useEffect(() => {
     if (items.length === 0) return;
@@ -114,8 +134,13 @@ export default function BuilderNavigation({
 
   const opacityHex = Math.round(((bgOpacity ?? 80) / 100) * 255).toString(16).padStart(2, '0');
   
-  const cleanBgColor = normalizeHex(bgColor);
-  const cleanBgColor2 = normalizeHex(bgColor2);
+  const cleanBgColor = normalizeHex(bgColor) || '#000000';
+  const cleanBgColor2 = normalizeHex(bgColor2) || '#333333';
+
+  const isBgDark = isHexDark(cleanBgColor);
+  const defaultInactive = isBgDark ? '#ffffffd0' : '#71717a';
+  const defaultActiveBg = isBgDark ? '#ffffff' : (activeColor || accentColor || '#000000');
+  const defaultActiveColor = isBgDark ? (cleanBgColor || '#000000') : (isHexDark(defaultActiveBg) ? '#ffffff' : '#000000');
 
   let navStyle: React.CSSProperties = {};
   if (bgType === 'gradient') {
@@ -142,6 +167,7 @@ export default function BuilderNavigation({
             {items.map((item) => {
               const isActive = activeId === item.id;
               const Icon = (item.icon && TYPE_ICONS[item.icon]) || TYPE_ICONS[item.type || ''] || Home;
+              const inactiveColorStyle = inactiveColor || defaultInactive;
               return (
                 <button
                   key={item.id}
@@ -150,10 +176,10 @@ export default function BuilderNavigation({
                     "relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 flex-shrink-0"
                   )}
                   style={isActive ? { 
-                    backgroundColor: '#ffffff',
-                    color: cleanBgColor || navActive || '#000000'
+                    backgroundColor: defaultActiveBg,
+                    color: defaultActiveColor
                   } : { 
-                    color: '#ffffffd0' 
+                    color: inactiveColorStyle 
                   }}
                   title={item.label}
                 >
@@ -190,9 +216,15 @@ export default function BuilderNavigation({
 
   return (
     <>
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full px-4 z-[999] pointer-events-none" style={{ maxWidth: '700px' }}>
-        <div className="max-w-md mx-auto backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden pointer-events-auto" style={horizontalNavStyle}>
-          <div className="flex justify-around items-center h-16 px-2 overflow-x-auto no-scrollbar gap-1">
+      <div 
+        className={cn(
+          position === 'absolute' ? 'absolute' : 'fixed',
+          "bottom-6 left-1/2 -translate-x-1/2 w-full px-4 z-[999] pointer-events-none"
+        )} 
+        style={{ maxWidth: '700px' }}
+      >
+        <div className="w-fit max-w-full mx-auto backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden pointer-events-auto" style={horizontalNavStyle}>
+          <div className="flex justify-center items-center h-16 px-4 overflow-x-auto no-scrollbar gap-3 md:gap-4">
             {items.map((item) => {
               const isActive = activeId === item.id;
               const Icon = (item.icon && TYPE_ICONS[item.icon]) || TYPE_ICONS[item.type || ''] || Home;

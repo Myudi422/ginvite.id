@@ -524,7 +524,7 @@ export default function BuilderViewer({ page }: Props) {
           </div>
 
           {/* Right Pane: Scrollable Inner Sections */}
-          <div className="w-[40%] h-full overflow-y-auto relative scroll-smooth no-scrollbar flex flex-col">
+          <div className="w-[40%] h-full overflow-y-auto relative no-scrollbar flex flex-col">
             <div className="flex-1 w-full mx-auto relative">
               {innerSections.map(section => (
                 <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
@@ -588,7 +588,7 @@ export default function BuilderViewer({ page }: Props) {
         {/* Main Content (Inner sections) */}
         {showInner && (
           <div 
-            className="flex-1 w-full mx-auto relative overflow-y-auto no-scrollbar scroll-smooth" 
+            className="flex-1 w-full mx-auto relative overflow-y-auto no-scrollbar" 
             style={{ maxWidth: `${page.style.page_width || 700}px` }}
           >
             {innerSections.map(section => (

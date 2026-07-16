@@ -14,6 +14,7 @@ interface QRModalProps {
   eventDate?: string;
   eventTime?: string;
   coverImage?: string;
+  categoryLabel?: string;
 }
 
 export default function QRModal({
@@ -24,10 +25,32 @@ export default function QRModal({
   eventName = "The Wedding Of",
   eventDate = "17 AGUSTUS 2024",
   eventTime = "09.00 WIB - Selesai",
-  coverImage = "/images/default-wedding.jpg"
+  coverImage = "/images/default-wedding.jpg",
+  categoryLabel
 }: QRModalProps) {
   const ticketRef = useRef<HTMLDivElement>(null);
   const [base64Cover, setBase64Cover] = useState<string | null>(null);
+
+  const detectedLabel = (() => {
+    if (categoryLabel) return categoryLabel;
+    const nameLower = (eventName || '').toLowerCase().trim();
+    
+    let label = 'THE WEDDING OF';
+    if (nameLower.includes('khitan') || nameLower.includes('sunat')) {
+      label = 'WALIMATUL KHITAN';
+    } else if (nameLower.includes('birthday') || nameLower.includes('ulang tahun') || nameLower.includes('ultah') || nameLower.includes('milad') || nameLower.includes('lahir') || nameLower.includes('party')) {
+      label = 'HAPPY BIRTHDAY';
+    }
+    
+    const wordsToCompare = label.toLowerCase().split(' ');
+    const isDuplicate = wordsToCompare.some(word => word.length > 3 && nameLower.includes(word));
+    
+    if (isDuplicate || nameLower === 'save the date') {
+      return 'SPECIAL INVITATION';
+    }
+    
+    return label;
+  })();
 
   useEffect(() => {
     if (coverImage) {
@@ -102,7 +125,7 @@ export default function QRModal({
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 text-left">
-                  <p className="text-white/90 text-[9px] sm:text-[10px] font-medium tracking-widest uppercase">The Wedding Of</p>
+                  <p className="text-white/90 text-[9px] sm:text-[10px] font-medium tracking-widest uppercase">{detectedLabel}</p>
                   <h3 className="text-white text-lg sm:text-xl md:text-2xl font-serif font-bold leading-tight">{eventName}</h3>
                 </div>
               </div>
