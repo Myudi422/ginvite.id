@@ -77,14 +77,14 @@ const TUTORIAL_VIDEOS = [
     desc: "Tutorial cara membagikan hak akses kelola dan edit undangan digital kepada pasangan atau orang terdekat Anda.",
     badge: "Sharing Akses",
     duration: "1:30",
-    url: "https://ccgnimex.s3.us-east-005.backblazeb2.com/admin_uploads/video/invite.mp4",
+    url: "https://file.legalpilar.id/file/ccgnimex/admin_uploads/video/invite.mp4",
   },
   {
     title: "Cara Kirim & Kelola Undangan (Bulk)",
     desc: "fitur bulk send untuk mengelola dan membagikan undangan Anda.",
     badge: "Bulk & Send",
     duration: "3:00",
-    url: "https://ccgnimex.s3.us-east-005.backblazeb2.com/admin_uploads/video/tutorial+share+undangan.mp4",
+    url: "https://file.legalpilar.id/file/ccgnimex/admin_uploads/video/tutorial+share+undangan.mp4",
   },
 ];
 

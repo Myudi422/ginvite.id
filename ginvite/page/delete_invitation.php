@@ -31,7 +31,7 @@ function extract_b2_urls_recursive($item) {
             $found = array_merge($found, extract_b2_urls_recursive($val));
         }
     } elseif (is_string($item)) {
-        if (strpos($item, 'ccgnimex') !== false || strpos($item, 'backblazeb2.com') !== false) {
+        if (strpos($item, 'file.legalpilar.id') !== false || strpos($item, 'ccgnimex') !== false || strpos($item, 'backblazeb2.com') !== false) {
             // Kecualikan file musik agar tidak menghapus musik bawaan/bersama
             if (!preg_match('/\.(mp3|wav|ogg|m4a)$/i', $item)) {
                 $found[] = $item;

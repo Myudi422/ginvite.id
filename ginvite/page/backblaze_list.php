@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         'key' => $key,
                         'size' => $object['Size'],
                         'lastModified' => $object['LastModified'] ? $object['LastModified']->format('Y-m-d H:i:s') : null,
-                        'url' => 'https://f005.backblazeb2.com/file/' . BUCKET_NAME . '/' . ltrim($key, '/')
+                        'url' => 'https://file.legalpilar.id/file/' . BUCKET_NAME . '/' . ltrim($key, '/')
                     ];
                 }
             }

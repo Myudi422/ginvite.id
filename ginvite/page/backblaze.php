@@ -71,8 +71,10 @@ function uploadToBackblaze($file, $userId, $id) {
             'ACL'=>'public-read',
         ]);
 
+        $url = $result['ObjectURL'];
+        $url = str_replace('ccgnimex.s3.us-east-005.backblazeb2.com', 'file.legalpilar.id/file/ccgnimex', $url);
         return [
-            'url' => $result['ObjectURL'],
+            'url' => $url,
             'key' => $key
         ];
     } catch (AwsException $e) {
