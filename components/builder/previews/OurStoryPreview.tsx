@@ -150,14 +150,14 @@ export default function OurStoryPreview({ props, style }: P) {
   // ── Sub-components for Rendering ─────────────────────────────────────────
 
   const renderTitle = () => (
-    <div className={`text-center space-y-2 mb-6 ${getAnimClass(1)}`}>
-      <h2 className="text-2xl font-semibold flex items-center justify-center gap-2"
+    <div className={`text-center space-y-3 mb-8 ${getAnimClass(1)}`}>
+      <h2 className="text-3xl sm:text-4xl font-extrabold flex items-center justify-center gap-2.5"
         style={{ color: textColor, fontFamily: fontHead }}>
-        <Heart className="h-5 w-5 shrink-0 animate-pulse" style={{ color: accent, fill: accent + '30' }} />
+        <Heart className="h-6 w-6 sm:h-7 sm:w-7 shrink-0 animate-pulse" style={{ color: accent, fill: accent + '30' }} />
         {sectionTitle}
       </h2>
       {sectionDesc.trim().length > 0 && (
-        <p className="text-xs opacity-80 max-w-md mx-auto leading-relaxed" style={{ color: textColor }}>
+        <p className="text-sm sm:text-base opacity-80 max-w-lg mx-auto leading-relaxed" style={{ color: textColor }}>
           {sectionDesc}
         </p>
       )}
@@ -167,12 +167,12 @@ export default function OurStoryPreview({ props, style }: P) {
   // ── Layout Render Selectors ──────────────────────────────────────────────
 
   const renderClassic = () => (
-    <div className="space-y-6 w-full max-w-xl mx-auto">
+    <div className="space-y-6 w-full max-w-2xl sm:max-w-3xl mx-auto">
       {renderTitle()}
       {items.length > 0 ? (
         <div className={`relative pl-8 space-y-8 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200/60 ${getAnimClass(2)}`}>
           {items.map((item, idx) => (
-            <div key={item.id || idx} className="relative group">
+            <div key={item.id || idx} className="relative group text-left">
               {/* Timeline Dot */}
               <div 
                 className="absolute -left-[27px] top-1 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-300 group-hover:scale-110" 
@@ -182,27 +182,27 @@ export default function OurStoryPreview({ props, style }: P) {
               </div>
               
               {item.image && (
-                <div className="w-full rounded-2xl overflow-hidden mb-3 shadow-md bg-gray-50 border border-gray-100 max-w-md">
+                <div className="w-full rounded-2xl overflow-hidden mb-4 shadow-md bg-gray-50 border border-gray-100 max-w-lg">
                   <img src={item.image} alt={item.title} className="w-full object-cover aspect-video transition-transform duration-500 hover:scale-102" />
                 </div>
               )}
               
-              <div className="space-y-1.5">
-                <p className="text-[10px] uppercase font-bold tracking-widest" style={{ color: accent }}>{item.date}</p>
-                <h3 className="text-sm font-bold" style={{ color: textColor, fontFamily: fontHead }}>{item.title}</h3>
-                <p className="text-xs opacity-85 leading-relaxed" style={{ color: textColor }}>{item.description}</p>
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm uppercase font-extrabold tracking-widest" style={{ color: accent }}>{item.date}</p>
+                <h3 className="text-base sm:text-lg font-extrabold" style={{ color: textColor, fontFamily: fontHead }}>{item.title}</h3>
+                <p className="text-sm sm:text-base opacity-85 leading-relaxed" style={{ color: textColor }}>{item.description}</p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-xs opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada kisah.</p>
+        <p className="text-sm opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada kisah.</p>
       )}
     </div>
   );
 
   const renderCard = () => (
-    <div className="space-y-6 w-full max-w-lg mx-auto">
+    <div className="space-y-6 w-full max-w-xl sm:max-w-2xl mx-auto">
       {renderTitle()}
       {items.length > 0 ? (
         <div className="space-y-6">
@@ -217,29 +217,29 @@ export default function OurStoryPreview({ props, style }: P) {
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                 </div>
               )}
-              <div className="p-6 space-y-2">
+              <div className="p-8 sm:p-10 space-y-3 text-left">
                 <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full"
+                  <span className="text-xs sm:text-sm font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full"
                     style={{ backgroundColor: accent + '1a', color: accent }}>
                     {item.date}
                   </span>
                 </div>
-                <h3 className="text-base font-bold" style={{ color: textColor, fontFamily: fontHead }}>{item.title}</h3>
-                <p className="text-xs opacity-90 leading-relaxed font-medium" style={{ color: textColor }}>{item.description}</p>
+                <h3 className="text-lg sm:text-xl font-extrabold" style={{ color: textColor, fontFamily: fontHead }}>{item.title}</h3>
+                <p className="text-sm sm:text-base opacity-90 leading-relaxed font-medium" style={{ color: textColor }}>{item.description}</p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-xs opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada kisah.</p>
+        <p className="text-sm opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada kisah.</p>
       )}
     </div>
   );
 
   const renderMinimal = () => (
-    <div className="space-y-6 w-full max-w-md mx-auto">
+    <div className="space-y-6 w-full max-w-lg sm:max-w-xl mx-auto">
       <div className="text-center space-y-1">
-        <span className="text-[10px] font-bold uppercase tracking-widest block opacity-75" style={{ color: accent }}>
+        <span className="text-xs sm:text-sm font-bold uppercase tracking-widest block opacity-75" style={{ color: accent }}>
           Perjalanan Cinta Kami
         </span>
         {renderTitle()}
@@ -247,62 +247,62 @@ export default function OurStoryPreview({ props, style }: P) {
       {items.length > 0 ? (
         <div className="space-y-8 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-[1px] before:bg-gray-200/60">
           {items.map((item, idx) => (
-            <div key={item.id || idx} className="pl-8 relative group">
+            <div key={item.id || idx} className="pl-8 relative group text-left">
               {/* Minimal Dot */}
               <div 
-                className="absolute left-2.5 top-2 w-1.5 h-1.5 rounded-full transition-transform duration-300 group-hover:scale-150" 
+                className="absolute left-2.5 top-2.5 w-2 h-2 rounded-full transition-transform duration-300 group-hover:scale-150" 
                 style={{ backgroundColor: accent }}
               />
-              <div className="space-y-1">
-                <span className="text-[10px] font-mono opacity-60" style={{ color: textColor }}>{item.date}</span>
-                <h3 className="text-sm font-bold" style={{ color: textColor, fontFamily: fontHead }}>{item.title}</h3>
+              <div className="space-y-2">
+                <span className="text-xs sm:text-sm font-mono opacity-60" style={{ color: textColor }}>{item.date}</span>
+                <h3 className="text-base sm:text-lg font-extrabold" style={{ color: textColor, fontFamily: fontHead }}>{item.title}</h3>
                 {item.image && (
-                  <div className="my-2 rounded-lg overflow-hidden max-w-xs">
+                  <div className="my-3 rounded-lg overflow-hidden max-w-sm">
                     <img src={item.image} alt={item.title} className="w-full object-cover aspect-video" />
                   </div>
                 )}
-                <p className="text-xs opacity-75 leading-relaxed" style={{ color: textColor }}>{item.description}</p>
+                <p className="text-sm sm:text-base opacity-75 leading-relaxed" style={{ color: textColor }}>{item.description}</p>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-xs opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada kisah.</p>
+        <p className="text-sm opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada kisah.</p>
       )}
     </div>
   );
 
   const renderFloating = () => (
-    <div className="space-y-6 w-full max-w-lg mx-auto">
+    <div className="space-y-6 w-full max-w-xl sm:max-w-2xl mx-auto">
       {renderTitle()}
       {items.length > 0 ? (
         <div className="space-y-6">
           {items.map((item, idx) => (
             <div 
               key={item.id || idx} 
-              className={`w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 transform hover:-translate-y-1 transition-all duration-300 p-5 ${getAnimClass(2 + idx)}`}
+              className={`w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/40 transform hover:-translate-y-1 transition-all duration-300 p-6 sm:p-8 ${getAnimClass(2 + idx)}`}
               style={{ borderColor: accent + '20' }}
             >
-              <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex flex-col md:flex-row gap-6 items-center">
                 {item.image && (
                   <div className="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
                      <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                   </div>
                 )}
-                <div className="flex-1 space-y-2 text-center md:text-left">
-                  <div className="flex items-center justify-center md:justify-start gap-2">
-                    <Calendar className="w-3.5 h-3.5" style={{ color: accent }} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: accent }}>{item.date}</span>
+                <div className="flex-1 space-y-3 text-center md:text-left">
+                  <div className="flex items-center justify-center md:justify-start gap-2.5">
+                    <Calendar className="w-4 h-4 sm:w-4.5 sm:h-4.5" style={{ color: accent }} />
+                    <span className="text-xs sm:text-sm font-extrabold uppercase tracking-wider" style={{ color: accent }}>{item.date}</span>
                   </div>
-                  <h3 className="text-sm font-extrabold" style={{ color: textColor, fontFamily: fontHead }}>{item.title}</h3>
-                  <p className="text-xs opacity-90 leading-relaxed font-medium" style={{ color: textColor }}>{item.description}</p>
+                  <h3 className="text-base sm:text-lg font-black" style={{ color: textColor, fontFamily: fontHead }}>{item.title}</h3>
+                  <p className="text-sm sm:text-base opacity-90 leading-relaxed font-medium" style={{ color: textColor }}>{item.description}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-xs opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada kisah.</p>
+        <p className="text-sm opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada kisah.</p>
       )}
     </div>
   );
@@ -322,7 +322,7 @@ export default function OurStoryPreview({ props, style }: P) {
   };
 
   return (
-    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[220px] py-12 px-6" style={{ backgroundColor: parentBgClr }}>
+    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[60dvh] py-20 sm:py-28 px-6 flex flex-col justify-center" style={{ backgroundColor: parentBgClr }}>
       {/* ── STYLE BLOCK INJECTION ── */}
       {styleBlock}
 

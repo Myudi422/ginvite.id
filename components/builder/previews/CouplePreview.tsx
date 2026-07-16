@@ -149,7 +149,7 @@ export default function CouplePreview({ props, style }: P) {
   function Avatar({ person, label, isMinimalLayout = false }: { person: Record<string, string>; label?: string; isMinimalLayout?: boolean }) {
     return (
       <div 
-        className={`flex flex-col items-center text-center p-6 rounded-3xl border transition-all duration-300 shadow-md hover:scale-[1.02] hover:shadow-lg w-full max-w-xs mx-auto backdrop-blur-sm ${
+        className={`flex flex-col items-center text-center p-8 sm:p-10 rounded-3xl border transition-all duration-300 shadow-md hover:scale-[1.02] hover:shadow-lg w-full max-w-sm mx-auto backdrop-blur-sm ${
           isMinimalLayout 
             ? 'border-gray-150/40 bg-transparent shadow-none hover:scale-100 hover:shadow-none p-4' 
             : ''
@@ -161,35 +161,35 @@ export default function CouplePreview({ props, style }: P) {
       >
         {label && (
           <span 
-            className="text-[9px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full mb-4 inline-block"
+            className="text-xs sm:text-sm font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5 inline-block animate-pulse"
             style={{ backgroundColor: accent + '15', color: accent }}
           >
             {label}
           </span>
         )}
         <div 
-          className="w-28 h-28 rounded-full overflow-hidden border-4 shadow-xl shrink-0 transition-transform duration-500 hover:rotate-2 mb-4"
+          className="w-36 h-36 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 shadow-xl shrink-0 transition-transform duration-500 hover:rotate-2 mb-5"
           style={{ borderColor: accent + '44' }}
         >
           {person.photo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={person.photo} alt={person.name || 'Foto'} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-4xl" style={{ background: accent + '10', color: accent }}>
+            <div className="w-full h-full flex items-center justify-center text-5xl" style={{ background: accent + '10', color: accent }}>
               👤
             </div>
           )}
         </div>
-        <div className="space-y-2 w-full">
-          <p className="text-xs uppercase tracking-widest font-extrabold opacity-60" style={{ color: textColor }}>
+        <div className="space-y-2.5 w-full">
+          <p className="text-xs sm:text-sm uppercase tracking-widest font-extrabold opacity-60" style={{ color: textColor }}>
             {person.nickname || 'Panggilan'}
           </p>
-          <p className="font-semibold text-lg" style={{ color: textColor, fontFamily: fontHead }}>
+          <p className="font-extrabold text-xl sm:text-2xl" style={{ color: textColor, fontFamily: fontHead }}>
             {person.name || 'Nama Lengkap'}
           </p>
           
           {(person.parent_father || person.parent_mother) && (
-            <p className="text-[11px] opacity-80 leading-relaxed pt-1" style={{ color: textColor }}>
+            <p className="text-xs sm:text-sm opacity-80 leading-relaxed pt-2" style={{ color: textColor }}>
               Putra/i dari:<br />
               <span className="font-semibold">Bpk. {person.parent_father || '-'}</span>
               <br />&<br />
@@ -198,15 +198,15 @@ export default function CouplePreview({ props, style }: P) {
           )}
 
           {person.instagram && (
-            <div className="pt-2">
+            <div className="pt-3">
               <a
                 href={`https://instagram.com/${person.instagram.replace('@', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 text-[10px] font-bold text-pink-500 hover:text-pink-600 bg-pink-500/10 hover:bg-pink-500/20 px-3 py-1.5 rounded-full transition-all active:scale-95"
+                className="inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-bold text-pink-500 hover:text-pink-600 bg-pink-500/10 hover:bg-pink-500/20 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition-all active:scale-95 shadow-sm"
                 style={{ color: accent, backgroundColor: accent + '15' }}
               >
-                <Instagram className="w-3 h-3" />
+                <Instagram className="w-4 h-4" />
                 @{person.instagram.replace('@', '')}
               </a>
             </div>
@@ -229,12 +229,12 @@ export default function CouplePreview({ props, style }: P) {
   };
 
   const renderSideBySide = (isMinimal: boolean = false) => (
-    <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 w-full max-w-2xl mx-auto">
+    <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-14 w-full max-w-3xl sm:max-w-4xl mx-auto">
       {showA && <Avatar person={pA} label="Mempelai Pria" isMinimalLayout={isMinimal} />}
       
       {!isSingle && (
         <div className="flex flex-col items-center justify-center shrink-0 py-2">
-          <span className="text-3xl animate-pulse" style={{ color: accent }}>
+          <span className="text-4xl sm:text-5xl animate-pulse" style={{ color: accent }}>
             ♥
           </span>
         </div>
@@ -245,12 +245,12 @@ export default function CouplePreview({ props, style }: P) {
   );
 
   const renderStacked = (isMinimal: boolean = false) => (
-    <div className="flex flex-col items-center justify-center gap-8 w-full max-w-sm mx-auto">
+    <div className="flex flex-col items-center justify-center gap-8 w-full max-w-md mx-auto">
       {showA && <Avatar person={pA} label="Mempelai Pria" isMinimalLayout={isMinimal} />}
       
       {!isSingle && (
         <div className="flex items-center justify-center py-1">
-          <span className="text-2xl opacity-40 shrink-0" style={{ color: accent }}>
+          <span className="text-3xl opacity-40 shrink-0" style={{ color: accent }}>
             ─── ♥ ───
           </span>
         </div>
@@ -267,25 +267,25 @@ export default function CouplePreview({ props, style }: P) {
 
   // ── Layout Render Selectors ──
   const renderClassic = () => (
-    <div className={`space-y-6 w-full max-w-2xl mx-auto ${getAnimClass(2)}`}>
+    <div className={`space-y-8 w-full max-w-3xl sm:max-w-4xl mx-auto ${getAnimClass(2)}`}>
       {renderLayout(false)}
     </div>
   );
 
   const renderCard = () => (
-    <div className={`w-full max-w-2xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-6 md:p-10 ${getAnimClass(1)}`}>
+    <div className={`w-full max-w-3xl sm:max-w-4xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-8 md:p-14 ${getAnimClass(1)}`}>
       {renderLayout(false)}
     </div>
   );
 
   const renderMinimal = () => (
-    <div className={`space-y-6 w-full max-w-2xl mx-auto ${getAnimClass(2)}`}>
+    <div className={`space-y-8 w-full max-w-3xl sm:max-w-4xl mx-auto ${getAnimClass(2)}`}>
       {renderLayout(true)}
     </div>
   );
 
   const renderFloating = () => (
-    <div className={`space-y-6 w-full max-w-2xl mx-auto ${getAnimClass(2)}`}>
+    <div className={`space-y-8 w-full max-w-3xl sm:max-w-4xl mx-auto ${getAnimClass(2)}`}>
       <div className="hover:-translate-y-1.5 transition-transform duration-300">
         {renderLayout(false)}
       </div>
@@ -339,13 +339,13 @@ export default function CouplePreview({ props, style }: P) {
       )}
 
       {/* ── Content ── */}
-      <div className="relative z-10 py-16 px-6 w-full">
+      <div className="relative z-10 py-20 sm:py-28 px-6 w-full min-h-[60dvh] flex flex-col justify-center">
         {/* Decorative top header */}
-        <div className={`text-center space-y-1 mb-10 ${getAnimClass(1)}`}>
-          <span className="text-[10px] font-extrabold uppercase tracking-widest block opacity-65" style={{ color: accent }}>
+        <div className={`text-center space-y-2.5 mb-12 ${getAnimClass(1)}`}>
+          <span className="text-xs sm:text-sm font-extrabold uppercase tracking-widest block opacity-65" style={{ color: accent }}>
             Profil Pasangan
           </span>
-          <h2 className="text-2xl font-bold" style={{ color: textColor, fontFamily: fontHead }}>
+          <h2 className="text-3xl sm:text-4xl font-extrabold" style={{ color: textColor, fontFamily: fontHead }}>
             Mempelai
           </h2>
         </div>

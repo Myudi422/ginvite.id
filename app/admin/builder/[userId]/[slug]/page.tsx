@@ -15,8 +15,8 @@ export default async function BuilderPage({
   params,
   searchParams,
 }: {
-  params: { userId: string; slug: string };
-  searchParams: { event_type?: string; page_title?: string };
+  params: Promise<{ userId: string; slug: string }>;
+  searchParams: Promise<{ event_type?: string; page_title?: string }>;
 }) {
   // ── 1. Auth: harus login ──────────────────────────────────────────────────
   const cookieStore = await cookies();
@@ -30,9 +30,12 @@ export default async function BuilderPage({
     return redirect('/login');
   }
 
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+
   const loggedInUserId = payload.data.userId;
-  const urlUserId = parseInt(params.userId, 10);
-  const slug = params.slug;
+  const urlUserId = parseInt(resolvedParams.userId, 10);
+  const slug = resolvedParams.slug;
 
   // ── 2. Validasi kepemilikan atau share akses ──
   let hasAccess = false;
@@ -94,7 +97,7 @@ export default async function BuilderPage({
 
   // ── 4. Jika belum ada, buat default dari query params CreateBuilderPopup ──
   if (!page) {
-    const rawEventType = searchParams.event_type ?? 'pernikahan';
+    const rawEventType = resolvedSearchParams.event_type ?? 'pernikahan';
     const eventType: EventType = VALID_EVENT_TYPES.includes(rawEventType as EventType)
       ? (rawEventType as EventType)
       : 'pernikahan';
@@ -103,7 +106,7 @@ export default async function BuilderPage({
       slug,
       user_id: loggedInUserId,
       event_type: eventType,
-      page_title: searchParams.page_title || slug,
+      page_title: resolvedSearchParams.page_title || slug,
     });
   }
 

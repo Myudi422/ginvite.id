@@ -153,14 +153,14 @@ export default function DresscodePreview({ props, style }: P) {
   // ── Sub-components for Rendering ─────────────────────────────────────────
 
   const renderTitle = () => (
-    <div className={`text-center space-y-2 mb-6 ${getAnimClass(1)}`}>
-      <h2 className="text-2xl font-semibold flex items-center justify-center gap-2"
+    <div className={`text-center space-y-3 mb-8 ${getAnimClass(1)}`}>
+      <h2 className="text-3xl sm:text-4xl font-extrabold flex items-center justify-center gap-2.5"
         style={{ color: textColor, fontFamily: fontHead }}>
-        <Shirt className="h-6 w-6 shrink-0" style={{ color: accent }} />
+        <Shirt className="h-8 w-8 sm:h-9 sm:w-9 shrink-0 animate-bounce-slow" style={{ color: accent }} />
         {sectionTitle}
       </h2>
       {sectionDesc.trim().length > 0 && (
-        <p className="text-xs opacity-80 max-w-md mx-auto leading-relaxed" style={{ color: textColor }}>
+        <p className="text-sm sm:text-base opacity-80 max-w-lg mx-auto leading-relaxed" style={{ color: textColor }}>
           {sectionDesc}
         </p>
       )}
@@ -172,7 +172,7 @@ export default function DresscodePreview({ props, style }: P) {
     return (
       <div
         key={item.id || idx}
-        className={`flex flex-col items-center text-center p-5 rounded-2xl border backdrop-blur-sm transition-all duration-300 shadow-md ${
+        className={`flex flex-col items-center text-center p-6 sm:p-8 rounded-3xl border backdrop-blur-sm transition-all duration-300 shadow-md ${
           isMinimalLayout 
             ? 'border-gray-150/40 bg-transparent shadow-none' 
             : 'hover:scale-[1.02] hover:shadow-lg'
@@ -184,7 +184,7 @@ export default function DresscodePreview({ props, style }: P) {
       >
         {/* Attire Sketch/Image */}
         {item.image && (
-          <div className="w-full aspect-[4/5] rounded-xl overflow-hidden mb-4 bg-gray-50 border border-gray-100 relative group">
+          <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 relative group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={item.image}
@@ -194,25 +194,25 @@ export default function DresscodePreview({ props, style }: P) {
           </div>
         )}
 
-        <div className="space-y-3 w-full">
+        <div className="space-y-4 w-full">
           {/* Category title */}
-          <span className="text-sm font-extrabold uppercase tracking-wider px-3 py-1 rounded-full inline-block"
+          <span className="text-sm sm:text-base font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-full inline-block"
             style={{ backgroundColor: accent + '1a', color: accent }}>
             {item.name || 'Kategori'}
           </span>
 
           {/* Palette Swatches */}
           {item.colors && item.colors.length > 0 && (
-            <div className="flex justify-center items-center gap-2.5 py-1">
+            <div className="flex justify-center items-center gap-3 py-1">
               {item.colors.map((color, cIdx) => (
                 <div
                   key={cIdx}
-                  className="w-7 h-7 rounded-full border border-black/10 shadow-sm relative group shrink-0"
+                  className="w-9 h-9 rounded-full border border-black/10 shadow-sm relative group shrink-0"
                   style={{ backgroundColor: color }}
                   title={color}
                 >
                   {/* Tooltip to show hex code on hover */}
-                  <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 text-[8px] font-mono text-white bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                  <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-[10px] font-mono text-white bg-black/80 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
                     {color.toUpperCase()}
                   </span>
                 </div>
@@ -221,7 +221,7 @@ export default function DresscodePreview({ props, style }: P) {
           )}
 
           {/* Description */}
-          <p className="text-xs opacity-90 leading-relaxed font-medium" style={{ color: textColor }}>
+          <p className="text-sm sm:text-base opacity-90 leading-relaxed font-medium" style={{ color: textColor }}>
             {item.description}
           </p>
         </div>
@@ -232,36 +232,36 @@ export default function DresscodePreview({ props, style }: P) {
   // ── Layout Render Selectors ──────────────────────────────────────────────
 
   const renderClassic = () => (
-    <div className="space-y-6 w-full max-w-xl mx-auto">
+    <div className="space-y-6 w-full max-w-2xl sm:max-w-3xl mx-auto">
       {renderTitle()}
       {items.length > 0 ? (
-        <div className={`grid grid-cols-1 ${items.length === 1 ? 'max-w-md mx-auto' : 'sm:grid-cols-2'} gap-6 ${getAnimClass(2)}`}>
+        <div className={`grid grid-cols-1 ${items.length === 1 ? 'max-w-md mx-auto' : 'sm:grid-cols-2'} gap-8 ${getAnimClass(2)}`}>
           {items.map((item, idx) => renderItemCard(item, idx))}
         </div>
       ) : (
-        <p className="text-xs opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada data dresscode.</p>
+        <p className="text-sm opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada data dresscode.</p>
       )}
     </div>
   );
 
   const renderCard = () => (
-    <div className={`w-full ${items.length === 1 ? 'max-w-md' : 'max-w-lg'} mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-6 md:p-8 space-y-6 ${getAnimClass(1)}`}>
+    <div className={`w-full ${items.length === 1 ? 'max-w-md' : 'max-w-xl sm:max-w-2xl'} mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-8 sm:p-12 space-y-6 ${getAnimClass(1)}`}>
       {renderTitle()}
       <div className="w-full border-t border-gray-100 dark:border-gray-800 my-1" />
       {items.length > 0 ? (
-        <div className={`grid grid-cols-1 ${items.length === 1 ? '' : 'sm:grid-cols-2'} gap-5`}>
+        <div className={`grid grid-cols-1 ${items.length === 1 ? '' : 'sm:grid-cols-2'} gap-6`}>
           {items.map((item, idx) => renderItemCard(item, idx))}
         </div>
       ) : (
-        <p className="text-xs opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada data dresscode.</p>
+        <p className="text-sm opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada data dresscode.</p>
       )}
     </div>
   );
 
   const renderMinimal = () => (
-    <div className={`space-y-6 w-full ${items.length === 1 ? 'max-w-sm' : 'max-w-lg'} mx-auto`}>
+    <div className={`space-y-6 w-full ${items.length === 1 ? 'max-w-sm' : 'max-w-xl sm:max-w-2xl'} mx-auto`}>
       <div className="text-center space-y-1">
-        <span className="text-[10px] font-bold uppercase tracking-widest block opacity-75" style={{ color: accent }}>
+        <span className="text-xs sm:text-sm font-bold uppercase tracking-widest block opacity-75" style={{ color: accent }}>
           Ketentuan Busana
         </span>
         {renderTitle()}
@@ -275,16 +275,16 @@ export default function DresscodePreview({ props, style }: P) {
           ))}
         </div>
       ) : (
-        <p className="text-xs opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada data dresscode.</p>
+        <p className="text-sm opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada data dresscode.</p>
       )}
     </div>
   );
 
   const renderFloating = () => (
-    <div className="space-y-6 w-full max-w-lg mx-auto">
+    <div className="space-y-6 w-full max-w-xl sm:max-w-2xl mx-auto">
       {renderTitle()}
       {items.length > 0 ? (
-        <div className={`grid grid-cols-1 ${items.length === 1 ? 'max-w-md mx-auto' : 'sm:grid-cols-2'} gap-6`}>
+        <div className={`grid grid-cols-1 ${items.length === 1 ? 'max-w-md mx-auto' : 'sm:grid-cols-2'} gap-8`}>
           {items.map((item, idx) => (
             <div
               key={item.id || idx}
@@ -295,7 +295,7 @@ export default function DresscodePreview({ props, style }: P) {
           ))}
         </div>
       ) : (
-        <p className="text-xs opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada data dresscode.</p>
+        <p className="text-sm opacity-50 italic text-center py-4" style={{ color: textColor }}>Belum ada data dresscode.</p>
       )}
     </div>
   );
@@ -315,7 +315,7 @@ export default function DresscodePreview({ props, style }: P) {
   };
 
   return (
-    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[250px]" style={{ backgroundColor: parentBgClr }}>
+    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[50dvh] py-20 sm:py-28 px-6 flex flex-col justify-center" style={{ backgroundColor: parentBgClr }}>
       {/* ── STYLE BLOCK INJECTION ── */}
       {styleBlock}
 
@@ -347,7 +347,7 @@ export default function DresscodePreview({ props, style }: P) {
       )}
 
       {/* ── Content ── */}
-      <div className="relative z-10 p-6 w-full">
+      <div className="relative z-10 p-6 w-full flex flex-col justify-center">
         {renderLayout()}
       </div>
     </section>

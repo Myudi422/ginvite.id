@@ -262,11 +262,11 @@ export default function HeroPreview({ props, style }: PreviewProps) {
 
   return (
     <div
-      className={`relative flex flex-col overflow-hidden ${
-        alignV === 'top' ? 'justify-start pt-20 pb-8' : alignV === 'bottom' ? 'justify-end pt-8 pb-20' : 'justify-center py-16'
+      className={`relative flex flex-col overflow-hidden w-full min-h-[100dvh] ${
+        alignV === 'top' ? 'justify-start pt-24 pb-12' : alignV === 'bottom' ? 'justify-end pt-12 pb-24' : 'justify-center py-20'
       }`}
       style={{ 
-        minHeight, 
+        minHeight: minHeight || '100dvh', 
         borderRadius,
       }}
     >
@@ -347,30 +347,30 @@ export default function HeroPreview({ props, style }: PreviewProps) {
       {/* Content Container (Key changes on content, alignment, or anim triggers remount to preview transition instantly) */}
       <div 
         key={`${textAnim}-${textAnimDur}-${greeting}-${namePrimary}-${nameSecondary}-${alignV}-${alignH}`}
-        className={`relative flex flex-col gap-4 w-full z-10 ${
+        className={`relative flex flex-col gap-5 w-full z-10 ${
           alignH === 'left' ? 'items-start text-left pl-12 pr-6' : alignH === 'right' ? 'items-end text-right pr-12 pl-6' : 'items-center text-center px-8'
         } ${textAnim !== 'none' ? `text-anim-${textAnim}` : ''}`}
       >
         <p 
-          className="tracking-[0.3em] text-white/70 uppercase"
-          style={{ fontSize: `${greetingSize}px` }}
+          className="tracking-[0.3em] text-white/70 uppercase font-semibold"
+          style={{ fontSize: `calc(${greetingSize}px * 1.25)` }}
         >
           {greeting}
         </p>
 
         <h1
-          className="leading-tight text-white font-bold"
+          className="leading-tight text-white font-extrabold"
           style={{ 
             fontFamily: `'${style.font_heading || 'Playfair Display'}', serif`,
-            fontSize: `${namesSize}px`
+            fontSize: `calc(${namesSize}px * 1.25)`
           }}
         >
           {namePrimary}
           {nameSecondary && (
             <>
               <span 
-                className="block text-white/60 my-1 font-normal"
-                style={{ fontSize: `${Math.round(namesSize * 0.65)}px` }}
+                className="block text-white/60 my-2 font-normal"
+                style={{ fontSize: `calc(${Math.round(namesSize * 0.65)}px * 1.2)` }}
               >
                 &amp;
               </span>
@@ -380,9 +380,9 @@ export default function HeroPreview({ props, style }: PreviewProps) {
         </h1>
 
         {showScrollHint && (
-          <div className="mt-8 flex flex-col items-center gap-1 animate-bounce">
-            <div className="w-px h-8 bg-white/40" />
-            <span className="text-[10px] text-white/50 tracking-widest">SCROLL</span>
+          <div className="mt-12 flex flex-col items-center gap-2 animate-bounce">
+            <div className="w-px h-12 bg-white/40" />
+            <span className="text-xs text-white/50 tracking-widest font-semibold">SCROLL DOWN</span>
           </div>
         )}
       </div>

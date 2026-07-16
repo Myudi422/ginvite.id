@@ -178,7 +178,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
 
   // ── Sub-components ────────────────────────────────────────────────────────
   const ProfileInitial = ({ name }: { name: string }) => (
-    <div className="w-10 h-10 rounded-full flex items-center justify-center font-semibold flex-shrink-0 text-sm"
+    <div className="w-12 h-12 rounded-full flex items-center justify-center font-extrabold flex-shrink-0 text-base"
       style={{ backgroundColor: accent, color: bgColor }}>
       {name.charAt(0).toUpperCase()}
     </div>
@@ -292,9 +292,9 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
 
   // ── Layout Render Blocks ─────────────────────────────────────────────────
   const renderTitle = () => (
-    <h2 className={`text-2xl font-semibold text-center flex items-center justify-center gap-2 ${getAnimClass(1)}`}
+    <h2 className={`text-3xl sm:text-4xl font-extrabold text-center flex items-center justify-center gap-2.5 ${getAnimClass(1)}`}
       style={{ color: textColor, fontFamily: fontHead }}>
-      <FaComment style={{ color: accent }} />
+      <FaComment className="h-6 w-6 sm:h-7 sm:w-7" style={{ color: accent }} />
       {sectionTitle}
     </h2>
   );
@@ -305,24 +305,24 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
     const isFormDisabled = isPreviewMode || loading || isDeadlinePassed;
 
     return (
-      <form onSubmit={isPreviewMode ? e => e.preventDefault() : handleSubmit} className={`space-y-4 ${getAnimClass(2)}`}>
+      <form onSubmit={isPreviewMode ? e => e.preventDefault() : handleSubmit} className={`space-y-4.5 ${getAnimClass(2)}`}>
         {!isPreviewMode && error && (
-          <div className="p-3 rounded-xl bg-red-100/90 flex items-start gap-2 text-red-800 text-sm">
-            <FaComment className="flex-shrink-0 mt-0.5" />
+          <div className="p-3.5 rounded-2xl bg-red-100/90 flex items-start gap-2.5 text-red-800 text-sm">
+            <FaComment className="flex-shrink-0 mt-1 text-sm sm:text-base" />
             <span>{error}</span>
           </div>
         )}
         {!isPreviewMode && success && (
-          <div className="p-3 rounded-xl bg-green-100/90 flex items-start gap-2 text-green-800 text-sm">
-            <FaComment className="flex-shrink-0 mt-0.5" />
+          <div className="p-3.5 rounded-2xl bg-green-100/90 flex items-start gap-2.5 text-green-800 text-sm">
+            <FaComment className="flex-shrink-0 mt-1 text-sm sm:text-base" />
             <span>Terima kasih! Ucapan Anda telah terkirim. 🎉</span>
           </div>
         )}
 
         {/* Nama + WA */}
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <FaUser className="absolute top-3.5 left-3 text-xs" style={{ color: accent }} />
+            <FaUser className="absolute top-4.5 left-4 text-sm sm:text-base opacity-60" style={{ color: accent }} />
             <input
               id="rsvp-nama"
               type="text"
@@ -330,14 +330,14 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
               value={nama}
               onChange={e => setNama(e.target.value)}
               placeholder="Nama Lengkap"
-              className={`w-full pl-10 pr-4 py-2.5 border rounded-xl focus:outline-none bg-transparent transition-all ${
+              className={`w-full pl-12 pr-4 py-3.5 border rounded-2xl focus:outline-none bg-transparent transition-all text-sm sm:text-base ${
                 isMinimal ? 'border-b-2 border-t-0 border-x-0 rounded-none focus:ring-0 focus:border-b-accent' : ''
               }`}
               style={resolvedInputStyle}
             />
           </div>
           <div className="flex-1 relative">
-            <FaWhatsapp className="absolute top-3.5 left-3 text-xs" style={{ color: accent }} />
+            <FaWhatsapp className="absolute top-4.5 left-4 text-sm sm:text-base opacity-60" style={{ color: accent }} />
             <input
               id="rsvp-wa"
               type="tel"
@@ -346,7 +346,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
               value={wa}
               onChange={e => setWa(e.target.value)}
               placeholder="Nomor WhatsApp"
-              className={`w-full pl-10 pr-4 py-2.5 border rounded-xl focus:outline-none bg-transparent transition-all ${
+              className={`w-full pl-12 pr-4 py-3.5 border rounded-2xl focus:outline-none bg-transparent transition-all text-sm sm:text-base ${
                 isMinimal ? 'border-b-2 border-t-0 border-x-0 rounded-none focus:ring-0 focus:border-b-accent' : ''
               }`}
               style={resolvedInputStyle}
@@ -356,7 +356,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
 
         {/* Ucapan */}
         <div className="relative">
-          <FaComment className="absolute top-3.5 left-3 text-xs" style={{ color: accent }} />
+          <FaComment className="absolute top-4.5 left-4 text-sm sm:text-base opacity-60" style={{ color: accent }} />
           <textarea
             id="rsvp-ucapan"
             disabled={isFormDisabled}
@@ -364,7 +364,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
             onChange={e => setUcapan(e.target.value)}
             placeholder="Tulis ucapan dan doa..."
             rows={3}
-            className={`w-full pl-10 pr-4 py-2.5 border rounded-xl focus:outline-none bg-transparent resize-none transition-all ${
+            className={`w-full pl-12 pr-4 py-3.5 border rounded-2xl focus:outline-none bg-transparent resize-none transition-all text-sm sm:text-base ${
               isMinimal ? 'border-b-2 border-t-0 border-x-0 rounded-none focus:ring-0 focus:border-b-accent' : ''
             }`}
             style={resolvedInputStyle}
@@ -373,13 +373,13 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
 
         {/* Konfirmasi */}
         <div className="relative">
-          <FaCalendarCheck className="absolute top-3.5 left-3 text-xs" style={{ color: accent }} />
+          <FaCalendarCheck className="absolute top-4.5 left-4 text-sm sm:text-base opacity-60" style={{ color: accent }} />
           <select
             id="rsvp-konfirmasi"
             disabled={isFormDisabled}
             value={konfirmasi}
             onChange={e => setKonfirmasi(e.target.value as any)}
-            className={`w-full pl-10 pr-8 py-2.5 border rounded-xl appearance-none focus:outline-none bg-transparent transition-all ${
+            className={`w-full pl-12 pr-10 py-3.5 border rounded-2xl appearance-none focus:outline-none bg-transparent transition-all text-sm sm:text-base ${
               isMinimal ? 'border-b-2 border-t-0 border-x-0 rounded-none focus:ring-0' : ''
             }`}
             style={resolvedInputStyle}
@@ -388,17 +388,17 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
             <option value="hadir" style={{ color: '#000' }}>✅ Hadir</option>
             <option value="tidak hadir" style={{ color: '#000' }}>❌ Tidak Hadir</option>
           </select>
-          <FiChevronDown className="absolute top-3.5 right-3 pointer-events-none" style={{ color: accent }} />
+          <FiChevronDown className="absolute top-4.5 right-4 pointer-events-none text-sm sm:text-base" style={{ color: accent }} />
         </div>
 
         {/* Submit */}
         <button
           type="submit"
           disabled={isFormDisabled}
-          className="w-full py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+          className="w-full py-4 rounded-2xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg text-sm sm:text-base"
           style={isMinimal ? { border: `2px solid ${accent}`, color: accent, background: 'transparent' } : { backgroundColor: accent, color: bgColor }}
         >
-          <FaPaperPlane />
+          <FaPaperPlane className="text-xs sm:text-sm" />
           {loading ? 'Mengirim...' : 'Kirim Ucapan'}
         </button>
       </form>
@@ -411,7 +411,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
         {/* Toggle Comments Button */}
         <button
           onClick={() => setShowComments(p => !p)}
-          className="w-full py-2.5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+          className="w-full py-3.5 rounded-2xl font-bold transition-all hover:scale-[1.02] text-sm sm:text-base shadow-sm"
           style={{ border: `2px solid ${accent}`, color: accent, background: accent + '11' }}
         >
           {showComments
@@ -421,33 +421,33 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
 
         {/* Comments list */}
         {showComments && (
-          <div className="rounded-2xl max-h-96 overflow-y-auto transition-all duration-300"
-            style={{ backgroundColor: bgColor + 'cc', border: `1px solid ${accent}30` }}>
+          <div className="rounded-3xl max-h-[30rem] overflow-y-auto transition-all duration-300 shadow-md border"
+            style={{ backgroundColor: bgColor + 'cc', borderColor: accent + '30' }}>
             {displayLoadingList ? (
-              <p className="text-center py-6 text-sm opacity-60" style={{ color: textColor }}>Memuat ucapan...</p>
+              <p className="text-center py-8 text-sm opacity-60" style={{ color: textColor }}>Memuat ucapan...</p>
             ) : displayErrorList ? (
-              <p className="text-center py-6 text-sm text-red-500">{displayErrorList}</p>
+              <p className="text-center py-8 text-sm text-red-500">{displayErrorList}</p>
             ) : displayList.length === 0 ? (
-              <p className="text-center py-6 text-sm opacity-50" style={{ color: textColor }}>Belum ada ucapan. Jadilah yang pertama! 🎉</p>
+              <p className="text-center py-8 text-sm opacity-50" style={{ color: textColor }}>Belum ada ucapan. Jadilah yang pertama! 🎉</p>
             ) : (
-              <div className="p-4 space-y-5">
+              <div className="p-6 space-y-6">
                 {displayList.slice(0, visible).map((item, i) => (
-                  <div key={i} className="flex gap-3 items-start border-b border-gray-150/40 pb-4 last:border-0 last:pb-0">
+                  <div key={i} className="flex gap-4 items-start border-b border-gray-150/40 pb-5 last:border-0 last:pb-0">
                     <ProfileInitial name={item.nama} />
                     <div className="flex-1 overflow-hidden">
                       <div className="flex justify-between items-start">
                         <div>
-                          <span className="font-semibold text-sm block truncate max-w-[180px]"
+                          <span className="font-bold text-base block truncate max-w-[220px]"
                             style={{ color: accent }} title={item.nama}>{item.nama}</span>
-                          <span className="text-[11px] opacity-60 block" style={{ color: textColor }}>
+                          <span className="text-xs sm:text-sm opacity-60 block mt-0.5" style={{ color: textColor }}>
                             {timeAgo(item.created_at)}
                           </span>
                         </div>
-                        <span className="text-lg flex-shrink-0 ml-2">
+                        <span className="text-xl flex-shrink-0 ml-2">
                           {item.konfirmasi === 'hadir' ? '✅' : '❌'}
                         </span>
                       </div>
-                      <p className="text-sm mt-1 break-words text-left" style={{ color: textColor }}>
+                      <p className="text-sm sm:text-base mt-2 break-words text-left font-medium opacity-90" style={{ color: textColor }}>
                         {item.ucapan}
                       </p>
                     </div>
@@ -458,7 +458,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
                   <div className="text-center pt-2">
                     <button
                       onClick={() => setVisible(p => p + initialComments)}
-                      className="px-6 py-2 rounded-xl font-medium text-sm transition-all hover:scale-105"
+                      className="px-8 py-3 rounded-2xl font-bold text-sm sm:text-base transition-all hover:scale-105"
                       style={{ border: `2px solid ${accent}`, color: accent }}>
                       Muat Lebih Banyak
                     </button>
@@ -474,7 +474,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
 
   // ── Layout render selectors ──────────────────────────────────────────────
   const renderClassic = () => (
-    <div className="space-y-6 w-full max-w-xl mx-auto">
+    <div className="space-y-6 w-full max-w-2xl sm:max-w-3xl mx-auto">
       {renderTitle()}
       {renderForm()}
       {renderComments()}
@@ -482,7 +482,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
   );
 
   const renderCard = () => (
-    <div className={`w-full max-w-lg mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-6 md:p-8 space-y-6 ${getAnimClass(1)}`}>
+    <div className={`w-full max-w-xl sm:max-w-2xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-8 sm:p-12 space-y-6 ${getAnimClass(1)}`}>
       {renderTitle()}
       <div className="w-full border-t border-gray-100 dark:border-gray-800 my-1" />
       {renderForm()}
@@ -491,9 +491,9 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
   );
 
   const renderMinimal = () => (
-    <div className="space-y-6 w-full max-w-lg mx-auto">
+    <div className="space-y-6 w-full max-w-xl sm:max-w-2xl mx-auto">
       <div className="text-center space-y-1">
-        <span className="text-[10px] font-bold uppercase tracking-widest block opacity-70" style={{ color: accent }}>
+        <span className="text-xs font-bold uppercase tracking-widest block opacity-70" style={{ color: accent }}>
           RSVP
         </span>
         {renderTitle()}
@@ -505,19 +505,19 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
   );
 
   const renderFloating = () => (
-    <div className="space-y-6 w-full max-w-lg mx-auto">
+    <div className="space-y-6 w-full max-w-xl sm:max-w-2xl mx-auto">
       <div className="text-center py-2">
         {renderTitle()}
       </div>
       {enabled && (
-        <div className={`w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl p-6 md:p-8 border border-white/40 transform hover:-translate-y-1 transition-transform duration-300 ${getAnimClass(2)}`}>
-          <div className="text-xs uppercase tracking-widest font-extrabold mb-4 opacity-60 text-center" style={{ color: accent }}>
+        <div className={`w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 sm:p-12 border border-white/40 transform hover:-translate-y-1 transition-transform duration-300 ${getAnimClass(2)}`}>
+          <div className="text-sm sm:text-base uppercase tracking-widest font-extrabold mb-4 opacity-60 text-center" style={{ color: accent }}>
             Formulir Kehadiran
           </div>
           {renderForm()}
         </div>
       )}
-      <div className={`w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-3xl shadow-md p-6 border border-white/20 ${getAnimClass(3)}`}>
+      <div className={`w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-3xl shadow-md p-8 sm:p-12 border border-white/20 ${getAnimClass(3)}`}>
         {renderComments()}
       </div>
     </div>
@@ -538,7 +538,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
   };
 
   return (
-    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[300px]" style={{ backgroundColor: parentBgClr }}>
+    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[65dvh] py-20 sm:py-28 px-6 flex flex-col justify-center" style={{ backgroundColor: parentBgClr }}>
       {/* ── STYLE BLOCK INJECTION ── */}
       {styleBlock}
 
@@ -601,7 +601,7 @@ export default function RsvpPreview({ props, style, pageStatus }: P) {
       )}
 
       {/* ── Content ── */}
-      <div className="relative z-10 p-6 w-full">
+      <div className="relative z-10 p-6 w-full flex flex-col justify-center">
         {renderLayout()}
       </div>
     </section>

@@ -124,16 +124,16 @@ export default function CountdownPreview({ props, style }: P) {
     switch (layoutTemplate) {
       case 'modern_square':
         return (
-          <div className="flex gap-2 flex-wrap justify-center w-full">
+          <div className="flex gap-3 sm:gap-4 flex-wrap justify-center w-full">
             {boxes.map(b => (
-              <div key={b.label} className="flex flex-col items-center gap-1.5 animate-fade-in">
+              <div key={b.label} className="flex flex-col items-center gap-2 animate-fade-in">
                 <div
-                  className="w-16 h-16 rounded-lg flex items-center justify-center text-2xl font-semibold text-white shadow-sm border border-white/10"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-bold text-white shadow-md border border-white/10"
                   style={{ backgroundColor: accent }}
                 >
                   {String(b.value).padStart(2, '0')}
                 </div>
-                <span className={`text-[10px] uppercase tracking-wider ${sublabelColorClass}`}>{b.label}</span>
+                <span className={`text-xs sm:text-sm font-semibold uppercase tracking-widest ${sublabelColorClass}`}>{b.label}</span>
               </div>
             ))}
           </div>
@@ -141,16 +141,16 @@ export default function CountdownPreview({ props, style }: P) {
 
       case 'glass_cards':
         return (
-          <div className="flex gap-3.5 flex-wrap justify-center w-full">
+          <div className="flex gap-4 flex-wrap justify-center w-full">
             {boxes.map(b => (
-              <div key={b.label} className="flex flex-col items-center gap-1.5 animate-fade-in">
+              <div key={b.label} className="flex flex-col items-center gap-2 animate-fade-in">
                 <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-extrabold text-white shadow-lg backdrop-blur-md border border-white/20"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center text-3xl sm:text-4xl font-extrabold text-white shadow-lg backdrop-blur-md border border-white/20"
                   style={{ background: `linear-gradient(135deg, rgba(255, 255, 255, 0.15), ${accent}25)` }}
                 >
                   {String(b.value).padStart(2, '0')}
                 </div>
-                <span className={`text-[9px] uppercase tracking-widest ${sublabelColorClass} font-semibold`}>{b.label}</span>
+                <span className={`text-xs sm:text-sm uppercase tracking-widest ${sublabelColorClass} font-bold`}>{b.label}</span>
               </div>
             ))}
           </div>
@@ -158,16 +158,16 @@ export default function CountdownPreview({ props, style }: P) {
 
       case 'neo_brutalism':
         return (
-          <div className="flex gap-4 flex-wrap justify-center w-full">
+          <div className="flex gap-4 sm:gap-5 flex-wrap justify-center w-full">
             {boxes.map(b => (
-              <div key={b.label} className="flex flex-col items-center gap-1.5 animate-fade-in">
+              <div key={b.label} className="flex flex-col items-center gap-2 animate-fade-in">
                 <div
-                  className="w-16 h-16 rounded-none flex items-center justify-center text-2xl font-black text-slate-900 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0f172a]"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-none flex items-center justify-center text-3xl sm:text-4xl font-black text-slate-900 border-3 border-slate-900 shadow-[6px_6px_0px_0px_#0f172a]"
                   style={{ backgroundColor: accent }}
                 >
                   {String(b.value).padStart(2, '0')}
                 </div>
-                <span className={`text-[10px] font-extrabold uppercase tracking-wide ${isCustomBg ? 'text-white drop-shadow-sm' : 'text-slate-800'}`}>{b.label}</span>
+                <span className={`text-xs sm:text-sm font-black uppercase tracking-widest ${isCustomBg ? 'text-white drop-shadow-sm' : 'text-slate-800'}`}>{b.label}</span>
               </div>
             ))}
           </div>
@@ -175,21 +175,21 @@ export default function CountdownPreview({ props, style }: P) {
 
       case 'minimal_split':
         return (
-          <div className="flex gap-4 items-center justify-center w-full">
+          <div className="flex gap-5 sm:gap-7 items-center justify-center w-full">
             {boxes.map((b, idx) => (
               <React.Fragment key={b.label}>
                 <div className="flex flex-col items-center animate-fade-in">
                   <span 
-                    className="text-3xl font-light tracking-tight" 
+                    className="text-4xl sm:text-5xl font-light tracking-tight" 
                     style={{ color: isCustomBg ? '#ffffff' : accent }}
                   >
                     {String(b.value).padStart(2, '0')}
                   </span>
-                  <span className={`text-[9px] uppercase tracking-widest font-semibold ${sublabelColorClass}`}>{b.label}</span>
+                  <span className={`text-xs sm:text-sm uppercase tracking-widest font-semibold ${sublabelColorClass}`}>{b.label}</span>
                 </div>
                 {idx < boxes.length - 1 && (
                   <span 
-                    className="text-xl font-light opacity-50 relative -top-2" 
+                    className="text-2xl sm:text-3xl font-light opacity-50 relative -top-3" 
                     style={{ color: isCustomBg ? '#ffffff' : accent }}
                   >
                     :
@@ -202,11 +202,11 @@ export default function CountdownPreview({ props, style }: P) {
 
       case 'circular_ring':
         return (
-          <div className="flex gap-3 flex-wrap justify-center w-full">
+          <div className="flex gap-4 flex-wrap justify-center w-full">
             {boxes.map(b => (
-              <div key={b.label} className="flex flex-col items-center gap-1.5 animate-fade-in">
+              <div key={b.label} className="flex flex-col items-center gap-2 animate-fade-in">
                 <div
-                  className="w-16 h-16 rounded-full border-2 flex items-center justify-center text-xl font-extrabold bg-transparent backdrop-blur-[1px]"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 flex items-center justify-center text-2xl sm:text-3xl font-extrabold bg-transparent backdrop-blur-[1px]"
                   style={{ 
                     borderColor: isCustomBg ? '#ffffffcc' : accent,
                     color: isCustomBg ? '#ffffff' : accent
@@ -214,7 +214,7 @@ export default function CountdownPreview({ props, style }: P) {
                 >
                   {String(b.value).padStart(2, '0')}
                 </div>
-                <span className={`text-[10px] ${sublabelColorClass}`}>{b.label}</span>
+                <span className={`text-xs sm:text-sm font-semibold tracking-wider ${sublabelColorClass}`}>{b.label}</span>
               </div>
             ))}
           </div>
@@ -222,22 +222,22 @@ export default function CountdownPreview({ props, style }: P) {
 
       case 'grid_2x2':
         const gridCols = boxes.length === 3 
-          ? 'grid-cols-3 max-w-[360px]' 
+          ? 'grid-cols-3 max-w-[480px]' 
           : boxes.length === 1 
-            ? 'grid-cols-1 max-w-[140px]' 
-            : 'grid-cols-2 max-w-[240px]';
+            ? 'grid-cols-1 max-w-[180px]' 
+            : 'grid-cols-2 max-w-[340px]';
         return (
-          <div className={`grid ${gridCols} gap-3 mx-auto w-full justify-items-center animate-fade-in`}>
+          <div className={`grid ${gridCols} gap-4 mx-auto w-full justify-items-center animate-fade-in`}>
             {boxes.map(b => (
               <div 
                 key={b.label} 
-                className="w-full flex items-center justify-between p-3 rounded-2xl border shadow-sm"
+                className="w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl border shadow-md"
                 style={itemBgStyle}
               >
                 <div className="flex flex-col">
-                  <span className={`text-[9px] uppercase tracking-widest font-extrabold ${sublabelColorClass}`}>{b.label}</span>
+                  <span className={`text-xs sm:text-sm uppercase tracking-widest font-extrabold ${sublabelColorClass}`}>{b.label}</span>
                 </div>
-                <span className="text-2xl font-extrabold tracking-tight" style={numberStyle}>
+                <span className="text-3xl sm:text-4xl font-extrabold tracking-tight" style={numberStyle}>
                   {String(b.value).padStart(2, '0')}
                 </span>
               </div>
@@ -248,40 +248,38 @@ export default function CountdownPreview({ props, style }: P) {
       case 'inline_bar':
         return (
           <div 
-            className="flex items-center justify-center gap-1.5 flex-wrap w-full py-2.5 px-4 rounded-full border shadow-sm animate-fade-in"
+            className="flex items-center justify-center gap-2.5 flex-wrap w-full py-4 px-6 rounded-full border shadow-md animate-fade-in"
             style={itemBgStyle}
           >
             {boxes.map((b, idx) => (
               <React.Fragment key={b.label}>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold tracking-tight" style={numberStyle}>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl sm:text-3xl font-bold tracking-tight" style={numberStyle}>
                     {String(b.value).padStart(2, '0')}
                   </span>
-                  <span className={`text-[8px] uppercase tracking-wider font-extrabold ${sublabelColorClass}`}>{b.label}</span>
+                  <span className={`text-xs sm:text-sm uppercase tracking-wider font-extrabold ${sublabelColorClass}`}>{b.label}</span>
                 </div>
                 {idx < boxes.length - 1 && (
-                  <span className="opacity-20 text-xs mx-0.5" style={{ color: isCustomBg ? '#ffffff' : '#000000' }}>•</span>
+                  <span className="opacity-20 text-sm mx-1" style={{ color: isCustomBg ? '#ffffff' : '#000000' }}>•</span>
                 )}
               </React.Fragment>
             ))}
           </div>
         );
 
-
-
       case 'classic':
       default:
         return (
-          <div className="flex gap-3 flex-wrap justify-center w-full">
+          <div className="flex gap-4 flex-wrap justify-center w-full">
             {boxes.map(b => (
-              <div key={b.label} className="flex flex-col items-center gap-1.5 animate-fade-in">
+              <div key={b.label} className="flex flex-col items-center gap-2 animate-fade-in">
                 <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-md backdrop-blur-[2px]"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl font-bold text-white shadow-md backdrop-blur-[2px]"
                   style={{ background: `linear-gradient(135deg, ${accent}, ${accent}aa)` }}
                 >
                   {String(b.value).padStart(2, '0')}
                 </div>
-                <span className={`text-[10px] ${sublabelColorClass}`}>{b.label}</span>
+                <span className={`text-xs sm:text-sm font-semibold tracking-wider ${sublabelColorClass}`}>{b.label}</span>
               </div>
             ))}
           </div>
@@ -289,9 +287,9 @@ export default function CountdownPreview({ props, style }: P) {
     }
   };
 
-  return (
+    return (
     <div
-      className="relative py-12 px-8 flex flex-col items-center gap-6 overflow-hidden w-full animate-fade-in duration-300"
+      className="relative py-20 sm:py-28 px-8 flex flex-col items-center justify-center gap-10 sm:gap-14 overflow-hidden w-full animate-fade-in duration-300 min-h-[60dvh]"
       style={{ backgroundColor: parentBgColor }}
     >
       <style dangerouslySetInnerHTML={{__html: `
@@ -449,35 +447,35 @@ export default function CountdownPreview({ props, style }: P) {
       )}
 
       {/* ── MAIN CONTENT ── */}
-      <div className="relative z-10 flex flex-col items-center gap-6 w-full">
+      <div className="relative z-10 flex flex-col items-center gap-8 sm:gap-12 w-full">
         {layoutTemplate === 'split_editorial' ? (
-          <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-6 w-full justify-between max-w-sm mx-auto text-left py-2">
-            <div className={`flex flex-col justify-center sm:w-1/3 text-center sm:text-left border-b sm:border-b-0 sm:border-r border-white/10 pb-4 sm:pb-0 sm:pr-4 ${getAnimClass(1)}`}>
-              <span className="text-[9px] uppercase tracking-widest text-pink-500 font-extrabold">Hitung Mundur</span>
-              <h3 className={`text-xs font-semibold tracking-wider uppercase mt-1 leading-snug ${labelColorClass}`}>{label}</h3>
+          <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-8 w-full justify-between max-w-lg mx-auto text-left py-2">
+            <div className={`flex flex-col justify-center sm:w-1/3 text-center sm:text-left border-b sm:border-b-0 sm:border-r border-white/10 pb-4 sm:pb-0 sm:pr-6 ${getAnimClass(1)}`}>
+              <span className="text-xs sm:text-sm uppercase tracking-widest text-pink-500 font-extrabold">Hitung Mundur</span>
+              <h3 className={`text-sm sm:text-base font-bold tracking-wider uppercase mt-2 leading-snug ${labelColorClass}`}>{label}</h3>
             </div>
-            <div className={`grid ${boxes.length === 3 ? 'grid-cols-3' : boxes.length === 1 ? 'grid-cols-1 max-w-[120px]' : 'grid-cols-2'} gap-3 flex-1 justify-center w-full max-w-[240px] sm:max-w-none ${getAnimClass(2)}`}>
+            <div className={`grid ${boxes.length === 3 ? 'grid-cols-3' : boxes.length === 1 ? 'grid-cols-1 max-w-[140px]' : 'grid-cols-2'} gap-4 flex-1 justify-center w-full max-w-[280px] sm:max-w-none ${getAnimClass(2)}`}>
               {boxes.map(b => (
                 <div 
                   key={b.label} 
-                  className="flex flex-col p-2.5 rounded-xl border backdrop-blur-md text-center shadow-sm"
+                  className="flex flex-col p-3 rounded-2xl border backdrop-blur-md text-center shadow-md"
                   style={itemBgStyle}
                 >
-                  <span className="text-2xl font-bold tracking-tight" style={numberStyle}>
+                  <span className="text-3xl font-bold tracking-tight" style={numberStyle}>
                     {String(b.value).padStart(2, '0')}
                   </span>
-                  <span className={`text-[8px] uppercase tracking-widest ${sublabelColorClass}`}>{b.label}</span>
+                  <span className={`text-xs uppercase tracking-widest ${sublabelColorClass}`}>{b.label}</span>
                 </div>
               ))}
             </div>
           </div>
         ) : layoutTemplate === 'title_bottom' ? (
-          <div className="flex flex-col items-center gap-5 w-full">
-            <div className={`flex gap-3 flex-wrap justify-center w-full ${getAnimClass(1)}`}>
+          <div className="flex flex-col items-center gap-6 w-full">
+            <div className={`flex gap-4 flex-wrap justify-center w-full ${getAnimClass(1)}`}>
               {boxes.map(b => (
-                <div key={b.label} className="flex flex-col items-center gap-1.5 animate-fade-in">
+                <div key={b.label} className="flex flex-col items-center gap-2 animate-fade-in">
                   <div
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold shadow-sm backdrop-blur-md border"
+                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center text-3xl sm:text-4xl font-bold shadow-md backdrop-blur-md border"
                     style={{ 
                       ...itemBgStyle,
                       ...numberStyle
@@ -485,22 +483,22 @@ export default function CountdownPreview({ props, style }: P) {
                   >
                     {String(b.value).padStart(2, '0')}
                   </div>
-                  <span className={`text-[9px] uppercase tracking-wider ${sublabelColorClass}`}>{b.label}</span>
+                  <span className={`text-xs sm:text-sm uppercase tracking-wider ${sublabelColorClass}`}>{b.label}</span>
                 </div>
               ))}
             </div>
-            <div className={`w-12 h-px bg-white/20 my-1 ${getAnimClass(2)}`} />
-            <p className={`text-[11px] tracking-widest uppercase font-semibold ${labelColorClass} ${getAnimClass(3)}`}>{label}</p>
+            <div className={`w-16 h-px bg-white/20 my-2 ${getAnimClass(2)}`} />
+            <p className={`text-xs sm:text-sm tracking-widest uppercase font-bold ${labelColorClass} ${getAnimClass(3)}`}>{label}</p>
           </div>
         ) : (
           <>
-            <p className={`text-xs tracking-widest uppercase ${labelColorClass} ${getAnimClass(1)}`}>{label}</p>
+            <p className={`text-sm sm:text-base tracking-widest uppercase font-semibold ${labelColorClass} ${getAnimClass(1)}`}>{label}</p>
             <div className={`w-full flex justify-center ${getAnimClass(2)}`}>
               {renderCountdownLayout()}
             </div>
           </>
         )}
-        {!eventDate && <p className={`text-xs ${italicTextColorClass} ${getAnimClass(4)}`}>Tanggal belum diisi</p>}
+        {!eventDate && <p className={`text-sm ${italicTextColorClass} ${getAnimClass(4)}`}>Tanggal belum diisi</p>}
       </div>
     </div>
   );
