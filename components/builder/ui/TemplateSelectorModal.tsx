@@ -29,6 +29,7 @@ interface TemplateItem {
 
 interface Props {
   onClose: () => void;
+  onImportSuccess?: () => void;
 }
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
@@ -80,7 +81,7 @@ function isColorMatch(themeHex: string, filterHex: string): boolean {
   }
 }
 
-export default function TemplateSelectorModal({ onClose }: Props) {
+export default function TemplateSelectorModal({ onClose, onImportSuccess }: Props) {
   const { state, importPage } = useBuilder();
   
   const [themes, setThemes] = useState<TemplateItem[]>([]);
@@ -177,7 +178,11 @@ export default function TemplateSelectorModal({ onClose }: Props) {
       const pageData = json.data;
       if (confirm(`Apakah Anda yakin ingin mengimpor template "${theme.name}"? Ini akan menggantikan seluruh bagian halaman dan gaya tulisan saat ini (tindakan ini dapat dibatalkan dengan Undo).`)) {
         importPage(pageData);
-        onClose();
+        if (onImportSuccess) {
+          onImportSuccess();
+        } else {
+          onClose();
+        }
       }
     } catch (err) {
       console.error(err);

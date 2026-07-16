@@ -3,10 +3,11 @@ import { SidebarMobile, SidebarDesktop } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { cookies } from "next/headers";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   let typeUser: number | undefined = undefined;
   try {
-    const token = cookies().get("token")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
     if (token) {
       const parts = token.split(".");
       if (parts.length >= 2) {

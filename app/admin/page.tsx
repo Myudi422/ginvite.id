@@ -39,7 +39,15 @@ export default async function Page() {
     );
 
     if (invRes.ok) {
-      const invJson = await invRes.json();
+      const resText = await invRes.text();
+      let invJson: any;
+      try {
+        invJson = JSON.parse(resText);
+      } catch (jsonErr) {
+        console.error('API response is not valid JSON. First 300 chars:', resText.substring(0, 300));
+        throw new Error('Respon server tidak valid (bukan format JSON). Silakan periksa status database.');
+      }
+
       if (invJson.status === 'success') {
         invitations = invJson.data;
       } else if (invRes.status === 404) {

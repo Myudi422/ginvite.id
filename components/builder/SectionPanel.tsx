@@ -10,7 +10,7 @@ import {
   BookOpenIcon, CheckSquareIcon, GiftIcon, MapPinIcon, MusicIcon,
   MessageSquareIcon, TypeIcon, MinusIcon, LinkIcon, PaletteIcon,
   SettingsIcon, CopyIcon, ArrowRightIcon, ArrowLeftIcon, PlayCircleIcon,
-  HomeIcon, StarIcon, CameraIcon, CoffeeIcon, InfoIcon, ShirtIcon
+  HomeIcon, StarIcon, CameraIcon, CoffeeIcon, InfoIcon, ShirtIcon, Sparkles as SparklesIcon
 } from 'lucide-react';
 
 const SECTION_META: Record<SectionType, { icon: React.ElementType; color: string }> = {
@@ -54,7 +54,7 @@ export default function SectionPanel() {
   const {
     state, selectSection, toggleSectionVisibility,
     moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup,
-    removeSection, addSection, duplicateSection
+    removeSection, addSection, duplicateSection, setShowQuickForm
   } = useBuilder();
   const { page, selectedSectionId } = state;
   const [showAddMenu, setShowAddMenu] = useState(false);
@@ -249,6 +249,31 @@ export default function SectionPanel() {
         <>
           {/* Section List (Grouped) */}
           <div className="flex-1 overflow-y-auto p-3 space-y-4">
+            
+            {/* Quick Form Banner */}
+            {!state.isTemplate && (
+              <div className="bg-gradient-to-br from-pink-500 via-rose-500 to-purple-600 rounded-2xl p-4 text-white shadow-sm flex flex-col gap-2.5 relative overflow-hidden group">
+                <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-white/10 rounded-full blur-xl group-hover:scale-125 transition-transform" />
+                <div className="absolute -left-6 -top-6 w-20 h-20 bg-pink-400/20 rounded-full blur-xl" />
+                
+                <div className="relative z-10">
+                  <h4 className="text-xs font-extrabold flex items-center gap-1.5 text-white">
+                    <SparklesIcon className="h-4 w-4 text-pink-200 animate-pulse" />
+                    Isi Undangan Kilat
+                  </h4>
+                  <p className="text-[10px] text-pink-100 mt-1 leading-relaxed font-semibold">
+                    Bingung harus edit semua seksi? Masukkan semua informasi utama sekaligus lewat formulir cepat!
+                  </p>
+                </div>
+                
+                <button
+                  onClick={() => setShowQuickForm(true)}
+                  className="relative z-10 w-full py-2 bg-white text-pink-600 rounded-xl text-[10px] font-bold shadow-md hover:bg-pink-50 hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  Buka Formulir Cepat
+                </button>
+              </div>
+            )}
 
             {/* GROUP: OPENING */}
             <div>

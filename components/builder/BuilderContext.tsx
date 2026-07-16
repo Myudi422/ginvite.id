@@ -19,6 +19,7 @@ type BuilderState = {
   connectionError: boolean;
   serverLoadFailed: boolean;
   sessionUploadedImages: string[];
+  showQuickForm: boolean;
 };
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -50,7 +51,9 @@ type Action =
   | { type: 'FETCH_SUCCESS'; payload: BuilderPage }
   | { type: 'FETCH_FAILURE' }
   | { type: 'REGISTER_UPLOADED_IMAGE'; url: string }
-  | { type: 'CLEAR_UPLOADED_IMAGES' };
+  | { type: 'CLEAR_UPLOADED_IMAGES' }
+  | { type: 'SET_SHOW_QUICK_FORM'; payload: boolean }
+  | { type: 'UPDATE_BATCH'; payload: { sections: BuilderSection[]; style: Partial<BuilderPage['style']>; page_title?: string } };
 
 // ── History Helper ────────────────────────────────────────────────────────────
 function updatePageHistory(state: BuilderState, newPage: BuilderPage): BuilderState {
@@ -72,6 +75,24 @@ function reducer(state: BuilderState, action: Action): BuilderState {
   switch (action.type) {
     case 'SET_PAGE':
       return { ...state, page: action.payload, isDirty: false, past: [], future: [] };
+
+    case 'SET_SHOW_QUICK_FORM':
+      return { ...state, showQuickForm: action.payload };
+
+    case 'UPDATE_BATCH': {
+      const newPage = {
+        ...state.page,
+        sections: action.payload.sections,
+        style: {
+          ...state.page.style,
+          ...action.payload.style,
+        },
+      };
+      if (action.payload.page_title !== undefined) {
+        newPage.page_title = action.payload.page_title;
+      }
+      return updatePageHistory(state, newPage);
+    }
 
     case 'FETCH_START':
       return { ...state, isLoading: true, connectionError: false };
@@ -399,6 +420,8 @@ interface BuilderContextValue {
   save: () => Promise<void>;
   retryLoad: () => Promise<void>;
   registerUploadedImage: (url: string) => void;
+  setShowQuickForm: (show: boolean) => void;
+  updateBatch: (payload: { sections: BuilderSection[]; style: Partial<BuilderPage['style']>; page_title?: string }) => void;
 }
 
 const BuilderContext = createContext<BuilderContextValue | null>(null);
@@ -429,6 +452,7 @@ export function BuilderProvider({
     connectionError: serverLoadFailed,
     serverLoadFailed: serverLoadFailed,
     sessionUploadedImages: [],
+    showQuickForm: false,
   });
 
   const selectSection = useCallback((id: string | null) => dispatch({ type: 'SELECT_SECTION', id }), []);
@@ -482,6 +506,9 @@ export function BuilderProvider({
   }, [state.sessionUploadedImages]);
 
   const registerUploadedImage = useCallback((url: string) => dispatch({ type: 'REGISTER_UPLOADED_IMAGE', url }), []);
+
+  const setShowQuickForm = useCallback((show: boolean) => dispatch({ type: 'SET_SHOW_QUICK_FORM', payload: show }), []);
+  const updateBatch = useCallback((payload: { sections: BuilderSection[]; style: Partial<BuilderPage['style']>; page_title?: string }) => dispatch({ type: 'UPDATE_BATCH', payload }), []);
 
   const importPage = useCallback((data: any) => dispatch({ type: 'IMPORT_PAGE', payload: data }), []);
 
@@ -613,7 +640,7 @@ export function BuilderProvider({
   }, [serverLoadFailed, retryLoad]);
 
   return (
-    <BuilderContext.Provider value={{ state, dispatch, isTemplate, selectSection, setViewMode, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad, registerUploadedImage }}>
+    <BuilderContext.Provider value={{ state, dispatch, isTemplate, selectSection, setViewMode, updateSectionProps, toggleSectionVisibility, moveSection, moveSectionUp, moveSectionDown, reorderGroup, changeSectionGroup, addSection, removeSection, duplicateSection, updateSectionLabel, updateStyle, updatePageMeta, undo, redo, resetPage, importPage, save, retryLoad, registerUploadedImage, setShowQuickForm, updateBatch }}>
       {children}
     </BuilderContext.Provider>
   );

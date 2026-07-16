@@ -646,7 +646,7 @@ export default function InvitationDashboard({ user, invitations, error = null }:
           onClose={() => setIsCreatePopupOpen(false)}
           onInvitationCreated={slug => router.push(`/admin/formulir/${user.userId}/${slug}`)}
           onBuilderCreated={(slug, eventType, pageTitle) =>
-            router.push(`/admin/builder/${user.userId}/${slug}?event_type=${encodeURIComponent(eventType)}&page_title=${encodeURIComponent(pageTitle)}`)
+            router.push(`/admin/builder/${user.userId}/${slug}?event_type=${encodeURIComponent(eventType)}&page_title=${encodeURIComponent(pageTitle)}&new=1`)
           }
         />
       )}

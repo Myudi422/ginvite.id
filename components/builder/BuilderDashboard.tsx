@@ -19,9 +19,12 @@ import {
   Settings as SettingsIcon,
   MoreVertical as MoreVerticalIcon,
   Palette as PaletteIcon,
+  Wand2 as WandIcon,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import TemplateSelectorModal from './ui/TemplateSelectorModal';
+import QuickFormModal from './ui/QuickFormModal';
+import WelcomeModal from './ui/WelcomeModal';
 
 interface Props {
   userId: number;
@@ -35,13 +38,27 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
 };
 
 export default function BuilderDashboard({ userId }: Props) {
-  const { state, save, undo, redo, resetPage, importPage, retryLoad, isTemplate } = useBuilder();
-  const { page, isDirty, saving, saveError, past, future, selectedSectionId, connectionError, isLoading } = state;
+  const { state, save, undo, redo, resetPage, importPage, retryLoad, isTemplate, setShowQuickForm } = useBuilder();
+  const { page, isDirty, saving, saveError, past, future, selectedSectionId, connectionError, isLoading, showQuickForm } = state;
   const router = useRouter();
 
   const [mobileTab, setMobileTab] = React.useState<'sections' | 'canvas' | 'properties'>('canvas');
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const [showTemplateModal, setShowTemplateModal] = React.useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = React.useState(false);
+  const [isOnboarding, setIsOnboarding] = React.useState(false);
+
+  const searchParams = useSearchParams();
+  const isNew = searchParams.get('new') === '1';
+
+  React.useEffect(() => {
+    if (isNew) {
+      setShowWelcomeModal(true);
+      setIsOnboarding(true);
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [isNew]);
 
   React.useEffect(() => {
     if (selectedSectionId) {
@@ -219,6 +236,17 @@ export default function BuilderDashboard({ userId }: Props) {
             
             {!isTemplate && (
               <button
+                onClick={() => setShowQuickForm(true)}
+                className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-pink-200 bg-pink-50 hover:bg-pink-100/50 text-xs font-semibold text-pink-700 transition-colors active:scale-95 transition-all animate-pulse"
+                title="Isi Formulir Kilat"
+              >
+                <WandIcon className="h-3.5 w-3.5 text-pink-500" />
+                Formulir Cepat
+              </button>
+            )}
+            
+            {!isTemplate && (
+              <button
                 onClick={() => setShowTemplateModal(true)}
                 className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100/50 text-xs font-semibold text-purple-700 transition-colors active:scale-95 transition-all"
               >
@@ -271,6 +299,11 @@ export default function BuilderDashboard({ userId }: Props) {
             <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 mb-1">
               <span className="text-xs font-bold text-gray-600">Menu Tambahan</span>
             </div>
+            {!isTemplate && (
+              <button onClick={() => { setShowQuickForm(true); setShowMobileMenu(false); }} className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs text-pink-600 hover:bg-pink-50 rounded-xl font-semibold">
+                <WandIcon className="h-4 w-4 text-pink-500" /> Formulir Cepat
+              </button>
+            )}
             {!isTemplate && (
               <button onClick={() => { setShowTemplateModal(true); setShowMobileMenu(false); }} className="flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs text-purple-600 hover:bg-purple-50 rounded-xl font-semibold">
                 <PaletteIcon className="h-4 w-4" /> Pilih Template
@@ -355,7 +388,38 @@ export default function BuilderDashboard({ userId }: Props) {
       </div>
 
       {showTemplateModal && (
-        <TemplateSelectorModal onClose={() => setShowTemplateModal(false)} />
+        <TemplateSelectorModal 
+          onClose={() => {
+            setShowTemplateModal(false);
+            if (isOnboarding) {
+              setShowWelcomeModal(true);
+            }
+          }} 
+          onImportSuccess={() => {
+            setShowTemplateModal(false);
+            setIsOnboarding(false);
+            setShowQuickForm(true);
+          }}
+        />
+      )}
+      {showQuickForm && (
+        <QuickFormModal onClose={() => {
+          setShowQuickForm(false);
+          setIsOnboarding(false);
+        }} />
+      )}
+      {showWelcomeModal && (
+        <WelcomeModal
+          onSelectTemplate={() => {
+            setShowWelcomeModal(false);
+            setShowTemplateModal(true);
+          }}
+          onSelectBlank={() => {
+            setShowWelcomeModal(false);
+            setShowQuickForm(true);
+          }}
+          onClose={() => setShowWelcomeModal(false)}
+        />
       )}
     </div>
   );
