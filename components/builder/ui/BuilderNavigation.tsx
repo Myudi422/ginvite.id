@@ -15,6 +15,7 @@ interface BuilderNavigationProps {
   accentColor?: string;
   isVertical?: boolean;
   position?: 'fixed' | 'absolute';
+  scrollContainerRef?: React.RefObject<HTMLElement | null>;
 }
 
 const TYPE_ICONS: Record<string, LucideIcon> = {
@@ -73,7 +74,8 @@ export default function BuilderNavigation({
   inactiveColor, 
   accentColor,
   isVertical = false,
-  position = 'fixed'
+  position = 'fixed',
+  scrollContainerRef
 }: BuilderNavigationProps) {
   const [activeId, setActiveId] = useState<string>(items && items.length > 0 ? items[0].id : "");
 
@@ -116,19 +118,29 @@ export default function BuilderNavigation({
     setActiveId(id);
     const idPrefix = isVertical ? 'desktop-section-' : 'mobile-section-';
     const element = document.getElementById(`${idPrefix}${id}`);
-    if (element) {
-      const container = element.closest('.overflow-y-auto');
-      if (container) {
-        const containerRect = container.getBoundingClientRect();
-        const elemRect = element.getBoundingClientRect();
-        const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
-        container.scrollTo({
-          top: Math.max(0, relativeTop),
-          behavior: 'smooth'
-        });
-      } else {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    if (!element) return;
+
+    // Use the passed-in ref first (reliable for fixed-position nav bars outside DOM tree),
+    // then fall back to DOM traversal for vertically-embedded navbars.
+    const container = (scrollContainerRef?.current ?? element.closest('.overflow-y-auto')) as HTMLElement | null;
+
+    if (container) {
+      // Temporarily disable scroll-snap so mobile browsers don't cancel the smooth scroll
+      const originalSnap = container.style.scrollSnapType;
+      container.style.scrollSnapType = 'none';
+
+      const containerRect = container.getBoundingClientRect();
+      const elemRect = element.getBoundingClientRect();
+      const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
+
+      container.scrollTo({ top: Math.max(0, relativeTop), behavior: 'smooth' });
+
+      // Re-enable snap after scroll animation finishes
+      setTimeout(() => {
+        container.style.scrollSnapType = originalSnap || 'y mandatory';
+      }, 700);
+    } else {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 

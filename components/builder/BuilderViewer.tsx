@@ -92,8 +92,8 @@ function ScrollRevealSection({ children, id }: { children: React.ReactNode; id: 
       className="scroll-reveal-section"
       style={{
         scrollSnapAlign: 'start',
-        scrollSnapStop: 'always',
-        minHeight: '100dvh',
+        height: '100dvh',
+        flexShrink: 0,
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -139,6 +139,9 @@ export default function BuilderViewer({ page }: Props) {
   const [loadingPayment, setLoadingPayment] = React.useState(false);
   const [paymentError, setPaymentError] = React.useState<string | null>(null);
   const [showBanner, setShowBanner] = React.useState(true);
+  // Ref for the mobile scrollable container — passed directly to BuilderNavigation
+  // so nav clicks don't rely on fragile DOM traversal from a fixed-position element.
+  const mobileScrollRef = React.useRef<HTMLDivElement | null>(null);
 
   const handleWatermarkPayment = async () => {
     setLoadingPayment(true);
@@ -460,8 +463,9 @@ export default function BuilderViewer({ page }: Props) {
 
   return (
     <div
-      className="min-h-screen min-h-[100dvh] flex flex-col lg:flex-row overflow-hidden relative"
+      className="h-screen flex flex-col lg:flex-row overflow-hidden relative"
       style={{
+        height: '100dvh',
         backgroundColor: page.style.bg_color,
         color: page.style.text_color,
         fontFamily: `'${page.style.font_body}', sans-serif`,
@@ -557,7 +561,7 @@ export default function BuilderViewer({ page }: Props) {
 
       {/* ── Desktop Split Layout (Visible when opened / transition starts) ── */}
       {hasOpening && (isOpen || isExiting) && (
-        <div className="hidden lg:flex w-full h-screen overflow-hidden relative builder-snap-container">
+        <div className="hidden lg:flex w-full h-screen overflow-hidden relative">
           {/* Left Pane: Static Desktop Event Cover */}
           <div 
             className="w-[60%] h-full flex flex-col items-center justify-center text-center p-8 select-none border-r border-white/10 relative"
@@ -640,11 +644,12 @@ export default function BuilderViewer({ page }: Props) {
       )}
 
       {/* ── Mobile Layout or Full Screen Cover Overlay ── */}
-      <div className={`${hasOpening && (isOpen || isExiting) ? 'lg:hidden' : ''} w-full flex-1 flex flex-col builder-snap-container`}>
+      <div className={`${hasOpening && (isOpen || isExiting) ? 'lg:hidden' : ''} w-full h-full flex flex-col`}>
         {/* Main Content (Inner sections) */}
         {showInner && (
           <div 
-            className="flex-1 w-full mx-auto relative overflow-y-auto no-scrollbar builder-snap-container" 
+            ref={mobileScrollRef}
+            className="h-full w-full mx-auto relative overflow-y-auto no-scrollbar builder-snap-container" 
             style={{ maxWidth: `${page.style.page_width || 700}px` }}
           >
             {innerSections.map(section => (
@@ -695,6 +700,7 @@ export default function BuilderViewer({ page }: Props) {
             activeColor={page.style.nav_active_color as string}
             inactiveColor={page.style.nav_inactive_color as string}
             accentColor={page.style.accent_color as string}
+            scrollContainerRef={mobileScrollRef}
           />
         </div>
       )}
