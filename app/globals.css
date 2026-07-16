@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -14,7 +13,18 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  .section-full {
+    min-height: 100svh;
+  }
+  .gradient-pink {
+    background: linear-gradient(135deg, #fdf2f8, #fce7f3, #fff0f3);
+  }
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
 
 @layer base {
   :root {

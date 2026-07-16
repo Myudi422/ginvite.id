@@ -1,100 +1,175 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { MessageSquare, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, ArrowRight, Play } from "lucide-react";
 import { trackCTAClick } from "@/lib/analytics";
 
-const services = [
-  "Event Organizer",
-  "Wedding & Ceremony",
-  "Pentas Seni",
-  "Family Gathering",
-  "MC Ulang Tahun",
-  "Ice Breaking Games",
-  "Content Creator",
+const invitationTypes = [
+  { label: "Pernikahan", color: "text-rose-500", emoji: "💒" },
+  { label: "Khitanan", color: "text-blue-500", emoji: "✂️" },
+  { label: "Ulang Tahun", color: "text-amber-500", emoji: "🎂" },
+  { label: "Aqiqah", color: "text-emerald-500", emoji: "🌿" },
+  { label: "Syukuran", color: "text-violet-500", emoji: "🙏" },
+  { label: "Launching", color: "text-pink-500", emoji: "🚀" },
 ];
 
-const badges = [
-  "✅ Konsultasi Gratis",
-  "🎉 Semua Jenis Acara",
-  "⚡ Tim Profesional",
-  "💌 Undangan Digital",
+const trustBadges = [
+  "✅ Gratis Uji Coba",
+  "🎨 100+ Tema Premium",
+  "📲 Kirim via WhatsApp",
+  "⚡ 5 Menit Jadi",
 ];
+
+function gtagConversion(url: string, label: string) {
+  const navigate = () => {
+    if (!url) return;
+    if (/^https?:\/\//.test(url)) {
+      try { window.open(url, "_blank"); } catch { window.location.href = url; }
+    } else {
+      window.location.href = url;
+    }
+  };
+  if (typeof window === "undefined") return;
+  const isReady = !!(window as any).gtag;
+  if (!isReady) { navigate(); return; }
+  let done = false;
+  const cb = () => { if (done) return; done = true; navigate(); };
+  try {
+    (window as any).gtag("event", "conversion", {
+      send_to: "AW-674897184/BcVHCNOC-KkaEKC66MEC",
+      event_label: label,
+      value: 1.0,
+      currency: "IDR",
+      event_callback: cb,
+    });
+  } catch { cb(); }
+  setTimeout(() => { if (!done) { done = true; navigate(); } }, 1000);
+}
+
+// Floating invitation card mockup
+function InvitationMockup() {
+  return (
+    <div className="relative w-full max-w-sm mx-auto">
+      {/* Main invitation card */}
+      <motion.div
+        initial={{ opacity: 0, y: 30, rotate: -3 }}
+        animate={{ opacity: 1, y: 0, rotate: -3 }}
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="relative bg-gradient-to-br from-rose-100 via-pink-50 to-fuchsia-100 rounded-3xl p-8 shadow-2xl shadow-pink-200 border border-pink-200 overflow-hidden"
+      >
+        {/* Ornament top */}
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-rose-400 via-pink-400 to-fuchsia-400 rounded-t-3xl" />
+        <div className="absolute -top-4 -right-4 w-24 h-24 bg-rose-200/50 rounded-full blur-xl" />
+        <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-fuchsia-200/50 rounded-full blur-xl" />
+
+        <div className="relative text-center space-y-3">
+          <p className="text-xs font-semibold text-rose-400 tracking-[0.3em] uppercase">Undangan Pernikahan</p>
+          <div className="w-12 h-0.5 bg-gradient-to-r from-rose-300 to-pink-300 mx-auto" />
+          <h3 className="font-serif text-2xl text-slate-700 leading-tight">
+            Ahmad & Siti Rahayu
+          </h3>
+          <p className="text-xs text-slate-500 font-medium">Sabtu, 14 Februari 2026</p>
+          <p className="text-xs text-slate-400">Grand Ballroom Bogor Palace</p>
+
+          {/* Decorative divider */}
+          <div className="flex items-center gap-2 justify-center py-1">
+            <div className="w-6 h-px bg-rose-200" />
+            <span className="text-rose-300 text-sm">✦</span>
+            <div className="w-6 h-px bg-rose-200" />
+          </div>
+
+          {/* RSVP button */}
+          <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold py-2 px-5 rounded-full inline-block shadow-md shadow-rose-200">
+            Konfirmasi Kehadiran (RSVP)
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Floating badges */}
+      <motion.div
+        animate={{ y: [0, -8, 0] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-4 -left-4 bg-white border border-green-200 rounded-2xl shadow-lg px-3 py-2 flex items-center gap-2"
+      >
+        <span className="text-lg">✅</span>
+        <div>
+          <div className="text-[10px] font-bold text-slate-700">Tamu Konfirmasi</div>
+          <div className="text-[10px] text-green-500 font-semibold">+128 hadir</div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={{ y: [0, 8, 0] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        className="absolute -bottom-4 -right-4 bg-white border border-pink-200 rounded-2xl shadow-lg px-3 py-2 flex items-center gap-2"
+      >
+        <span className="text-lg">📲</span>
+        <div>
+          <div className="text-[10px] font-bold text-slate-700">Dikirim via WA</div>
+          <div className="text-[10px] text-pink-500 font-semibold">ke 200+ tamu</div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        animate={{ y: [0, -5, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        className="absolute top-1/2 -right-8 bg-white border border-amber-200 rounded-2xl shadow-lg px-3 py-2 flex items-center gap-2"
+      >
+        <span className="text-lg">⭐</span>
+        <div>
+          <div className="text-[10px] font-bold text-slate-700">Rating 5.0</div>
+          <div className="text-[10px] text-amber-500 font-semibold">100+ ulasan</div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 export default function HeroSection() {
-  const [currentService, setCurrentService] = useState(0);
+  const [currentType, setCurrentType] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentService((prev) => (prev + 1) % services.length);
-    }, 2200);
+      setCurrentType((prev) => (prev + 1) % invitationTypes.length);
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
 
-  function gtag_report_conversion(url: string, label?: string) {
-    const navigate = () => {
-      if (typeof url === "undefined") return;
-      if (/^https?:\/\//.test(url)) {
-        try { window.open(url, "_blank"); } catch (e) { window.location.href = url; }
-      } else {
-        window.location.href = url;
-      }
-    };
-    if (typeof window === "undefined") return;
-    const isGtagReady = !!(window as any).gtag;
-    if (!isGtagReady) { navigate(); return; }
-    let navigated = false;
-    const callback = () => { if (navigated) return; navigated = true; navigate(); };
-    try {
-      (window as any).gtag("event", "conversion", {
-        send_to: "AW-674897184/BcVHCNOC-KkaEKC66MEC",
-        event_label: label || "hero_cta",
-        value: 1.0,
-        currency: "IDR",
-        transaction_id: "",
-        event_callback: callback,
-      });
-    } catch (e) { callback(); }
-    setTimeout(() => { if (!navigated) { navigated = true; navigate(); } }, 1000);
-  }
-
-  const handleCTAClick = (buttonName: string) => {
-    trackCTAClick(buttonName, "hero_section");
+  const handleCTA = (name: string) => {
+    trackCTAClick(name, "hero_section");
     if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq("track", "Lead", {
-        content_name: buttonName,
-        content_category: "hero_section",
-      });
+      (window as any).fbq("track", "Lead", { content_name: name, content_category: "hero_section" });
     }
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center py-12 px-6 overflow-hidden bg-white">
-      {/* Layered background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-pink-50/40 to-violet-50/30" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(251,207,232,0.4),transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_80%,rgba(196,181,253,0.2),transparent_60%)]" />
+    <section className="relative min-h-[100svh] flex items-center py-16 px-6 overflow-hidden bg-white">
+      {/* Background layers */}
+      <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-pink-50/60 to-fuchsia-50/40" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_15%,rgba(251,207,232,0.5),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_85%,rgba(253,242,248,0.7),transparent_55%)]" />
 
-      {/* Floating decorative shapes */}
-      <div className="absolute top-20 right-10 w-32 h-32 bg-pink-200/30 rounded-full blur-2xl animate-pulse" />
-      <div className="absolute bottom-20 left-10 w-40 h-40 bg-violet-200/25 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 left-1/3 w-20 h-20 bg-amber-200/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "2s" }} />
+      {/* Decorative floating blobs */}
+      <div className="absolute top-24 right-8 w-40 h-40 bg-pink-100 rounded-full blur-3xl opacity-70 animate-pulse" />
+      <div className="absolute bottom-24 left-8 w-48 h-48 bg-rose-100 rounded-full blur-3xl opacity-60 animate-pulse" style={{ animationDelay: "1.5s" }} />
+      <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-fuchsia-100 rounded-full blur-2xl opacity-50 animate-pulse" style={{ animationDelay: "3s" }} />
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-          {/* Left — Text Content */}
-          <div className="space-y-6 md:space-y-8">
-            {/* Eyebrow badge */}
+          {/* ── LEFT: Copy ── */}
+          <div className="space-y-7 md:space-y-8">
+
+            {/* Eyebrow */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <span className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full shadow-md shadow-pink-200">
-                🌟 Partner Kreatif #1 Pilihan Klien
+              <span className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold uppercase tracking-widest px-5 py-2.5 rounded-full shadow-lg shadow-pink-200">
+                <Sparkles className="w-3.5 h-3.5" />
+                #1 Platform Undangan Digital Indonesia
               </span>
             </motion.div>
 
@@ -103,34 +178,30 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="space-y-3"
+              className="space-y-2"
             >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-slate-800 leading-tight">
-                Partner Kreatif
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-slate-800 leading-[1.15]">
+                Buat Undangan Digital
                 <br />
-                <span className="text-slate-600 text-3xl md:text-4xl lg:text-5xl">untuk Semua</span>
-                <br />
-                <span className="bg-gradient-to-r from-pink-500 via-rose-500 to-fuchsia-500 bg-clip-text text-transparent">
-                  Acara Spesialmu
-                </span>
-              </h1>
-
-              {/* Rotating service */}
-              <div className="flex items-center gap-3 mt-2">
-                <span className="text-slate-500 text-base md:text-lg">Ahli dalam:</span>
-                <div className="overflow-hidden h-8">
-                  <motion.span
-                    key={currentService}
-                    initial={{ y: 32, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -32, opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="block font-bold text-base md:text-lg text-pink-600"
-                  >
-                    {services[currentService]}
-                  </motion.span>
+                <span className="text-slate-500 text-3xl md:text-4xl lg:text-5xl font-medium">untuk</span>
+                {" "}
+                {/* Animated type */}
+                <div className="inline-flex items-center gap-2 mt-1">
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={currentType}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.35 }}
+                      className={`inline-block ${invitationTypes[currentType].color} font-bold`}
+                    >
+                      {invitationTypes[currentType].emoji} {invitationTypes[currentType].label}
+                    </motion.span>
+                  </AnimatePresence>
                 </div>
-              </div>
+              </h1>
+              <p className="text-lg md:text-xl text-slate-400 font-light mt-1">— Elegan. Personal. Mudah.</p>
             </motion.div>
 
             {/* Subheadline */}
@@ -140,21 +211,22 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-base md:text-lg text-slate-500 max-w-lg leading-relaxed"
             >
-              Dari undangan digital, MC, pentas seni, wedding organizer, hingga event besar —
-              satu tim Papunda siap wujudkan semua momenmu jadi kenangan tak terlupakan.
+              Coba gratis tanpa kartu kredit. Pilih dari <strong className="text-slate-700">100+ tema premium</strong>,
+              isi detail acara, dan kirim ke tamu lewat WhatsApp. Selesai dalam{" "}
+              <strong className="text-slate-700">5 menit!</strong>
             </motion.p>
 
-            {/* Badges */}
+            {/* Trust badges */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-wrap gap-2"
             >
-              {badges.map((badge) => (
+              {trustBadges.map((badge) => (
                 <span
                   key={badge}
-                  className="inline-block bg-white border border-pink-200 text-slate-600 text-xs font-semibold px-3.5 py-1.5 rounded-full shadow-sm"
+                  className="inline-block bg-white border border-pink-200 text-slate-600 text-xs font-semibold px-4 py-2 rounded-full shadow-sm"
                 >
                   {badge}
                 </span>
@@ -168,122 +240,71 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-3"
             >
-              <Button
-                size="lg"
+              <button
                 onClick={() => {
-                  handleCTAClick("hero_wa_konsultasi");
-                  gtag_report_conversion("https://wa.me/6289654728249?text=Halo%20Papunda,%20saya%20mau%20konsultasi%20acara", "hero_konsultasi");
+                  handleCTA("hero_cta_buat_gratis");
+                  gtagConversion("/admin", "hero_buat_gratis");
                 }}
-                className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-full shadow-xl shadow-green-200 hover:shadow-green-300 transition-all px-8 py-6 font-bold text-base hover:-translate-y-0.5"
+                className="group flex items-center justify-center gap-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold rounded-full px-8 py-4 text-base shadow-xl shadow-pink-200 hover:shadow-pink-300 hover:-translate-y-0.5 transition-all duration-200"
               >
-                <MessageSquare size={20} className="mr-2" />
-                Konsultasi Gratis via WA
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
+                💌 Coba Gratis Sekarang
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button
                 onClick={() => {
-                  const el = document.getElementById("layanan");
-                  el?.scrollIntoView({ behavior: "smooth" });
+                  handleCTA("hero_cta_lihat_tema");
+                  window.location.href = "/katalog";
                 }}
-                className="w-full sm:w-auto border-2 border-slate-300 text-slate-600 hover:border-pink-400 hover:text-pink-600 hover:bg-pink-50/50 rounded-full flex items-center gap-2 px-8 py-6 font-bold text-base transition-all"
+                className="flex items-center justify-center gap-2 border-2 border-pink-300 text-pink-600 hover:border-pink-500 hover:bg-pink-50 rounded-full px-8 py-4 text-base font-bold transition-all duration-200"
               >
-                Lihat Semua Layanan
-                <ChevronDown size={18} />
-              </Button>
+                <Play className="w-4 h-4 fill-current" />
+                Lihat 100+ Tema
+              </button>
             </motion.div>
 
-            {/* Undangan digital sub-link */}
+            {/* Social proof micro */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="text-xs text-slate-400"
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="text-xs text-slate-400 flex items-center gap-2"
             >
-              Cari undangan digital gratis?{" "}
-              <a
-                href="/admin"
-                className="text-pink-500 font-semibold hover:underline"
-                onClick={() => {
-                  handleCTAClick("hero_undangan_link");
-                  gtag_report_conversion("/admin", "hero_undangan");
-                }}
-              >
-                Coba buat sendiri →
-              </a>
+              <span className="flex -space-x-1">
+                {["🧑", "👩", "👨", "👩‍🦱"].map((e, i) => (
+                  <span key={i} className="inline-block w-6 h-6 text-base leading-6 bg-pink-100 rounded-full text-center">
+                    {e}
+                  </span>
+                ))}
+              </span>
+              Bergabung dengan <strong className="text-slate-600">10.000+</strong> pengguna yang sudah buat undangan
             </motion.p>
           </div>
 
-          {/* Right — Visual Cards */}
+          {/* ── RIGHT: Mockup ── */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative hidden lg:block"
+            transition={{ duration: 0.9, delay: 0.2 }}
+            className="hidden lg:flex items-center justify-center py-12"
           >
-            {/* Main card grid */}
-            <div className="grid grid-cols-2 gap-4 relative">
-              {/* Card 1 — Large */}
-              <div className="col-span-2 bg-gradient-to-br from-rose-400 to-pink-500 rounded-3xl p-6 shadow-2xl shadow-rose-200 text-white">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">💒</div>
-                  <div>
-                    <div className="font-bold">Wedding & Ceremony</div>
-                    <div className="text-white/70 text-xs">WCC Paket Lengkap</div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  {["WO", "Dekorasi", "Katering", "Foto & Video"].map((s) => (
-                    <div key={s} className="bg-white/15 rounded-xl px-3 py-2 text-xs font-medium text-center">✓ {s}</div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl p-5 shadow-xl shadow-amber-200 text-white">
-                <div className="text-3xl mb-2">🎉</div>
-                <div className="font-bold text-sm">Event Organizer</div>
-                <div className="text-white/70 text-xs mt-1">Semua Jenis Acara</div>
-                <div className="mt-3 bg-white/20 rounded-xl px-3 py-1.5 text-xs font-semibold text-center">A-Z Kami Handle</div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-3xl p-5 shadow-xl shadow-violet-200 text-white">
-                <div className="text-3xl mb-2">🎤</div>
-                <div className="font-bold text-sm">MC & Games</div>
-                <div className="text-white/70 text-xs mt-1">Ultah & Gathering</div>
-                <div className="mt-3 bg-white/20 rounded-xl px-3 py-1.5 text-xs font-semibold text-center">Seru & Berkesan</div>
-              </div>
-
-              {/* Stats overlay */}
-              <div className="col-span-2 flex gap-3">
-                {[
-                  { n: "200+", l: "Acara Sukses" },
-                  { n: "98%", l: "Klien Puas" },
-                  { n: "5+", l: "Tahun Pengalaman" },
-                ].map((s) => (
-                  <div key={s.l} className="flex-1 bg-white rounded-2xl border border-slate-100 shadow-sm p-3.5 text-center">
-                    <div className="text-xl font-black text-slate-800">{s.n}</div>
-                    <div className="text-[10px] text-slate-500 font-medium">{s.l}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Floating badge */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-6 -right-6 bg-white border-2 border-pink-200 rounded-2xl shadow-xl px-4 py-2.5 flex items-center gap-2"
-            >
-              <span className="text-xl">⭐</span>
-              <div>
-                <div className="text-xs font-bold text-slate-700">Rating 5.0</div>
-                <div className="text-[10px] text-slate-400">dari 100+ ulasan</div>
-              </div>
-            </motion.div>
+            <InvitationMockup />
           </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-pink-300"
+        >
+          <span className="text-[10px] font-medium tracking-widest uppercase">Scroll</span>
+          <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="w-px h-6 bg-gradient-to-b from-pink-300 to-transparent"
+          />
+        </motion.div>
       </div>
     </section>
   );
