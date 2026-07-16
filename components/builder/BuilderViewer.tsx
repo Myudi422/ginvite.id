@@ -506,10 +506,31 @@ export default function BuilderViewer({ page }: Props) {
           will-change: clip-path, transform;
         }
 
+        /* Optimize for mobile viewports to prevent jank/stiff touch scroll */
+        @media (max-width: 1023px) {
+          .scroll-reveal-section.section-in-view {
+            animation: mobilePageReveal 0.35s ease-out forwards !important;
+            will-change: opacity, transform !important;
+            clip-path: none !important;
+          }
+        }
+
+        @keyframes mobilePageReveal {
+          from {
+            opacity: 0.3;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
         /* Snap scroll container */
         .builder-snap-container {
           scroll-snap-type: y mandatory;
           scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
         }
 
         /* Sembunyikan scrollbar */
@@ -583,7 +604,7 @@ export default function BuilderViewer({ page }: Props) {
           {/* Right Pane: Scrollable Inner Sections - full-page snap */}
           <div className="w-[40%] h-full overflow-y-auto relative no-scrollbar builder-snap-container">
             {innerSections.map(section => (
-              <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
+              <ScrollRevealSection key={section.id} id={`desktop-section-${section.id}`}>
                 <SectionRenderer section={section} style={style} pageStatus={page.status} />
               </ScrollRevealSection>
             ))}
@@ -627,7 +648,7 @@ export default function BuilderViewer({ page }: Props) {
             style={{ maxWidth: `${page.style.page_width || 700}px` }}
           >
             {innerSections.map(section => (
-              <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
+              <ScrollRevealSection key={section.id} id={`mobile-section-${section.id}`}>
                 <SectionRenderer section={section} style={style} pageStatus={page.status} />
               </ScrollRevealSection>
             ))}

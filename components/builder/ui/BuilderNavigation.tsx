@@ -84,6 +84,8 @@ export default function BuilderNavigation({
   useEffect(() => {
     if (items.length === 0) return;
 
+    const idPrefix = isVertical ? 'desktop-section-' : 'mobile-section-';
+
     const observer = new IntersectionObserver(
       (entries) => {
         // Find all intersecting entries
@@ -91,7 +93,7 @@ export default function BuilderNavigation({
         if (visibleEntries.length > 0) {
           // If multiple are visible, pick the one that takes up more space or is higher up.
           // To keep it simple, we just take the first one (top-most in viewport)
-          const targetId = visibleEntries[0].target.id.replace('section-', '');
+          const targetId = visibleEntries[0].target.id.replace(idPrefix, '');
           setActiveId(targetId);
         }
       },
@@ -103,16 +105,17 @@ export default function BuilderNavigation({
     );
 
     items.forEach(item => {
-      const el = document.getElementById(`section-${item.id}`);
+      const el = document.getElementById(`${idPrefix}${item.id}`);
       if (el) observer.observe(el);
     });
 
     return () => observer.disconnect();
-  }, [items]);
+  }, [items, isVertical]);
 
   const handleNavClick = (id: string) => {
     setActiveId(id);
-    const element = document.getElementById(`section-${id}`);
+    const idPrefix = isVertical ? 'desktop-section-' : 'mobile-section-';
+    const element = document.getElementById(`${idPrefix}${id}`);
     if (element) {
       const container = element.closest('.overflow-y-auto');
       if (container) {
