@@ -653,7 +653,7 @@ export default function BuilderViewer({ page }: Props) {
 
       {/* Horizontal Nav for Mobile View */}
       {page.style.nav_enabled !== false && isOpen && (
-        <div className={hasOpening ? 'lg:hidden' : ''}>
+        <div className={`fixed bottom-0 left-0 right-0 z-[999] pointer-events-none ${hasOpening ? 'lg:hidden' : ''}`}>
           <BuilderNavigation
             items={innerSections
               .filter(s => s.visible && (

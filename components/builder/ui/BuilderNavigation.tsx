@@ -120,7 +120,7 @@ export default function BuilderNavigation({
         const elemRect = element.getBoundingClientRect();
         const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
         container.scrollTo({
-          top: Math.max(0, relativeTop - 24),
+          top: Math.max(0, relativeTop),
           behavior: 'smooth'
         });
       } else {
