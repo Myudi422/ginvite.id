@@ -50,6 +50,50 @@ function SectionRenderer({ section, style }: { section: BuilderSection; style: R
   }
 }
 
+// ── Section Wrapper with full-page snap ───────────────────────────────────────
+function SectionSnapWrapper({
+  section,
+  style,
+  selectedSectionId,
+  selectSection,
+}: {
+  section: BuilderSection;
+  style: Record<string, string | number>;
+  selectedSectionId: string | null;
+  selectSection: (id: string) => void;
+}) {
+  const isSelected = section.id === selectedSectionId;
+  return (
+    <div
+      id={`section-${section.id}`}
+      className={`relative cursor-pointer snap-section flex flex-col ${!section.visible ? 'opacity-30' : ''}`}
+      style={{ scrollSnapAlign: 'start', scrollSnapStop: 'always', minHeight: '100%' }}
+      onClick={() => selectSection(section.id)}
+    >
+      {/* Highlight overlay on selected */}
+      {isSelected && (
+        <div className="absolute inset-0 ring-2 ring-pink-400 ring-inset z-10 pointer-events-none" />
+      )}
+      {/* Selection label */}
+      {isSelected && (
+        <div className="absolute top-0 left-0 z-20 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg pointer-events-none">
+          {section.label}
+        </div>
+      )}
+      {/* Hidden badge */}
+      {!section.visible && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <span className="bg-white/90 text-gray-500 text-xs px-3 py-1 rounded-full shadow border">Tersembunyi</span>
+        </div>
+      )}
+      {/* Content fills full height */}
+      <div className="flex-1 flex flex-col section-renderer-wrapper">
+        <SectionRenderer section={section} style={style} />
+      </div>
+    </div>
+  );
+}
+
 export default function BuilderCanvas() {
   const { state, selectSection, setViewMode } = useBuilder();
   const { page, selectedSectionId, viewMode } = state;
@@ -62,13 +106,7 @@ export default function BuilderCanvas() {
         const element = document.getElementById(`section-${selectedSectionId}`);
         const container = containerRef.current;
         if (element && container) {
-          const containerRect = container.getBoundingClientRect();
-          const elemRect = element.getBoundingClientRect();
-          const relativeTop = elemRect.top - containerRect.top + container.scrollTop;
-          container.scrollTo({
-            top: Math.max(0, relativeTop - 24),
-            behavior: 'smooth'
-          });
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 100);
       return () => clearTimeout(timer);
@@ -79,7 +117,6 @@ export default function BuilderCanvas() {
   const sections = [...page.sections].sort((a, b) => {
     const groupA = a.group || (a.type === 'opening' ? 'opening' : 'inner');
     const groupB = b.group || (b.type === 'opening' ? 'opening' : 'inner');
-    
     if (groupA !== groupB) {
       return groupA === 'opening' ? -1 : 1;
     }
@@ -217,10 +254,50 @@ export default function BuilderCanvas() {
   const leftPaneData = getLeftPaneData();
   const contrastTextColor = getContrastTextColor();
 
+  // Shared snap container style
+  const snapContainerStyle: React.CSSProperties = {
+    scrollSnapType: 'y mandatory',
+    scrollBehavior: 'smooth',
+    overflowY: 'auto',
+  };
+
   return (
     // Outer: fills remaining flex space, scrolls vertically
     <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto bg-gray-100 py-6 px-4 flex flex-col">
-      
+
+      {/* ── Global CSS for snap + page-reveal ── */}
+      <style>{`
+        @keyframes pageReveal {
+          from {
+            clip-path: inset(100% 0 0 0);
+            transform: translateY(6px);
+          }
+          to {
+            clip-path: inset(0% 0 0 0);
+            transform: translateY(0);
+          }
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .section-renderer-wrapper {
+          display: flex;
+          flex-direction: column;
+          flex: 1 1 0%;
+          min-height: 100%;
+        }
+        .section-renderer-wrapper > div:not([style*="display: none"]),
+        .section-renderer-wrapper > section {
+          flex: 1 1 0% !important;
+          display: flex !important;
+          flex-direction: column !important;
+          min-height: 100% !important;
+          width: 100% !important;
+          justify-content: center !important;
+          box-sizing: border-box !important;
+        }
+      `}</style>
+
       {/* ── View Toggle ── */}
       <div className="flex justify-center mb-6 flex-shrink-0 sticky top-0 z-50">
         <div className="bg-white p-1 rounded-xl shadow-md border border-gray-200 flex items-center gap-1">
@@ -294,49 +371,25 @@ export default function BuilderCanvas() {
               </div>
             </div>
 
-            {/* Right pane: Mobile viewport flow (including opening cover and inner sections) */}
+            {/* Right pane: Full-page snap scroll sections */}
             <div 
-              className="w-[40%] h-full overflow-y-auto relative no-scrollbar"
+              className="w-[40%] h-full relative no-scrollbar"
               style={{
+                ...snapContainerStyle,
                 backgroundColor: page.style.bg_color,
                 color: page.style.text_color,
                 fontFamily: `'${page.style.font_body}', sans-serif`,
               }}
             >
-              {visibleSections.map(section => {
-                const isSelected = section.id === selectedSectionId;
-                return (
-                  <div
-                    key={section.id}
-                    id={`section-${section.id}`}
-                    className={`relative cursor-pointer transition-all ${!section.visible ? 'opacity-30' : ''}`}
-                    onClick={() => selectSection(section.id)}
-                  >
-                    {/* Highlight overlay on selected */}
-                    {isSelected && (
-                      <div className="absolute inset-0 ring-2 ring-pink-400 ring-inset z-10 pointer-events-none" />
-                    )}
-                    {/* Selection label */}
-                    {isSelected && (
-                      <div className="absolute top-0 left-0 z-20 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg pointer-events-none">
-                        {section.label}
-                      </div>
-                    )}
-                    {/* Hidden badge */}
-                    {!section.visible && (
-                      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                        <span className="bg-white/90 text-gray-500 text-xs px-3 py-1 rounded-full shadow border">Tersembunyi</span>
-                      </div>
-                    )}
-                    <SectionRenderer section={section} style={style} />
-                  </div>
-                );
-              })}
-
-              {/* Bottom spacer */}
-              <div className="h-12 flex items-center justify-center">
-                <p className="text-[10px] text-gray-300">papunda.com</p>
-              </div>
+              {visibleSections.map(section => (
+                <SectionSnapWrapper
+                  key={section.id}
+                  section={section}
+                  style={style}
+                  selectedSectionId={selectedSectionId}
+                  selectSection={selectSection}
+                />
+              ))}
             </div>
 
             {/* Middle Vertical Divider Line */}
@@ -363,51 +416,27 @@ export default function BuilderCanvas() {
 
           {/* Mobile view fallback wrapper */}
           <div className="lg:hidden w-full">
-            {/* Phone-like frame */}
+            {/* Phone-like frame: snap container */}
             <div
-              className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8 flex-shrink-0 w-full"
+              className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8 flex-shrink-0 w-full no-scrollbar"
               style={{
+                ...snapContainerStyle,
                 maxWidth: `${page.style.page_width}px`,
-                minHeight: '800px',
+                height: '85dvh',
                 backgroundColor: page.style.bg_color,
                 color: page.style.text_color,
                 fontFamily: `'${page.style.font_body}', sans-serif`,
               }}
             >
-              {visibleSections.map(section => {
-                const isSelected = section.id === selectedSectionId;
-                return (
-                  <div
-                    key={section.id}
-                    id={`section-${section.id}`}
-                    className={`relative cursor-pointer transition-all ${!section.visible ? 'opacity-30' : ''}`}
-                    onClick={() => selectSection(section.id)}
-                  >
-                    {/* Highlight overlay on selected */}
-                    {isSelected && (
-                      <div className="absolute inset-0 ring-2 ring-pink-400 ring-inset z-10 pointer-events-none" />
-                    )}
-                    {/* Selection label */}
-                    {isSelected && (
-                      <div className="absolute top-0 left-0 z-20 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg pointer-events-none">
-                        {section.label}
-                      </div>
-                    )}
-                    {/* Hidden badge */}
-                    {!section.visible && (
-                      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                        <span className="bg-white/90 text-gray-500 text-xs px-3 py-1 rounded-full shadow border">Tersembunyi</span>
-                      </div>
-                    )}
-                    <SectionRenderer section={section} style={style} />
-                  </div>
-                );
-              })}
-
-              {/* Bottom spacer */}
-              <div className="h-12 flex items-center justify-center">
-                <p className="text-[10px] text-gray-300">papunda.com</p>
-              </div>
+              {visibleSections.map(section => (
+                <SectionSnapWrapper
+                  key={section.id}
+                  section={section}
+                  style={style}
+                  selectedSectionId={selectedSectionId}
+                  selectSection={selectSection}
+                />
+              ))}
             </div>
 
             {page.style.nav_enabled !== false && viewMode !== 'opening' && (
@@ -428,52 +457,28 @@ export default function BuilderCanvas() {
           </div>
         </>
       ) : (
-        /* Original Single column Viewport for when hasOpening is false or viewMode is not 'all' */
+        /* Single column snap viewport */
         <>
           <div
-            className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8 flex-shrink-0 w-full"
+            className="relative shadow-2xl rounded-3xl overflow-hidden mx-auto mb-8 flex-shrink-0 w-full no-scrollbar"
             style={{
+              ...snapContainerStyle,
               maxWidth: `${page.style.page_width}px`,
-              minHeight: '800px',
+              height: '85dvh',
               backgroundColor: page.style.bg_color,
               color: page.style.text_color,
               fontFamily: `'${page.style.font_body}', sans-serif`,
             }}
           >
-            {visibleSections.map(section => {
-              const isSelected = section.id === selectedSectionId;
-              return (
-                <div
-                  key={section.id}
-                  id={`section-${section.id}`}
-                  className={`relative cursor-pointer transition-all ${!section.visible ? 'opacity-30' : ''}`}
-                  onClick={() => selectSection(section.id)}
-                >
-                  {/* Highlight overlay on selected */}
-                  {isSelected && (
-                    <div className="absolute inset-0 ring-2 ring-pink-400 ring-inset z-10 pointer-events-none" />
-                  )}
-                  {/* Selection label */}
-                  {isSelected && (
-                    <div className="absolute top-0 left-0 z-20 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg pointer-events-none">
-                      {section.label}
-                    </div>
-                  )}
-                  {/* Hidden badge */}
-                  {!section.visible && (
-                    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                      <span className="bg-white/90 text-gray-500 text-xs px-3 py-1 rounded-full shadow border">Tersembunyi</span>
-                    </div>
-                  )}
-                  <SectionRenderer section={section} style={style} />
-                </div>
-              );
-            })}
-
-            {/* Bottom spacer */}
-            <div className="h-12 flex items-center justify-center">
-              <p className="text-[10px] text-gray-300">papunda.com</p>
-            </div>
+            {visibleSections.map(section => (
+              <SectionSnapWrapper
+                key={section.id}
+                section={section}
+                style={style}
+                selectedSectionId={selectedSectionId}
+                selectSection={selectSection}
+              />
+            ))}
           </div>
 
           {page.style.nav_enabled !== false && viewMode !== 'opening' && (

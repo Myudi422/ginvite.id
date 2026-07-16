@@ -75,12 +75,10 @@ function ScrollRevealSection({ children, id }: { children: React.ReactNode; id: 
       ([entry]) => {
         if (entry.isIntersecting) {
           el.classList.add('section-in-view');
-          observer.unobserve(el); // Trigger sekali saja — tidak reset saat scroll naik
+          observer.unobserve(el);
         }
       },
-      // threshold 0.08 = animasi mulai ketika 8% section sudah masuk viewport
-      // rootMargin -40px bottom = tidak trigger dari bawah layar terlalu dini
-      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.05, rootMargin: '0px 0px -20px 0px' }
     );
 
     observer.observe(el);
@@ -88,8 +86,21 @@ function ScrollRevealSection({ children, id }: { children: React.ReactNode; id: 
   }, []);
 
   return (
-    <div ref={ref} id={id} className="scroll-reveal-section">
-      {children}
+    <div
+      ref={ref}
+      id={id}
+      className="scroll-reveal-section"
+      style={{
+        scrollSnapAlign: 'start',
+        scrollSnapStop: 'always',
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div className="flex-1 flex flex-col section-renderer-wrapper">
+        {children}
+      </div>
     </div>
   );
 }
@@ -469,17 +480,63 @@ export default function BuilderViewer({ page }: Props) {
         `animation-play-state` hanya mengontrol KAPAN animasi berjalan, bukan menghapusnya.
       */}
       <style>{`
+        /* ── Scroll-reveal: pause animasi sampai section masuk viewport ── */
         .scroll-reveal-section .animate-item {
           animation-play-state: paused !important;
         }
         .scroll-reveal-section.section-in-view .animate-item {
           animation-play-state: running !important;
         }
+
+        /* ── Page-reveal: efek "buka lembaran" saat section masuk viewport ── */
+        @keyframes pageReveal {
+          from {
+            clip-path: inset(100% 0 0 0);
+            transform: translateY(8px);
+          }
+          to {
+            clip-path: inset(0% 0 0 0);
+            transform: translateY(0);
+          }
+        }
+
+        /* Setiap scroll-reveal-section mendapat animasi pageReveal saat in-view */
+        .scroll-reveal-section.section-in-view {
+          animation: pageReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          will-change: clip-path, transform;
+        }
+
+        /* Snap scroll container */
+        .builder-snap-container {
+          scroll-snap-type: y mandatory;
+          scroll-behavior: smooth;
+        }
+
+        /* Sembunyikan scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .section-renderer-wrapper {
+          display: flex;
+          flex-direction: column;
+          flex: 1 1 0%;
+          min-height: 100%;
+        }
+        .section-renderer-wrapper > div:not([style*="display: none"]),
+        .section-renderer-wrapper > section {
+          flex: 1 1 0% !important;
+          display: flex !important;
+          flex-direction: column !important;
+          min-height: 100% !important;
+          width: 100% !important;
+          justify-content: center !important;
+          box-sizing: border-box !important;
+        }
       `}</style>
 
       {/* ── Desktop Split Layout (Visible when opened / transition starts) ── */}
       {hasOpening && (isOpen || isExiting) && (
-        <div className="hidden lg:flex w-full h-screen overflow-hidden relative">
+        <div className="hidden lg:flex w-full h-screen overflow-hidden relative builder-snap-container">
           {/* Left Pane: Static Desktop Event Cover */}
           <div 
             className="w-[60%] h-full flex flex-col items-center justify-center text-center p-8 select-none border-r border-white/10 relative"
@@ -523,35 +580,13 @@ export default function BuilderViewer({ page }: Props) {
             </div>
           </div>
 
-          {/* Right Pane: Scrollable Inner Sections */}
-          <div className="w-[40%] h-full overflow-y-auto relative no-scrollbar flex flex-col">
-            <div className="flex-1 w-full mx-auto relative">
-              {innerSections.map(section => (
-                <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
-                  <SectionRenderer section={section} style={style} pageStatus={page.status} />
-                </ScrollRevealSection>
-              ))}
-
-              {/* Footer */}
-              <div className="py-8 text-center space-y-1">
-                <p className="text-[11px] text-gray-300">
-                  Dibuat dengan ❤️ oleh{' '}
-                  <a
-                    href="https://papunda.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline hover:opacity-70 transition-opacity"
-                  >
-                    papunda.com
-                  </a>
-                </p>
-                {page.status === 0 && (
-                  <p className="text-[10px] text-pink-400 font-semibold tracking-wider uppercase animate-pulse">
-                    — Versi Gratis / Percobaan —
-                  </p>
-                )}
-              </div>
-            </div>
+          {/* Right Pane: Scrollable Inner Sections - full-page snap */}
+          <div className="w-[40%] h-full overflow-y-auto relative no-scrollbar builder-snap-container">
+            {innerSections.map(section => (
+              <ScrollRevealSection key={section.id} id={`section-${section.id}`}>
+                <SectionRenderer section={section} style={style} pageStatus={page.status} />
+              </ScrollRevealSection>
+            ))}
           </div>
 
           {/* Divider line & Vertical Nav for Desktop View */}
@@ -584,11 +619,11 @@ export default function BuilderViewer({ page }: Props) {
       )}
 
       {/* ── Mobile Layout or Full Screen Cover Overlay ── */}
-      <div className={`${hasOpening && (isOpen || isExiting) ? 'lg:hidden' : ''} w-full flex-1 flex flex-col`}>
+      <div className={`${hasOpening && (isOpen || isExiting) ? 'lg:hidden' : ''} w-full flex-1 flex flex-col builder-snap-container`}>
         {/* Main Content (Inner sections) */}
         {showInner && (
           <div 
-            className="flex-1 w-full mx-auto relative overflow-y-auto no-scrollbar" 
+            className="flex-1 w-full mx-auto relative overflow-y-auto no-scrollbar builder-snap-container" 
             style={{ maxWidth: `${page.style.page_width || 700}px` }}
           >
             {innerSections.map(section => (
@@ -596,26 +631,6 @@ export default function BuilderViewer({ page }: Props) {
                 <SectionRenderer section={section} style={style} pageStatus={page.status} />
               </ScrollRevealSection>
             ))}
-
-            {/* Footer */}
-            <div className="py-8 text-center space-y-1">
-              <p className="text-[11px] text-gray-300">
-                Dibuat dengan ❤️ oleh{' '}
-                <a
-                  href="https://papunda.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline hover:opacity-70 transition-opacity"
-                >
-                  papunda.com
-                </a>
-              </p>
-              {page.status === 0 && (
-                <p className="text-[10px] text-pink-400 font-semibold tracking-wider uppercase animate-pulse">
-                  — Versi Gratis / Percobaan —
-                </p>
-              )}
-            </div>
           </div>
         )}
 
