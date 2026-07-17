@@ -315,7 +315,7 @@ export default function DresscodePreview({ props, style }: P) {
   };
 
   return (
-    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[50dvh] py-20 sm:py-28 px-6 flex flex-col justify-center" style={{ backgroundColor: parentBgClr }}>
+    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[50dvh] py-12 sm:py-28 px-4 sm:px-6 flex flex-col justify-center" style={{ backgroundColor: parentBgClr }}>
       {/* ── STYLE BLOCK INJECTION ── */}
       {styleBlock}
 
@@ -347,7 +347,7 @@ export default function DresscodePreview({ props, style }: P) {
       )}
 
       {/* ── Content ── */}
-      <div className="relative z-10 p-6 w-full flex flex-col justify-center">
+      <div className="relative z-10 p-4 sm:p-6 w-full flex flex-col justify-center">
         {renderLayout()}
       </div>
     </section>

@@ -347,13 +347,15 @@ export default function HeroPreview({ props, style }: PreviewProps) {
       {/* Content Container (Key changes on content, alignment, or anim triggers remount to preview transition instantly) */}
       <div 
         key={`${textAnim}-${textAnimDur}-${greeting}-${namePrimary}-${nameSecondary}-${alignV}-${alignH}`}
-        className={`relative flex flex-col gap-5 w-full z-10 ${
-          alignH === 'left' ? 'items-start text-left pl-12 pr-6' : alignH === 'right' ? 'items-end text-right pr-12 pl-6' : 'items-center text-center px-8'
+        className={`relative flex flex-col gap-4 sm:gap-5 w-full z-10 ${
+          alignH === 'left' ? 'items-start text-left pl-6 sm:pl-12 pr-4 sm:pr-6' : alignH === 'right' ? 'items-end text-right pr-6 sm:pr-12 pl-4 sm:pl-6' : 'items-center text-center px-4 sm:px-8'
         } ${textAnim !== 'none' ? `text-anim-${textAnim}` : ''}`}
       >
         <p 
-          className="tracking-[0.3em] text-white/70 uppercase font-semibold"
-          style={{ fontSize: `calc(${greetingSize}px * 1.25)` }}
+          className="tracking-[0.3em] text-white/70 uppercase font-semibold text-xs sm:text-sm"
+          style={{ 
+            fontSize: `clamp(${Math.max(10, Math.round(greetingSize * 0.85))}px, 3.5vw, ${Math.round(greetingSize * 1.25)}px)`
+          }}
         >
           {greeting}
         </p>
@@ -362,15 +364,17 @@ export default function HeroPreview({ props, style }: PreviewProps) {
           className="leading-tight text-white font-extrabold"
           style={{ 
             fontFamily: `'${style.font_heading || 'Playfair Display'}', serif`,
-            fontSize: `calc(${namesSize}px * 1.25)`
+            fontSize: `clamp(${Math.max(22, Math.round(namesSize * 0.75))}px, 8vw, ${Math.round(namesSize * 1.25)}px)`
           }}
         >
           {namePrimary}
           {nameSecondary && (
             <>
               <span 
-                className="block text-white/60 my-2 font-normal"
-                style={{ fontSize: `calc(${Math.round(namesSize * 0.65)}px * 1.2)` }}
+                className="block text-white/60 my-1 sm:my-2 font-normal animate-pulse"
+                style={{ 
+                  fontSize: `clamp(${Math.max(16, Math.round(namesSize * 0.5))}px, 5.5vw, ${Math.round(namesSize * 0.8)}px)`
+                }}
               >
                 &amp;
               </span>

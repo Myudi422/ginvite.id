@@ -393,7 +393,7 @@ export default function GalleryPreview({ props, style }: P) {
 
   return (
     <div
-      className="relative py-24 sm:py-32 px-6 overflow-hidden w-full transition-all duration-300 min-h-[100dvh] flex flex-col justify-center items-center"
+      className="relative py-14 sm:py-32 px-4 sm:px-6 overflow-hidden w-full transition-all duration-300 min-h-[100dvh] flex flex-col justify-center items-center"
       style={{
         backgroundColor: parentBgColor,
       }}
@@ -594,12 +594,12 @@ export default function GalleryPreview({ props, style }: P) {
             {layoutTemplate === 'grid' && (
               <div className="w-full">
                 {images.length <= 3 ? (
-                  <div className={`grid gap-8 ${images.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : images.length === 2 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto'}`}>
+                  <div className={`grid gap-4 sm:gap-8 ${images.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : images.length === 2 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto'}`}>
                     {renderGridQuoteCard()}
                     {images.map((img, i) => renderGridArtCard(img, i))}
                   </div>
                 ) : (
-                  <div className={`grid gap-8 ${cols === 2 ? 'grid-cols-2 max-w-3xl' : 'grid-cols-2 md:grid-cols-3'} mx-auto`}>
+                  <div className={`grid gap-4 sm:gap-8 ${cols === 2 ? 'grid-cols-2 max-w-3xl' : 'grid-cols-2 md:grid-cols-3'} mx-auto`}>
                     {images.map((img, i) => renderGridArtCard(img, i))}
                   </div>
                 )}
@@ -610,14 +610,14 @@ export default function GalleryPreview({ props, style }: P) {
             {layoutTemplate === 'masonry' && (
               <div className="w-full">
                 {images.length <= 3 ? (
-                  <div className={`grid gap-8 ${images.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : images.length === 2 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto'}`}>
+                  <div className={`grid gap-4 sm:gap-8 ${images.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : images.length === 2 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto'}`}>
                     {renderQuoteCard()}
                     {images.map((img, i) => renderPolaroidCard(img, i))}
                   </div>
                 ) : (
-                  <div className={`gap-8 ${cols === 2 ? 'columns-2 max-w-3xl' : 'columns-2 md:columns-3'} mx-auto`}>
+                  <div className={`gap-4 sm:gap-8 ${cols === 2 ? 'columns-2 max-w-3xl' : 'columns-2 md:columns-3'} mx-auto`}>
                     {images.map((img, i) => (
-                      <div key={i} className="break-inside-avoid mb-8">
+                      <div key={i} className="break-inside-avoid mb-4 sm:mb-8">
                         {renderPolaroidCard(img, i, 'aspect-auto')}
                       </div>
                     ))}
@@ -640,15 +640,15 @@ export default function GalleryPreview({ props, style }: P) {
                 
                 <div
                   ref={sliderRef}
-                  className="flex gap-8 overflow-x-auto scrollbar-none snap-x snap-mandatory py-6 px-4 scroll-smooth"
+                  className="flex gap-4 sm:gap-8 overflow-x-auto scrollbar-none snap-x snap-mandatory py-4 sm:py-6 px-2 sm:px-4 scroll-smooth"
                 >
                   {images.length <= 3 && (
-                    <div className="flex-shrink-0 w-72 sm:w-80 snap-center self-center">
+                    <div className="flex-shrink-0 w-60 sm:w-80 snap-center self-center">
                       {renderFilmQuoteCard()}
                     </div>
                   )}
                   {images.map((img, i) => (
-                    <div key={i} className="flex-shrink-0 w-72 sm:w-80 md:w-[340px] snap-center">
+                    <div key={i} className="flex-shrink-0 w-60 sm:w-80 md:w-[340px] snap-center">
                       {renderFilmstripCard(img, i)}
                     </div>
                   ))}
@@ -669,12 +669,12 @@ export default function GalleryPreview({ props, style }: P) {
             {layoutTemplate === 'grid_mosaic' && (
               <div className="w-full">
                 {images.length <= 3 ? (
-                  <div className={`grid gap-8 ${images.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : images.length === 2 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto'}`}>
+                  <div className={`grid gap-4 sm:gap-8 ${images.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : images.length === 2 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto'}`}>
                     {renderLookbookQuoteCard()}
                     {images.map((img, i) => renderLookbookCard(img, i))}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-3 gap-8 auto-rows-[200px] sm:auto-rows-[250px] md:auto-rows-[300px]">
+                  <div className="grid grid-cols-3 gap-4 sm:gap-8 auto-rows-[140px] sm:auto-rows-[250px] md:auto-rows-[300px]">
                     {images.map((img, i) => (
                       <div
                         key={i}

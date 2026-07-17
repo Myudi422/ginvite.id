@@ -594,18 +594,18 @@ export default function GiftPreview({ props, style }: P) {
       {renderGiftCategoryTabs()}
 
       {activeGiftTab === 'bank' && hasBanks && (
-        <div className="space-y-6">
-          <div className={`w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/40 transform hover:-translate-y-1 transition-transform duration-300 ${getAnimClass(2)}`}>
+        <div className="space-y-4 sm:space-y-6">
+          <div className={`w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl p-4 sm:p-8 border border-white/40 transform hover:-translate-y-1 transition-transform duration-300 ${getAnimClass(2)}`}>
             {renderBankDetails()}
           </div>
-          <div className={`w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-3xl shadow-md p-8 border border-white/20 ${getAnimClass(3)}`}>
+          <div className={`w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-3xl shadow-md p-4 sm:p-8 border border-white/20 ${getAnimClass(3)}`}>
             {renderConfirmationForm()}
           </div>
         </div>
       )}
 
       {activeGiftTab === 'address' && hasAddress && (
-        <div className={`w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-white/40 transform hover:-translate-y-1 transition-transform duration-300 ${getAnimClass(2)}`}>
+        <div className={`w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-3xl shadow-2xl p-4 sm:p-8 border border-white/40 transform hover:-translate-y-1 transition-transform duration-300 ${getAnimClass(2)}`}>
           {renderAddressDetails()}
         </div>
       )}
@@ -627,7 +627,7 @@ export default function GiftPreview({ props, style }: P) {
   };
 
   return (
-    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[60dvh] flex flex-col justify-center py-20 sm:py-28" style={{ backgroundColor: parentBgClr }}>
+    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[60dvh] flex flex-col justify-center py-12 sm:py-28" style={{ backgroundColor: parentBgClr }}>
       {/* ── STYLE BLOCK INJECTION ── */}
       {styleBlock}
 
@@ -659,7 +659,7 @@ export default function GiftPreview({ props, style }: P) {
       )}
 
       {/* ── Content ── */}
-      <div className="relative z-10 p-6 w-full flex flex-col justify-center">
+      <div className="relative z-10 p-4 sm:p-6 w-full flex flex-col justify-center">
         {renderLayout()}
       </div>
     </section>

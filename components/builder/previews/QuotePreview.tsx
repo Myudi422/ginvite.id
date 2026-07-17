@@ -189,7 +189,7 @@ export default function QuotePreview({ props, style }: P) {
   };
 
   const renderClassic = () => (
-    <div className="py-12 sm:py-16 px-8 flex flex-col items-center gap-6 text-center max-w-2xl mx-auto">
+    <div className="py-8 sm:py-16 px-4 sm:px-8 flex flex-col items-center gap-6 text-center max-w-2xl mx-auto">
       {quoteShape === 'default' ? (
         <span className={`text-7xl sm:text-8xl font-serif leading-none select-none ${getAnimClass(1)}`} style={{ color: props.custom_quote_color ? customQuoteColor : accent + '40' }}>“</span>
       ) : (
@@ -212,7 +212,7 @@ export default function QuotePreview({ props, style }: P) {
   );
 
   const renderCard = () => (
-    <div className={`max-w-xl sm:max-w-2xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-10 sm:p-14 space-y-6 text-center ${getAnimClass(1)}`}>
+    <div className={`max-w-xl sm:max-w-2xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-5 sm:p-14 space-y-6 text-center ${getAnimClass(1)}`}>
       {quoteShape === 'default' ? (
         <span className="text-6xl font-serif leading-none select-none block" style={{ color: props.custom_quote_color ? customQuoteColor : accent + '40' }}>“</span>
       ) : (
@@ -315,7 +315,7 @@ export default function QuotePreview({ props, style }: P) {
   };
 
   return (
-    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[40dvh] py-16 sm:py-24 flex items-center justify-center" style={{ backgroundColor: parentBgClr }}>
+    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[40dvh] py-10 sm:py-20 flex items-center justify-center" style={{ backgroundColor: parentBgClr }}>
       {/* ── STYLE BLOCK INJECTION ── */}
       {styleBlock}
 
@@ -347,7 +347,7 @@ export default function QuotePreview({ props, style }: P) {
       )}
 
       {/* ── Content ── */}
-      <div className="relative z-10 p-6 w-full flex flex-col justify-center">
+      <div className="relative z-10 p-4 sm:p-6 w-full flex flex-col justify-center">
         {renderLayout()}
       </div>
     </section>

@@ -217,7 +217,7 @@ export default function OurStoryPreview({ props, style }: P) {
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                 </div>
               )}
-              <div className="p-8 sm:p-10 space-y-3 text-left">
+              <div className="p-5 sm:p-10 space-y-3 text-left">
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full"
                     style={{ backgroundColor: accent + '1a', color: accent }}>
@@ -322,7 +322,7 @@ export default function OurStoryPreview({ props, style }: P) {
   };
 
   return (
-    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[60dvh] py-20 sm:py-28 px-6 flex flex-col justify-center" style={{ backgroundColor: parentBgClr }}>
+    <section className="relative mx-auto overflow-hidden transition-all duration-300 min-h-[60dvh] py-12 sm:py-28 px-4 sm:px-6 flex flex-col justify-center" style={{ backgroundColor: parentBgClr }}>
       {/* ── STYLE BLOCK INJECTION ── */}
       {styleBlock}
 

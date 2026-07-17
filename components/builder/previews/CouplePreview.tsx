@@ -149,7 +149,7 @@ export default function CouplePreview({ props, style }: P) {
   function Avatar({ person, label, isMinimalLayout = false }: { person: Record<string, string>; label?: string; isMinimalLayout?: boolean }) {
     return (
       <div 
-        className={`flex flex-col items-center text-center p-8 sm:p-10 rounded-3xl border transition-all duration-300 shadow-md hover:scale-[1.02] hover:shadow-lg w-full max-w-sm mx-auto backdrop-blur-sm ${
+        className={`flex flex-col items-center text-center p-5 sm:p-10 rounded-3xl border transition-all duration-300 shadow-md hover:scale-[1.02] hover:shadow-lg w-full max-w-sm mx-auto backdrop-blur-sm ${
           isMinimalLayout 
             ? 'border-gray-150/40 bg-transparent shadow-none hover:scale-100 hover:shadow-none p-4' 
             : ''
@@ -168,7 +168,7 @@ export default function CouplePreview({ props, style }: P) {
           </span>
         )}
         <div 
-          className="w-36 h-36 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 shadow-xl shrink-0 transition-transform duration-500 hover:rotate-2 mb-5"
+          className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 shadow-xl shrink-0 transition-transform duration-500 hover:rotate-2 mb-5"
           style={{ borderColor: accent + '44' }}
         >
           {person.photo ? (
@@ -273,7 +273,7 @@ export default function CouplePreview({ props, style }: P) {
   );
 
   const renderCard = () => (
-    <div className={`w-full max-w-3xl sm:max-w-4xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-8 md:p-14 ${getAnimClass(1)}`}>
+    <div className={`w-full max-w-3xl sm:max-w-4xl mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-4 sm:p-8 md:p-14 ${getAnimClass(1)}`}>
       {renderLayout(false)}
     </div>
   );
@@ -339,9 +339,9 @@ export default function CouplePreview({ props, style }: P) {
       )}
 
       {/* ── Content ── */}
-      <div className="relative z-10 py-20 sm:py-28 px-6 w-full min-h-[60dvh] flex flex-col justify-center">
+      <div className="relative z-10 py-12 sm:py-28 px-4 sm:px-6 w-full min-h-[60dvh] flex flex-col justify-center">
         {/* Decorative top header */}
-        <div className={`text-center space-y-2.5 mb-12 ${getAnimClass(1)}`}>
+        <div className={`text-center space-y-2.5 mb-6 sm:mb-12 ${getAnimClass(1)}`}>
           <span className="text-xs sm:text-sm font-extrabold uppercase tracking-widest block opacity-65" style={{ color: accent }}>
             Profil Pasangan
           </span>

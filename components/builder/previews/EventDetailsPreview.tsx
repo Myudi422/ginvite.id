@@ -139,15 +139,15 @@ export default function EventDetailsPreview({ props, style }: P) {
     switch (layoutTemplate) {
       case 'magazine_split':
         return (
-          <div className="flex flex-col md:flex-row gap-8 sm:gap-12 w-full justify-between items-stretch text-left py-2">
-            <div className={`flex flex-col justify-center md:w-1/3 text-center md:text-left border-b md:border-b-0 md:border-r pb-8 md:pb-0 md:pr-8 ${isCustomBg ? 'border-white/10' : 'border-gray-200'} ${getAnimClass(1)}`}>
+          <div className="flex flex-col md:flex-row gap-5 sm:gap-12 w-full justify-between items-stretch text-left py-2">
+            <div className={`flex flex-col justify-center md:w-1/3 text-center md:text-left border-b md:border-b-0 md:border-r pb-5 md:pb-0 md:pr-8 ${isCustomBg ? 'border-white/10' : 'border-gray-200'} ${getAnimClass(1)}`}>
               <span className="text-xs sm:text-sm uppercase tracking-widest text-pink-500 font-extrabold">Informasi Sesi</span>
               <h3 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mt-2 leading-snug ${isCustomBg ? 'text-white' : 'text-gray-800'}`} style={{ fontFamily: `'${style.font_heading}', serif` }}>Detail Agenda Acara</h3>
               <p className={`text-sm sm:text-base mt-3 ${isCustomBg ? 'text-white/60' : 'text-gray-400'}`}>Kami sangat menantikan kehadiran Anda untuk berbagi kebahagiaan bersama kami di setiap momen spesial ini.</p>
             </div>
-            <div className="flex flex-col gap-6 flex-1 w-full">
+            <div className="flex flex-col gap-4 sm:gap-6 flex-1 w-full">
               {events.map((ev, i) => (
-                <div key={ev.id || i} className={`w-full rounded-3xl border p-5 sm:p-7 space-y-4 transition-all ${getAnimClass(i + 2)}`} style={cardBgStyle}>
+                <div key={ev.id || i} className={`w-full rounded-3xl border p-4 sm:p-7 space-y-3 sm:space-y-4 transition-all ${getAnimClass(i + 2)}`} style={cardBgStyle}>
                   {renderCardContent(ev)}
                 </div>
               ))}
@@ -157,13 +157,13 @@ export default function EventDetailsPreview({ props, style }: P) {
 
       case 'timeline_minimal':
         return (
-          <div className="relative w-full pl-8 space-y-8 my-2">
+          <div className="relative w-full pl-6 sm:pl-8 space-y-6 sm:space-y-8 my-2">
             <div 
               className="absolute left-2 top-2 bottom-2 w-[1.5px] opacity-35" 
               style={{ backgroundColor: isCustomBg ? '#ffffff' : accent }}
             />
             {events.map((ev, i) => (
-              <div key={ev.id || i} className={`relative w-full rounded-3xl border p-5 sm:p-7 space-y-4 transition-all ${getAnimClass(i + 2)}`} style={cardBgStyle}>
+              <div key={ev.id || i} className={`relative w-full rounded-3xl border p-4 sm:p-7 space-y-3 sm:space-y-4 transition-all ${getAnimClass(i + 2)}`} style={cardBgStyle}>
                 <div 
                   className="absolute -left-[21.5px] top-[22px] w-2.5 h-2.5 rounded-full border bg-white flex items-center justify-center shadow-sm"
                   style={{ borderColor: accent }}
@@ -178,9 +178,9 @@ export default function EventDetailsPreview({ props, style }: P) {
 
       case 'compact_grid':
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
             {events.map((ev, i) => (
-              <div key={ev.id || i} className={`w-full rounded-3xl border p-5 sm:p-7 space-y-4 transition-all ${getAnimClass(i + 2)}`} style={cardBgStyle}>
+              <div key={ev.id || i} className={`w-full rounded-3xl border p-4 sm:p-7 space-y-3 sm:space-y-4 transition-all ${getAnimClass(i + 2)}`} style={cardBgStyle}>
                 {renderCardContent(ev)}
               </div>
             ))}
@@ -190,9 +190,9 @@ export default function EventDetailsPreview({ props, style }: P) {
       case 'classic_list':
       default:
         return (
-          <div className="flex flex-col gap-6 w-full">
+          <div className="flex flex-col gap-4 sm:gap-6 w-full">
             {events.map((ev, i) => (
-              <div key={ev.id || i} className={`w-full rounded-3xl border p-5 sm:p-7 space-y-4 transition-all ${getAnimClass(i + 2)}`} style={cardBgStyle}>
+              <div key={ev.id || i} className={`w-full rounded-3xl border p-4 sm:p-7 space-y-3 sm:space-y-4 transition-all ${getAnimClass(i + 2)}`} style={cardBgStyle}>
                 {renderCardContent(ev)}
               </div>
             ))}
@@ -203,7 +203,7 @@ export default function EventDetailsPreview({ props, style }: P) {
 
   return (
     <div
-      className="relative py-20 sm:py-28 px-6 flex flex-col items-center justify-center gap-10 sm:gap-14 overflow-hidden w-full transition-all duration-300 min-h-[60dvh]"
+      className="relative py-12 sm:py-28 px-4 sm:px-6 flex flex-col items-center justify-center gap-6 sm:gap-14 overflow-hidden w-full transition-all duration-300 min-h-[60dvh]"
       style={{ backgroundColor: parentBgColor }}
     >
       <style dangerouslySetInnerHTML={{__html: `

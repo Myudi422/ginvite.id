@@ -158,7 +158,7 @@ export default function MapsPreview({ props, style }: P) {
 
               // Detail info panel
               const infoPanel = (
-                <div className="w-full md:w-1/2 flex flex-col justify-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-white/30 rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 gap-5 relative overflow-hidden">
+                <div className="w-full md:w-1/2 flex flex-col justify-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-white/30 rounded-3xl p-4 sm:p-8 shadow-lg hover:shadow-xl transition-all duration-300 gap-5 relative overflow-hidden">
                   {/* Accent bar at the top */}
                   <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accent }} />
                   
@@ -301,7 +301,7 @@ export default function MapsPreview({ props, style }: P) {
             {locations.map((loc, idx) => (
               <div 
                 key={loc.id} 
-                className={`w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-8 flex flex-col items-center text-center gap-6 relative overflow-hidden hover:scale-[1.01] hover:shadow-2xl transition-all duration-300 ${getAnimClass(idx + 1)}`}
+                className={`w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-3xl border border-white/30 shadow-xl p-4 sm:p-8 flex flex-col items-center text-center gap-6 relative overflow-hidden hover:scale-[1.01] hover:shadow-2xl transition-all duration-300 ${getAnimClass(idx + 1)}`}
               >
                 {/* Visual Accent Corner tag */}
                 <div className="absolute top-0 right-0 py-1.5 px-4 rounded-bl-2xl text-[9px] font-extrabold uppercase tracking-wider text-white shadow-sm" style={{ backgroundColor: accent }}>
@@ -338,7 +338,7 @@ export default function MapsPreview({ props, style }: P) {
 
   return (
     <div
-      className="relative py-16 px-4 overflow-hidden w-full transition-all duration-300 min-h-[300px] flex items-center justify-center"
+      className="relative py-12 sm:py-20 px-4 overflow-hidden w-full transition-all duration-300 min-h-[300px] flex items-center justify-center"
       style={{
         backgroundColor: parentBgColor,
       }}

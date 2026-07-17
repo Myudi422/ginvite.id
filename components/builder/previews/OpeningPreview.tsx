@@ -399,15 +399,17 @@ export default function OpeningPreview({ props, style, onOpen, isExiting = false
             className={`font-extrabold text-white drop-shadow-md leading-tight ${getAnimClass(2)} ${customClass}`.trim()}
             style={{ 
               fontFamily: `'${style.font_heading || 'Playfair Display'}', serif`,
-              fontSize: `${namesSize}px`
+              fontSize: `clamp(${Math.max(22, Math.round(namesSize * 0.7))}px, 8vw, ${Math.round(namesSize * 1.25)}px)`
             }}
           >
             {namePrimary}
             {nameSecondary && (
               <>
                 <span 
-                  className="block text-white/80 my-1 font-normal"
-                  style={{ fontSize: `${Math.round(namesSize * 0.65)}px` }}
+                  className="block text-white/80 my-1 font-normal animate-pulse"
+                  style={{ 
+                    fontSize: `clamp(${Math.max(16, Math.round(namesSize * 0.55))}px, 5.5vw, ${Math.round(namesSize * 0.8)}px)`
+                  }}
                 >
                   &amp;
                 </span>
