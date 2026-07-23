@@ -46,6 +46,10 @@ export async function uploadImageToBackblaze(
 
   const res = await fetch(UPLOAD_URL, {
     method: 'POST',
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': '*/*',
+    },
     body: formData,
   });
   const text = await res.text();
@@ -72,7 +76,11 @@ export async function deleteImageFromBackblaze(imageUrl: string): Promise<void> 
   const body = new URLSearchParams({ imageUrl });
   const res = await fetch(DELETE_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': '*/*',
+    },
     body: body.toString(),
   });
   const text = await res.text();
