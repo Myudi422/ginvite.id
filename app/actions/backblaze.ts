@@ -40,17 +40,32 @@ export async function uploadImageToBackblaze(
     throw new Error('Server configuration error: UPLOAD_URL is missing.');
   }
 
-  // append user and id ke FormData
-  formData.append('user_id', String(user_id));
-  formData.append('id', String(id));
+  const file = formData.get('image') as File | null;
+  if (!file) {
+    throw new Error('File gambar tidak ditemukan');
+  }
+
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  const base64 = buffer.toString('base64');
+  const mimeType = file.type || 'image/jpeg';
+  const image_base64 = `data:${mimeType};base64,${base64}`;
+
+  const payload = {
+    user_id: user_id,
+    id: id,
+    filename: file.name,
+    image_base64: image_base64
+  };
 
   const res = await fetch(UPLOAD_URL, {
     method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       'Accept': '*/*',
     },
-    body: formData,
+    body: JSON.stringify(payload),
   });
   const text = await res.text();
   try {

@@ -73,29 +73,68 @@ function uploadToBackblaze($file, $userId, $id) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['image'])) {
-    $file   = $_FILES['image'];
-    $userId = isset($_POST['user_id']) ? intval($_POST['user_id']) : null;
-    $id     = isset($_POST['id'])      ? intval($_POST['id'])      : null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
 
-    if (!$userId || !$id) {
-        echo json_encode(['success'=>false,'message'=>'Missing user_id or id']);
-        exit;
+    $file = null;
+    $userId = null;
+    $id = null;
+    $tmpFile = null;
+
+    if (strpos($contentType, 'application/json') !== false) {
+        $content = trim(file_get_contents("php://input"));
+        $decoded = json_decode($content, true);
+
+        if (is_array($decoded) && isset($decoded['image_base64'])) {
+            $userId = isset($decoded['user_id']) ? intval($decoded['user_id']) : null;
+            $id     = isset($decoded['id'])      ? intval($decoded['id'])      : null;
+            $filename = isset($decoded['filename']) ? $decoded['filename'] : 'image.jpg';
+
+            $imgData = $decoded['image_base64'];
+            $imgData = preg_replace('#^data:image/\w+;base64,#i', '', $imgData);
+            $tmpFile = tempnam(sys_get_temp_dir(), 'b2_');
+            file_put_contents($tmpFile, base64_decode($imgData));
+
+            $file = [
+                'name' => $filename,
+                'tmp_name' => $tmpFile,
+                'size' => filesize($tmpFile),
+                'error' => 0
+            ];
+        }
+    } elseif (isset($_FILES['image'])) {
+        $file   = $_FILES['image'];
+        $userId = isset($_POST['user_id']) ? intval($_POST['user_id']) : null;
+        $id     = isset($_POST['id'])      ? intval($_POST['id'])      : null;
     }
 
-    $ok = validateFile($file);
-    if ($ok !== true) {
-        echo json_encode(['success'=>false,'message'=>$ok]);
-        exit;
-    }
+    if ($file) {
+        if (!$userId || !$id) {
+            echo json_encode(['success'=>false,'message'=>'Missing user_id or id']);
+            if ($tmpFile) unlink($tmpFile);
+            exit;
+        }
 
-    $url = uploadToBackblaze($file, $userId, $id);
-    if (strpos($url,'Error:')===0) {
-        echo json_encode(['success'=>false,'message'=>$url]);
-        exit;
-    }
+        $ok = validateFile($file);
+        if ($ok !== true) {
+            echo json_encode(['success'=>false,'message'=>$ok]);
+            if ($tmpFile) unlink($tmpFile);
+            exit;
+        }
 
-    echo json_encode(['success'=>true,'url'=>$url]);
+        $url = uploadToBackblaze($file, $userId, $id);
+        
+        if ($tmpFile) unlink($tmpFile); // Clean up temp file
+
+        if (strpos($url,'Error:')===0) {
+            echo json_encode(['success'=>false,'message'=>$url]);
+            exit;
+        }
+
+        echo json_encode(['success'=>true,'url'=>$url]);
+    } else {
+        echo json_encode(['success'=>false,'message'=>'Invalid request or missing image.']);
+    }
 } else {
     echo json_encode(['success'=>false,'message'=>'Invalid request.']);
 }
