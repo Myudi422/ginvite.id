@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import B2 from 'backblaze-b2';
 
 interface UploadResult {
   success: boolean;
@@ -24,89 +25,175 @@ interface SavePayload {
   mapsLink: string;
 }
 
-// Endpoints diambil dari variabel lingkungan
-const UPLOAD_URL = process.env.UPLOAD_URL;
-const DELETE_URL = process.env.DELETE_URL;
-const SAVE_URL = process.env.SAVE_CONTENT_URL; // Menggunakan kembali SAVE_CONTENT_URL yang sudah ada
+const B2_APP_KEY_ID = process.env.B2_APPLICATION_KEY_ID || '0057ba6d7a5725c0000000002';
+const B2_APP_KEY = process.env.B2_APPLICATION_KEY || 'K005XvUqydtIZQvuNBYCM/UDhXfrWLQ';
+const B2_BUCKET_NAME = process.env.B2_BUCKET_NAME || 'ccgnimex';
+const B2_BUCKET_ID_ENV = process.env.B2_BUCKET_ID || '775beaa6dd772a459742051c';
+const B2_CUSTOM_DOMAIN = process.env.B2_CUSTOM_DOMAIN || 'https://file.legalpilar.id/file/ccgnimex';
+const SAVE_URL = process.env.SAVE_CONTENT_URL;
+
+let cachedBucketId: string | null = B2_BUCKET_ID_ENV || null;
+
+async function getB2Client() {
+  const b2 = new B2({
+    applicationKeyId: B2_APP_KEY_ID,
+    applicationKey: B2_APP_KEY,
+  });
+  await b2.authorize();
+  return b2;
+}
 
 export async function uploadImageToBackblaze(
   formData: FormData,
   user_id: number,
   id: number
 ): Promise<string> {
-  // Pastikan UPLOAD_URL telah diatur
-  if (!UPLOAD_URL) {
-    console.error('UPLOAD_URL is not defined in environment variables.');
-    throw new Error('Server configuration error: UPLOAD_URL is missing.');
-  }
-
-  const file = formData.get('image') as File | null;
+  const file = (formData.get('image') as File) || (formData.get('file') as File);
   if (!file) {
     throw new Error('File gambar tidak ditemukan');
   }
 
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const base64 = buffer.toString('base64');
-  const mimeType = file.type || 'image/jpeg';
-  const image_base64 = `data:${mimeType};base64,${base64}`;
-
-  const payload = {
-    user_id: user_id,
-    id: id,
-    filename: file.name,
-    image_base64: image_base64
-  };
-
-  const res = await fetch(UPLOAD_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept': '*/*',
-    },
-    body: JSON.stringify(payload),
-  });
-  const text = await res.text();
   try {
-    const json: UploadResult = JSON.parse(text);
-    if (!json.success || !json.url) {
-      throw new Error(json.message || 'Gagal mengunggah gambar');
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const orig = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const sanitized = orig.replace(/[^A-Za-z0-9_\-]/g, '');
+    const timestamp = Date.now();
+    const fileName = `papunda/gallery/${user_id}/${sanitized}_${id}_${timestamp}.${ext}`;
+
+    const b2 = await getB2Client();
+
+    if (!cachedBucketId) {
+      const bucketsRes = await b2.getBucket({ bucketName: B2_BUCKET_NAME });
+      if (bucketsRes.data && bucketsRes.data.buckets && bucketsRes.data.buckets.length > 0) {
+        cachedBucketId = bucketsRes.data.buckets[0].bucketId;
+      } else {
+        throw new Error('Bucket Backblaze tidak ditemukan');
+      }
     }
-    return json.url;
-  } catch (err) {
-    console.error("Backblaze upload returned non-JSON:", text.substring(0, 500));
-    throw new Error('Server merespons dengan format tidak valid (HTML/Error).');
+
+    const uploadUrlRes = await b2.getUploadUrl({ bucketId: cachedBucketId! });
+    const uploadUrl = uploadUrlRes.data.uploadUrl;
+    const uploadAuthToken = uploadUrlRes.data.authorizationToken;
+
+    const mimeType = file.type || 'image/jpeg';
+
+    const uploadRes = await b2.uploadFile({
+      uploadUrl,
+      uploadAuthToken,
+      fileName,
+      data: buffer,
+      mime: mimeType,
+    });
+
+    if (!uploadRes.data || !uploadRes.data.fileName) {
+      throw new Error('Gagal mengunggah gambar ke Backblaze');
+    }
+
+    const fileUrl = `${B2_CUSTOM_DOMAIN}/${uploadRes.data.fileName}`;
+    return fileUrl;
+  } catch (err: any) {
+    console.error('Direct Backblaze upload failed, attempting fallback endpoint:', err);
+
+    // Fallback: If direct B2 fails for any reason, try HTTP endpoint if defined
+    const UPLOAD_URL = process.env.UPLOAD_URL;
+    if (UPLOAD_URL) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64 = buffer.toString('base64');
+        const mimeType = file.type || 'image/jpeg';
+        const image_base64 = `data:${mimeType};base64,${base64}`;
+
+        const payload = {
+          user_id: user_id,
+          id: id,
+          filename: file.name,
+          image_base64: image_base64,
+        };
+
+        const res = await fetch(UPLOAD_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'Mozilla/5.0',
+            'Accept': '*/*',
+          },
+          body: JSON.stringify(payload),
+        });
+        const text = await res.text();
+        const json: UploadResult = JSON.parse(text);
+        if (json.success && json.url) {
+          return json.url;
+        }
+      } catch (fallbackErr) {
+        console.error('Fallback UPLOAD_URL also failed:', fallbackErr);
+      }
+    }
+
+    throw new Error(err.message || 'Gagal mengunggah gambar.');
   }
-  return json.url;
 }
 
 export async function deleteImageFromBackblaze(imageUrl: string): Promise<void> {
-  // Pastikan DELETE_URL telah diatur
-  if (!DELETE_URL) {
-    console.error('DELETE_URL is not defined in environment variables.');
-    throw new Error('Server configuration error: DELETE_URL is missing.');
+  if (!imageUrl) return;
+
+  try {
+    const b2 = await getB2Client();
+
+    if (!cachedBucketId) {
+      const bucketsRes = await b2.getBucket({ bucketName: B2_BUCKET_NAME });
+      if (bucketsRes.data && bucketsRes.data.buckets && bucketsRes.data.buckets.length > 0) {
+        cachedBucketId = bucketsRes.data.buckets[0].bucketId;
+      }
+    }
+
+    let fileKey = imageUrl;
+    if (fileKey.includes('/file/ccgnimex/')) {
+      fileKey = fileKey.split('/file/ccgnimex/')[1];
+    } else if (fileKey.includes('backblazeb2.com/file/ccgnimex/')) {
+      fileKey = fileKey.split('backblazeb2.com/file/ccgnimex/')[1];
+    } else {
+      const match = fileKey.match(/(papunda\/.*|admin_uploads\/.*|background\/.*)$/);
+      if (match) {
+        fileKey = match[1];
+      }
+    }
+
+    if (cachedBucketId && fileKey) {
+      const list = await b2.listFileNames({
+        bucketId: cachedBucketId,
+        prefix: fileKey,
+        maxFileCount: 1,
+      });
+
+      if (list.data && list.data.files && list.data.files.length > 0) {
+        const fileId = list.data.files[0].fileId;
+        await b2.deleteFileVersion({ fileId, fileName: fileKey });
+        return;
+      }
+    }
+  } catch (err: any) {
+    console.error('Direct Backblaze delete failed:', err);
   }
 
-  const body = new URLSearchParams({ imageUrl });
-  const res = await fetch(DELETE_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept': '*/*',
-    },
-    body: body.toString(),
-  });
-  const text = await res.text();
-  try {
-    const json: DeleteResult = JSON.parse(text);
-    if (!json.success) {
-      throw new Error(json.message || 'Gagal menghapus gambar');
+  // Fallback to DELETE_URL if configured
+  const DELETE_URL = process.env.DELETE_URL;
+  if (DELETE_URL) {
+    try {
+      const body = new URLSearchParams({ imageUrl });
+      await fetch(DELETE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body.toString(),
+      });
+    } catch (e) {
+      console.error('Fallback DELETE_URL failed:', e);
     }
-  } catch (err) {
-    console.error("Backblaze delete returned non-JSON:", text.substring(0, 500));
-    throw new Error('Server merespons dengan format tidak valid (HTML/Error).');
   }
 }
 
@@ -129,3 +216,4 @@ export async function saveGalleryContent(payload: SavePayload) {
   revalidatePath(`/undang/${payload.user_id}/${encodeURIComponent(payload.title)}`);
   return json;
 }
+
