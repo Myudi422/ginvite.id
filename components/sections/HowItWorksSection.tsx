@@ -148,7 +148,7 @@ export default function HowItWorksSection() {
             {/* Bottom Status Banner */}
             <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl p-3 flex items-center justify-between shadow-md">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-white animate-pulse" />
+                <Clock className="w-4 h-4 text-white" />
                 <span className="text-xs font-bold">Total Waktu: Hanya ~5 Menit</span>
               </div>
               <span className="text-[10px] font-bold bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-xs">Sangat Cepat</span>

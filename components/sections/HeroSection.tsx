@@ -85,42 +85,30 @@ function InvitationMockup() {
         </div>
       </motion.div>
 
-      {/* Floating badges */}
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-4 -left-4 bg-white border border-emerald-200 rounded-2xl shadow-lg px-3 py-2 flex items-center gap-2"
-      >
-        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+      {/* Static clean badges (hidden on small mobile to prevent text overlap) */}
+      <div className="hidden sm:flex absolute -top-3 -left-3 bg-white border border-emerald-200 rounded-2xl shadow-md px-3 py-1.5 items-center gap-2">
+        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
         <div>
           <div className="text-[10px] font-bold text-slate-700">Tamu Konfirmasi</div>
           <div className="text-[10px] text-emerald-600 font-semibold">+128 hadir</div>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-        className="absolute -bottom-4 -right-4 bg-white border border-rose-200 rounded-2xl shadow-lg px-3 py-2 flex items-center gap-2"
-      >
-        <Send className="w-4 h-4 text-rose-500" />
+      <div className="hidden sm:flex absolute -bottom-3 -right-3 bg-white border border-rose-200 rounded-2xl shadow-md px-3 py-1.5 items-center gap-2">
+        <Send className="w-3.5 h-3.5 text-rose-500" />
         <div>
           <div className="text-[10px] font-bold text-slate-700">Dikirim via WA</div>
           <div className="text-[10px] text-rose-500 font-semibold">ke 200+ tamu</div>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        animate={{ y: [0, -5, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute top-1/2 -right-8 bg-white border border-amber-200 rounded-2xl shadow-lg px-3 py-2 flex items-center gap-2"
-      >
-        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+      <div className="hidden md:flex absolute top-1/2 -right-6 bg-white border border-amber-200 rounded-2xl shadow-md px-3 py-1.5 items-center gap-2">
+        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
         <div>
           <div className="text-[10px] font-bold text-slate-700">Rating 5.0</div>
           <div className="text-[10px] text-amber-600 font-semibold">100+ ulasan</div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

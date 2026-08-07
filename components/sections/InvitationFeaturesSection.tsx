@@ -165,27 +165,19 @@ export default function InvitationFeaturesSection() {
               </div>
             </div>
 
-            {/* Floating Badge: Total Penerima 250+ */}
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-4 left-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-2xl p-3 shadow-lg shadow-rose-200 border border-rose-200 z-20 text-center"
-            >
-              <p className="text-[10px] font-semibold text-rose-100">Total Penerima</p>
-              <p className="text-lg font-extrabold text-white leading-none mt-0.5">250+</p>
-            </motion.div>
+            {/* Badge: Total Penerima 250+ */}
+            <div className="absolute bottom-4 left-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-2xl p-2.5 sm:p-3 shadow-md border border-rose-200 z-20 text-center">
+              <p className="text-[9px] sm:text-[10px] font-semibold text-rose-100">Total Penerima</p>
+              <p className="text-base sm:text-lg font-extrabold text-white leading-none mt-0.5">250+</p>
+            </div>
 
-            {/* Floating Green Broadcast Button */}
-            <motion.div
-              animate={{ scale: [1, 1.02, 1] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute bottom-4 right-4 z-20"
-            >
-              <button className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs px-4 py-2 rounded-2xl shadow-md transition-all">
+            {/* Green Broadcast Button */}
+            <div className="absolute bottom-4 right-4 z-20">
+              <button className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-[11px] sm:text-xs px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl shadow-md transition-all">
                 <Send className="w-3.5 h-3.5" />
                 Broadcast
               </button>
-            </motion.div>
+            </div>
 
           </div>
         </motion.div>

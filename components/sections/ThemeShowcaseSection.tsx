@@ -146,7 +146,7 @@ export default function ThemeShowcaseSection() {
             {/* Bottom Banner */}
             <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-2xl p-3.5 flex items-center justify-between shadow-md">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-white animate-pulse" />
+                <Sparkles className="w-4 h-4 text-white" />
                 <span className="text-xs font-bold">100+ Tema Premium Tersedia</span>
               </div>
               <span className="text-[10px] font-bold bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-xs">Katalog Complete</span>
