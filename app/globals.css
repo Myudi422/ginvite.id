@@ -19,10 +19,79 @@
   .gradient-pink {
     background: linear-gradient(135deg, #fdf2f8, #fce7f3, #fff0f3);
   }
+  /* Centered Frame Grid Utilities (ala Qondangan) */
+  .page-grid-container {
+    width: 100%;
+    max-width: 72rem; /* 1152px */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  @media (min-width: 640px) {
+    .page-grid-container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  .section-frame-card {
+    background-color: #ffffff;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(244, 114, 182, 0.15);
+    box-shadow: 0 10px 40px -15px rgba(244, 63, 94, 0.07);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: calc(100svh - 5.5rem);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+  }
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  background-color: #fffafb;
+  color: #0f172a;
+}
+
+.font-serif {
+  font-family: var(--font-serif), serif;
+}
+
+/* Sticky Card Stacking Layout (Light Mode Modern) */
+.stacked-card-container {
+  position: relative;
+  width: 100%;
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.stacked-card {
+  position: sticky;
+  top: 5.5rem;
+  width: 100%;
+  height: calc(100vh - 7rem);
+  height: calc(100svh - 7rem);
+  max-height: calc(100vh - 7rem);
+  max-height: calc(100svh - 7rem);
+  border-radius: 1.75rem;
+  background: #ffffff;
+  border: 1px solid rgba(244, 114, 182, 0.18);
+  box-shadow: 0 15px 40px -15px rgba(244, 63, 94, 0.1);
+  transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 3.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 

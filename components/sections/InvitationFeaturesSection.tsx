@@ -1,140 +1,196 @@
-"use client";
-
 import { motion } from "framer-motion";
-
-const features = [
-  {
-    icon: "👥",
-    title: "Nama Tamu Otomatis",
-    desc: "Setiap tamu menerima undangan personal dengan namanya sendiri. Kirim ke ribuan tamu tanpa ketik manual satu per satu.",
-    color: "from-rose-400 to-pink-500",
-    bg: "bg-rose-50",
-    border: "border-rose-100 hover:border-rose-300",
-  },
-  {
-    icon: "✅",
-    title: "RSVP Online",
-    desc: "Tamu konfirmasi kehadiran langsung dari undangan. Data kehadiran terkumpul otomatis di dashboard kamu.",
-    color: "from-pink-400 to-fuchsia-500",
-    bg: "bg-pink-50",
-    border: "border-pink-100 hover:border-pink-300",
-  },
-  {
-    icon: "🎨",
-    title: "100+ Tema Premium",
-    desc: "Pilih dari ratusan desain elegan untuk pernikahan, khitanan, ulang tahun, dan acara lainnya. Bisa dikustomisasi penuh.",
-    color: "from-fuchsia-400 to-violet-500",
-    bg: "bg-fuchsia-50",
-    border: "border-fuchsia-100 hover:border-fuchsia-300",
-  },
-  {
-    icon: "📲",
-    title: "Kirim via WhatsApp",
-    desc: "Sebar undangan ke semua tamu langsung dari WhatsApp. Satu klik, ribuan undangan terkirim dalam hitungan detik.",
-    color: "from-emerald-400 to-green-500",
-    bg: "bg-emerald-50",
-    border: "border-emerald-100 hover:border-emerald-300",
-  },
-  {
-    icon: "🎵",
-    title: "Musik Latar Bebas",
-    desc: "Hidupkan suasana undangan dengan ratusan pilihan musik. Bisa upload lagu favorit sendiri dari SoundCloud.",
-    color: "from-amber-400 to-orange-500",
-    bg: "bg-amber-50",
-    border: "border-amber-100 hover:border-amber-300",
-  },
-  {
-    icon: "🗺️",
-    title: "Peta Lokasi & Countdown",
-    desc: "Sertakan Google Maps otomatis agar tamu mudah menemukan venue. Lengkap dengan hitung mundur hari pernikahan.",
-    color: "from-sky-400 to-blue-500",
-    bg: "bg-sky-50",
-    border: "border-sky-100 hover:border-sky-300",
-  },
-];
-
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.1 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
+import { Send, CheckCircle2, Bell, Users, Sparkles, ArrowRight } from "lucide-react";
 
 export default function InvitationFeaturesSection() {
   return (
-    <section className="relative py-20 md:py-28 px-4 bg-white overflow-hidden">
-      <div className="absolute top-0 right-0 w-80 h-80 bg-pink-50 rounded-full blur-3xl opacity-80 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-80 pointer-events-none" />
+    <div className="w-full h-full p-4 sm:p-6 md:p-8 bg-white text-slate-900 rounded-[1.75rem] overflow-hidden relative border border-rose-100 flex flex-col justify-center">
+      
+      {/* Background watermark 01 */}
+      <div className="absolute top-2 left-6 sm:left-10 text-[130px] sm:text-[180px] font-black text-rose-500/5 select-none pointer-events-none leading-none">
+        01
+      </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
 
-        {/* Header */}
+        {/* ── LEFT COLUMN: Text Copy ── */}
+        <div className="lg:col-span-6 space-y-4 sm:space-y-5">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span className="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-200/80 text-rose-600 text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full">
+              <Sparkles className="w-3.5 h-3.5 text-rose-500" />
+              FEATURE 01
+            </span>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-slate-900 leading-[1.18] tracking-tight"
+          >
+            Kirim Undangan ke
+            <br />
+            Semua Tamu Sekali Klik
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-xs sm:text-sm md:text-base text-slate-500 leading-relaxed font-light"
+          >
+            Dengan Papunda, kamu bisa menyebarkan undangan digital ke seluruh tamu hanya dalam satu kali kirim.
+            Terintegrasi langsung dengan WhatsApp untuk proses yang cepat, rapi, dan otomatis.
+          </motion.p>
+
+          {/* Quick bullet highlights */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-2 gap-2.5 pt-1"
+          >
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              Nama Tamu Auto-Personal
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              Tanpa Batas Kontak
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              100% Anti Spam
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              Laporan Status Terkirim
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="pt-2"
+          >
+            <a
+              href="/admin"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-full shadow-md shadow-rose-200 transition-all"
+            >
+              Coba Sebar Undangan Sekarang
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </motion.div>
+        </div>
+
+        {/* ── RIGHT COLUMN: Light UI Mockup Frame ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-14"
+          className="lg:col-span-6 relative"
         >
-          <span className="inline-flex items-center gap-2 bg-pink-50 text-pink-600 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 border border-pink-200">
-            ✨ Fitur Unggulan
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-slate-800 mb-4 leading-tight">
-            Semua yang Kamu Butuhkan{" "}
-            <span className="bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">
-              Ada di Sini
-            </span>
-          </h2>
-          <p className="text-base md:text-lg text-slate-500 leading-relaxed">
-            Fitur lengkap untuk membuat undangan yang tidak hanya cantik, tapi juga fungsional dan mudah dikelola.
-          </p>
-        </motion.div>
+          {/* Main Frame Wrapper */}
+          <div className="relative rounded-3xl bg-slate-50/80 border border-slate-200/90 p-5 sm:p-6 shadow-xl shadow-rose-100/50 overflow-hidden">
+            
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-rose-200/30 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Features grid */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-        >
-          {features.map((f) => (
+            {/* Inner Dashboard Header */}
+            <div className="flex items-center justify-between border-b border-slate-200/80 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-rose-400" />
+                <div className="w-3 h-3 rounded-full bg-amber-400" />
+                <div className="w-3 h-3 rounded-full bg-emerald-400" />
+                <span className="text-xs font-bold text-slate-600 ml-2 tracking-wide">Broadcast Undangan</span>
+              </div>
+              <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                100% Terkirim
+              </span>
+            </div>
+
+            {/* Guest list item placeholders */}
+            <div className="space-y-3 relative z-10">
+              
+              {/* Row item 1 */}
+              <div className="flex items-center gap-3 bg-white border border-slate-200/60 rounded-2xl p-3 shadow-2xs">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <div className="w-28 h-2.5 bg-slate-200 rounded-full" />
+                  <div className="w-20 h-2 bg-slate-100 rounded-full" />
+                </div>
+                <span className="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-md">Terkirim</span>
+              </div>
+
+              {/* Row item 2 (Active highlighted card matching screenshot) */}
+              <div className="relative bg-white border-2 border-dashed border-rose-300 rounded-2xl p-3.5 shadow-md transform translate-x-1">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center flex-shrink-0">
+                    <Bell className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xs font-bold text-slate-800 mb-0.5">Yth. Rian & Rita</h4>
+                    <p className="text-[11px] text-slate-500 leading-snug line-clamp-1">
+                      Kami turut mengundang Bapak/Ibu dalam acara...
+                    </p>
+                    <div className="flex gap-1.5 mt-2">
+                      <span className="text-[9px] font-bold bg-sky-50 text-sky-600 border border-sky-100 px-2 py-0.5 rounded">Dibaca</span>
+                      <span className="text-[9px] font-bold bg-rose-50 text-rose-600 border border-rose-100 px-2 py-0.5 rounded">RSVP Hadir</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row item 3 */}
+              <div className="flex items-center gap-3 bg-white border border-slate-200/60 rounded-2xl p-3 shadow-2xs">
+                <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <div className="w-32 h-2.5 bg-slate-200 rounded-full" />
+                  <div className="w-16 h-2 bg-slate-100 rounded-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Badge: Total Penerima 250+ */}
             <motion.div
-              key={f.title}
-              variants={item}
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className={`group bg-white border-2 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-pink-100 transition-all duration-300 ${f.border}`}
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-4 left-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-2xl p-3 shadow-lg shadow-rose-200 border border-rose-200 z-20 text-center"
             >
-              <div className={`w-12 h-12 rounded-2xl ${f.bg} flex items-center justify-center text-2xl mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300`}>
-                {f.icon}
-              </div>
-              <h3 className="font-bold text-slate-800 text-base mb-2 leading-snug">{f.title}</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
-              <div className="mt-4">
-                <div className={`h-0.5 bg-gradient-to-r ${f.color} rounded-full w-8 group-hover:w-full transition-all duration-500`} />
-              </div>
+              <p className="text-[10px] font-semibold text-rose-100">Total Penerima</p>
+              <p className="text-lg font-extrabold text-white leading-none mt-0.5">250+</p>
             </motion.div>
-          ))}
+
+            {/* Floating Green Broadcast Button */}
+            <motion.div
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-4 right-4 z-20"
+            >
+              <button className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs px-4 py-2 rounded-2xl shadow-md transition-all">
+                <Send className="w-3.5 h-3.5" />
+                Broadcast
+              </button>
+            </motion.div>
+
+          </div>
         </motion.div>
 
-        {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="text-center mt-12"
-        >
-          <a
-            href="/admin"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold px-9 py-4 rounded-full shadow-lg shadow-pink-200 hover:shadow-pink-300 hover:-translate-y-0.5 transition-all duration-300 text-base"
-          >
-            💌 Coba Gratis — Tanpa Kartu Kredit
-          </a>
-        </motion.div>
       </div>
-    </section>
+    </div>
   );
 }

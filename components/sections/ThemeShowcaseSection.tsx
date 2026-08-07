@@ -1,162 +1,161 @@
-"use client";
-
 import { motion } from "framer-motion";
 import Link from "next/link";
-
-const themes = [
-  {
-    name: "Floral Elegance",
-    category: "💒 Pernikahan",
-    color: "from-rose-300 to-pink-400",
-    accent: "bg-rose-50",
-    tags: ["Elegan", "Romantis"],
-    preview: "🌸",
-  },
-  {
-    name: "Sakura Dreams",
-    category: "💒 Pernikahan",
-    color: "from-pink-300 to-fuchsia-400",
-    accent: "bg-pink-50",
-    tags: ["Modern", "Minimalis"],
-    preview: "🌺",
-  },
-  {
-    name: "Royal Kids",
-    category: "🎂 Ulang Tahun",
-    color: "from-amber-300 to-orange-400",
-    accent: "bg-amber-50",
-    tags: ["Ceria", "Colorful"],
-    preview: "🎉",
-  },
-  {
-    name: "Islamic Gold",
-    category: "✂️ Khitanan",
-    color: "from-emerald-300 to-teal-400",
-    accent: "bg-emerald-50",
-    tags: ["Islami", "Premium"],
-    preview: "✨",
-  },
-  {
-    name: "Vintage Romance",
-    category: "💒 Pernikahan",
-    color: "from-violet-300 to-purple-400",
-    accent: "bg-violet-50",
-    tags: ["Vintage", "Classy"],
-    preview: "💜",
-  },
-  {
-    name: "Garden Party",
-    category: "🌿 Aqiqah",
-    color: "from-green-300 to-emerald-400",
-    accent: "bg-green-50",
-    tags: ["Natural", "Segar"],
-    preview: "🌿",
-  },
-];
-
-function ThemeCard({ theme, index }: { theme: typeof themes[0]; index: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.08, duration: 0.5 }}
-      whileHover={{ y: -6, transition: { duration: 0.2 } }}
-      className="group relative bg-white rounded-2xl border border-pink-100 shadow-sm hover:shadow-xl hover:shadow-pink-100 overflow-hidden transition-all duration-300"
-    >
-      {/* Preview area */}
-      <div className={`h-40 bg-gradient-to-br ${theme.color} flex items-center justify-center relative overflow-hidden`}>
-        <div className="absolute inset-0 bg-white/5" />
-        <div className="text-6xl">{theme.preview}</div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-          <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 bg-white text-slate-800 font-bold text-xs px-4 py-2 rounded-full shadow-lg">
-            👁 Preview Tema
-          </span>
-        </div>
-      </div>
-
-      {/* Info */}
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="font-bold text-slate-800 text-sm">{theme.name}</h3>
-        </div>
-        <span className="text-xs text-slate-500 font-medium">{theme.category}</span>
-        <div className="flex gap-1.5 mt-2">
-          {theme.tags.map((tag) => (
-            <span key={tag} className="text-[10px] bg-pink-50 text-pink-600 border border-pink-200 px-2 py-0.5 rounded-full font-semibold">
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Action */}
-        <Link
-          href="/katalog"
-          className="mt-3 w-full flex items-center justify-center gap-1.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-xs py-2.5 rounded-xl transition-all duration-200"
-        >
-          Gunakan Tema Ini
-        </Link>
-      </div>
-    </motion.div>
-  );
-}
+import { Palette, CheckCircle2, LayoutGrid, ArrowRight, Sparkles, Music, Smartphone, Edit3 } from "lucide-react";
 
 export default function ThemeShowcaseSection() {
   return (
-    <section className="relative py-20 md:py-28 px-4 bg-gradient-to-b from-pink-50/50 via-white to-rose-50/30 overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-r from-pink-100/50 to-rose-100/50 rounded-full blur-3xl pointer-events-none" />
+    <div className="w-full h-full p-6 sm:p-10 md:p-12 bg-white text-slate-900 rounded-[2.25rem] overflow-hidden relative border border-rose-100 flex flex-col justify-center">
+      
+      {/* Background watermark 02 */}
+      <div className="absolute top-2 left-6 sm:left-10 text-[130px] sm:text-[180px] font-black text-rose-500/5 select-none pointer-events-none leading-none">
+        02
+      </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center max-w-2xl mx-auto mb-14"
-        >
-          <span className="inline-flex items-center gap-2 bg-pink-50 text-pink-600 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 border border-pink-200">
-            🎨 Pilihan Tema
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-slate-800 mb-4 leading-tight">
-            Pilih Tema yang{" "}
-            <span className="bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">
-              Paling Cocok
+        {/* ── LEFT COLUMN: Information Copy ── */}
+        <div className="lg:col-span-6 space-y-4 sm:space-y-5">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span className="inline-flex items-center gap-1.5 bg-rose-50 border border-rose-200/80 text-rose-600 text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full">
+              <Palette className="w-3.5 h-3.5 text-rose-500" />
+              FEATURE 02
             </span>
-          </h2>
-          <p className="text-base md:text-lg text-slate-500 leading-relaxed">
-            Setiap tema dirancang dengan detail dan karakter yang berbeda. Tinggal pilih, sesuaikan, dan bagikan!
-          </p>
-        </motion.div>
+          </motion.div>
 
-        {/* Theme grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-          {themes.map((theme, i) => (
-            <ThemeCard key={theme.name} theme={theme} index={i} />
-          ))}
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-slate-900 leading-[1.18] tracking-tight"
+          >
+            100+ Koleksi Tema
+            <br />
+            Premium Siap Pakai
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="text-xs sm:text-sm md:text-base text-slate-500 leading-relaxed font-light"
+          >
+            Dirancang khusus oleh desainer profesional untuk menciptakan kesan pertama yang tak tertandingi. 
+            Bebas menyesuaikan warna, galeri foto, musik latar, hingga kisah cinta kamu dengan mudah.
+          </motion.p>
+
+          {/* Feature Highlights */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-2 gap-2.5 pt-1"
+          >
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              100+ Desain Aesthetic
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              Musik & Galeri Foto
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              100% Responsif di HP
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              Tanpa Batas Edit & Preview
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="pt-2"
+          >
+            <Link
+              href="/katalog"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-full shadow-md shadow-rose-200 transition-all"
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Jelajahi Katalog Semua Tema
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
         </div>
 
-        {/* Explore all CTA */}
+        {/* ── RIGHT COLUMN: Feature Graphic Showcase Frame ── */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-12 p-8 rounded-3xl bg-gradient-to-br from-rose-50 to-pink-100 border border-pink-200"
+          transition={{ duration: 0.6 }}
+          className="lg:col-span-6 relative"
         >
-          <p className="text-slate-600 font-semibold mb-1">Ini baru sebagian kecil dari koleksi kami</p>
-          <p className="text-slate-400 text-sm mb-5">Jelajahi 100+ tema premium untuk semua jenis acara</p>
-          <Link
-            href="/katalog"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold px-8 py-3.5 rounded-full shadow-lg shadow-pink-200 hover:shadow-pink-300 hover:-translate-y-0.5 transition-all duration-300"
-          >
-            🖼️ Jelajahi Semua Tema
-          </Link>
+          <div className="relative rounded-3xl bg-slate-50/90 border border-slate-200/90 p-5 sm:p-6 shadow-xl shadow-rose-100/50 overflow-hidden space-y-4">
+            
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-pink-200/30 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Feature Cards Showcase */}
+            <div className="grid grid-cols-2 gap-3 relative z-10">
+              
+              <div className="bg-white border border-rose-100 p-4 rounded-2xl shadow-2xs space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center font-bold text-xs">
+                  <Palette className="w-4 h-4" />
+                </div>
+                <h4 className="font-bold text-xs text-slate-800">Custom Warna & Font</h4>
+                <p className="text-[11px] text-slate-500 leading-snug font-light">Bebas ubah warna palet sesuai tema pernikahan.</p>
+              </div>
+
+              <div className="bg-white border border-rose-100 p-4 rounded-2xl shadow-2xs space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center font-bold text-xs">
+                  <Music className="w-4 h-4" />
+                </div>
+                <h4 className="font-bold text-xs text-slate-800">Background Music</h4>
+                <p className="text-[11px] text-slate-500 leading-snug font-light">Pilihan lagu latar favorit atau lagu buatan sendiri.</p>
+              </div>
+
+              <div className="bg-white border border-rose-100 p-4 rounded-2xl shadow-2xs space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center font-bold text-xs">
+                  <Smartphone className="w-4 h-4" />
+                </div>
+                <h4 className="font-bold text-xs text-slate-800">Tampilan Mobile First</h4>
+                <p className="text-[11px] text-slate-500 leading-snug font-light">Nyaman dibuka di layar HP Android & iPhone.</p>
+              </div>
+
+              <div className="bg-white border border-rose-100 p-4 rounded-2xl shadow-2xs space-y-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center font-bold text-xs">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <h4 className="font-bold text-xs text-slate-800">Edit Kapan Saja</h4>
+                <p className="text-[11px] text-slate-500 leading-snug font-light">Ubah detail lokasi & tanggal acara secara instan.</p>
+              </div>
+
+            </div>
+
+            {/* Bottom Banner */}
+            <div className="bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-2xl p-3.5 flex items-center justify-between shadow-md">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-white animate-pulse" />
+                <span className="text-xs font-bold">100+ Tema Premium Tersedia</span>
+              </div>
+              <span className="text-[10px] font-bold bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-xs">Katalog Complete</span>
+            </div>
+
+          </div>
         </motion.div>
+
       </div>
-    </section>
+    </div>
   );
 }

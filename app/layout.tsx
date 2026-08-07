@@ -1,11 +1,22 @@
-// app/layout.tsx
-import type { Metadata } from 'next';
+import { Plus_Jakarta_Sans, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import Script from 'next/script';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ConversionScript from '../components/ConversionScript';
 import FacebookPixel from '../components/FacebookPixel';
 import WhatsAppButton from './wa'; // Import the new component
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-serif',
+  display: 'swap',
+});
 
 // Google Tag Manager and Facebook Pixel Configuration
 const GTM_ID = 'GTM-TBLT72Q4'; // Updated GTM ID
@@ -155,7 +166,7 @@ export default function RootLayout({
         {/* Ganti Facebook Pixel dengan komponen baru */}
         {/* Google Ads Conversion Event Snippet hanya di halaman / */}
       </head>
-      <body>
+      <body className={`${plusJakarta.variable} ${playfair.variable} font-sans antialiased bg-[#fffafb] text-slate-900`}>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
