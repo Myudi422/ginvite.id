@@ -8,6 +8,15 @@ export interface Music {
   kategori: string;
 }
 
+function normalizeCategory(cat: string): string {
+  if (!cat) return '';
+  const normalized = cat.toLowerCase().trim().replace(/_/g, ' ');
+  if (normalized === 'ultah' || normalized === 'ulang tahun' || normalized === 'birthday') {
+    return 'ulang tahun';
+  }
+  return normalized;
+}
+
 export async function getMusicList(category?: string): Promise<Music[]> {
   const res = await fetch(`${MUSIC_API_URL}?action=musiclist`, { cache: 'no-store' });
   if (!res.ok) {
@@ -20,8 +29,19 @@ export async function getMusicList(category?: string): Promise<Music[]> {
   }
 
   // Filter by category if specified
-  if (category) {
-    return json.data.filter((music: Music) => music.kategori === category);
+  if (category && category.trim() !== '') {
+    const targetCat = normalizeCategory(category);
+    const filtered = json.data.filter((music: Music) => {
+      const musicCat = normalizeCategory(music.kategori);
+      return musicCat === targetCat;
+    });
+
+    if (filtered.length > 0) {
+      return filtered;
+    }
+
+    // Fallback: If no songs matched the specified category (e.g. custom event), return all songs
+    return json.data;
   }
 
   return json.data;
