@@ -42,25 +42,55 @@ export function KhitananForm({
   initialStatus,
   initialEventData,
 }: Props) {
+  const normalizeParents = (value: any) => {
+    if (!value || typeof value !== 'object') {
+      return { father: '', mother: '' };
+    }
+
+    if (typeof value.father === 'string' || typeof value.mother === 'string') {
+      return {
+        father: typeof value.father === 'string' ? value.father : '',
+        mother: typeof value.mother === 'string' ? value.mother : '',
+      };
+    }
+
+    const groom = value.groom && typeof value.groom === 'object' ? value.groom : {};
+    const bride = value.bride && typeof value.bride === 'object' ? value.bride : {};
+
+    return {
+      father: typeof groom.father === 'string'
+        ? groom.father
+        : typeof bride.father === 'string'
+          ? bride.father
+          : '',
+      mother: typeof groom.mother === 'string'
+        ? groom.mother
+        : typeof bride.mother === 'string'
+          ? bride.mother
+          : '',
+    };
+  };
+
   // default form values
   const defaultValues: Omit<FormValues, 'event'> = {
     font: { body: '', heading: '', special: '', color: { text_color: '#000000', accent_color: '#FFFFFF' } },
     gallery: { items: [] },
-    parents: { bride: { father: '', mother: '' }, groom: { father: '', mother: '' } },
+    parents: { father: '', mother: '' },
     children: [
       {
         name: 'nama lengkap anak',
-        order: 'Pengantin Pria' as const, // untuk khitanan, order tetap menggunakan struktur yang sama
+        order: 'Pengantin Pria' as const,
         nickname: 'panggilan anak',
         profile: '',
         instagramUsername: ''
       }
     ],
     plugin: { rsvp: false, navbar: false, gift: false, whatsapp_notif: false },
-    bank_transfer: { enabled: false, account_name: '', account_number: '', bank_name: '' },
+    bank_transfer: { enabled: false, account_name: '', account_number: '', bank_name: '', accounts: [] },
     music: { enabled: false, url: '' },
     quote: '',
     quoteCategory: '',
+    quote_enabled: false,
   };
 
   // initial event data
@@ -72,6 +102,7 @@ export function KhitananForm({
   // Ensure children has default values if empty or missing
   const processedContentData = {
     ...contentData,
+    parents: normalizeParents(contentData?.parents),
     children: contentData.children && contentData.children.length > 0
       ? contentData.children
       : defaultValues.children
@@ -80,6 +111,7 @@ export function KhitananForm({
   const initialValues: FormValues = {
     ...defaultValues,
     ...processedContentData,
+    parents: normalizeParents(processedContentData.parents),
     event: {
       khitanan: {
         date: initKhitanan?.date ?? '',
