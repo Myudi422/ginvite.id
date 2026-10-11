@@ -121,7 +121,30 @@ export default function Theme6({ data }: Theme6Props) {
   // Category Check
   const lowerCategory = (category_type?.name || '').toString().toLowerCase();
   const isKhitan = lowerCategory.includes('khitan');
-  const isWedding = !!content.parents?.groom;
+
+  const normalizeParents = (value: any) => {
+    if (!value || typeof value !== 'object') {
+      return { father: '', mother: '' };
+    }
+
+    if (typeof value.father === 'string' || typeof value.mother === 'string') {
+      return {
+        father: value.father || '',
+        mother: value.mother || '',
+      };
+    }
+
+    const groom = value.groom && typeof value.groom === 'object' ? value.groom : {};
+    const bride = value.bride && typeof value.bride === 'object' ? value.bride : {};
+
+    return {
+      father: groom.father || bride.father || '',
+      mother: groom.mother || bride.mother || '',
+    };
+  };
+
+  const normalizedParents = normalizeParents(content.parents);
+  const isWedding = !!(content.parents?.groom || content.parents?.bride || normalizedParents.father || normalizedParents.mother);
 
   useEffect(() => {
     setIsClient(true);
@@ -733,7 +756,9 @@ export default function Theme6({ data }: Theme6Props) {
                       <ThemeText variant="body" color="black" className="font-semibold max-w-md mx-auto text-lg">
                         {(() => {
                           const isGroom = index === 0;
-                          const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                          const parents = isKhitan
+                            ? normalizedParents
+                            : (isGroom ? (content.parents?.groom || normalizedParents) : (content.parents?.bride || normalizedParents));
                           if (parents && parents.father && parents.mother) return `Bapak ${parents.father} & Ibu ${parents.mother}`;
                           return "Bapak & Ibu";
                         })()}
@@ -766,7 +791,9 @@ export default function Theme6({ data }: Theme6Props) {
                       <ThemeText variant="body" color="gray" className="max-w-xs mx-auto text-sm font-semibold">
                         {(() => {
                           const isGroom = index === 0;
-                          const parents = isGroom ? content.parents?.groom : content.parents?.bride;
+                          const parents = isKhitan
+                            ? normalizedParents
+                            : (isGroom ? (content.parents?.groom || normalizedParents) : (content.parents?.bride || normalizedParents));
                           if (parents && parents.father && parents.mother) return `${parents.father} & Ibu ${parents.mother}`;
                           return "Bapak & Ibu";
                         })()}
